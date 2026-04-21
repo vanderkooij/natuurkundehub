@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overhoor Admin · NatuurkundeHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;
+  --bg-secondary:#111827;
+  --bg-card:#161f33;
+  --bg-card-hover:#1c2844;
+  --accent:#3b82f6;
+  --accent-glow:rgba(59,130,246,0.25);
+  --accent-secondary:#06b6d4;
+  --accent-dim:rgba(59,130,246,0.08);
+  --accent-border:rgba(59,130,246,0.2);
+  --text:#f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:rgba(148,163,184,0.08);
+  --border-solid:#1e293b;
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.12);
+  --orange:#f59e0b;
+  --orange-dim:rgba(245,158,11,0.12);
+  --purple:#8b5cf6;
+  --purple-dim:rgba(139,92,246,0.12);
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+.app-header{
+  background:var(--bg-secondary);border-bottom:1px solid var(--border);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  min-height:56px;position:relative;z-index:10;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
+.back-link:hover{color:var(--accent);background:var(--accent-dim)}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.app-title span{color:var(--accent)}
+.admin-badge{font-family:var(--mono);font-size:10px;color:var(--orange);background:var(--orange-dim);padding:3px 10px;border-radius:100px;border:1px solid rgba(245,158,11,0.2);margin-left:8px;letter-spacing:.5px;text-transform:uppercase}
+
+.main{max-width:920px;margin:0 auto;padding:28px 20px;position:relative;z-index:1}
+
+.section-title{
+  font-size:15px;font-weight:700;color:var(--accent);
+  padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;
+}
+
+/* Level filter */
+.level-filter{display:inline-flex;gap:0;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border-solid);background:var(--bg-secondary)}
+.lf-btn{padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-muted);border:none;font-family:var(--font);transition:all .15s;border-right:1px solid var(--border-solid)}
+.lf-btn:last-child{border-right:none}
+.lf-btn:hover{background:var(--accent-dim);color:var(--text)}
+.lf-btn.active{background:var(--accent);color:#fff}
+
+/* Category blocks */
+.cat-block{background:var(--bg-card);border-radius:12px;border:1px solid var(--border-solid);margin-bottom:14px;overflow:hidden}
+.cat-block.hidden-cat{display:none}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-secondary);cursor:pointer;user-select:none;border-bottom:1px solid var(--border-solid)}
+.cat-name{font-size:14px;font-weight:700;color:var(--text)}
+.cat-count{font-size:12px;color:var(--text-muted);margin-right:8px;font-family:var(--mono)}
+.cat-toggle{font-size:14px;color:var(--accent);transition:transform .2s;display:inline-block}
+.cat-toggle.open{transform:rotate(180deg)}
+.cat-body{display:none}.cat-body.open{display:block}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;background:var(--bg-secondary);font-weight:600;font-size:11px;color:var(--accent);letter-spacing:.04em;border-bottom:1px solid var(--border-solid);font-family:var(--mono);text-transform:uppercase}
+th.th-level{width:100px}
+td{padding:5px 6px;border-top:1px solid var(--border-solid);vertical-align:middle}
+tr:hover td{background:rgba(59,130,246,0.04)}
+td input{width:100%;border:none;background:transparent;font-size:13px;color:var(--text);padding:4px 6px;outline:none;font-family:var(--font);border-radius:6px}
+td input:focus{background:var(--accent-dim);outline:1px solid var(--accent-border)}
+
+/* Badges */
+.row-badge{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;white-space:nowrap;font-family:var(--mono)}
+.badge-ob{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.badge-hv{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(139,92,246,0.2)}
+.badge-vw{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(245,158,11,0.2)}
+
+.del-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:17px;padding:2px 8px;border-radius:6px;line-height:1;transition:all .15s}
+.del-btn:hover{color:var(--red);background:var(--red-dim)}
+
+.cat-footer{padding:10px 12px;border-top:1px solid var(--border-solid);display:flex;gap:8px;flex-wrap:wrap}
+.small-btn{background:none;border:1.5px solid var(--border-solid);border-radius:6px;padding:5px 14px;font-size:12px;cursor:pointer;color:var(--text-muted);font-family:var(--font);transition:all .15s}
+.small-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
+.small-btn.danger:hover{border-color:rgba(239,68,68,0.3);color:var(--red);background:var(--red-dim)}
+
+.new-cat-row{display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.field-input{flex:1;min-width:130px;padding:8px 12px;border:1.5px solid var(--border-solid);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--bg-secondary);color:var(--text)}
+.field-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
+
+.blue-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:600;white-space:nowrap;transition:all .15s}
+.blue-btn:hover{background:#2563eb}
+
+.info-block{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--text-secondary)}
+.info-block strong{color:var(--accent)}
+
+/* Action buttons */
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.dl-btn{
+  background:none;border:2px solid var(--accent);border-radius:8px;
+  padding:10px 22px;font-size:14px;cursor:pointer;color:var(--accent);
+  font-family:var(--font);font-weight:700;transition:all .15s;
+}
+.dl-btn:hover{background:var(--accent-dim);box-shadow:0 0 16px var(--accent-glow)}
+
+@media(max-width:560px){
+  .level-filter{display:flex;width:100%}
+  .lf-btn{flex:1;text-align:center;padding:9px 4px;font-size:12px}
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" class="back-link" title="Terug naar NatuurkundeHub">←</a>
+    <div class="app-title">Grootheden <span>Overhoor</span> <span class="admin-badge">Admin</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="section-title">Grootheden per categorie</div>
+
+  <div class="level-filter">
+    <button class="lf-btn" onclick="setLevelFilter('ob')">Onderbouw</button>
+    <button class="lf-btn" onclick="setLevelFilter('hv')">Bovenbouw havo</button>
+    <button class="lf-btn" onclick="setLevelFilter('vw')">Bovenbouw vwo</button>
+    <button class="lf-btn active" onclick="setLevelFilter('all')">Alles</button>
+  </div>
+
+  <div id="cat-list"></div>
+
+  <div class="new-cat-row">
+    <input class="field-input" id="new-cat-name" placeholder="Naam nieuwe categorie...">
+    <select class="field-input" id="new-cat-level" style="flex:0;min-width:160px">
+      <option value="ob">Onderbouw</option>
+      <option value="hv">Bovenbouw havo</option>
+      <option value="vw">Bovenbouw vwo</option>
+    </select>
+    <button class="blue-btn" onclick="addCat()">+ Categorie</button>
+  </div>
+
+  <div class="info-block">
+    <strong>Meerdere notaties:</strong> scheid ze met een puntkomma, bijv. <em>J/(kg·K); J/kg/K</em>. Vermenigvuldigingstekens (·, ., x, * en spatie) worden onderling uitgewisseld bij het controleren.
+  </div>
+
+  <div class="info-block">
+    <strong>Hoe opslaan?</strong> Klik op "Download leerling-versie" om een bijgewerkt HTML-bestand te downloaden. Upload dit bestand naar GitHub als <code>overhoor/index.html</code> om de leerling-versie te updaten.
+  </div>
+
+  <div class="action-row">
+    <button class="dl-btn" onclick="downloadStudentHTML()">↓ Download leerling-versie</button>
+    <button class="dl-btn" onclick="downloadAdminHTML()">↓ Download admin-versie</button>
+  </div>
+</div>
+
+<script>
+const FIELDS=['naam','sym','eenh','esym'];
+const LABELS={naam:'Grootheid',sym:'Symbool',eenh:'Eenheid',esym:'Eenheidssymbool'};
+const SYMBOLS=['Ω','°','µ','·','²','³','⁻¹','⁻²','Δ','λ','ρ','Φ','φ','η','α','β','γ','δ','θ','κ','τ','σ'];
+
+const CATS_DATA=[
+  {key:'mech',label:'Mechanica',def:true,rows:[
+    {lv:'ob',naam:'massa',sym:'m',eenh:'kilogram',esym:'kg'},
+    {lv:'ob',naam:'afstand',sym:'s',eenh:'meter',esym:'m'},
+    {lv:'ob',naam:'tijd',sym:'t',eenh:'seconde',esym:'s'},
+    {lv:'ob',naam:'snelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
+    {lv:'ob',naam:'versnelling',sym:'a',eenh:'meter per secondekwadraat',esym:'m/s²'},
+    {lv:'ob',naam:'kracht',sym:'F',eenh:'newton',esym:'N'},
+    {lv:'ob',naam:'gewicht',sym:'G',eenh:'newton',esym:'N'},
+    {lv:'ob',naam:'gravitatieversnelling',sym:'g',eenh:'meter per secondekwadraat',esym:'m/s²'},
+    {lv:'ob',naam:'druk',sym:'p',eenh:'pascal',esym:'Pa'},
+    {lv:'ob',naam:'dichtheid',sym:'ρ',eenh:'kilogram per kubieke meter',esym:'kg/m³; kg m⁻³'},
+    {lv:'ob',naam:'oppervlakte',sym:'A',eenh:'vierkante meter',esym:'m²'},
+    {lv:'ob',naam:'volume',sym:'V',eenh:'kubieke meter',esym:'m³'},
+    {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde',esym:'kg·m/s; kg m s⁻¹'},
+    {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm'},
+    {lv:'hv',naam:'arm',sym:'r',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'straal',sym:'r',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'hoogte',sym:'h',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'dikte',sym:'d',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'uitwijking / uitrekking',sym:'u',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'veerconstante',sym:'C',eenh:'newton per meter',esym:'N/m; N m⁻¹'},
+    {lv:'vw',naam:'elasticiteitsmodulus',sym:'E',eenh:'newton per vierkante meter',esym:'N/m²; N m⁻²; Pa'},
+  ]},
+  {key:'golf',label:'Golven & geluid',def:true,rows:[
+    {lv:'ob',naam:'frequentie',sym:'f',eenh:'hertz',esym:'Hz'},
+    {lv:'ob',naam:'periode',sym:'T',eenh:'seconde',esym:'s'},
+    {lv:'hv',naam:'golflengte',sym:'λ',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'amplitude',sym:'A',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'golfsnelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
+    {lv:'hv',naam:'intensiteit',sym:'I',eenh:'watt per vierkante meter',esym:'W/m²; W m⁻²'},
+    {lv:'hv',naam:'geluidsdruk- / intensiteitsniveau',sym:'L',eenh:'decibel',esym:'dB'},
+    {lv:'hv',naam:'voortplantingssnelheid van licht',sym:'c',eenh:'meter per seconde',esym:'m/s'},
+  ]},
+  {key:'optica',label:'Optica',def:false,rows:[
+    {lv:'hv',naam:'brekingsindex',sym:'n',eenh:'(geen eenheid)',esym:''},
+    {lv:'hv',naam:'brandpuntsafstand',sym:'f',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'beeldafstand',sym:'b',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'lenssterkte',sym:'S',eenh:'dioptrie',esym:'dpt'},
+    {lv:'hv',naam:'grenshoek',sym:'g',eenh:'graad',esym:'°'},
+  ]},
+  {key:'elek',label:'Elektriciteit & magnetisme',def:true,rows:[
+    {lv:'ob',naam:'elektrische spanning',sym:'U',eenh:'volt',esym:'V'},
+    {lv:'ob',naam:'elektrische stroomsterkte',sym:'I',eenh:'ampere',esym:'A'},
+    {lv:'ob',naam:'weerstand',sym:'R',eenh:'ohm',esym:'Ω'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'elektrische lading',sym:'Q',eenh:'coulomb',esym:'C'},
+    {lv:'hv',naam:'soortelijke weerstand',sym:'ρ',eenh:'ohm meter',esym:'Ω·m; Ω m'},
+    {lv:'vw',naam:'capaciteit condensator',sym:'C',eenh:'farad',esym:'F'},
+    {lv:'vw',naam:'elektrische potentiaal',sym:'V',eenh:'volt',esym:'V'},
+    {lv:'vw',naam:'elektrische veldsterkte',sym:'E',eenh:'newton per coulomb',esym:'N/C; N C⁻¹'},
+    {lv:'vw',naam:'magnetische veldsterkte',sym:'B',eenh:'tesla',esym:'T'},
+    {lv:'vw',naam:'magnetische flux',sym:'Φ',eenh:'weber',esym:'Wb'},
+    {lv:'vw',naam:'zelfinductie',sym:'L',eenh:'henry',esym:'H'},
+  ]},
+  {key:'thermo',label:'Thermodynamica & warmte',def:true,rows:[
+    {lv:'ob',naam:'temperatuur',sym:'T; θ',eenh:'kelvin; graden Celsius',esym:'K; °C'},
+    {lv:'ob',naam:'warmte',sym:'Q',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'soortelijke warmte',sym:'c',eenh:'joule per kilogram kelvin',esym:'J/(kg·K); J/kg/K; J kg⁻¹ K⁻¹'},
+    {lv:'ob',naam:'warmtecapaciteit',sym:'C',eenh:'joule per kelvin',esym:'J/K; J K⁻¹'},
+    {lv:'hv',naam:'warmtestroom',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'hv',naam:'warmtegeleidingscoëfficiënt',sym:'λ',eenh:'watt per meter kelvin',esym:'W/(m·K); W/m/K; W m⁻¹ K⁻¹'},
+    {lv:'hv',naam:'debiet / volumestroom',sym:'Q',eenh:'kubieke meter per seconde',esym:'m³/s; m³ s⁻¹'},
+    {lv:'hv',naam:'hoeveelheid stof',sym:'n',eenh:'mol',esym:'mol'},
+    {lv:'hv',naam:'concentratie',sym:'c',eenh:'mol per kubieke meter',esym:'mol/m³; mol m⁻³'},
+  ]},
+  {key:'kern',label:'Kernfysica & straling',def:true,rows:[
+    {lv:'hv',naam:'activiteit',sym:'A',eenh:'becquerel',esym:'Bq'},
+    {lv:'hv',naam:'geabsorbeerde dosis',sym:'D',eenh:'gray',esym:'Gy'},
+    {lv:'hv',naam:'dosisequivalent',sym:'H',eenh:'sievert',esym:'Sv'},
+    {lv:'hv',naam:'halveringstijd',sym:'t½',eenh:'seconde',esym:'s'},
+    {lv:'hv',naam:'halveringsdikte',sym:'d½',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'massagetal',sym:'A',eenh:'(geen eenheid)',esym:''},
+    {lv:'hv',naam:'atoomnummer',sym:'Z',eenh:'(geen eenheid)',esym:''},
+    {lv:'hv',naam:'stralingsweegfactor',sym:'w_R',eenh:'sievert per gray',esym:'Sv/Gy'},
+    {lv:'vw',naam:'vervalconstante',sym:'λ',eenh:'per seconde',esym:'s⁻¹'},
+    {lv:'vw',naam:'fotonenergie',sym:'E',eenh:'joule; electronvolt',esym:'J; eV'},
+  ]},
+];
+
+let cats=[];
+let levelFilter='all';
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function levelsFor(filter){
+  if(filter==='ob')return['ob'];
+  if(filter==='hv')return['ob','hv'];
+  if(filter==='vw'||filter==='all')return['ob','hv','vw'];
+  return['ob','hv','vw'];
+}
+
+function catHasVisibleRows(cat,filter){
+  const lv=levelsFor(filter);
+  return cat.rows.some(r=>lv.includes(r.lv));
+}
+
+function badgeClass(lv){return lv==='ob'?'badge-ob':lv==='hv'?'badge-hv':'badge-vw'}
+function badgeLabel(lv){return lv==='ob'?'Onderbouw':lv==='hv'?'Bovenbouw havo':'Bovenbouw vwo'}
+
+function initCats(){
+  cats=CATS_DATA.map(c=>({...c,rows:c.rows.map(r=>({id:uid(),...r}))}));
+  renderCatList();
+}
+
+function setLevelFilter(lv){
+  levelFilter=lv;
+  document.querySelectorAll('.lf-btn').forEach((b,i)=>b.classList.toggle('active',['ob','hv','vw','all'][i]===lv));
+  renderCatList();
+}
+
+function renderCatList(){
+  const div=document.getElementById('cat-list');
+  const visLevels=levelsFor(levelFilter);
+  div.innerHTML=cats.map(cat=>{
+    const vis=catHasVisibleRows(cat,levelFilter);
+    const visRows=cat.rows.filter(r=>visLevels.includes(r.lv));
+    return `<div class="cat-block${vis?'':' hidden-cat'}" id="block-${cat.key}">
+      <div class="cat-header" onclick="toggleCat('${cat.key}')">
+        <span class="cat-name">${escHtml(cat.label)}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="cat-count">${visRows.length} grootheden</span>
+          <span class="cat-toggle" id="tog-${cat.key}">▼</span>
+        </div>
+      </div>
+      <div class="cat-body" id="body-${cat.key}">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
+            <tbody>${visRows.map(r=>`
+              <tr>
+                <td><span class="row-badge ${badgeClass(r.lv)}">${badgeLabel(r.lv)}</span></td>
+                ${FIELDS.map(f=>`<td><input value="${escHtml(r[f])}" oninput="updateRow('${cat.key}','${r.id}','${f}',this.value)"></td>`).join('')}
+                <td><button class="del-btn" onclick="delRow('${cat.key}','${r.id}')">×</button></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="cat-footer">
+          <button class="small-btn" onclick="addRow('${cat.key}','ob')">+ Onderbouw</button>
+          <button class="small-btn" onclick="addRow('${cat.key}','hv')">+ Bovenbouw havo</button>
+          <button class="small-btn" onclick="addRow('${cat.key}','vw')">+ Bovenbouw vwo</button>
+          <button class="small-btn danger" onclick="delCat('${cat.key}')">Verwijder categorie</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCat(key){
+  const body=document.getElementById('body-'+key);
+  const tog=document.getElementById('tog-'+key);
+  body.classList.toggle('open');
+  tog.classList.toggle('open',body.classList.contains('open'));
+}
+function updateRow(catKey,id,field,val){const cat=cats.find(c=>c.key===catKey);const r=cat?.rows.find(r=>r.id===id);if(r)r[field]=val;}
+function delRow(catKey,id){const cat=cats.find(c=>c.key===catKey);if(cat){cat.rows=cat.rows.filter(r=>r.id!==id);renderCatList();}}
+function addRow(catKey,lv){
+  const cat=cats.find(c=>c.key===catKey);if(!cat)return;
+  cat.rows.push({id:uid(),lv,naam:'',sym:'',eenh:'',esym:''});
+  renderCatList();
+  const body=document.getElementById('body-'+catKey);const tog=document.getElementById('tog-'+catKey);
+  body.classList.add('open');tog.classList.add('open');
+}
+function delCat(key){if(!confirm('Categorie verwijderen?'))return;cats=cats.filter(c=>c.key!==key);renderCatList();}
+function addCat(){
+  const name=document.getElementById('new-cat-name').value.trim();
+  if(!name)return;
+  cats.push({key:uid(),label:name,def:true,rows:[]});
+  document.getElementById('new-cat-name').value='';
+  renderCatList();
+}
+
+// ── EXPORT ──
+
+function catsToJS(){
+  return `const CATS_DATA=[\n${cats.map(c=>{
+    const rowsStr=c.rows.map(r=>`    {lv:'${r.lv}',naam:'${r.naam.replace(/'/g,"\\'")}',sym:'${r.sym.replace(/'/g,"\\'")}',eenh:'${r.eenh.replace(/'/g,"\\'")}',esym:'${r.esym.replace(/'/g,"\\'")}'},`).join('\n');
+    return `  {key:'${c.key}',label:'${c.label.replace(/'/g,"\\'")}',def:${c.def},rows:[\n${rowsStr}\n  ]},`;
+  }).join('\n')}\n];`;
+}
+
+function downloadStudentHTML(){
+  // Fetch the student template, replace CATS_DATA
+  const catsJS=catsToJS();
+  // We'll build the student page by fetching it and replacing
+  // For now, we create the download by modifying the current page's data
+  fetch('index.html').then(r=>r.text()).then(html=>{
+    // Replace the CATS_DATA in the student HTML
+    const updated=html.replace(/const CATS_DATA=\[[\s\S]*?\];/,catsJS);
+    const blob=new Blob([updated],{type:'text/html'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();
+  }).catch(()=>{
+    // Fallback: alert with instructions
+    alert('Kon de leerling-versie niet ophalen. Kopieer de CATS_DATA handmatig.\n\nOpen de browser console voor de data.');
+    console.log(catsJS);
+  });
+}
+
+function downloadAdminHTML(){
+  // Replace CATS_DATA in this page
+  const catsJS=catsToJS();
+  let html=document.documentElement.outerHTML;
+  html=html.replace(/const CATS_DATA=\[[\s\S]*?\];/,catsJS);
+  const blob=new Blob([`<!DOCTYPE html>\n<html lang="nl">${html.slice(html.indexOf('<head'))}`],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='admin-index.html';a.click();
+}
+
+initCats();
+</script>
+</body>
+</html>
