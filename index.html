@@ -3,421 +3,661 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NatuurkundeHub</title>
+<title>Overhoorprogramma · NatuurkundeHub</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-primary: #0a0e17;
-    --bg-secondary: #111827;
-    --bg-card: #161f33;
-    --bg-card-hover: #1c2844;
-    --accent: #3b82f6;
-    --accent-glow: rgba(59, 130, 246, 0.25);
-    --accent-secondary: #06b6d4;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border: rgba(148, 163, 184, 0.08);
-    --border-hover: rgba(59, 130, 246, 0.3);
-    --radius: 16px;
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;
+  --bg-secondary:#111827;
+  --bg-card:#161f33;
+  --bg-card-hover:#1c2844;
+  --accent:#3b82f6;
+  --accent-glow:rgba(59,130,246,0.25);
+  --accent-secondary:#06b6d4;
+  --accent-dim:rgba(59,130,246,0.08);
+  --accent-border:rgba(59,130,246,0.2);
+  --text:#f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:rgba(148,163,184,0.08);
+  --border-solid:#1e293b;
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.12);
+  --green-border:rgba(34,197,94,0.3);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.12);
+  --red-border:rgba(239,68,68,0.3);
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Grid background */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
 
-  body {
-    font-family: var(--font-display);
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ── HEADER ── */
+.app-header{
+  background:var(--bg-secondary);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  min-height:56px;position:relative;z-index:10;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
+.back-link:hover{color:var(--accent);background:var(--accent-dim)}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.app-title span{color:var(--accent)}
+.nav{display:flex;gap:2px}
+.nav-btn{
+  padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:500;
+  cursor:pointer;background:transparent;color:var(--text-muted);
+  font-family:var(--font);transition:all .15s;
+}
+.nav-btn:hover{background:rgba(59,130,246,0.08);color:var(--text)}
+.nav-btn.active{background:var(--accent);color:#fff;font-weight:600}
 
-  /* Subtle grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── MAIN ── */
+.main{max-width:860px;margin:0 auto;padding:28px 20px;position:relative;z-index:1}
+.panel{display:none}.panel.active{display:block}
 
-  /* Ambient glow */
-  .ambient-glow {
-    position: fixed;
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.15;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .ambient-glow--blue {
-    background: var(--accent);
-    top: -200px;
-    right: -100px;
-  }
-  .ambient-glow--cyan {
-    background: var(--accent-secondary);
-    bottom: -200px;
-    left: -100px;
-  }
+/* ── SECTION TITLE ── */
+.section-title{
+  font-size:15px;font-weight:700;color:var(--accent);
+  padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px;
+}
 
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
+/* ── LEVEL SELECTOR ── */
+.level-selector{
+  display:inline-flex;gap:0;margin-bottom:22px;border-radius:10px;overflow:hidden;
+  border:1.5px solid var(--border-solid);background:var(--bg-secondary);
+}
+.lv-btn{
+  padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;
+  background:transparent;color:var(--text-muted);border:none;
+  font-family:var(--font);transition:all .15s;
+  border-right:1px solid var(--border-solid);
+}
+.lv-btn:last-child{border-right:none}
+.lv-btn:hover{background:var(--accent-dim);color:var(--text)}
+.lv-btn.active{background:var(--accent);color:#fff}
 
-  /* ── NAV ── */
-  nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 0;
-    border-bottom: 1px solid var(--border);
-    animation: fadeDown 0.6s ease-out;
-  }
+/* ── SETTINGS CARDS ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.setting-card{
+  background:var(--bg-card);border-radius:12px;border:1px solid var(--border-solid);
+  padding:18px;transition:border-color .2s;
+}
+.setting-card:hover{border-color:var(--accent-border)}
+.setting-label{
+  font-size:11px;font-weight:700;color:var(--accent);margin-bottom:12px;
+  text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);
+}
+.check-row{
+  display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:8px;
+  cursor:pointer;color:var(--text-secondary);transition:color .15s;
+}
+.check-row:hover{color:var(--text)}
+.check-row input[type=checkbox],.check-row input[type=radio]{
+  width:16px;height:16px;cursor:pointer;accent-color:var(--accent);
+}
+.radio-row{
+  display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:8px;
+  cursor:pointer;color:var(--text-secondary);transition:color .15s;
+}
+.radio-row:hover{color:var(--text)}
+.radio-row input[type=radio]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--text-primary);
-  }
+/* Category checks */
+.settings-full{
+  background:var(--bg-card);border-radius:12px;border:1px solid var(--border-solid);
+  padding:18px;margin-bottom:16px;
+}
+.cat-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:10px}
+.cat-btn-row{display:flex;gap:8px;margin:8px 0}
+.cat-toggle-btn{
+  font-family:var(--mono);font-size:11px;padding:5px 14px;border-radius:6px;
+  border:1px solid var(--border-solid);cursor:pointer;
+  background:var(--bg-secondary);color:var(--text-muted);transition:all .15s;
+}
+.cat-toggle-btn:hover{border-color:var(--accent-border);color:var(--accent)}
 
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    box-shadow: 0 0 20px var(--accent-glow);
-  }
+/* Timer settings */
+.timer-settings{display:flex;align-items:center;gap:8px;margin-top:6px;padding-left:26px}
+.timer-input{
+  width:60px;border:1.5px solid var(--border-solid);border-radius:8px;
+  padding:5px 8px;font-size:13px;font-family:var(--font);
+  background:var(--bg-secondary);color:var(--text);
+}
+.timer-input:focus{outline:none;border-color:var(--accent)}
 
-  .logo-text {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .logo-text span {
-    color: var(--accent);
-  }
+/* ── START BUTTON ── */
+.start-btn{
+  width:100%;padding:14px;background:var(--accent);color:#fff;border:none;
+  border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:all .2s;letter-spacing:-0.2px;
+}
+.start-btn:hover{background:#2563eb;box-shadow:0 0 24px var(--accent-glow)}
 
-  .nav-admin {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--text-muted);
-    text-decoration: none;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: all 0.2s;
-    opacity: 0;
-  }
-  .nav-admin:hover {
-    border-color: var(--border-hover);
-    color: var(--accent);
-    opacity: 1;
-  }
-  .nav-admin:focus { opacity: 1; }
+/* ── QUIZ ── */
+.progress-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:6px}
+.progress-meta .score{color:var(--accent);font-weight:700;font-family:var(--mono)}
+.progress-bar{height:4px;background:var(--bg-card);border-radius:3px;margin-bottom:18px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-secondary));border-radius:3px;transition:width .4s}
 
-  /* ── HERO ── */
-  .hero {
-    padding: 80px 0 60px;
-    text-align: center;
-    animation: fadeUp 0.7s ease-out 0.15s both;
-  }
+.qcard{
+  background:var(--bg-card);border-radius:14px;border:1px solid var(--border-solid);
+  padding:28px 24px;margin-bottom:14px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.given-section{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-solid)}
+.given-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-family:var(--mono)}
+.given-value{font-size:28px;font-weight:700;color:var(--text);line-height:1.2}
+.given-sub{font-size:13px;color:var(--accent);font-weight:600;margin-top:4px}
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--accent);
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    padding: 6px 14px;
-    border-radius: 100px;
-    margin-bottom: 24px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .hero-badge::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
+.ask-section{display:grid;gap:16px}
+.ask-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;font-family:var(--mono)}
 
-  .hero h1 {
-    font-size: clamp(36px, 6vw, 56px);
-    font-weight: 700;
-    letter-spacing: -1.5px;
-    line-height: 1.1;
-    margin-bottom: 16px;
-  }
-  .hero h1 .gradient {
-    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+/* Symbol picker */
+.sym-picker{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.sym-btn{
+  padding:4px 9px;border:1px solid var(--border-solid);border-radius:6px;
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);
+  font-family:var(--font);line-height:1.4;transition:all .15s;
+}
+.sym-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
 
-  .hero p {
-    font-size: 18px;
-    color: var(--text-secondary);
-    max-width: 520px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+/* Input */
+.ask-input{
+  width:100%;border:2px solid var(--border-solid);border-radius:10px;
+  padding:12px 14px;font-size:16px;background:var(--bg-secondary);color:var(--text);
+  font-family:var(--font);transition:all .15s;
+}
+.ask-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.ask-input.correct{border-color:var(--green);background:var(--green-dim)}
+.ask-input.wrong{border-color:var(--red);background:var(--red-dim)}
 
-  /* ── TOOLS GRID ── */
-  .tools-section {
-    padding: 20px 0 80px;
-  }
+.answer-reveal{font-size:12px;color:var(--text-muted);margin-top:5px}
+.answer-reveal strong{color:var(--accent)}
 
-  .section-label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 24px;
-    animation: fadeUp 0.7s ease-out 0.3s both;
-  }
+/* MC buttons */
+.mc-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mc-btn{
+  padding:12px 16px;border:1.5px solid var(--border-solid);border-radius:10px;
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);
+  font-family:var(--font);text-align:left;line-height:1.3;transition:all .15s;
+}
+.mc-btn:hover:not(:disabled){border-color:var(--accent-border);background:var(--accent-dim);color:var(--text)}
+.mc-btn.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--text);font-weight:600}
+.mc-btn.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);font-weight:600}
+.mc-btn.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.mc-btn:disabled{cursor:default;opacity:0.8}
 
-  .tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-  }
+/* Feedback */
+.feedback-bar{
+  font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;
+  margin-bottom:12px;display:none;border-left:4px solid;
+}
+.feedback-bar.ok{background:var(--green-dim);color:var(--green);border-color:var(--green);display:block}
+.feedback-bar.nok{background:var(--red-dim);color:var(--red);border-color:var(--red);display:block}
 
-  .tool-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 32px 28px;
-    text-decoration: none;
-    color: var(--text-primary);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.6s ease-out both;
-    cursor: pointer;
-    display: block;
-  }
-  .tool-card:nth-child(1) { animation-delay: 0.4s; }
-  .tool-card:nth-child(2) { animation-delay: 0.5s; }
-  .tool-card:nth-child(3) { animation-delay: 0.6s; }
+/* Quiz buttons */
+.btn-row{display:flex;gap:10px}
+.qbtn{
+  flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);
+  font-family:var(--font);font-weight:600;transition:all .15s;
+}
+.qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
+.qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qbtn.primary:hover{background:#2563eb}
 
-  .tool-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
+/* Timer */
+.timer-ring-wrap{display:flex;justify-content:flex-end;margin-bottom:-4px}
+.timer-ring{width:44px;height:44px}
+.timer-text{font-size:13px;font-weight:700;fill:var(--text)}
+.timer-bg{fill:none;stroke:var(--border-solid);stroke-width:4}
+.timer-arc{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .9s linear,stroke .3s}
 
-  .tool-card:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-hover);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 30px var(--accent-glow);
-  }
-  .tool-card:hover::before { opacity: 1; }
+/* End screen */
+.end-screen{
+  background:var(--bg-card);border-radius:14px;border:1px solid var(--border-solid);
+  padding:40px 28px;text-align:center;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
+}
+.end-score{font-size:58px;font-weight:700;color:var(--text);line-height:1}
+.end-score span{font-size:28px;color:var(--text-muted)}
+.end-pct{font-size:18px;color:var(--accent);font-weight:700;margin-bottom:5px;font-family:var(--mono)}
+.end-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.end-badge{
+  display:inline-block;background:var(--accent-dim);color:var(--accent);
+  font-size:12px;font-weight:700;padding:5px 16px;border-radius:20px;
+  margin-bottom:22px;border:1px solid var(--accent-border);font-family:var(--mono);
+}
+.end-btns{display:flex;gap:10px;max-width:340px;margin:0 auto}
+.retry-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.retry-label{font-size:13px;color:var(--text-muted);margin-bottom:12px}
 
-  .tool-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  .tool-icon--blue {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-  }
-  .tool-icon--cyan {
-    background: rgba(6, 182, 212, 0.1);
-    border: 1px solid rgba(6, 182, 212, 0.15);
-  }
-  .tool-icon--purple {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.15);
-  }
-
-  .tool-card h3 {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-  }
-
-  .tool-card p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-
-  .tool-tag {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-muted);
-    background: rgba(100, 116, 139, 0.1);
-    padding: 4px 10px;
-    border-radius: 6px;
-    display: inline-block;
-  }
-
-  .tool-arrow {
-    position: absolute;
-    top: 32px;
-    right: 28px;
-    font-size: 18px;
-    color: var(--text-muted);
-    transition: all 0.3s;
-  }
-  .tool-card:hover .tool-arrow {
-    color: var(--accent);
-    transform: translateX(4px);
-  }
-
-  /* Coming soon card */
-  .tool-card--soon {
-    border-style: dashed;
-    opacity: 0.5;
-    cursor: default;
-  }
-  .tool-card--soon:hover {
-    transform: none;
-    box-shadow: none;
-    background: var(--bg-card);
-    border-color: var(--border);
-  }
-  .tool-card--soon::before { display: none; }
-
-  /* ── FOOTER ── */
-  footer {
-    padding: 32px 0;
-    border-top: 1px solid var(--border);
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-muted);
-    animation: fadeUp 0.6s ease-out 0.7s both;
-  }
-
-  /* ── ANIMATIONS ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 680px) {
-    .tools-grid {
-      grid-template-columns: 1fr;
-    }
-    .hero { padding: 60px 0 40px; }
-    .hero p { font-size: 16px; }
-    nav { padding: 16px 0; }
-  }
+@media(max-width:560px){
+  .settings-grid{grid-template-columns:1fr}
+  .mc-options{grid-template-columns:1fr}
+  .level-selector{display:flex;width:100%}
+  .lv-btn{flex:1;text-align:center;padding:9px 6px;font-size:12px}
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px}
+}
 </style>
 </head>
 <body>
 
-<div class="ambient-glow ambient-glow--blue"></div>
-<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" class="back-link" title="Terug naar NatuurkundeHub">←</a>
+    <div class="app-title">Grootheden <span>Overhoor</span></div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPanel('settings')">Instellingen</button>
+    <button class="nav-btn" onclick="showPanel('quiz')">Oefenen</button>
+  </div>
+</div>
 
-<div class="container">
+<div class="main">
 
-  <!-- NAV -->
-  <nav>
-    <a href="/" class="logo">
-      <div class="logo-icon">N</div>
-      <div class="logo-text">Natuurkunde<span>Hub</span></div>
-    </a>
-    <a href="/admin" class="nav-admin" title="Admin">⌘ admin</a>
-  </nav>
+<!-- SETTINGS PANEL -->
+<div class="panel active" id="panel-settings">
+  <div class="section-title">Kies je niveau</div>
+  <div class="level-selector">
+    <button class="lv-btn active" onclick="setLevel('ob')">Onderbouw</button>
+    <button class="lv-btn" onclick="setLevel('hv')">Bovenbouw havo</button>
+    <button class="lv-btn" onclick="setLevel('vw')">Bovenbouw vwo</button>
+  </div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">Natuurkunde Tools</div>
-    <h1>Leren wordt <span class="gradient">makkelijker</span></h1>
-    <p>Interactieve tools voor natuurkunde.</p>
-  </section>
-
-  <!-- TOOLS -->
-  <section class="tools-section">
-    <div class="section-label">Beschikbare tools</div>
-    <div class="tools-grid">
-
-      <a href="/overhoor" class="tool-card">
-        <div class="tool-icon tool-icon--blue">📝</div>
-        <span class="tool-arrow">→</span>
-        <h3>Overhoorprogramma</h3>
-        <p>Test je kennis van natuurkundige begrippen, formules en eenheden. Direct feedback op je antwoorden.</p>
-        <span class="tool-tag">oefenen</span>
-      </a>
-
-      <a href="/circuitsketch" class="tool-card">
-        <div class="tool-icon tool-icon--cyan">⚡</div>
-        <span class="tool-arrow">→</span>
-        <h3>CircuitSketch</h3>
-        <p>Bouw en simuleer elektrische schakelingen. Teken circuits en bekijk hoe stroom, spanning en weerstand samenwerken.</p>
-        <span class="tool-tag">simulatie</span>
-      </a>
-
-      <div class="tool-card tool-card--soon">
-        <div class="tool-icon tool-icon--purple">🔬</div>
-        <h3>Binnenkort meer...</h3>
-        <p>Nieuwe tools zijn in ontwikkeling. Houd deze pagina in de gaten voor updates.</p>
-        <span class="tool-tag">coming soon</span>
-      </div>
-
+  <div class="section-title">Wat wil je oefenen?</div>
+  <div class="settings-grid">
+    <div class="setting-card">
+      <div class="setting-label">Wat krijg je te zien?</div>
+      <label class="check-row"><input type="checkbox" id="show-naam" checked> Grootheid</label>
+      <label class="check-row"><input type="checkbox" id="show-sym"> Symbool</label>
+      <label class="check-row"><input type="checkbox" id="show-eenh"> Eenheid</label>
+      <label class="check-row"><input type="checkbox" id="show-esym"> Eenheidssymbool</label>
     </div>
-  </section>
+    <div class="setting-card">
+      <div class="setting-label">Wat moet je invullen?</div>
+      <label class="check-row"><input type="checkbox" id="ask-naam"> Grootheid</label>
+      <label class="check-row"><input type="checkbox" id="ask-sym" checked> Symbool</label>
+      <label class="check-row"><input type="checkbox" id="ask-eenh"> Eenheid</label>
+      <label class="check-row"><input type="checkbox" id="ask-esym" checked> Eenheidssymbool</label>
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">Vraagvorm</div>
+      <label class="radio-row"><input type="radio" name="qmode" value="open" checked> Open antwoord</label>
+      <label class="radio-row"><input type="radio" name="qmode" value="mc"> Multiple choice</label>
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">Volgorde & timer</div>
+      <label class="check-row"><input type="checkbox" id="shuffle" checked> Willekeurige volgorde</label>
+      <label class="check-row"><input type="checkbox" id="use-timer"> Tijdslimiet per vraag</label>
+      <div class="timer-settings">
+        <input type="number" class="timer-input" id="timer-sec" value="15" min="5" max="120">
+        <span style="font-size:13px;color:var(--text-muted)">seconden</span>
+      </div>
+    </div>
+  </div>
 
-  <!-- FOOTER -->
-  <footer>
-    NatuurkundeHub · gemaakt voor het onderwijs
-  </footer>
+  <div class="settings-full">
+    <div class="setting-label">Welke categorieën?</div>
+    <div class="cat-btn-row">
+      <button class="cat-toggle-btn" onclick="selectVisibleCats(true)">Alles aan</button>
+      <button class="cat-toggle-btn" onclick="selectVisibleCats(false)">Alles uit</button>
+    </div>
+    <div class="cat-check-grid" id="cat-checks"></div>
+  </div>
+
+  <button class="start-btn" onclick="startQuiz()">Starten met oefenen</button>
+</div>
+
+<!-- QUIZ PANEL -->
+<div class="panel" id="panel-quiz">
+  <div id="quiz-area"></div>
+</div>
 
 </div>
 
+<script>
+const FIELDS=['naam','sym','eenh','esym'];
+const LABELS={naam:'Grootheid',sym:'Symbool',eenh:'Eenheid',esym:'Eenheidssymbool'};
+const SYMBOLS=['Ω','°','µ','·','²','³','⁻¹','⁻²','Δ','λ','ρ','Φ','φ','η','α','β','γ','δ','θ','κ','τ','σ'];
+
+const CATS_DATA=[
+  {key:'mech',label:'Mechanica',def:true,rows:[
+    {lv:'ob',naam:'massa',sym:'m',eenh:'kilogram',esym:'kg'},
+    {lv:'ob',naam:'afstand',sym:'s',eenh:'meter',esym:'m'},
+    {lv:'ob',naam:'tijd',sym:'t',eenh:'seconde',esym:'s'},
+    {lv:'ob',naam:'snelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
+    {lv:'ob',naam:'versnelling',sym:'a',eenh:'meter per secondekwadraat',esym:'m/s²'},
+    {lv:'ob',naam:'kracht',sym:'F',eenh:'newton',esym:'N'},
+    {lv:'ob',naam:'gewicht',sym:'G',eenh:'newton',esym:'N'},
+    {lv:'ob',naam:'gravitatieversnelling',sym:'g',eenh:'meter per secondekwadraat',esym:'m/s²'},
+    {lv:'ob',naam:'druk',sym:'p',eenh:'pascal',esym:'Pa'},
+    {lv:'ob',naam:'dichtheid',sym:'ρ',eenh:'kilogram per kubieke meter',esym:'kg/m³; kg m⁻³'},
+    {lv:'ob',naam:'oppervlakte',sym:'A',eenh:'vierkante meter',esym:'m²'},
+    {lv:'ob',naam:'volume',sym:'V',eenh:'kubieke meter',esym:'m³'},
+    {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde',esym:'kg·m/s; kg m s⁻¹'},
+    {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm'},
+    {lv:'hv',naam:'arm',sym:'r',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'straal',sym:'r',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'hoogte',sym:'h',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'dikte',sym:'d',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'uitwijking / uitrekking',sym:'u',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'veerconstante',sym:'C',eenh:'newton per meter',esym:'N/m; N m⁻¹'},
+    {lv:'vw',naam:'elasticiteitsmodulus',sym:'E',eenh:'newton per vierkante meter',esym:'N/m²; N m⁻²; Pa'},
+  ]},
+  {key:'golf',label:'Golven & geluid',def:true,rows:[
+    {lv:'ob',naam:'frequentie',sym:'f',eenh:'hertz',esym:'Hz'},
+    {lv:'ob',naam:'periode',sym:'T',eenh:'seconde',esym:'s'},
+    {lv:'hv',naam:'golflengte',sym:'λ',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'amplitude',sym:'A',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'golfsnelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
+    {lv:'hv',naam:'intensiteit',sym:'I',eenh:'watt per vierkante meter',esym:'W/m²; W m⁻²'},
+    {lv:'hv',naam:'geluidsdruk- / intensiteitsniveau',sym:'L',eenh:'decibel',esym:'dB'},
+    {lv:'hv',naam:'voortplantingssnelheid van licht',sym:'c',eenh:'meter per seconde',esym:'m/s'},
+  ]},
+  {key:'optica',label:'Optica',def:false,rows:[
+    {lv:'hv',naam:'brekingsindex',sym:'n',eenh:'(geen eenheid)',esym:''},
+    {lv:'hv',naam:'brandpuntsafstand',sym:'f',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'beeldafstand',sym:'b',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'lenssterkte',sym:'S',eenh:'dioptrie',esym:'dpt'},
+    {lv:'hv',naam:'grenshoek',sym:'g',eenh:'graad',esym:'°'},
+  ]},
+  {key:'elek',label:'Elektriciteit & magnetisme',def:true,rows:[
+    {lv:'ob',naam:'elektrische spanning',sym:'U',eenh:'volt',esym:'V'},
+    {lv:'ob',naam:'elektrische stroomsterkte',sym:'I',eenh:'ampere',esym:'A'},
+    {lv:'ob',naam:'weerstand',sym:'R',eenh:'ohm',esym:'Ω'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'elektrische lading',sym:'Q',eenh:'coulomb',esym:'C'},
+    {lv:'hv',naam:'soortelijke weerstand',sym:'ρ',eenh:'ohm meter',esym:'Ω·m; Ω m'},
+    {lv:'vw',naam:'capaciteit condensator',sym:'C',eenh:'farad',esym:'F'},
+    {lv:'vw',naam:'elektrische potentiaal',sym:'V',eenh:'volt',esym:'V'},
+    {lv:'vw',naam:'elektrische veldsterkte',sym:'E',eenh:'newton per coulomb',esym:'N/C; N C⁻¹'},
+    {lv:'vw',naam:'magnetische veldsterkte',sym:'B',eenh:'tesla',esym:'T'},
+    {lv:'vw',naam:'magnetische flux',sym:'Φ',eenh:'weber',esym:'Wb'},
+    {lv:'vw',naam:'zelfinductie',sym:'L',eenh:'henry',esym:'H'},
+  ]},
+  {key:'thermo',label:'Thermodynamica & warmte',def:true,rows:[
+    {lv:'ob',naam:'temperatuur',sym:'T; θ',eenh:'kelvin; graden Celsius',esym:'K; °C'},
+    {lv:'ob',naam:'warmte',sym:'Q',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'soortelijke warmte',sym:'c',eenh:'joule per kilogram kelvin',esym:'J/(kg·K); J/kg/K; J kg⁻¹ K⁻¹'},
+    {lv:'ob',naam:'warmtecapaciteit',sym:'C',eenh:'joule per kelvin',esym:'J/K; J K⁻¹'},
+    {lv:'hv',naam:'warmtestroom',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'hv',naam:'warmtegeleidingscoëfficiënt',sym:'λ',eenh:'watt per meter kelvin',esym:'W/(m·K); W/m/K; W m⁻¹ K⁻¹'},
+    {lv:'hv',naam:'debiet / volumestroom',sym:'Q',eenh:'kubieke meter per seconde',esym:'m³/s; m³ s⁻¹'},
+    {lv:'hv',naam:'hoeveelheid stof',sym:'n',eenh:'mol',esym:'mol'},
+    {lv:'hv',naam:'concentratie',sym:'c',eenh:'mol per kubieke meter',esym:'mol/m³; mol m⁻³'},
+  ]},
+  {key:'kern',label:'Kernfysica & straling',def:true,rows:[
+    {lv:'hv',naam:'activiteit',sym:'A',eenh:'becquerel',esym:'Bq'},
+    {lv:'hv',naam:'geabsorbeerde dosis',sym:'D',eenh:'gray',esym:'Gy'},
+    {lv:'hv',naam:'dosisequivalent',sym:'H',eenh:'sievert',esym:'Sv'},
+    {lv:'hv',naam:'halveringstijd',sym:'t½',eenh:'seconde',esym:'s'},
+    {lv:'hv',naam:'halveringsdikte',sym:'d½',eenh:'meter',esym:'m'},
+    {lv:'hv',naam:'massagetal',sym:'A',eenh:'(geen eenheid)',esym:''},
+    {lv:'hv',naam:'atoomnummer',sym:'Z',eenh:'(geen eenheid)',esym:''},
+    {lv:'hv',naam:'stralingsweegfactor',sym:'w_R',eenh:'sievert per gray',esym:'Sv/Gy'},
+    {lv:'vw',naam:'vervalconstante',sym:'λ',eenh:'per seconde',esym:'s⁻¹'},
+    {lv:'vw',naam:'fotonenergie',sym:'E',eenh:'joule; electronvolt',esym:'J; eV'},
+  ]},
+];
+
+let cats=[];
+let currentLevel='ob';
+let activeInputId=null;
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function normalize(s){
+  let v=s.trim().toLowerCase().replace(/\s+/g,' ').replace(/[·.*x×]/g,'·').replace(/\s*·\s*/g,'·');
+  // Handle fraction/subscript alternatives
+  v=v.replace(/1\/2/g,'½');
+  v=v.replace(/\^2/g,'²').replace(/\^3/g,'³').replace(/\^-1/g,'⁻¹').replace(/\^-2/g,'⁻²');
+  v=v.replace(/_r/g,'_R'); // w_r → w_R
+  return v;
+}
+
+function levelsFor(level){
+  if(level==='ob')return['ob'];
+  if(level==='hv')return['ob','hv'];
+  return['ob','hv','vw'];
+}
+
+function catHasVisibleRows(cat,level){
+  const lv=levelsFor(level);
+  return cat.rows.some(r=>lv.includes(r.lv));
+}
+
+function init(){
+  cats=CATS_DATA.map(c=>({...c,rows:c.rows.map(r=>({id:uid(),...r}))}));
+  renderCatChecks();
+}
+
+function setLevel(lv){
+  currentLevel=lv;
+  document.querySelectorAll('.lv-btn').forEach((b,i)=>b.classList.toggle('active',['ob','hv','vw'][i]===lv));
+  renderCatChecks();
+}
+
+function renderCatChecks(){
+  const div=document.getElementById('cat-checks');
+  div.innerHTML=cats.filter(c=>catHasVisibleRows(c,currentLevel)).map(c=>`
+    <label class="check-row" style="margin-bottom:4px">
+      <input type="checkbox" class="cat-chk" value="${c.key}"${c.def?' checked':''}> ${escHtml(c.label)}
+    </label>`).join('');
+}
+
+function selectVisibleCats(v){document.querySelectorAll('.cat-chk').forEach(c=>c.checked=v);}
+
+function showPanel(p){
+  ['settings','quiz'].forEach((n,i)=>{
+    document.getElementById('panel-'+n).classList.toggle('active',n===p);
+    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',n===p);
+  });
+  if(p==='settings')renderCatChecks();
+}
+
+// ── QUIZ LOGIC ──
+
+let Q={};let timerInt=null;let mcAnswers={};
+
+function activeRowsForQuiz(){
+  const checked=Array.from(document.querySelectorAll('.cat-chk:checked')).map(c=>c.value);
+  const visLevels=levelsFor(currentLevel);
+  return checked.flatMap(k=>(cats.find(c=>c.key===k)?.rows||[]).filter(r=>visLevels.includes(r.lv)));
+}
+function allPoolRows(){return cats.flatMap(c=>c.rows);}
+
+function startQuiz(){
+  const shown=FIELDS.filter(f=>document.getElementById('show-'+f).checked);
+  const asked=FIELDS.filter(f=>document.getElementById('ask-'+f).checked);
+  if(!shown.length||!asked.length){alert('Kies minimaal één veld om te tonen en één om te vragen.');return}
+  const mode=document.querySelector('input[name=qmode]:checked').value;
+  const useTimer=document.getElementById('use-timer').checked;
+  const timerSec=parseInt(document.getElementById('timer-sec').value)||15;
+  let rows=activeRowsForQuiz().filter(r=>shown.some(f=>r[f])&&asked.some(f=>r[f]));
+  if(!rows.length){alert('Geen grootheden gevonden voor deze selectie. Pas je instellingen aan.');return}
+  if(document.getElementById('shuffle').checked)rows=rows.sort(()=>Math.random()-.5);
+  Q={items:rows,idx:0,score:0,wrong:[],checked:false,shown,asked,mode,useTimer,timerSec,retrying:false};
+  showPanel('quiz');renderCard();
+}
+
+function displayVal(raw){return(raw||'').split(';')[0].trim();}
+
+function symPickerHTML(inputId){
+  return `<div class="sym-picker" id="sp-${inputId}">${SYMBOLS.map(s=>`<button class="sym-btn" type="button" tabindex="-1" onclick="activeInputId='${inputId}';insertSymbol('${s.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${escHtml(s)}</button>`).join('')}</div>`;
+}
+
+function insertSymbol(sym){
+  const inp=document.getElementById(activeInputId);if(!inp)return;
+  const s=inp.selectionStart,e=inp.selectionEnd;
+  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
+  inp.selectionStart=inp.selectionEnd=s+sym.length;
+  inp.focus();inp.dispatchEvent(new Event('input'));
+}
+
+function renderCard(){
+  clearInterval(timerInt);
+  const area=document.getElementById('quiz-area');
+  const list=Q.retrying?Q.wrong:Q.items;
+  if(Q.idx>=list.length){showEnd();return}
+  const row=list[Q.idx];
+  const pct=Math.round(Q.idx/list.length*100);
+  const timerHTML=Q.useTimer?`<div class="timer-ring-wrap"><svg class="timer-ring" viewBox="0 0 44 44"><circle class="timer-bg" cx="22" cy="22" r="18"/><circle class="timer-arc" id="tarc" cx="22" cy="22" r="18" stroke-dasharray="113" stroke-dashoffset="0"/><text class="timer-text" x="22" y="27" text-anchor="middle" id="ttext">${Q.timerSec}</text></svg></div>`:'';
+  const shownItems=Q.shown.filter(f=>row[f]);
+  const mainField=shownItems[0];
+  const subFields=shownItems.slice(1);
+  let askHTML='';
+  if(Q.mode==='open'){
+    askHTML=Q.asked.filter(f=>row[f]).map(f=>{
+      const iid='qi-'+f;
+      return `<div class="ask-item"><label class="ask-label" for="${iid}">${LABELS[f]}</label><input class="ask-input" id="${iid}" autocomplete="off" spellcheck="false" placeholder="Typ hier..." onfocus="activeInputId='${iid}'" onkeydown="if(event.key==='Enter')checkAnswer()">${symPickerHTML(iid)}</div>`;
+    }).join('');
+  } else {
+    askHTML=Q.asked.filter(f=>row[f]).map(f=>{
+      const variants=(row[f]||'').split(';').map(x=>x.trim()).filter(Boolean);
+      const primary=variants[0];
+      const pool=allPoolRows().map(r=>displayVal(r[f])).filter(v=>v&&!variants.map(normalize).includes(normalize(v)));
+      const opts=[primary,...[...new Set(pool)].sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+      return `<div class="ask-item"><label class="ask-label">${LABELS[f]}</label><div class="mc-options" id="mc-${f}">${opts.map((o,i)=>`<button class="mc-btn" type="button" onclick="selectMC('${f}',${i})">${escHtml(o)}</button>`).join('')}</div></div>`;
+    }).join('');
+  }
+  area.innerHTML=`
+    <div class="progress-meta"><span>${Q.retrying?'Herhaling fouten':'Vraag'} ${Q.idx+1} / ${list.length}</span><span class="score">Score: ${Q.score}</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    ${timerHTML}
+    <div class="qcard">
+      <div class="given-section">
+        <div class="given-label">${LABELS[mainField]}</div>
+        <div class="given-value">${escHtml(displayVal(row[mainField]))}</div>
+        ${subFields.map(f=>`<div class="given-sub">${LABELS[f]}: ${escHtml(displayVal(row[f]))}</div>`).join('')}
+      </div>
+      <div class="ask-section">${askHTML}</div>
+    </div>
+    <div class="feedback-bar" id="feedback"></div>
+    <div class="btn-row">
+      <button class="qbtn" id="btn-skip" onclick="skipCard()">Weet ik niet</button>
+      <button class="qbtn primary" id="btn-check" onclick="checkAnswer()">Controleer</button>
+    </div>`;
+  if(Q.mode==='open'){const f=Q.asked.find(f=>row[f]);if(f){const el=document.getElementById('qi-'+f);if(el){el.focus();activeInputId='qi-'+f;}}}
+  if(Q.useTimer)startTimer();
+}
+
+function selectMC(field,idx){
+  if(Q.checked)return;
+  mcAnswers[field]=idx;
+  document.querySelectorAll(`#mc-${field} .mc-btn`).forEach((b,i)=>b.classList.toggle('selected',i===idx));
+}
+
+function checkValue(given,correctRaw){
+  const g=normalize(given);
+  return(correctRaw||'').split(';').map(x=>normalize(x.trim())).some(v=>v===g||v===g.replace(/·/g,' '));
+}
+
+function startTimer(){
+  let left=Q.timerSec;
+  const update=()=>{
+    const arc=document.getElementById('tarc');const txt=document.getElementById('ttext');
+    if(!arc)return;
+    arc.style.strokeDashoffset=113*(1-left/Q.timerSec);
+    arc.style.stroke=left<=5?'var(--red)':'var(--accent)';
+    txt.textContent=left;
+    if(left<=0){clearInterval(timerInt);skipCard();}
+    left--;
+  };
+  update();timerInt=setInterval(update,1000);
+}
+
+function revealHTML(correctRaw){
+  const variants=(correctRaw||'').split(';').map(x=>x.trim()).filter(Boolean);
+  return `Antwoord: <strong>${escHtml(variants[0]||'')}</strong>`+(variants.length>1?` <span style="color:var(--text-muted);font-size:11px">(ook: ${escHtml(variants.slice(1).join(', '))})</span>`:'');
+}
+
+function checkAnswer(){
+  clearInterval(timerInt);
+  if(Q.checked){nextCard();return}
+  const list=Q.retrying?Q.wrong:Q.items;
+  const row=list[Q.idx];
+  const fields=Q.asked.filter(f=>row[f]);
+  let allOk=true;
+  if(Q.mode==='open'){
+    fields.forEach(f=>{
+      const inp=document.getElementById('qi-'+f);if(!inp)return;
+      const ok=checkValue(inp.value,row[f]);
+      inp.classList.toggle('correct',ok);inp.classList.toggle('wrong',!ok);inp.readOnly=true;
+      document.getElementById('sp-qi-'+f)?.remove();
+      if(!ok){allOk=false;const d=document.createElement('div');d.className='answer-reveal';d.innerHTML=revealHTML(row[f]);inp.after(d);}
+    });
+  } else {
+    fields.forEach(f=>{
+      const selIdx=mcAnswers[f];if(selIdx===undefined)allOk=false;
+      document.querySelectorAll(`#mc-${f} .mc-btn`).forEach((b,i)=>{
+        const isCorrect=checkValue(b.textContent,row[f]);
+        b.disabled=true;
+        if(isCorrect)b.classList.add('correct');
+        else if(i===selIdx&&!isCorrect){b.classList.add('wrong');allOk=false;}
+      });
+    });
+  }
+  if(allOk)Q.score++;else if(!Q.retrying)Q.wrong.push(row);
+  const fb=document.getElementById('feedback');
+  fb.textContent=allOk?'Goed!':'Niet correct.';fb.className='feedback-bar '+(allOk?'ok':'nok');
+  Q.checked=true;document.getElementById('btn-check').textContent='Volgende';document.getElementById('btn-skip').style.display='none';mcAnswers={};
+}
+
+function skipCard(){
+  clearInterval(timerInt);if(Q.checked){nextCard();return}
+  const list=Q.retrying?Q.wrong:Q.items;const row=list[Q.idx];
+  Q.asked.filter(f=>row[f]).forEach(f=>{
+    if(Q.mode==='open'){
+      const inp=document.getElementById('qi-'+f);
+      if(inp){inp.classList.add('wrong');inp.readOnly=true;document.getElementById('sp-qi-'+f)?.remove();const d=document.createElement('div');d.className='answer-reveal';d.innerHTML=revealHTML(row[f]);inp.after(d);}
+    } else {
+      document.querySelectorAll(`#mc-${f} .mc-btn`).forEach(b=>{b.disabled=true;if(checkValue(b.textContent,row[f]))b.classList.add('correct');});
+    }
+  });
+  if(!Q.retrying)Q.wrong.push(row);
+  const fb=document.getElementById('feedback');fb.textContent='Overgeslagen.';fb.className='feedback-bar nok';
+  Q.checked=true;document.getElementById('btn-check').textContent='Volgende';document.getElementById('btn-skip').style.display='none';mcAnswers={};
+}
+
+function nextCard(){Q.idx++;Q.checked=false;renderCard();}
+
+function showEnd(){
+  clearInterval(timerInt);
+  const total=Q.retrying?Q.wrong.length:Q.items.length;
+  const pct=Math.round(Q.score/total*100);
+  const msg=pct>=90?'Uitstekend!':pct>=70?'Goed gedaan!':pct>=50?'Blijf oefenen!':'Nog veel te leren!';
+  const wc=Q.wrong.length;
+  const retryHTML=(!Q.retrying&&wc>0)?`<div class="retry-section"><div class="retry-label">${wc} vraag${wc>1?'en':''} fout. Wil je die herhalen?</div><button class="qbtn primary" onclick="retryWrong()">Fouten herhalen (${wc})</button></div>`:'';
+  document.getElementById('quiz-area').innerHTML=`<div class="end-screen">
+    <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:16px">${msg}</div>
+    <div class="end-score">${Q.score}<span>/${total}</span></div>
+    <div class="end-pct">${pct}%</div><div class="end-sub">correct beantwoord</div>
+    <div class="end-badge">${Q.retrying?'Herhaling voltooid':'Ronde afgerond'}</div>
+    <div class="end-btns"><button class="qbtn" onclick="showPanel('settings')">Instellingen</button><button class="qbtn primary" onclick="startQuiz()">Opnieuw</button></div>
+    ${retryHTML}</div>`;
+}
+
+function retryWrong(){
+  const wrong=[...Q.wrong];
+  Q={...Q,items:wrong,wrong:[],idx:0,score:0,checked:false,retrying:true};renderCard();
+}
+
+init();
+</script>
 </body>
 </html>
