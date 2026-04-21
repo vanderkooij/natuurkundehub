@@ -277,17 +277,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="settings-grid">
     <div class="setting-card">
       <div class="setting-label">Wat krijg je te zien?</div>
-      <label class="check-row"><input type="checkbox" id="show-naam" checked> Grootheid</label>
-      <label class="check-row"><input type="checkbox" id="show-sym"> Symbool</label>
-      <label class="check-row"><input type="checkbox" id="show-eenh"> Eenheid</label>
-      <label class="check-row"><input type="checkbox" id="show-esym"> Eenheidssymbool</label>
+      <label class="check-row"><input type="checkbox" id="show-naam" checked onchange="syncCheck('show','naam')"> Grootheid</label>
+      <label class="check-row"><input type="checkbox" id="show-sym" onchange="syncCheck('show','sym')"> Symbool</label>
+      <label class="check-row"><input type="checkbox" id="show-eenh" onchange="syncCheck('show','eenh')"> Eenheid</label>
+      <label class="check-row"><input type="checkbox" id="show-esym" onchange="syncCheck('show','esym')"> Eenheidssymbool</label>
     </div>
     <div class="setting-card">
       <div class="setting-label">Wat moet je invullen?</div>
-      <label class="check-row"><input type="checkbox" id="ask-naam"> Grootheid</label>
-      <label class="check-row"><input type="checkbox" id="ask-sym" checked> Symbool</label>
-      <label class="check-row"><input type="checkbox" id="ask-eenh"> Eenheid</label>
-      <label class="check-row"><input type="checkbox" id="ask-esym" checked> Eenheidssymbool</label>
+      <label class="check-row"><input type="checkbox" id="ask-naam" onchange="syncCheck('ask','naam')"> Grootheid</label>
+      <label class="check-row"><input type="checkbox" id="ask-sym" checked onchange="syncCheck('ask','sym')"> Symbool</label>
+      <label class="check-row"><input type="checkbox" id="ask-eenh" onchange="syncCheck('ask','eenh')"> Eenheid</label>
+      <label class="check-row"><input type="checkbox" id="ask-esym" checked onchange="syncCheck('ask','esym')"> Eenheidssymbool</label>
     </div>
     <div class="setting-card">
       <div class="setting-label">Vraagvorm</div>
@@ -343,9 +343,9 @@ const CATS_DATA=[
     {lv:'ob',naam:'dichtheid',sym:'ρ',eenh:'kilogram per kubieke meter',esym:'kg/m³; kg m⁻³'},
     {lv:'ob',naam:'oppervlakte',sym:'A',eenh:'vierkante meter',esym:'m²'},
     {lv:'ob',naam:'volume',sym:'V',eenh:'kubieke meter',esym:'m³'},
-    {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule',esym:'J'},
-    {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
-    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
+    {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule; kilowattuur',esym:'J; kWh'},
+    {lv:'ob',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW'},
     {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde',esym:'kg·m/s; kg m s⁻¹'},
     {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm'},
@@ -378,8 +378,8 @@ const CATS_DATA=[
     {lv:'ob',naam:'elektrische spanning',sym:'U',eenh:'volt',esym:'V'},
     {lv:'ob',naam:'elektrische stroomsterkte',sym:'I',eenh:'ampere',esym:'A'},
     {lv:'ob',naam:'weerstand',sym:'R',eenh:'ohm',esym:'Ω'},
-    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
-    {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW'},
+    {lv:'ob',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
     {lv:'ob',naam:'elektrische lading',sym:'Q',eenh:'coulomb',esym:'C'},
     {lv:'hv',naam:'soortelijke weerstand',sym:'ρ',eenh:'ohm meter',esym:'Ω·m; Ω m'},
     {lv:'vw',naam:'capaciteit condensator',sym:'C',eenh:'farad',esym:'F'},
@@ -461,6 +461,13 @@ function renderCatChecks(){
 }
 
 function selectVisibleCats(v){document.querySelectorAll('.cat-chk').forEach(c=>c.checked=v);}
+
+function syncCheck(source,field){
+  const opposite=source==='show'?'ask':'show';
+  const src=document.getElementById(source+'-'+field);
+  const opp=document.getElementById(opposite+'-'+field);
+  if(src.checked&&opp.checked) opp.checked=false;
+}
 
 function showPanel(p){
   ['settings','quiz'].forEach((n,i)=>{
