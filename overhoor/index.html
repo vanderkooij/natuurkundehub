@@ -1,704 +1,327 @@
-<html lang="nl"><head>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grootheden Overhoor</title>
+<title>Overhoorprogramma · NatuurkundeHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --blue:#1B6EBD;--blue-dark:#114F8A;--blue-light:#E8F2FC;--blue-mid:#BDD9F5;
-  --accent:#F0A500;--accent-light:#FEF3DB;
-  --bg:#F4F8FD;--surface:#fff;--border:#D0E3F5;--border-dark:#9BBFE0;
-  --text:#1A2B3C;--text-mid:#4A6278;--text-muted:#8AA0B4;
-  --green:#1A7A4A;--green-light:#E6F5EE;--red:#C0392B;--red-light:#FDECEA;
+  --bg:#0a0e17;
+  --bg-secondary:#111827;
+  --bg-card:#161f33;
+  --bg-card-hover:#1c2844;
+  --accent:#3b82f6;
+  --accent-glow:rgba(59,130,246,0.25);
+  --accent-secondary:#06b6d4;
+  --accent-dim:rgba(59,130,246,0.08);
+  --accent-border:rgba(59,130,246,0.2);
+  --text:#f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:rgba(148,163,184,0.08);
+  --border-solid:#1e293b;
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.12);
+  --green-border:rgba(34,197,94,0.3);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.12);
+  --red-border:rgba(239,68,68,0.3);
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
 }
-body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.app-header{background:var(--blue-dark);padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-height:54px}
-.app-header h1{font-size:18px;font-weight:700;color:#fff;letter-spacing:.01em}
-.app-header h1 span{font-size:12px;font-weight:400;opacity:.7;margin-left:8px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Grid background */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+/* ── HEADER ── */
+.app-header{
+  background:var(--bg-secondary);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  min-height:56px;position:relative;z-index:10;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
+.back-link:hover{color:var(--accent);background:var(--accent-dim)}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.app-title span{color:var(--accent)}
 .nav{display:flex;gap:2px}
-.nav-btn{padding:7px 16px;border-radius:6px;border:none;font-size:13px;cursor:pointer;background:transparent;color:rgba(255,255,255,.75);font-family:'Segoe UI',sans-serif;font-weight:500;transition:all .15s}
-.nav-btn:hover{background:rgba(255,255,255,.15);color:#fff}
-.nav-btn.active{background:#fff;color:var(--blue-dark);font-weight:700}
-.main{max-width:860px;margin:0 auto;padding:22px 16px}
+.nav-btn{
+  padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:500;
+  cursor:pointer;background:transparent;color:var(--text-muted);
+  font-family:var(--font);transition:all .15s;
+}
+.nav-btn:hover{background:rgba(59,130,246,0.08);color:var(--text)}
+.nav-btn.active{background:var(--accent);color:#fff;font-weight:600}
+
+/* ── MAIN ── */
+.main{max-width:860px;margin:0 auto;padding:28px 20px;position:relative;z-index:1}
 .panel{display:none}.panel.active{display:block}
-.section-title{font-size:15px;font-weight:700;color:var(--blue-dark);padding-left:11px;border-left:3.5px solid var(--blue);margin-bottom:14px}
-.level-filter{display:inline-flex;gap:0;margin-bottom:18px;border-radius:8px;overflow:hidden;border:2px solid var(--blue);background:var(--surface)}
-.lf-btn{padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--blue);border:none;font-family:'Segoe UI',sans-serif;transition:all .15s;border-right:1px solid var(--blue-mid)}
-.lf-btn:last-child{border-right:none}
-.lf-btn:hover{background:var(--blue-light)}
-.lf-btn.active{background:var(--blue);color:#fff}
-.cat-block{background:var(--surface);border-radius:10px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(27,110,189,.07)}
-.cat-block.hidden-cat{display:none}
-.cat-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--blue-light);cursor:pointer;user-select:none;border-bottom:1px solid var(--border)}
-.cat-name{font-size:14px;font-weight:700;color:var(--blue-dark)}
-.cat-count{font-size:12px;color:var(--text-muted);margin-right:8px}
-.cat-toggle{font-size:14px;color:var(--blue);transition:transform .2s;display:inline-block}
-.cat-toggle.open{transform:rotate(180deg)}
-.cat-body{display:none}.cat-body.open{display:block}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:7px 10px;background:var(--blue-light);font-weight:600;font-size:11px;color:var(--blue-dark);letter-spacing:.03em;border-bottom:1px solid var(--border)}
-th.th-level{width:80px}
-td{padding:4px 5px;border-top:1px solid var(--border);vertical-align:middle}
-tr:hover td{background:var(--blue-light)}
-td input{width:100%;border:none;background:transparent;font-size:13px;color:var(--text);padding:3px 5px;outline:none;font-family:'Segoe UI',sans-serif;border-radius:4px}
-td input:focus{background:var(--blue-light);outline:1px solid var(--blue-mid)}
-.row-badge{font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;white-space:nowrap;cursor:default}
-.badge-ob{background:#ddf0e8;color:#0f5c30}
-.badge-hv{background:#e0d9f8;color:#3a1f8a}
-.badge-vw{background:#fde9c0;color:#7a4800}
-.del-btn{background:none;border:none;cursor:pointer;color:var(--border-dark);font-size:17px;padding:2px 8px;border-radius:4px;line-height:1}
-.del-btn:hover{color:var(--red);background:var(--red-light)}
-.cat-footer{padding:8px 10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
-.small-btn{background:none;border:1.5px solid var(--border-dark);border-radius:5px;padding:4px 12px;font-size:12px;cursor:pointer;color:var(--text-mid);font-family:'Segoe UI',sans-serif}
-.small-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
-.small-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
-.new-cat-row{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.field-input{flex:1;min-width:130px;padding:7px 10px;border:1.5px solid var(--border-dark);border-radius:6px;font-size:13px;font-family:'Segoe UI',sans-serif;background:var(--surface);color:var(--text)}
-.field-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(27,110,189,.15)}
-.blue-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'Segoe UI',sans-serif;font-weight:600;white-space:nowrap}
-.blue-btn:hover{background:var(--blue-dark)}
-.info-block{background:var(--accent-light);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#5a3d00}
-.info-block strong{color:#7a4800}
-.dl-btn{background:none;border:2px solid var(--blue);border-radius:6px;padding:7px 18px;font-size:13px;cursor:pointer;color:var(--blue);font-family:'Segoe UI',sans-serif;font-weight:700}
-.dl-btn:hover{background:var(--blue-light)}
-.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.setting-card{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:14px}
-.setting-label{font-size:11px;font-weight:700;color:var(--blue-dark);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
-.check-row{display:flex;align-items:center;gap:9px;font-size:14px;margin-bottom:6px;cursor:pointer;color:var(--text)}
-.check-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
-.radio-row{display:flex;align-items:center;gap:9px;font-size:14px;margin-bottom:6px;cursor:pointer;color:var(--text)}
-.radio-row input[type=radio]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
-.settings-full{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:14px;margin-bottom:12px}
-.cat-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px;margin-top:8px}
-.start-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Segoe UI',sans-serif}
-.start-btn:hover{background:var(--blue-dark)}
-.progress-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:5px}
-.progress-bar{height:5px;background:var(--blue-mid);border-radius:3px;margin-bottom:16px}
-.progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
-.qcard{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:22px;margin-bottom:12px;box-shadow:0 2px 8px rgba(27,110,189,.08)}
-.given-section{margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--blue-light)}
-.given-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
-.given-value{font-size:26px;font-weight:700;color:var(--blue-dark);line-height:1.2}
-.given-sub{font-size:13px;color:var(--blue);font-weight:600;margin-top:3px}
-.ask-section{display:grid;gap:14px}
-.ask-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px}
-.sym-picker{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.sym-btn{padding:3px 8px;border:1px solid var(--border-dark);border-radius:4px;font-size:14px;cursor:pointer;background:var(--blue-light);color:var(--blue-dark);font-family:'Segoe UI',sans-serif;line-height:1.4}
-.sym-btn:hover{background:var(--blue-mid)}
-.mc-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
-.mc-btn{padding:10px 14px;border:1.5px solid var(--border-dark);border-radius:8px;font-size:14px;cursor:pointer;background:var(--surface);color:var(--text);font-family:'Segoe UI',sans-serif;text-align:left;line-height:1.3;transition:all .15s}
-.mc-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-light)}
-.mc-btn.selected{border-color:var(--blue);background:var(--blue-light);color:var(--blue-dark);font-weight:600}
-.mc-btn.correct{border-color:var(--green);background:var(--green-light);color:var(--green);font-weight:600}
-.mc-btn.wrong{border-color:var(--red);background:var(--red-light);color:var(--red)}
-.mc-btn:disabled{cursor:default}
-.ask-input{width:100%;border:2px solid var(--border-dark);border-radius:8px;padding:10px 13px;font-size:16px;background:var(--surface);color:var(--text);font-family:'Segoe UI',sans-serif;transition:border-color .15s}
-.ask-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,110,189,.15)}
-.ask-input.correct{border-color:var(--green);background:var(--green-light)}
-.ask-input.wrong{border-color:var(--red);background:var(--red-light)}
-.answer-reveal{font-size:12px;color:var(--text-muted);margin-top:4px}
-.answer-reveal strong{color:var(--blue-dark)}
-.feedback-bar{font-size:14px;font-weight:600;padding:8px 14px;border-radius:7px;margin-bottom:10px;display:none;border-left:4px solid}
-.feedback-bar.ok{background:var(--green-light);color:var(--green);border-color:var(--green);display:block}
-.feedback-bar.nok{background:var(--red-light);color:var(--red);border-color:var(--red);display:block}
-.btn-row{display:flex;gap:8px}
-.qbtn{flex:1;padding:10px;border-radius:8px;border:2px solid var(--border-dark);font-size:14px;cursor:pointer;background:var(--surface);color:var(--text-mid);font-family:'Segoe UI',sans-serif;font-weight:700;transition:all .15s}
-.qbtn:hover{border-color:var(--blue);color:var(--blue)}
-.qbtn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.qbtn.primary:hover{background:var(--blue-dark)}
+
+/* ── SECTION TITLE ── */
+.section-title{
+  font-size:15px;font-weight:700;color:var(--accent);
+  padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px;
+}
+
+/* ── LEVEL SELECTOR ── */
+.level-selector{
+  display:inline-flex;gap:0;margin-bottom:22px;border-radius:10px;overflow:hidden;
+  border:1.5px solid var(--border-solid);background:var(--bg-secondary);
+}
+.lv-btn{
+  padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;
+  background:transparent;color:var(--text-muted);border:none;
+  font-family:var(--font);transition:all .15s;
+  border-right:1px solid var(--border-solid);
+}
+.lv-btn:last-child{border-right:none}
+.lv-btn:hover{background:var(--accent-dim);color:var(--text)}
+.lv-btn.active{background:var(--accent);color:#fff}
+
+/* ── SETTINGS CARDS ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.setting-card{
+  background:var(--bg-card);border-radius:12px;border:1px solid var(--border-solid);
+  padding:18px;transition:border-color .2s;
+}
+.setting-card:hover{border-color:var(--accent-border)}
+.setting-label{
+  font-size:11px;font-weight:700;color:var(--accent);margin-bottom:12px;
+  text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);
+}
+.check-row{
+  display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:8px;
+  cursor:pointer;color:var(--text-secondary);transition:color .15s;
+}
+.check-row:hover{color:var(--text)}
+.check-row input[type=checkbox],.check-row input[type=radio]{
+  width:16px;height:16px;cursor:pointer;accent-color:var(--accent);
+}
+.radio-row{
+  display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:8px;
+  cursor:pointer;color:var(--text-secondary);transition:color .15s;
+}
+.radio-row:hover{color:var(--text)}
+.radio-row input[type=radio]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
+
+/* Category checks */
+.settings-full{
+  background:var(--bg-card);border-radius:12px;border:1px solid var(--border-solid);
+  padding:18px;margin-bottom:16px;
+}
+.cat-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:10px}
+.cat-btn-row{display:flex;gap:8px;margin:8px 0}
+.cat-toggle-btn{
+  font-family:var(--mono);font-size:11px;padding:5px 14px;border-radius:6px;
+  border:1px solid var(--border-solid);cursor:pointer;
+  background:var(--bg-secondary);color:var(--text-muted);transition:all .15s;
+}
+.cat-toggle-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+
+/* Timer settings */
+.timer-settings{display:flex;align-items:center;gap:8px;margin-top:6px;padding-left:26px}
+.timer-input{
+  width:60px;border:1.5px solid var(--border-solid);border-radius:8px;
+  padding:5px 8px;font-size:13px;font-family:var(--font);
+  background:var(--bg-secondary);color:var(--text);
+}
+.timer-input:focus{outline:none;border-color:var(--accent)}
+
+/* ── START BUTTON ── */
+.start-btn{
+  width:100%;padding:14px;background:var(--accent);color:#fff;border:none;
+  border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:all .2s;letter-spacing:-0.2px;
+}
+.start-btn:hover{background:#2563eb;box-shadow:0 0 24px var(--accent-glow)}
+
+/* ── QUIZ ── */
+.progress-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:6px}
+.progress-meta .score{color:var(--accent);font-weight:700;font-family:var(--mono)}
+.progress-bar{height:4px;background:var(--bg-card);border-radius:3px;margin-bottom:18px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-secondary));border-radius:3px;transition:width .4s}
+
+.qcard{
+  background:var(--bg-card);border-radius:14px;border:1px solid var(--border-solid);
+  padding:28px 24px;margin-bottom:14px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.given-section{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-solid)}
+.given-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-family:var(--mono)}
+.given-value{font-size:28px;font-weight:700;color:var(--text);line-height:1.2}
+.given-sub{font-size:13px;color:var(--accent);font-weight:600;margin-top:4px}
+
+.ask-section{display:grid;gap:16px}
+.ask-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;font-family:var(--mono)}
+
+/* Symbol picker */
+.sym-picker{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.sym-btn{
+  padding:4px 9px;border:1px solid var(--border-solid);border-radius:6px;
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);
+  font-family:var(--font);line-height:1.4;transition:all .15s;
+}
+.sym-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+
+/* Input */
+.ask-input{
+  width:100%;border:2px solid var(--border-solid);border-radius:10px;
+  padding:12px 14px;font-size:16px;background:var(--bg-secondary);color:var(--text);
+  font-family:var(--font);transition:all .15s;
+}
+.ask-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.ask-input.correct{border-color:var(--green);background:var(--green-dim)}
+.ask-input.wrong{border-color:var(--red);background:var(--red-dim)}
+
+.answer-reveal{font-size:12px;color:var(--text-muted);margin-top:5px}
+.answer-reveal strong{color:var(--accent)}
+
+/* MC buttons */
+.mc-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mc-btn{
+  padding:12px 16px;border:1.5px solid var(--border-solid);border-radius:10px;
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);
+  font-family:var(--font);text-align:left;line-height:1.3;transition:all .15s;
+}
+.mc-btn:hover:not(:disabled){border-color:var(--accent-border);background:var(--accent-dim);color:var(--text)}
+.mc-btn.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--text);font-weight:600}
+.mc-btn.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);font-weight:600}
+.mc-btn.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.mc-btn:disabled{cursor:default;opacity:0.8}
+
+/* Feedback */
+.feedback-bar{
+  font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;
+  margin-bottom:12px;display:none;border-left:4px solid;
+}
+.feedback-bar.ok{background:var(--green-dim);color:var(--green);border-color:var(--green);display:block}
+.feedback-bar.nok{background:var(--red-dim);color:var(--red);border-color:var(--red);display:block}
+
+/* Quiz buttons */
+.btn-row{display:flex;gap:10px}
+.qbtn{
+  flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);
+  font-family:var(--font);font-weight:600;transition:all .15s;
+}
+.qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
+.qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qbtn.primary:hover{background:#2563eb}
+
+/* Timer */
 .timer-ring-wrap{display:flex;justify-content:flex-end;margin-bottom:-4px}
-.timer-ring{width:42px;height:42px}
-.timer-text{font-size:13px;font-weight:700;fill:var(--blue-dark)}
-.timer-bg{fill:none;stroke:var(--blue-mid);stroke-width:4}
-.timer-arc{fill:none;stroke:var(--blue);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .9s linear,stroke .3s}
-.end-screen{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:36px 24px;text-align:center;box-shadow:0 2px 12px rgba(27,110,189,.1)}
-.end-score{font-size:58px;font-weight:700;color:var(--blue-dark);line-height:1}
-.end-pct{font-size:18px;color:var(--blue);font-weight:700;margin-bottom:5px}
-.end-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px}
-.end-badge{display:inline-block;background:var(--blue-light);color:var(--blue-dark);font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;margin-bottom:20px;border:1px solid var(--blue-mid)}
+.timer-ring{width:44px;height:44px}
+.timer-text{font-size:13px;font-weight:700;fill:var(--text)}
+.timer-bg{fill:none;stroke:var(--border-solid);stroke-width:4}
+.timer-arc{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .9s linear,stroke .3s}
+
+/* End screen */
+.end-screen{
+  background:var(--bg-card);border-radius:14px;border:1px solid var(--border-solid);
+  padding:40px 28px;text-align:center;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
+}
+.end-score{font-size:58px;font-weight:700;color:var(--text);line-height:1}
+.end-score span{font-size:28px;color:var(--text-muted)}
+.end-pct{font-size:18px;color:var(--accent);font-weight:700;margin-bottom:5px;font-family:var(--mono)}
+.end-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.end-badge{
+  display:inline-block;background:var(--accent-dim);color:var(--accent);
+  font-size:12px;font-weight:700;padding:5px 16px;border-radius:20px;
+  margin-bottom:22px;border:1px solid var(--accent-border);font-family:var(--mono);
+}
 .end-btns{display:flex;gap:10px;max-width:340px;margin:0 auto}
-.retry-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
-.retry-label{font-size:13px;color:var(--text-muted);margin-bottom:10px}
-@media(max-width:560px){.settings-grid{grid-template-columns:1fr}.mc-options{grid-template-columns:1fr}.level-filter{display:flex;width:100%}.lf-btn{flex:1;text-align:center;padding:7px 4px;font-size:12px}}
+.retry-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.retry-label{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+
+@media(max-width:560px){
+  .settings-grid{grid-template-columns:1fr}
+  .mc-options{grid-template-columns:1fr}
+  .level-selector{display:flex;width:100%}
+  .lv-btn{flex:1;text-align:center;padding:9px 6px;font-size:12px}
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px}
+}
 </style>
 </head>
 <body>
+
 <div class="app-header">
-  <h1>Grootheden Overhoor <span>Binas tabel 4 · havo/vwo</span></h1>
+  <div class="header-left">
+    <a href="/" class="back-link" title="Terug naar NatuurkundeHub">←</a>
+    <div class="app-title">Grootheden <span>Overhoor</span></div>
+  </div>
   <div class="nav">
-    <button class="nav-btn active" onclick="showPanel('editor')">Lijsten</button>
-    <button class="nav-btn" onclick="showPanel('settings')">Instellingen</button>
+    <button class="nav-btn active" onclick="showPanel('settings')">Instellingen</button>
     <button class="nav-btn" onclick="showPanel('quiz')">Oefenen</button>
   </div>
 </div>
+
 <div class="main">
 
-<div class="panel active" id="panel-editor">
-  <div class="section-title">Grootheden per categorie</div>
-  <div class="level-filter">
-    <button class="lf-btn" onclick="setLevelFilter('ob')">Onderbouw</button>
-    <button class="lf-btn" onclick="setLevelFilter('hv')">Havo bovenbouw</button>
-    <button class="lf-btn" onclick="setLevelFilter('vw')">Vwo bovenbouw</button>
-    <button class="lf-btn active" onclick="setLevelFilter('all')">Alles</button>
+<!-- SETTINGS PANEL -->
+<div class="panel active" id="panel-settings">
+  <div class="section-title">Kies je niveau</div>
+  <div class="level-selector">
+    <button class="lv-btn active" onclick="setLevel('ob')">Onderbouw</button>
+    <button class="lv-btn" onclick="setLevel('hv')">Bovenbouw havo</button>
+    <button class="lv-btn" onclick="setLevel('vw')">Bovenbouw vwo</button>
   </div>
-  <div id="cat-list"><div class="cat-block" id="block-mech">
-      <div class="cat-header" onclick="toggleCat('mech')">
-        <span class="cat-name">Mechanica</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">25 grootheden</span>
-          <span class="cat-toggle" id="tog-mech">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-mech">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="massa" oninput="updateRow('mech','ojhbfbn','naam',this.value)"></td><td><input value="m" oninput="updateRow('mech','ojhbfbn','sym',this.value)"></td><td><input value="kilogram" oninput="updateRow('mech','ojhbfbn','eenh',this.value)"></td><td><input value="kg" oninput="updateRow('mech','ojhbfbn','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','ojhbfbn')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="afstand" oninput="updateRow('mech','3by3qt3','naam',this.value)"></td><td><input value="s" oninput="updateRow('mech','3by3qt3','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','3by3qt3','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','3by3qt3','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','3by3qt3')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="tijd" oninput="updateRow('mech','4ky2yby','naam',this.value)"></td><td><input value="t" oninput="updateRow('mech','4ky2yby','sym',this.value)"></td><td><input value="seconde" oninput="updateRow('mech','4ky2yby','eenh',this.value)"></td><td><input value="s" oninput="updateRow('mech','4ky2yby','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','4ky2yby')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="snelheid" oninput="updateRow('mech','dh4juse','naam',this.value)"></td><td><input value="v" oninput="updateRow('mech','dh4juse','sym',this.value)"></td><td><input value="meter per seconde" oninput="updateRow('mech','dh4juse','eenh',this.value)"></td><td><input value="m/s" oninput="updateRow('mech','dh4juse','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','dh4juse')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="versnelling" oninput="updateRow('mech','1gmnvdx','naam',this.value)"></td><td><input value="a" oninput="updateRow('mech','1gmnvdx','sym',this.value)"></td><td><input value="meter per secondekwadraat" oninput="updateRow('mech','1gmnvdx','eenh',this.value)"></td><td><input value="m/s²" oninput="updateRow('mech','1gmnvdx','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','1gmnvdx')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="kracht" oninput="updateRow('mech','gb9w9ot','naam',this.value)"></td><td><input value="F" oninput="updateRow('mech','gb9w9ot','sym',this.value)"></td><td><input value="newton" oninput="updateRow('mech','gb9w9ot','eenh',this.value)"></td><td><input value="N" oninput="updateRow('mech','gb9w9ot','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','gb9w9ot')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="gewicht" oninput="updateRow('mech','1ghwm0a','naam',this.value)"></td><td><input value="G" oninput="updateRow('mech','1ghwm0a','sym',this.value)"></td><td><input value="newton" oninput="updateRow('mech','1ghwm0a','eenh',this.value)"></td><td><input value="N" oninput="updateRow('mech','1ghwm0a','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','1ghwm0a')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="gravitatieversnelling" oninput="updateRow('mech','o1bis3e','naam',this.value)"></td><td><input value="g" oninput="updateRow('mech','o1bis3e','sym',this.value)"></td><td><input value="meter per secondekwadraat" oninput="updateRow('mech','o1bis3e','eenh',this.value)"></td><td><input value="m/s²" oninput="updateRow('mech','o1bis3e','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','o1bis3e')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="druk" oninput="updateRow('mech','jeka3qm','naam',this.value)"></td><td><input value="p" oninput="updateRow('mech','jeka3qm','sym',this.value)"></td><td><input value="pascal" oninput="updateRow('mech','jeka3qm','eenh',this.value)"></td><td><input value="Pa" oninput="updateRow('mech','jeka3qm','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','jeka3qm')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="dichtheid" oninput="updateRow('mech','37yr5z7','naam',this.value)"></td><td><input value="ρ" oninput="updateRow('mech','37yr5z7','sym',this.value)"></td><td><input value="kilogram per kubieke meter" oninput="updateRow('mech','37yr5z7','eenh',this.value)"></td><td><input value="kg/m³; kg m⁻³" oninput="updateRow('mech','37yr5z7','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','37yr5z7')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="oppervlakte" oninput="updateRow('mech','qg2aiqb','naam',this.value)"></td><td><input value="A" oninput="updateRow('mech','qg2aiqb','sym',this.value)"></td><td><input value="vierkante meter" oninput="updateRow('mech','qg2aiqb','eenh',this.value)"></td><td><input value="m²" oninput="updateRow('mech','qg2aiqb','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','qg2aiqb')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="volume" oninput="updateRow('mech','6f4ufq6','naam',this.value)"></td><td><input value="V" oninput="updateRow('mech','6f4ufq6','sym',this.value)"></td><td><input value="kubieke meter" oninput="updateRow('mech','6f4ufq6','eenh',this.value)"></td><td><input value="m³" oninput="updateRow('mech','6f4ufq6','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','6f4ufq6')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="arbeid" oninput="updateRow('mech','d40czfq','naam',this.value)"></td><td><input value="W" oninput="updateRow('mech','d40czfq','sym',this.value)"></td><td><input value="joule" oninput="updateRow('mech','d40czfq','eenh',this.value)"></td><td><input value="J" oninput="updateRow('mech','d40czfq','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','d40czfq')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="energie" oninput="updateRow('mech','7k49ro0','naam',this.value)"></td><td><input value="E" oninput="updateRow('mech','7k49ro0','sym',this.value)"></td><td><input value="joule" oninput="updateRow('mech','7k49ro0','eenh',this.value)"></td><td><input value="J" oninput="updateRow('mech','7k49ro0','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','7k49ro0')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="vermogen" oninput="updateRow('mech','djpmf5l','naam',this.value)"></td><td><input value="P" oninput="updateRow('mech','djpmf5l','sym',this.value)"></td><td><input value="watt" oninput="updateRow('mech','djpmf5l','eenh',this.value)"></td><td><input value="W" oninput="updateRow('mech','djpmf5l','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','djpmf5l')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="verplaatsing" oninput="updateRow('mech','y4vnnyu','naam',this.value)"></td><td><input value="Δx" oninput="updateRow('mech','y4vnnyu','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','y4vnnyu','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','y4vnnyu','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','y4vnnyu')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="impuls" oninput="updateRow('mech','fyf26sw','naam',this.value)"></td><td><input value="p" oninput="updateRow('mech','fyf26sw','sym',this.value)"></td><td><input value="kilogram meter per seconde" oninput="updateRow('mech','fyf26sw','eenh',this.value)"></td><td><input value="kg·m/s; kg m s⁻¹" oninput="updateRow('mech','fyf26sw','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','fyf26sw')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="moment" oninput="updateRow('mech','2je599s','naam',this.value)"></td><td><input value="M" oninput="updateRow('mech','2je599s','sym',this.value)"></td><td><input value="newton meter" oninput="updateRow('mech','2je599s','eenh',this.value)"></td><td><input value="N·m; Nm" oninput="updateRow('mech','2je599s','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','2je599s')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="arm" oninput="updateRow('mech','msszsob','naam',this.value)"></td><td><input value="r" oninput="updateRow('mech','msszsob','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','msszsob','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','msszsob','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','msszsob')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="straal" oninput="updateRow('mech','lnxt3rf','naam',this.value)"></td><td><input value="r" oninput="updateRow('mech','lnxt3rf','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','lnxt3rf','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','lnxt3rf','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','lnxt3rf')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="hoogte" oninput="updateRow('mech','hqjs39j','naam',this.value)"></td><td><input value="h" oninput="updateRow('mech','hqjs39j','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','hqjs39j','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','hqjs39j','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','hqjs39j')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="dikte" oninput="updateRow('mech','f5rsv49','naam',this.value)"></td><td><input value="d" oninput="updateRow('mech','f5rsv49','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','f5rsv49','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','f5rsv49','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','f5rsv49')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="uitwijking / uitrekking" oninput="updateRow('mech','y289tf3','naam',this.value)"></td><td><input value="u" oninput="updateRow('mech','y289tf3','sym',this.value)"></td><td><input value="meter" oninput="updateRow('mech','y289tf3','eenh',this.value)"></td><td><input value="m" oninput="updateRow('mech','y289tf3','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','y289tf3')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="veerconstante" oninput="updateRow('mech','cgwc824','naam',this.value)"></td><td><input value="C" oninput="updateRow('mech','cgwc824','sym',this.value)"></td><td><input value="newton per meter" oninput="updateRow('mech','cgwc824','eenh',this.value)"></td><td><input value="N/m; N m⁻¹" oninput="updateRow('mech','cgwc824','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','cgwc824')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="elasticiteitsmodulus" oninput="updateRow('mech','ik76sv6','naam',this.value)"></td><td><input value="E" oninput="updateRow('mech','ik76sv6','sym',this.value)"></td><td><input value="newton per vierkante meter" oninput="updateRow('mech','ik76sv6','eenh',this.value)"></td><td><input value="N/m²; N m⁻²; Pa" oninput="updateRow('mech','ik76sv6','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('mech','ik76sv6')">×</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('mech','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('mech','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('mech','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('mech')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div><div class="cat-block" id="block-golf">
-      <div class="cat-header" onclick="toggleCat('golf')">
-        <span class="cat-name">Golven &amp; geluid</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">8 grootheden</span>
-          <span class="cat-toggle" id="tog-golf">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-golf">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="frequentie" oninput="updateRow('golf','rhyc4xp','naam',this.value)"></td><td><input value="f" oninput="updateRow('golf','rhyc4xp','sym',this.value)"></td><td><input value="hertz" oninput="updateRow('golf','rhyc4xp','eenh',this.value)"></td><td><input value="Hz" oninput="updateRow('golf','rhyc4xp','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','rhyc4xp')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="Trillingstijd" oninput="updateRow('golf','kceieuo','naam',this.value)"></td><td><input value="T" oninput="updateRow('golf','kceieuo','sym',this.value)"></td><td><input value="seconde" oninput="updateRow('golf','kceieuo','eenh',this.value)"></td><td><input value="s" oninput="updateRow('golf','kceieuo','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','kceieuo')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="golflengte" oninput="updateRow('golf','1x0nmwm','naam',this.value)"></td><td><input value="λ" oninput="updateRow('golf','1x0nmwm','sym',this.value)"></td><td><input value="meter" oninput="updateRow('golf','1x0nmwm','eenh',this.value)"></td><td><input value="m" oninput="updateRow('golf','1x0nmwm','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','1x0nmwm')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="amplitude" oninput="updateRow('golf','ayx5xme','naam',this.value)"></td><td><input value="A" oninput="updateRow('golf','ayx5xme','sym',this.value)"></td><td><input value="meter" oninput="updateRow('golf','ayx5xme','eenh',this.value)"></td><td><input value="m" oninput="updateRow('golf','ayx5xme','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','ayx5xme')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="golfsnelheid" oninput="updateRow('golf','pbln91k','naam',this.value)"></td><td><input value="v" oninput="updateRow('golf','pbln91k','sym',this.value)"></td><td><input value="meter per seconde" oninput="updateRow('golf','pbln91k','eenh',this.value)"></td><td><input value="m/s" oninput="updateRow('golf','pbln91k','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','pbln91k')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="intensiteit" oninput="updateRow('golf','z5pxnkw','naam',this.value)"></td><td><input value="I" oninput="updateRow('golf','z5pxnkw','sym',this.value)"></td><td><input value="watt per vierkante meter" oninput="updateRow('golf','z5pxnkw','eenh',this.value)"></td><td><input value="W/m²; W m⁻²" oninput="updateRow('golf','z5pxnkw','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','z5pxnkw')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="geluidsdruk- / intensiteitsniveau" oninput="updateRow('golf','32o8fpy','naam',this.value)"></td><td><input value="L" oninput="updateRow('golf','32o8fpy','sym',this.value)"></td><td><input value="decibel" oninput="updateRow('golf','32o8fpy','eenh',this.value)"></td><td><input value="dB" oninput="updateRow('golf','32o8fpy','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','32o8fpy')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="voortplantingssnelheid van licht" oninput="updateRow('golf','sgmq7ux','naam',this.value)"></td><td><input value="c" oninput="updateRow('golf','sgmq7ux','sym',this.value)"></td><td><input value="meter per seconde" oninput="updateRow('golf','sgmq7ux','eenh',this.value)"></td><td><input value="m/s" oninput="updateRow('golf','sgmq7ux','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('golf','sgmq7ux')">×</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('golf','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('golf','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('golf','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('golf')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div><div class="cat-block" id="block-optica">
-      <div class="cat-header" onclick="toggleCat('optica')">
-        <span class="cat-name">Optica</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">5 grootheden</span>
-          <span class="cat-toggle" id="tog-optica">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-optica">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="brekingsindex" oninput="updateRow('optica','l9ba3oh','naam',this.value)"></td><td><input value="n" oninput="updateRow('optica','l9ba3oh','sym',this.value)"></td><td><input value="(geen eenheid)" oninput="updateRow('optica','l9ba3oh','eenh',this.value)"></td><td><input value="" oninput="updateRow('optica','l9ba3oh','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('optica','l9ba3oh')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="brandpuntsafstand" oninput="updateRow('optica','q4p2729','naam',this.value)"></td><td><input value="f" oninput="updateRow('optica','q4p2729','sym',this.value)"></td><td><input value="meter" oninput="updateRow('optica','q4p2729','eenh',this.value)"></td><td><input value="m" oninput="updateRow('optica','q4p2729','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('optica','q4p2729')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="beeldafstand" oninput="updateRow('optica','h04wal0','naam',this.value)"></td><td><input value="b" oninput="updateRow('optica','h04wal0','sym',this.value)"></td><td><input value="meter" oninput="updateRow('optica','h04wal0','eenh',this.value)"></td><td><input value="m" oninput="updateRow('optica','h04wal0','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('optica','h04wal0')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="lenssterkte" oninput="updateRow('optica','n47ph7o','naam',this.value)"></td><td><input value="S" oninput="updateRow('optica','n47ph7o','sym',this.value)"></td><td><input value="dioptrie" oninput="updateRow('optica','n47ph7o','eenh',this.value)"></td><td><input value="dpt" oninput="updateRow('optica','n47ph7o','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('optica','n47ph7o')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="grenshoek" oninput="updateRow('optica','leok5ua','naam',this.value)"></td><td><input value="g" oninput="updateRow('optica','leok5ua','sym',this.value)"></td><td><input value="graad" oninput="updateRow('optica','leok5ua','eenh',this.value)"></td><td><input value="°" oninput="updateRow('optica','leok5ua','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('optica','leok5ua')">×</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('optica','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('optica','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('optica','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('optica')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div><div class="cat-block" id="block-elek">
-      <div class="cat-header" onclick="toggleCat('elek')">
-        <span class="cat-name">Elektriciteit &amp; magnetisme</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">13 grootheden</span>
-          <span class="cat-toggle" id="tog-elek">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-elek">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="elektrische spanning" oninput="updateRow('elek','ldzjddo','naam',this.value)"></td><td><input value="U" oninput="updateRow('elek','ldzjddo','sym',this.value)"></td><td><input value="volt" oninput="updateRow('elek','ldzjddo','eenh',this.value)"></td><td><input value="V" oninput="updateRow('elek','ldzjddo','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','ldzjddo')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="elektrische stroomsterkte" oninput="updateRow('elek','zkcmq6u','naam',this.value)"></td><td><input value="I" oninput="updateRow('elek','zkcmq6u','sym',this.value)"></td><td><input value="ampere" oninput="updateRow('elek','zkcmq6u','eenh',this.value)"></td><td><input value="A" oninput="updateRow('elek','zkcmq6u','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','zkcmq6u')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="weerstand" oninput="updateRow('elek','24ga0um','naam',this.value)"></td><td><input value="R" oninput="updateRow('elek','24ga0um','sym',this.value)"></td><td><input value="ohm" oninput="updateRow('elek','24ga0um','eenh',this.value)"></td><td><input value="Ω" oninput="updateRow('elek','24ga0um','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','24ga0um')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="vermogen" oninput="updateRow('elek','4zei0wi','naam',this.value)"></td><td><input value="P" oninput="updateRow('elek','4zei0wi','sym',this.value)"></td><td><input value="watt" oninput="updateRow('elek','4zei0wi','eenh',this.value)"></td><td><input value="W" oninput="updateRow('elek','4zei0wi','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','4zei0wi')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="energie" oninput="updateRow('elek','g2sr4fh','naam',this.value)"></td><td><input value="E" oninput="updateRow('elek','g2sr4fh','sym',this.value)"></td><td><input value="joule" oninput="updateRow('elek','g2sr4fh','eenh',this.value)"></td><td><input value="J" oninput="updateRow('elek','g2sr4fh','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','g2sr4fh')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="elektrische lading" oninput="updateRow('elek','rbjpyy3','naam',this.value)"></td><td><input value="Q" oninput="updateRow('elek','rbjpyy3','sym',this.value)"></td><td><input value="coulomb" oninput="updateRow('elek','rbjpyy3','eenh',this.value)"></td><td><input value="C" oninput="updateRow('elek','rbjpyy3','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','rbjpyy3')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="soortelijke weerstand" oninput="updateRow('elek','yuplz91','naam',this.value)"></td><td><input value="ρ" oninput="updateRow('elek','yuplz91','sym',this.value)"></td><td><input value="ohm meter" oninput="updateRow('elek','yuplz91','eenh',this.value)"></td><td><input value="Ω·m; Ω m" oninput="updateRow('elek','yuplz91','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','yuplz91')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="capaciteit condensator" oninput="updateRow('elek','6qiqaxo','naam',this.value)"></td><td><input value="C" oninput="updateRow('elek','6qiqaxo','sym',this.value)"></td><td><input value="farad" oninput="updateRow('elek','6qiqaxo','eenh',this.value)"></td><td><input value="F" oninput="updateRow('elek','6qiqaxo','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','6qiqaxo')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="elektrische potentiaal" oninput="updateRow('elek','458n55s','naam',this.value)"></td><td><input value="V" oninput="updateRow('elek','458n55s','sym',this.value)"></td><td><input value="volt" oninput="updateRow('elek','458n55s','eenh',this.value)"></td><td><input value="V" oninput="updateRow('elek','458n55s','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','458n55s')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="elektrische veldsterkte" oninput="updateRow('elek','jmu1xhj','naam',this.value)"></td><td><input value="E" oninput="updateRow('elek','jmu1xhj','sym',this.value)"></td><td><input value="newton per coulomb" oninput="updateRow('elek','jmu1xhj','eenh',this.value)"></td><td><input value="N/C; N C⁻¹" oninput="updateRow('elek','jmu1xhj','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','jmu1xhj')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="magnetische veldsterkte" oninput="updateRow('elek','aq7c79i','naam',this.value)"></td><td><input value="B" oninput="updateRow('elek','aq7c79i','sym',this.value)"></td><td><input value="tesla" oninput="updateRow('elek','aq7c79i','eenh',this.value)"></td><td><input value="T" oninput="updateRow('elek','aq7c79i','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','aq7c79i')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="magnetische flux" oninput="updateRow('elek','bib2pzg','naam',this.value)"></td><td><input value="Φ" oninput="updateRow('elek','bib2pzg','sym',this.value)"></td><td><input value="weber" oninput="updateRow('elek','bib2pzg','eenh',this.value)"></td><td><input value="Wb" oninput="updateRow('elek','bib2pzg','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','bib2pzg')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="zelfinductie" oninput="updateRow('elek','checrj1','naam',this.value)"></td><td><input value="L" oninput="updateRow('elek','checrj1','sym',this.value)"></td><td><input value="henry" oninput="updateRow('elek','checrj1','eenh',this.value)"></td><td><input value="H" oninput="updateRow('elek','checrj1','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('elek','checrj1')">×</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('elek','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('elek','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('elek','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('elek')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div><div class="cat-block" id="block-thermo">
-      <div class="cat-header" onclick="toggleCat('thermo')">
-        <span class="cat-name">Thermodynamica &amp; warmte</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">9 grootheden</span>
-          <span class="cat-toggle" id="tog-thermo">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-thermo">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="temperatuur" oninput="updateRow('thermo','znzi143','naam',this.value)"></td><td><input value="T; θ" oninput="updateRow('thermo','znzi143','sym',this.value)"></td><td><input value="kelvin; graden Celsius" oninput="updateRow('thermo','znzi143','eenh',this.value)"></td><td><input value="K; °C" oninput="updateRow('thermo','znzi143','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','znzi143')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="warmte" oninput="updateRow('thermo','cprgs2a','naam',this.value)"></td><td><input value="Q" oninput="updateRow('thermo','cprgs2a','sym',this.value)"></td><td><input value="joule" oninput="updateRow('thermo','cprgs2a','eenh',this.value)"></td><td><input value="J" oninput="updateRow('thermo','cprgs2a','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','cprgs2a')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="soortelijke warmte" oninput="updateRow('thermo','8k4uvum','naam',this.value)"></td><td><input value="c" oninput="updateRow('thermo','8k4uvum','sym',this.value)"></td><td><input value="joule per kilogram kelvin" oninput="updateRow('thermo','8k4uvum','eenh',this.value)"></td><td><input value="J/(kg·K); J/kg/K; J kg⁻¹ K⁻¹" oninput="updateRow('thermo','8k4uvum','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','8k4uvum')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-ob">Onderbouw</span></td>
-                <td><input value="warmtecapaciteit" oninput="updateRow('thermo','d844naf','naam',this.value)"></td><td><input value="C" oninput="updateRow('thermo','d844naf','sym',this.value)"></td><td><input value="joule per kelvin" oninput="updateRow('thermo','d844naf','eenh',this.value)"></td><td><input value="J/K; J K⁻¹" oninput="updateRow('thermo','d844naf','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','d844naf')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="warmtestroom" oninput="updateRow('thermo','kfojh93','naam',this.value)"></td><td><input value="P" oninput="updateRow('thermo','kfojh93','sym',this.value)"></td><td><input value="watt" oninput="updateRow('thermo','kfojh93','eenh',this.value)"></td><td><input value="W" oninput="updateRow('thermo','kfojh93','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','kfojh93')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="warmtegeleidingscoëfficiënt" oninput="updateRow('thermo','afwchxo','naam',this.value)"></td><td><input value="λ" oninput="updateRow('thermo','afwchxo','sym',this.value)"></td><td><input value="watt per meter kelvin" oninput="updateRow('thermo','afwchxo','eenh',this.value)"></td><td><input value="W/(m·K); W/m/K; W m⁻¹ K⁻¹" oninput="updateRow('thermo','afwchxo','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','afwchxo')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="debiet / volumestroom" oninput="updateRow('thermo','xw7i21q','naam',this.value)"></td><td><input value="Q" oninput="updateRow('thermo','xw7i21q','sym',this.value)"></td><td><input value="kubieke meter per seconde" oninput="updateRow('thermo','xw7i21q','eenh',this.value)"></td><td><input value="m³/s; m³ s⁻¹" oninput="updateRow('thermo','xw7i21q','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','xw7i21q')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="hoeveelheid stof" oninput="updateRow('thermo','u40j9s4','naam',this.value)"></td><td><input value="n" oninput="updateRow('thermo','u40j9s4','sym',this.value)"></td><td><input value="mol" oninput="updateRow('thermo','u40j9s4','eenh',this.value)"></td><td><input value="mol" oninput="updateRow('thermo','u40j9s4','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','u40j9s4')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="concentratie" oninput="updateRow('thermo','m3g7z5h','naam',this.value)"></td><td><input value="c" oninput="updateRow('thermo','m3g7z5h','sym',this.value)"></td><td><input value="mol per kubieke meter" oninput="updateRow('thermo','m3g7z5h','eenh',this.value)"></td><td><input value="mol/m³; mol m⁻³" oninput="updateRow('thermo','m3g7z5h','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('thermo','m3g7z5h')">×</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('thermo','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('thermo','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('thermo','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('thermo')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div><div class="cat-block" id="block-kern">
-      <div class="cat-header" onclick="toggleCat('kern')">
-        <span class="cat-name">Kernfysica &amp; straling</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">10 grootheden</span>
-          <span class="cat-toggle" id="tog-kern">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-kern">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="activiteit" oninput="updateRow('kern','eprb30p','naam',this.value)"></td><td><input value="A" oninput="updateRow('kern','eprb30p','sym',this.value)"></td><td><input value="becquerel" oninput="updateRow('kern','eprb30p','eenh',this.value)"></td><td><input value="Bq" oninput="updateRow('kern','eprb30p','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','eprb30p')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="geabsorbeerde dosis" oninput="updateRow('kern','0nuqt9y','naam',this.value)"></td><td><input value="D" oninput="updateRow('kern','0nuqt9y','sym',this.value)"></td><td><input value="gray" oninput="updateRow('kern','0nuqt9y','eenh',this.value)"></td><td><input value="Gy" oninput="updateRow('kern','0nuqt9y','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','0nuqt9y')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="dosisequivalent" oninput="updateRow('kern','o2oqh0o','naam',this.value)"></td><td><input value="H" oninput="updateRow('kern','o2oqh0o','sym',this.value)"></td><td><input value="sievert" oninput="updateRow('kern','o2oqh0o','eenh',this.value)"></td><td><input value="Sv" oninput="updateRow('kern','o2oqh0o','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','o2oqh0o')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="halveringstijd" oninput="updateRow('kern','nv1ur0r','naam',this.value)"></td><td><input value="t½" oninput="updateRow('kern','nv1ur0r','sym',this.value)"></td><td><input value="seconde" oninput="updateRow('kern','nv1ur0r','eenh',this.value)"></td><td><input value="s" oninput="updateRow('kern','nv1ur0r','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','nv1ur0r')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="halveringsdikte" oninput="updateRow('kern','skmme6x','naam',this.value)"></td><td><input value="d½" oninput="updateRow('kern','skmme6x','sym',this.value)"></td><td><input value="meter" oninput="updateRow('kern','skmme6x','eenh',this.value)"></td><td><input value="m" oninput="updateRow('kern','skmme6x','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','skmme6x')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="massagetal" oninput="updateRow('kern','gcifhwu','naam',this.value)"></td><td><input value="A" oninput="updateRow('kern','gcifhwu','sym',this.value)"></td><td><input value="(geen eenheid)" oninput="updateRow('kern','gcifhwu','eenh',this.value)"></td><td><input value="" oninput="updateRow('kern','gcifhwu','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','gcifhwu')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="atoomnummer" oninput="updateRow('kern','3wbrt8e','naam',this.value)"></td><td><input value="Z" oninput="updateRow('kern','3wbrt8e','sym',this.value)"></td><td><input value="(geen eenheid)" oninput="updateRow('kern','3wbrt8e','eenh',this.value)"></td><td><input value="" oninput="updateRow('kern','3wbrt8e','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','3wbrt8e')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="stralingsweegfactor" oninput="updateRow('kern','2q4rsw8','naam',this.value)"></td><td><input value="w_R" oninput="updateRow('kern','2q4rsw8','sym',this.value)"></td><td><input value="sievert per gray" oninput="updateRow('kern','2q4rsw8','eenh',this.value)"></td><td><input value="Sv/Gy" oninput="updateRow('kern','2q4rsw8','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','2q4rsw8')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-vw">Vwo</span></td>
-                <td><input value="vervalconstante" oninput="updateRow('kern','get03d3','naam',this.value)"></td><td><input value="λ" oninput="updateRow('kern','get03d3','sym',this.value)"></td><td><input value="per seconde" oninput="updateRow('kern','get03d3','eenh',this.value)"></td><td><input value="s⁻¹" oninput="updateRow('kern','get03d3','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','get03d3')">×</button></td>
-              </tr>
-              <tr>
-                <td><span class="row-badge badge-hv">Havo</span></td>
-                <td><input value="fotonenergie" oninput="updateRow('kern','v116arw','naam',this.value)"></td><td><input value="E" oninput="updateRow('kern','v116arw','sym',this.value)"></td><td><input value="joule; electronvolt" oninput="updateRow('kern','v116arw','eenh',this.value)"></td><td><input value="J; eV" oninput="updateRow('kern','v116arw','esym',this.value)"></td>
-                <td><button class="del-btn" onclick="delRow('kern','v116arw')">×</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('kern','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('kern','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('kern','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('kern')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div></div>
-  <div class="new-cat-row">
-    <input class="field-input" id="new-cat-name" placeholder="Naam nieuwe categorie...">
-    <select class="field-input" id="new-cat-level" style="flex:0;min-width:140px">
-      <option value="ob">Onderbouw</option>
-      <option value="hv">Havo bovenbouw</option>
-      <option value="vw">Vwo bovenbouw</option>
-    </select>
-    <button class="blue-btn" onclick="addCat()">+ Categorie</button>
-  </div>
-  <div class="info-block"><strong>Meerdere notaties:</strong> scheid ze met een puntkomma, bijv. <em>J/(kg·K); J/kg/K</em>. Vermenigvuldigingstekens (·, ., x, * en spatie) worden onderling uitgewisseld bij het controleren.</div>
-  <button class="dl-btn" onclick="downloadHTML()">Opslaan als HTML-bestand</button>
-</div>
 
-<div class="panel" id="panel-settings">
-  <div class="section-title">Instellingen</div>
-  <div style="margin-bottom:14px">
-    <div class="setting-label" style="margin-bottom:8px">Niveau voorinstelling</div>
-    <div class="level-filter">
-      <button class="lf-btn active" onclick="setSettingsLevel('ob')">Onderbouw</button>
-      <button class="lf-btn" onclick="setSettingsLevel('hv')">Havo bovenbouw</button>
-      <button class="lf-btn" onclick="setSettingsLevel('vw')">Vwo bovenbouw</button>
-      <button class="lf-btn" onclick="setSettingsLevel('all')">Alles</button>
-    </div>
-  </div>
+  <div class="section-title">Wat wil je oefenen?</div>
   <div class="settings-grid">
     <div class="setting-card">
-      <div class="setting-label">Wat tonen? (gegeven)</div>
-      <label class="check-row"><input type="checkbox" id="show-naam" checked=""> Grootheid</label>
+      <div class="setting-label">Wat krijg je te zien?</div>
+      <label class="check-row"><input type="checkbox" id="show-naam" checked> Grootheid</label>
       <label class="check-row"><input type="checkbox" id="show-sym"> Symbool</label>
       <label class="check-row"><input type="checkbox" id="show-eenh"> Eenheid</label>
       <label class="check-row"><input type="checkbox" id="show-esym"> Eenheidssymbool</label>
     </div>
     <div class="setting-card">
-      <div class="setting-label">Wat vragen?</div>
+      <div class="setting-label">Wat moet je invullen?</div>
       <label class="check-row"><input type="checkbox" id="ask-naam"> Grootheid</label>
-      <label class="check-row"><input type="checkbox" id="ask-sym" checked=""> Symbool</label>
-      <label class="check-row"><input type="checkbox" id="ask-eenh" checked=""> Eenheid</label>
-      <label class="check-row"><input type="checkbox" id="ask-esym"> Eenheidssymbool</label>
+      <label class="check-row"><input type="checkbox" id="ask-sym" checked> Symbool</label>
+      <label class="check-row"><input type="checkbox" id="ask-eenh"> Eenheid</label>
+      <label class="check-row"><input type="checkbox" id="ask-esym" checked> Eenheidssymbool</label>
     </div>
     <div class="setting-card">
       <div class="setting-label">Vraagvorm</div>
-      <label class="radio-row"><input type="radio" name="qmode" value="open" checked=""> Open antwoord</label>
+      <label class="radio-row"><input type="radio" name="qmode" value="open" checked> Open antwoord</label>
       <label class="radio-row"><input type="radio" name="qmode" value="mc"> Multiple choice</label>
     </div>
     <div class="setting-card">
-      <div class="setting-label">Volgorde en timer</div>
-      <label class="check-row"><input type="checkbox" id="shuffle" checked=""> Willekeurige volgorde</label>
+      <div class="setting-label">Volgorde & timer</div>
+      <label class="check-row"><input type="checkbox" id="shuffle" checked> Willekeurige volgorde</label>
       <label class="check-row"><input type="checkbox" id="use-timer"> Tijdslimiet per vraag</label>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-left:25px">
-        <input type="number" id="timer-sec" value="15" min="5" max="120" style="width:60px;border:1.5px solid var(--border-dark);border-radius:6px;padding:4px 8px;font-size:13px;font-family:'Segoe UI',sans-serif">
+      <div class="timer-settings">
+        <input type="number" class="timer-input" id="timer-sec" value="15" min="5" max="120">
         <span style="font-size:13px;color:var(--text-muted)">seconden</span>
       </div>
     </div>
   </div>
+
   <div class="settings-full">
-    <div class="setting-label">Welke categorieën oefenen?</div>
-    <div style="display:flex;gap:8px;margin:8px 0">
-      <button class="blue-btn" style="font-size:12px;padding:5px 12px" onclick="selectVisibleCats(true)">Alles aan</button>
-      <button class="blue-btn" style="font-size:12px;padding:5px 12px;background:var(--text-muted)" onclick="selectVisibleCats(false)">Alles uit</button>
+    <div class="setting-label">Welke categorieën?</div>
+    <div class="cat-btn-row">
+      <button class="cat-toggle-btn" onclick="selectVisibleCats(true)">Alles aan</button>
+      <button class="cat-toggle-btn" onclick="selectVisibleCats(false)">Alles uit</button>
     </div>
     <div class="cat-check-grid" id="cat-checks"></div>
   </div>
+
   <button class="start-btn" onclick="startQuiz()">Starten met oefenen</button>
 </div>
 
+<!-- QUIZ PANEL -->
 <div class="panel" id="panel-quiz">
   <div id="quiz-area"></div>
 </div>
+
 </div>
 
 <script>
@@ -706,7 +329,6 @@ const FIELDS=['naam','sym','eenh','esym'];
 const LABELS={naam:'Grootheid',sym:'Symbool',eenh:'Eenheid',esym:'Eenheidssymbool'};
 const SYMBOLS=['Ω','°','µ','·','²','³','⁻¹','⁻²','Δ','λ','ρ','Φ','φ','η','α','β','γ','δ','θ','κ','τ','σ'];
 
-// default=true means checked by default in settings; default=false means unchecked
 const CATS_DATA=[
   {key:'mech',label:'Mechanica',def:true,rows:[
     {lv:'ob',naam:'massa',sym:'m',eenh:'kilogram',esym:'kg'},
@@ -724,7 +346,6 @@ const CATS_DATA=[
     {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule',esym:'J'},
     {lv:'ob',naam:'energie',sym:'E',eenh:'joule',esym:'J'},
     {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt',esym:'W'},
-    {lv:'hv',naam:'afstand',sym:'s',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde',esym:'kg·m/s; kg m s⁻¹'},
     {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm'},
@@ -794,139 +415,68 @@ const CATS_DATA=[
 ];
 
 let cats=[];
-let levelFilter='ob';
-let settingsLevel='ob';
+let currentLevel='ob';
 let activeInputId=null;
 
 function uid(){return Math.random().toString(36).slice(2,9)}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 function normalize(s){
-  return s.trim().toLowerCase()
-    .replace(/\s+/g,' ')
-    .replace(/[·.*x×]/g,'·')
-    .replace(/\s*·\s*/g,'·');
+  let v=s.trim().toLowerCase().replace(/\s+/g,' ').replace(/[·.*x×]/g,'·').replace(/\s*·\s*/g,'·');
+  // Handle fraction/subscript alternatives
+  v=v.replace(/1\/2/g,'½');
+  v=v.replace(/\^2/g,'²').replace(/\^3/g,'³').replace(/\^-1/g,'⁻¹').replace(/\^-2/g,'⁻²');
+  v=v.replace(/_r/g,'_R'); // w_r → w_R
+  return v;
 }
 
-function levelsFor(filter){
-  if(filter==='ob')return['ob'];
-  if(filter==='hv')return['ob','hv'];
-  if(filter==='vw')return['ob','hv','vw'];
+function levelsFor(level){
+  if(level==='ob')return['ob'];
+  if(level==='hv')return['ob','hv'];
   return['ob','hv','vw'];
 }
 
-function catHasVisibleRows(cat,filter){
-  const lv=levelsFor(filter);
+function catHasVisibleRows(cat,level){
+  const lv=levelsFor(level);
   return cat.rows.some(r=>lv.includes(r.lv));
 }
 
-function badgeClass(lv){return lv==='ob'?'badge-ob':lv==='hv'?'badge-hv':'badge-vw'}
-function badgeLabel(lv){return lv==='ob'?'Onderbouw':lv==='hv'?'Havo':'Vwo'}
-
-function initCats(){
+function init(){
   cats=CATS_DATA.map(c=>({...c,rows:c.rows.map(r=>({id:uid(),...r}))}));
-  renderCatList();
-}
-
-function setLevelFilter(lv){
-  levelFilter=lv;
-  document.querySelectorAll('#panel-editor .lf-btn').forEach((b,i)=>b.classList.toggle('active',['ob','hv','vw','all'][i]===lv));
-  renderCatList();
-}
-
-function setSettingsLevel(lv){
-  settingsLevel=lv;
-  document.querySelectorAll('#panel-settings .lf-btn').forEach((b,i)=>b.classList.toggle('active',['ob','hv','vw','all'][i]===lv));
   renderCatChecks();
 }
 
-function renderCatList(){
-  const div=document.getElementById('cat-list');
-  const visLevels=levelsFor(levelFilter);
-  div.innerHTML=cats.map(cat=>{
-    const vis=catHasVisibleRows(cat,levelFilter);
-    const visRows=cat.rows.filter(r=>visLevels.includes(r.lv));
-    return `<div class="cat-block${vis?'':' hidden-cat'}" id="block-${cat.key}">
-      <div class="cat-header" onclick="toggleCat('${cat.key}')">
-        <span class="cat-name">${escHtml(cat.label)}</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cat-count">${visRows.length} grootheden</span>
-          <span class="cat-toggle" id="tog-${cat.key}">▼</span>
-        </div>
-      </div>
-      <div class="cat-body" id="body-${cat.key}">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th class="th-level">Niveau</th><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th></th></tr></thead>
-            <tbody>${visRows.map(r=>`
-              <tr>
-                <td><span class="row-badge ${badgeClass(r.lv)}">${badgeLabel(r.lv)}</span></td>
-                ${FIELDS.map(f=>`<td><input value="${escHtml(r[f])}" oninput="updateRow('${cat.key}','${r.id}','${f}',this.value)"></td>`).join('')}
-                <td><button class="del-btn" onclick="delRow('${cat.key}','${r.id}')">×</button></td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-        <div class="cat-footer">
-          <button class="small-btn" onclick="addRow('${cat.key}','ob')">+ Onderbouw</button>
-          <button class="small-btn" onclick="addRow('${cat.key}','hv')">+ Havo</button>
-          <button class="small-btn" onclick="addRow('${cat.key}','vw')">+ Vwo</button>
-          <button class="small-btn danger" onclick="delCat('${cat.key}')">Verwijder categorie</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleCat(key){
-  const body=document.getElementById('body-'+key);
-  const tog=document.getElementById('tog-'+key);
-  body.classList.toggle('open');
-  tog.classList.toggle('open',body.classList.contains('open'));
-}
-function updateRow(catKey,id,field,val){const cat=cats.find(c=>c.key===catKey);const r=cat?.rows.find(r=>r.id===id);if(r)r[field]=val;}
-function delRow(catKey,id){const cat=cats.find(c=>c.key===catKey);if(cat){cat.rows=cat.rows.filter(r=>r.id!==id);renderCatList();}}
-function addRow(catKey,lv){
-  const cat=cats.find(c=>c.key===catKey);if(!cat)return;
-  cat.rows.push({id:uid(),lv,naam:'',sym:'',eenh:'',esym:''});
-  renderCatList();
-  const body=document.getElementById('body-'+catKey);const tog=document.getElementById('tog-'+catKey);
-  body.classList.add('open');tog.classList.add('open');
-}
-function delCat(key){if(!confirm('Categorie verwijderen?'))return;cats=cats.filter(c=>c.key!==key);renderCatList();}
-function addCat(){
-  const name=document.getElementById('new-cat-name').value.trim();
-  if(!name)return;
-  cats.push({key:uid(),label:name,def:true,rows:[]});
-  document.getElementById('new-cat-name').value='';
-  renderCatList();
+function setLevel(lv){
+  currentLevel=lv;
+  document.querySelectorAll('.lv-btn').forEach((b,i)=>b.classList.toggle('active',['ob','hv','vw'][i]===lv));
+  renderCatChecks();
 }
 
 function renderCatChecks(){
   const div=document.getElementById('cat-checks');
-  div.innerHTML=cats.filter(c=>catHasVisibleRows(c,settingsLevel)).map(c=>`
-    <label class="check-row" style="margin-bottom:3px">
+  div.innerHTML=cats.filter(c=>catHasVisibleRows(c,currentLevel)).map(c=>`
+    <label class="check-row" style="margin-bottom:4px">
       <input type="checkbox" class="cat-chk" value="${c.key}"${c.def?' checked':''}> ${escHtml(c.label)}
     </label>`).join('');
 }
+
 function selectVisibleCats(v){document.querySelectorAll('.cat-chk').forEach(c=>c.checked=v);}
 
-function insertSymbol(sym){
-  const inp=document.getElementById(activeInputId);if(!inp)return;
-  const s=inp.selectionStart,e=inp.selectionEnd;
-  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
-  inp.selectionStart=inp.selectionEnd=s+sym.length;
-  inp.focus();inp.dispatchEvent(new Event('input'));
-}
-function symPickerHTML(inputId){
-  return `<div class="sym-picker" id="sp-${inputId}">${SYMBOLS.map(s=>`<button class="sym-btn" onclick="activeInputId='${inputId}';insertSymbol('${s.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${escHtml(s)}</button>`).join('')}</div>`;
+function showPanel(p){
+  ['settings','quiz'].forEach((n,i)=>{
+    document.getElementById('panel-'+n).classList.toggle('active',n===p);
+    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',n===p);
+  });
+  if(p==='settings')renderCatChecks();
 }
 
-let Q={};let timerInt=null;
+// ── QUIZ LOGIC ──
+
+let Q={};let timerInt=null;let mcAnswers={};
 
 function activeRowsForQuiz(){
   const checked=Array.from(document.querySelectorAll('.cat-chk:checked')).map(c=>c.value);
-  const visLevels=levelsFor(settingsLevel);
+  const visLevels=levelsFor(currentLevel);
   return checked.flatMap(k=>(cats.find(c=>c.key===k)?.rows||[]).filter(r=>visLevels.includes(r.lv)));
 }
 function allPoolRows(){return cats.flatMap(c=>c.rows);}
@@ -939,13 +489,25 @@ function startQuiz(){
   const useTimer=document.getElementById('use-timer').checked;
   const timerSec=parseInt(document.getElementById('timer-sec').value)||15;
   let rows=activeRowsForQuiz().filter(r=>shown.some(f=>r[f])&&asked.some(f=>r[f]));
-  if(!rows.length){alert('Geen rijen gevonden. Controleer je selectie.');return}
+  if(!rows.length){alert('Geen grootheden gevonden voor deze selectie. Pas je instellingen aan.');return}
   if(document.getElementById('shuffle').checked)rows=rows.sort(()=>Math.random()-.5);
   Q={items:rows,idx:0,score:0,wrong:[],checked:false,shown,asked,mode,useTimer,timerSec,retrying:false};
   showPanel('quiz');renderCard();
 }
 
 function displayVal(raw){return(raw||'').split(';')[0].trim();}
+
+function symPickerHTML(inputId){
+  return `<div class="sym-picker" id="sp-${inputId}">${SYMBOLS.map(s=>`<button class="sym-btn" type="button" tabindex="-1" onclick="activeInputId='${inputId}';insertSymbol('${s.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${escHtml(s)}</button>`).join('')}</div>`;
+}
+
+function insertSymbol(sym){
+  const inp=document.getElementById(activeInputId);if(!inp)return;
+  const s=inp.selectionStart,e=inp.selectionEnd;
+  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
+  inp.selectionStart=inp.selectionEnd=s+sym.length;
+  inp.focus();inp.dispatchEvent(new Event('input'));
+}
 
 function renderCard(){
   clearInterval(timerInt);
@@ -970,11 +532,11 @@ function renderCard(){
       const primary=variants[0];
       const pool=allPoolRows().map(r=>displayVal(r[f])).filter(v=>v&&!variants.map(normalize).includes(normalize(v)));
       const opts=[primary,...[...new Set(pool)].sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
-      return `<div class="ask-item"><label class="ask-label">${LABELS[f]}</label><div class="mc-options" id="mc-${f}">${opts.map((o,i)=>`<button class="mc-btn" onclick="selectMC('${f}',${i})">${escHtml(o)}</button>`).join('')}</div></div>`;
+      return `<div class="ask-item"><label class="ask-label">${LABELS[f]}</label><div class="mc-options" id="mc-${f}">${opts.map((o,i)=>`<button class="mc-btn" type="button" onclick="selectMC('${f}',${i})">${escHtml(o)}</button>`).join('')}</div></div>`;
     }).join('');
   }
   area.innerHTML=`
-    <div class="progress-meta"><span>${Q.retrying?'Herhaling fouten':'Vraag'} ${Q.idx+1} / ${list.length}</span><span style="color:var(--blue);font-weight:700">Score: ${Q.score}</span></div>
+    <div class="progress-meta"><span>${Q.retrying?'Herhaling fouten':'Vraag'} ${Q.idx+1} / ${list.length}</span><span class="score">Score: ${Q.score}</span></div>
     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
     ${timerHTML}
     <div class="qcard">
@@ -994,7 +556,6 @@ function renderCard(){
   if(Q.useTimer)startTimer();
 }
 
-let mcAnswers={};
 function selectMC(field,idx){
   if(Q.checked)return;
   mcAnswers[field]=idx;
@@ -1012,7 +573,7 @@ function startTimer(){
     const arc=document.getElementById('tarc');const txt=document.getElementById('ttext');
     if(!arc)return;
     arc.style.strokeDashoffset=113*(1-left/Q.timerSec);
-    arc.style.stroke=left<=5?'var(--red)':'var(--blue)';
+    arc.style.stroke=left<=5?'var(--red)':'var(--accent)';
     txt.textContent=left;
     if(left<=0){clearInterval(timerInt);skipCard();}
     left--;
@@ -1083,8 +644,8 @@ function showEnd(){
   const wc=Q.wrong.length;
   const retryHTML=(!Q.retrying&&wc>0)?`<div class="retry-section"><div class="retry-label">${wc} vraag${wc>1?'en':''} fout. Wil je die herhalen?</div><button class="qbtn primary" onclick="retryWrong()">Fouten herhalen (${wc})</button></div>`:'';
   document.getElementById('quiz-area').innerHTML=`<div class="end-screen">
-    <div style="font-size:20px;font-weight:700;color:var(--blue-dark);margin-bottom:14px">${msg}</div>
-    <div class="end-score">${Q.score}<span style="font-size:28px;color:var(--text-muted)">/${total}</span></div>
+    <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:16px">${msg}</div>
+    <div class="end-score">${Q.score}<span>/${total}</span></div>
     <div class="end-pct">${pct}%</div><div class="end-sub">correct beantwoord</div>
     <div class="end-badge">${Q.retrying?'Herhaling voltooid':'Ronde afgerond'}</div>
     <div class="end-btns"><button class="qbtn" onclick="showPanel('settings')">Instellingen</button><button class="qbtn primary" onclick="startQuiz()">Opnieuw</button></div>
@@ -1096,21 +657,7 @@ function retryWrong(){
   Q={...Q,items:wrong,wrong:[],idx:0,score:0,checked:false,retrying:true};renderCard();
 }
 
-function showPanel(p){
-  ['editor','settings','quiz'].forEach((n,i)=>{
-    document.getElementById('panel-'+n).classList.toggle('active',n===p);
-    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',n===p);
-  });
-  if(p==='settings')renderCatChecks();
-}
-
-function downloadHTML(){
-  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='grootheden_overhoor.html';a.click();
-}
-
-initCats();
+init();
 </script>
-
-
-</body></html>
+</body>
+</html>
