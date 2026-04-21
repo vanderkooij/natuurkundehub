@@ -4,20 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NatuurkundeHub</title>
+<link rel="icon" type="image/png" href="/Logo_JvdK.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-primary: #0a0e17;
-    --bg-secondary: #111827;
-    --bg-card: #161f33;
-    --bg-card-hover: #1c2844;
+    --bg-primary: #101720;
+    --bg-secondary: #161e2e;
+    --bg-card: #182234;
+    --bg-card-hover: #1e2d44;
     --accent: #3b82f6;
     --accent-glow: rgba(59, 130, 246, 0.25);
     --accent-secondary: #06b6d4;
-    --text-primary: #f1f5f9;
+    --accent-amber: #f0a830;
+    --accent-amber-glow: rgba(240, 168, 48, 0.2);
+    --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --border: rgba(148, 163, 184, 0.08);
+    --border: rgba(59, 130, 246, 0.08);
     --border-hover: rgba(59, 130, 246, 0.3);
     --radius: 16px;
     --font-display: 'Space Grotesk', sans-serif;
@@ -64,7 +67,7 @@
     right: -100px;
   }
   .ambient-glow--cyan {
-    background: var(--accent-secondary);
+    background: var(--accent-amber);
     bottom: -200px;
     left: -100px;
   }
@@ -98,14 +101,14 @@
   .logo-icon {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    background: #1e3a4f;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
     font-weight: 700;
-    color: white;
+    color: var(--accent-amber);
     box-shadow: 0 0 20px var(--accent-glow);
   }
 
@@ -235,8 +238,8 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0;
+    background: linear-gradient(90deg, var(--accent-amber), transparent);
+    opacity: 1;
     transition: opacity 0.3s;
   }
 
@@ -368,7 +371,7 @@
   <!-- NAV -->
   <nav>
     <a href="/" class="logo">
-      <div class="logo-icon">N</div>
+      <img src="/Logo_JvdK.png" alt="NatuurkundeHub" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">
       <div class="logo-text">Natuurkunde<span>Hub</span></div>
     </a>
     <a href="/admin" class="nav-admin" title="Admin">⌘ admin</a>
