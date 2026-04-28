@@ -1,0 +1,8 @@
+/* JvdK Website Kleurenpalet */
+
+:root {
+  --kleur-basis:       #1A1A2E;  /* bijna-zwart, tekst en JK-letter */
+  --kleur-cyaan:       #0BB5C8;  /* primair accent, golf */
+  --kleur-amber:       #D4923A;  /* secundair accent, pijl */
+  --kleur-achtergrond: #FFFFFF;  /* lichte achtergrond */
+}

@@ -1,0 +1,9 @@
+[build]
+  command = "bash build.sh"
+  publish = "dist"
+
+# CircuitSketch is een SPA: stuur alle routes binnen /circuitsketch/* naar de app
+[[redirects]]
+  from = "/circuitsketch/*"
+  to = "/circuitsketch/index.html"
+  status = 200
