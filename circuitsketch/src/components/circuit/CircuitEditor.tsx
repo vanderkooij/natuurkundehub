@@ -1092,7 +1092,7 @@ export default function CircuitEditor() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [selection, editingLabel, undo, redo, tool, wireStart]);
+  }, [selection, editingLabel, undo, redo, tool, wireStart, rotateSelection, deleteSelection]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
