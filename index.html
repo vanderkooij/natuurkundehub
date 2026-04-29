@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NatuurkundeHub</title>
-<link rel="icon" type="image/svg+xml" href="assets/logo/JK_light.svg">
+<link rel="icon" type="image/svg+xml" href="assets/logo/JK_light.svg" id="favicon">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -14,7 +14,6 @@
     --bg-card-hover: #f0fafb;
     --accent: #0BB5C8;
     --accent-glow: rgba(11, 181, 200, 0.2);
-    --accent-secondary: #0BB5C8;
     --accent-amber: #D4923A;
     --accent-amber-glow: rgba(212, 146, 58, 0.15);
     --text-primary: #1A1A2E;
@@ -22,9 +21,25 @@
     --text-muted: #64748b;
     --border: rgba(11, 181, 200, 0.12);
     --border-hover: rgba(11, 181, 200, 0.45);
+    --border-solid: #d4e8ec;
     --radius: 16px;
     --font-display: 'Space Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  [data-theme="dark"] {
+    --bg-primary: #0f1117;
+    --bg-secondary: #161b26;
+    --bg-card: #1c2333;
+    --bg-card-hover: #222b3d;
+    --accent-glow: rgba(11, 181, 200, 0.25);
+    --accent-amber-glow: rgba(212, 146, 58, 0.2);
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: rgba(11, 181, 200, 0.08);
+    --border-hover: rgba(11, 181, 200, 0.45);
+    --border-solid: #1e2d44;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,6 +50,7 @@
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background .3s, color .3s;
   }
 
   body::before {
@@ -59,16 +75,8 @@
     pointer-events: none;
     z-index: 0;
   }
-  .ambient-glow--blue {
-    background: var(--accent);
-    top: -200px;
-    right: -100px;
-  }
-  .ambient-glow--cyan {
-    background: var(--accent-amber);
-    bottom: -200px;
-    left: -100px;
-  }
+  .ambient-glow--blue { background: var(--accent); top: -200px; right: -100px; }
+  .ambient-glow--cyan { background: var(--accent-amber); bottom: -200px; left: -100px; }
 
   .container {
     position: relative;
@@ -95,12 +103,21 @@
     color: var(--text-primary);
   }
 
-  .logo-text {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
+  .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
   .logo-text span { color: var(--accent); }
+
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border-solid);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: all .2s;
+    line-height: 1;
+  }
+  .theme-toggle:hover { border-color: var(--border-hover); color: var(--accent); }
 
   .hero {
     padding: 80px 0 60px;
@@ -125,8 +142,7 @@
   }
   .hero-badge::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     background: var(--accent);
     border-radius: 50%;
     animation: pulse 2s infinite;
@@ -140,7 +156,7 @@
     margin-bottom: 16px;
   }
   .hero h1 .gradient {
-    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    background: linear-gradient(135deg, var(--accent), var(--accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -197,8 +213,6 @@
     top: 0; left: 0; right: 0;
     height: 2px;
     background: linear-gradient(90deg, var(--accent-amber), transparent);
-    opacity: 1;
-    transition: opacity 0.3s;
   }
 
   .tool-card:hover {
@@ -209,41 +223,19 @@
   }
 
   .tool-icon {
-    width: 48px;
-    height: 48px;
+    width: 48px; height: 48px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
     margin-bottom: 20px;
   }
-  .tool-icon--blue {
-    background: rgba(11, 181, 200, 0.1);
-    border: 1px solid rgba(11, 181, 200, 0.15);
-  }
-  .tool-icon--cyan {
-    background: rgba(212, 146, 58, 0.1);
-    border: 1px solid rgba(212, 146, 58, 0.15);
-  }
-  .tool-icon--purple {
-    background: rgba(100, 116, 139, 0.1);
-    border: 1px solid rgba(100, 116, 139, 0.15);
-  }
+  .tool-icon--blue { background: rgba(11, 181, 200, 0.1); border: 1px solid rgba(11, 181, 200, 0.15); }
+  .tool-icon--cyan { background: rgba(212, 146, 58, 0.1); border: 1px solid rgba(212, 146, 58, 0.15); }
+  .tool-icon--purple { background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(100, 116, 139, 0.15); }
 
-  .tool-card h3 {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-  }
-
-  .tool-card p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
+  .tool-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.3px; }
+  .tool-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
 
   .tool-tag {
     font-family: var(--font-mono);
@@ -264,17 +256,8 @@
   }
   .tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(4px); }
 
-  .tool-card--soon {
-    border-style: dashed;
-    opacity: 0.5;
-    cursor: default;
-  }
-  .tool-card--soon:hover {
-    transform: none;
-    box-shadow: none;
-    background: var(--bg-card);
-    border-color: var(--border);
-  }
+  .tool-card--soon { border-style: dashed; opacity: 0.5; cursor: default; }
+  .tool-card--soon:hover { transform: none; box-shadow: none; background: var(--bg-card); border-color: var(--border); }
   .tool-card--soon::before { display: none; }
 
   footer {
@@ -288,9 +271,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
   }
-  .footer-logo { height: 32px; opacity: 0.15; }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
@@ -322,9 +304,10 @@
 
   <nav>
     <a href="/" class="logo">
-      <img src="assets/logo/JK_light.svg" alt="JK logo" style="height: 36px;">
+      <img src="assets/logo/JK_light.svg" alt="JK logo" id="nav-logo" style="height: 36px;">
       <div class="logo-text">Natuurkunde<span>Hub</span></div>
     </a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
   </nav>
 
   <section class="hero">
@@ -360,7 +343,7 @@
         <span class="tool-arrow">→</span>
         <h3>CircuitSketch</h3>
         <p>Teken elektrische schakelingen snel en netjes. Handig voor practica en samenvattingen.</p>
-        <span class="tool-tag">simulatie</span>
+        <span class="tool-tag">tekenen</span>
       </a>
 
       <div class="tool-card tool-card--soon">
@@ -378,11 +361,50 @@
   </section>
 
   <footer>
-    <img src="assets/logo/JK_black.svg" alt="JK logo" style="height: 24px; opacity: 0.4; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+    <img id="footer-logo" src="assets/logo/JK_black.svg" alt="JK logo" style="height: 24px; opacity: 0.4;">
     Jop van der Kooij · NatuurkundeHub · © 2026
   </footer>
 
 </div>
+
+<script>
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const navLogo = document.getElementById('nav-logo');
+  const footerLogo = document.getElementById('footer-logo');
+  const btn = document.getElementById('theme-btn');
+  const favicon = document.getElementById('favicon');
+  if (theme === 'dark') {
+    if (navLogo) navLogo.src = 'assets/logo/JK_dark.svg';
+    if (footerLogo) footerLogo.src = 'assets/logo/JK_white.svg';
+    if (favicon) favicon.href = 'assets/logo/JK_dark.svg';
+    if (btn) btn.textContent = '☀️';
+  } else {
+    if (navLogo) navLogo.src = 'assets/logo/JK_light.svg';
+    if (footerLogo) footerLogo.src = 'assets/logo/JK_black.svg';
+    if (favicon) favicon.href = 'assets/logo/JK_light.svg';
+    if (btn) btn.textContent = '🌙';
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('nh-theme', next);
+  applyTheme(next);
+}
+
+(function() {
+  const saved = localStorage.getItem('nh-theme');
+  if (saved) {
+    applyTheme(saved);
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyTheme('dark');
+  } else {
+    applyTheme('light');
+  }
+})();
+</script>
 
 </body>
 </html>
