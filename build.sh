@@ -2,7 +2,7 @@
 set -e
 
 # Build de CircuitSketch Vite app
-cd sketch-circuit-draw
+cd circuitsketch
 npm install
 npm run build
 cd ..
@@ -13,10 +13,10 @@ mkdir -p dist
 
 # Kopieer de hub en statische bestanden
 cp index.html dist/
-cp Logo_JvdK.png dist/
+cp -r assets dist/assets
 
 # Kopieer het Overhoorprogramma (statische HTML)
 cp -r overhoor dist/overhoor
 
 # Kopieer de gebouwde CircuitSketch app
-cp -r sketch-circuit-draw/dist dist/circuitsketch
+cp -r circuitsketch/dist dist/circuitsketch
