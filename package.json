@@ -1,0 +1,10 @@
+{
+  "name": "natuurkundehub",
+  "private": true,
+  "scripts": {
+    "build": "bash build.sh",
+    "serve": "npx serve dist -p 8080",
+    "preview": "npm run build && npm run serve",
+    "dev": "cd circuitsketch && npm run dev"
+  }
+}
