@@ -18,5 +18,8 @@ cp -r assets dist/assets
 # Kopieer het Overhoorprogramma (statische HTML)
 cp -r overhoor dist/overhoor
 
+# Kopieer de Modelleer-tool (statische HTML)
+cp -r modelleren dist/modelleren
+
 # Kopieer de gebouwde CircuitSketch app
 cp -r circuitsketch/dist dist/circuitsketch

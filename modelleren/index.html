@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelleren · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;
+  --bg-secondary:#ffffff;
+  --bg-card:#ffffff;
+  --bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;
+  --accent-glow:rgba(11,181,200,0.2);
+  --accent-amber:#D4923A;
+  --accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);
+  --accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;
+  --text-secondary:#2d2d4a;
+  --text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);
+  --border-solid:#d4e8ec;
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --glow-1:rgba(11,181,200,0.12);
+  --glow-2:rgba(212,146,58,0.08);
+}
+
+[data-theme="dark"]{
+  --bg:#0f1117;
+  --bg-secondary:#161b26;
+  --bg-card:#1c2333;
+  --bg-card-hover:#222b3d;
+  --accent:#0BB5C8;
+  --accent-glow:rgba(11,181,200,0.25);
+  --accent-amber:#D4923A;
+  --accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);
+  --accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);
+  --border-solid:#1e2d44;
+  --glow-1:rgba(11,181,200,0.15);
+  --glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+/* HEADER */
+.app-header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px;position:relative;z-index:10}
+.header-left{display:flex;align-items:center;gap:12px}
+.back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
+.back-link:hover{color:var(--accent);background:var(--accent-dim)}
+.header-logo{height:30px;opacity:.9}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+/* LAYOUT */
+.page-wrap{max-width:1400px;margin:0 auto;padding:24px 20px;position:relative;z-index:1}
+.two-col{display:grid;grid-template-columns:40% 60%;gap:20px;align-items:start}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* SECTION TITLE */
+.section-title{font-size:14px;font-weight:700;color:var(--accent);padding-left:10px;border-left:3px solid var(--accent);margin-bottom:14px;letter-spacing:-.2px}
+.section-title.amber{color:var(--accent-amber);border-left-color:var(--accent-amber)}
+
+/* CARD */
+.card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:18px;margin-bottom:16px}
+
+/* STARTWAARDEN TABLE */
+.sv-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
+.sv-table th{text-align:left;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--border-solid)}
+.sv-table td{padding:4px 4px}
+.sv-table input{width:100%;padding:6px 8px;border:1.5px solid var(--border-solid);border-radius:7px;font-family:var(--mono);font-size:13px;background:var(--bg-secondary);color:var(--text);transition:border-color .15s;outline:none}
+.sv-table input:focus{border-color:var(--accent)}
+.sv-table input::placeholder{color:var(--text-muted);opacity:.6;font-size:12px}
+.sv-table .del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:5px;transition:all .15s;line-height:1}
+.sv-table .del-btn:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.add-row-btn{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:7px;padding:5px 12px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.add-row-btn:hover{background:rgba(11,181,200,.15)}
+
+/* MODELREGELS */
+.model-textarea{width:100%;min-height:140px;padding:10px 12px;border:1.5px solid var(--border-solid);border-radius:9px;font-family:var(--mono);font-size:13px;background:var(--bg-secondary);color:var(--text);resize:vertical;outline:none;transition:border-color .15s;line-height:1.6}
+.model-textarea:focus{border-color:var(--accent)}
+
+/* INSTELLINGEN */
+.settings-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:var(--text-secondary)}
+.settings-row label{min-width:140px;font-weight:500}
+.settings-row input{width:100px;padding:6px 8px;border:1.5px solid var(--border-solid);border-radius:7px;font-family:var(--mono);font-size:13px;background:var(--bg-secondary);color:var(--text);outline:none;transition:border-color .15s}
+.settings-row input:focus{border-color:var(--accent)}
+
+.start-btn{width:100%;padding:13px;background:var(--accent-amber);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;letter-spacing:-.2px;margin-top:4px}
+.start-btn:hover{background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.start-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* GRAFIEK BLOK */
+.chart-block{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:16px;margin-bottom:14px;position:relative}
+.chart-controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.axis-select{padding:6px 10px;border:1.5px solid var(--border-solid);border-radius:7px;font-family:var(--font);font-size:13px;background:var(--bg-secondary);color:var(--text);outline:none;cursor:pointer;transition:border-color .15s}
+.axis-select:focus{border-color:var(--accent)}
+.chart-label{font-size:12px;color:var(--text-muted);font-weight:600}
+.remove-chart-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 6px;border-radius:5px;margin-left:auto;transition:all .15s;line-height:1}
+.remove-chart-btn:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.chart-canvas-wrap{position:relative;height:220px}
+.tangent-btn{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.tangent-btn:hover{background:rgba(11,181,200,.15)}
+.tangent-btn.active{background:var(--accent);color:#fff}
+.point-info{font-family:var(--mono);font-size:12px;color:var(--text-muted);padding:4px 0;min-height:20px}
+
+.add-chart-btn{width:100%;padding:10px;background:transparent;color:var(--accent);border:1.5px dashed var(--accent-border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s;margin-bottom:14px}
+.add-chart-btn:hover{background:var(--accent-dim)}
+
+/* TABEL */
+.table-toggle-btn{width:100%;padding:10px 16px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;font-family:var(--font);text-align:left;transition:all .15s;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.table-toggle-btn:hover{border-color:var(--accent-border);color:var(--text)}
+.data-table-wrap{overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--border-solid);border-radius:10px;margin-bottom:14px}
+.data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+.data-table th{position:sticky;top:0;background:var(--bg-secondary);padding:8px 12px;text-align:right;font-weight:600;color:var(--text-muted);border-bottom:1px solid var(--border-solid);white-space:nowrap;z-index:2}
+.data-table th:first-child{text-align:left}
+.data-table td{padding:6px 12px;text-align:right;border-bottom:1px solid var(--border);color:var(--text-secondary);white-space:nowrap}
+.data-table td:first-child{text-align:left;color:var(--text-muted)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--accent-dim)}
+
+/* UITKLAPBARE SECTIES */
+.collapse-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:14px 18px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;margin-bottom:2px;transition:border-color .15s;user-select:none}
+.collapse-header:hover{border-color:var(--accent-border)}
+.collapse-header h2{font-size:15px;font-weight:700;color:var(--text)}
+.collapse-header .chevron{font-size:12px;color:var(--text-muted);transition:transform .25s}
+.collapse-header.open .chevron{transform:rotate(180deg)}
+.collapse-body{display:none;padding:18px;border:1px solid var(--border-solid);border-top:none;border-radius:0 0 12px 12px;background:var(--bg-card);margin-bottom:16px}
+.collapse-body.open{display:block}
+
+/* VOORBEELDEN GRID */
+.examples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.example-btn{padding:10px 14px;border:1.5px solid var(--border-solid);border-radius:9px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;background:var(--bg-secondary);font-family:var(--font);transition:all .15s;text-align:left;line-height:1.4}
+.example-btn:hover{border-color:var(--accent-border);color:var(--text);background:var(--accent-dim)}
+.example-btn strong{display:block;color:var(--text);font-weight:700;margin-bottom:2px}
+.example-btn span{font-size:11px;color:var(--text-muted)}
+
+/* UITLEG TABBLADEN */
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border-solid);font-size:13px;font-weight:600;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);font-family:var(--font);transition:all .15s}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.uitleg-content{font-size:14px;line-height:1.7;color:var(--text-secondary)}
+.uitleg-content h3{font-size:14px;font-weight:700;color:var(--text);margin:14px 0 6px}
+.uitleg-content h3:first-child{margin-top:0}
+.uitleg-content code{font-family:var(--mono);font-size:12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:4px;padding:1px 6px;color:var(--accent)}
+.uitleg-content pre{font-family:var(--mono);font-size:12px;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:12px;margin:8px 0;line-height:1.6;overflow-x:auto;color:var(--text-secondary)}
+
+/* STATUS */
+.status-bar{font-family:var(--mono);font-size:12px;color:var(--text-muted);padding:6px 0 12px;min-height:24px}
+.status-bar.ok{color:#16a34a}
+.status-bar.err{color:#dc2626}
+[data-theme="dark"] .status-bar.ok{color:#22c55e}
+[data-theme="dark"] .status-bar.err{color:#ef4444}
+
+/* FOOTER */
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+.footer-logo{height:24px;opacity:.3;display:block;margin:0 auto 8px}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<header class="app-header">
+  <div class="header-left">
+    <a href="/" class="back-link" title="Terug naar NatuurkundeHub">←</a>
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img id="header-logo" src="../assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+  </div>
+  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+</header>
+
+<div class="page-wrap">
+  <div style="margin-bottom:20px">
+    <h1 style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">Numeriek Modelleren</h1>
+    <p style="font-size:14px;color:var(--text-muted)">Simuleer beweging en processen met differentiaalvergelijkingen</p>
+  </div>
+
+  <div id="status-bar" class="status-bar"></div>
+
+  <div class="two-col">
+    <!-- LINKS: INVOERPANEEL -->
+    <div id="left-panel">
+
+      <!-- STARTWAARDEN -->
+      <div class="card">
+        <div class="section-title amber">Startwaarden</div>
+        <table class="sv-table">
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Beginwaarde</th>
+              <th>Eenheid</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="sv-tbody">
+            <!-- gevuld via JS -->
+          </tbody>
+        </table>
+        <button class="add-row-btn" onclick="addSvRow()">+ Variabele toevoegen</button>
+      </div>
+
+      <!-- MODELREGELS -->
+      <div class="card">
+        <div class="section-title amber">Modelregels</div>
+        <textarea class="model-textarea" id="model-textarea" placeholder="// Vul hier je modelregels in, één per regel
+// Voorbeeld: vrije val
+v = v + a*dt
+x = x + v*dt
+als (x <= 0) dan v = -0.8*v
+// Typ STOP om de simulatie te stoppen"></textarea>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-muted);font-family:var(--mono);line-height:1.7">
+          Syntax: gewone toewijzing · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">als (v&gt;0) dan x=0</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">STOP</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">// commentaar</code>
+        </div>
+      </div>
+
+      <!-- INSTELLINGEN -->
+      <div class="card">
+        <div class="section-title amber">Instellingen</div>
+        <div class="settings-row">
+          <label>Max. iteraties</label>
+          <input type="number" id="max-iter" value="1000" min="1" max="10000">
+        </div>
+        <button class="start-btn" onclick="runModel()">▶ Simuleer</button>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- RECHTS: GRAFIEKEN + OUTPUT -->
+    <div id="right-panel">
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title amber">Grafieken</div>
+        <div id="charts-container"></div>
+        <button class="add-chart-btn" id="add-chart-btn" onclick="addChart()">+ Voeg grafiek toe</button>
+      </div>
+
+      <!-- DATATABELLE -->
+      <button class="table-toggle-btn" onclick="toggleTable()" id="table-toggle-btn">
+        <span>Toon tabel</span>
+        <span>▼</span>
+      </button>
+      <div id="data-table-wrap" class="data-table-wrap" style="display:none">
+        <table class="data-table" id="data-table">
+          <thead id="data-table-head"></thead>
+          <tbody id="data-table-body"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /right-panel -->
+  </div><!-- /two-col -->
+
+  <!-- VOORBEELDMODELLEN -->
+  <div style="margin-top:10px">
+    <div class="collapse-header" id="examples-header" onclick="toggleCollapse('examples')">
+      <h2>Voorbeeldmodellen</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="collapse-body" id="examples-body">
+      <div class="examples-grid" id="examples-grid"></div>
+    </div>
+  </div>
+
+  <!-- UITLEG -->
+  <div style="margin-top:8px">
+    <div class="collapse-header" id="uitleg-header" onclick="toggleCollapse('uitleg')">
+      <h2>Uitleg &amp; Help</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="collapse-body" id="uitleg-body">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('wat')">Wat is modelleren?</button>
+        <button class="tab-btn" onclick="switchTab('hoe')">Hoe gebruik je deze tool?</button>
+      </div>
+      <div class="tab-panel active" id="tab-wat">
+        <div class="uitleg-content">
+          <h3>Numerieke simulatie</h3>
+          <p>Modelleren betekent dat je een natuurkundig systeem beschrijft met vergelijkingen en de computer de toestand stap voor stap laat berekenen. In plaats van een exacte wiskundige oplossing, rekent de computer kleine stapjes Δt vooruit.</p>
+          <h3>De Euler-methode</h3>
+          <p>De eenvoudigste methode is de Euler-methode. Als je weet hoe snel iets verandert (de afgeleid), dan is de nieuwe waarde:</p>
+          <pre>x_nieuw = x_oud + (dx/dt) · Δt</pre>
+          <p>Hoe kleiner <code>dt</code>, hoe nauwkeuriger de simulatie — maar hoe meer iteraties er nodig zijn.</p>
+          <h3>Wanneer gebruik je modelleren?</h3>
+          <p>Als een systeem te complex is voor een analytische oplossing, of als er niet-lineaire krachten (luchtweerstand, stuiteren, koppeling) in het spel zijn.</p>
+        </div>
+      </div>
+      <div class="tab-panel" id="tab-hoe">
+        <div class="uitleg-content">
+          <h3>Startwaarden</h3>
+          <p>Vul de beginwaarden in van alle variabelen. <code>t</code> is de tijd, <code>dt</code> de tijdstap. Je kunt ook eigen variabelen toevoegen zoals <code>x</code>, <code>v</code>, <code>a</code>.</p>
+          <h3>Modelregels</h3>
+          <p>Elke regel is een formule die per iteratie wordt uitgevoerd. Volgorde is belangrijk!</p>
+          <pre>v = v + a*dt      // snelheid bijwerken
+x = x + v*dt      // positie bijwerken</pre>
+          <h3>Speciale syntax</h3>
+          <p><strong>Conditie:</strong> <code>als (x &lt;= 0) dan v = -0.8*v</code></p>
+          <p><strong>Stoppen:</strong> <code>STOP</code> — stopt de simulatie op dat moment</p>
+          <p><strong>Commentaar:</strong> regels die beginnen met <code>//</code> of <code>'</code> worden genegeerd</p>
+          <p><strong>Wetenschappelijke notatie:</strong> <code>6.67e-11</code> of <code>6.67*10^-11</code></p>
+          <p><strong>Wiskundige functies:</strong> <code>sqrt(x)</code>, <code>sin(x)</code>, <code>cos(x)</code>, <code>abs(x)</code>, <code>pi</code></p>
+          <h3>Grafieken</h3>
+          <p>Kies voor elke grafiek de x- en y-as variabele. Er zijn maximaal 4 grafieken mogelijk.</p>
+          <h3>Navigatie in grafieken</h3>
+          <p>Hover over een grafiek voor exacte waarden. <strong>Klik</strong> op een punt om het te selecteren, gebruik dan <strong>←/→</strong> om door de datapunten te navigeren. De <strong>raaklijn-knop</strong> tekent de raaklijn op het geselecteerde punt.</p>
+          <h3>Tabel</h3>
+          <p>Klik "Toon tabel" om alle berekende waarden per iteratie te bekijken (max. 10.000 rijen).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<footer>
+  <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" id="footer-logo">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+</footer>
+
+<script>
+// ─── THEME ───────────────────────────────────────────────────────────────
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const hl=document.getElementById('header-logo');
+  const fl=document.getElementById('footer-logo');
+  const fv=document.getElementById('favicon');
+  const btn=document.getElementById('theme-btn');
+  if(t==='dark'){
+    if(hl) hl.src='../assets/logo/JK_dark.svg';
+    if(fl) fl.src='../assets/logo/JK_white.svg';
+    if(fv) fv.href='../assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='☀️';
+  } else {
+    if(hl) hl.src='../assets/logo/JK_light.svg';
+    if(fl) fl.src='../assets/logo/JK_black.svg';
+    if(fv) fv.href='../assets/logo/JK_light.svg';
+    if(btn) btn.textContent='🌙';
+  }
+  // update chart colors
+  updateAllChartColors();
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme')||'light';
+  const next=cur==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',next);
+  applyTheme(next);
+}
+(function(){
+  const s=localStorage.getItem('nh-theme');
+  if(s) applyTheme(s);
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
+  else applyTheme('light');
+})();
+
+// ─── STARTWAARDEN ────────────────────────────────────────────────────────
+let svRows=[
+  {name:'t',value:'0',unit:'s'},
+  {name:'dt',value:'0.01',unit:'s'},
+];
+
+function renderSvTable(){
+  const tb=document.getElementById('sv-tbody');
+  tb.innerHTML='';
+  svRows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input value="${r.name}" onchange="svRows[${i}].name=this.value" placeholder="naam"></td>
+      <td><input value="${r.value}" onchange="svRows[${i}].value=this.value" placeholder="0"></td>
+      <td><input value="${r.unit}" onchange="svRows[${i}].unit=this.value" placeholder="eenheid (optioneel)" style="color:${r.unit?'var(--text)':'var(--text-muted)'}"></td>
+      <td><button class="del-btn" onclick="deleteSvRow(${i})">×</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function addSvRow(){svRows.push({name:'',value:'0',unit:''});renderSvTable()}
+function deleteSvRow(i){if(svRows.length>1){svRows.splice(i,1);renderSvTable()}}
+renderSvTable();
+
+// ─── COLLAPSE ────────────────────────────────────────────────────────────
+function toggleCollapse(id){
+  const h=document.getElementById(id+'-header');
+  const b=document.getElementById(id+'-body');
+  h.classList.toggle('open');
+  b.classList.toggle('open');
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['wat','hoe'][i]===id);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>{
+    p.classList.toggle('active',p.id==='tab-'+id);
+  });
+}
+
+// ─── GRAFIEKEN ───────────────────────────────────────────────────────────
+const MAX_CHARTS=4;
+let chartInstances=[];     // {id, chart, xVar, yVar, tangentActive, selectedIdx}
+let simulationData=[];     // array of {varname: value, ...} per iteratie
+let varNames=[];           // alle variabelenamen
+
+function getVarOptions(selected,extra){
+  return varNames.map(v=>`<option value="${v}" ${v===selected?'selected':''}>${v}</option>`).join('');
+}
+
+function chartColors(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  return{
+    grid:dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)',
+    text:dark?'#94a3b8':'#64748b',
+    line:'#0BB5C8',
+    point:'#D4923A',
+    pointSelected:'#ef4444',
+    tangent:'#D4923A',
+  };
+}
+
+function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine){
+  const c=chartColors();
+  const datasets=[{
+    label:yLabel,
+    data:xData.map((x,i)=>({x,y:yData[i]})),
+    borderColor:c.line,
+    backgroundColor:'transparent',
+    borderWidth:2,
+    pointRadius:xData.length<200?3:0,
+    pointHoverRadius:5,
+    pointBackgroundColor:xData.map((_,i)=>i===selIdx?c.pointSelected:c.line),
+    tension:0,
+    parsing:false,
+  }];
+  if(tangentLine){
+    datasets.push({
+      label:'Raaklijn',
+      data:[{x:tangentLine.x1,y:tangentLine.y1},{x:tangentLine.x2,y:tangentLine.y2}],
+      borderColor:c.tangent,
+      borderWidth:1.5,
+      borderDash:[5,4],
+      pointRadius:0,
+      parsing:false,
+    });
+  }
+  return{
+    type:'line',
+    data:{datasets},
+    options:{
+      animation:false,
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'nearest',axis:'x',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            title:items=>`${xLabel}: ${items[0].parsed.x.toPrecision(5)}`,
+            label:item=>`${yLabel}: ${item.parsed.y.toPrecision(5)}`,
+          }
+        }
+      },
+      scales:{
+        x:{type:'linear',title:{display:true,text:xLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:8}},
+        y:{title:{display:true,text:yLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:6}},
+      }
+    }
+  };
+}
+
+function computeTangent(data,idx){
+  if(!data||data.length<2) return null;
+  const i1=Math.max(0,idx-1);
+  const i2=Math.min(data.length-1,idx+1);
+  const p1=data[i1],p2=data[i2];
+  if(p1===p2) return null;
+  const slope=(p2.y-p1.y)/(p2.x-p1.x);
+  const xSpan=(data[data.length-1].x-data[0].x)*0.15||1;
+  const cx=data[idx].x, cy=data[idx].y;
+  return{x1:cx-xSpan,y1:cy-slope*xSpan,x2:cx+xSpan,y2:cy+slope*xSpan};
+}
+
+function unitForVar(v){
+  const row=svRows.find(r=>r.name===v);
+  return row&&row.unit?row.unit:'';
+}
+function axisLabel(v){const u=unitForVar(v);return u?`${v} (${u})`:v}
+
+function addChart(){
+  if(chartInstances.length>=MAX_CHARTS) return;
+  const id='chart-'+Date.now();
+  const defaultX=varNames.includes('t')?'t':(varNames[0]||'');
+  const defaultY=varNames.length>1?varNames.find(v=>v!==defaultX)||varNames[0]:varNames[0]||'';
+  const div=document.createElement('div');
+  div.className='chart-block';
+  div.id=id;
+  div.innerHTML=`
+    <div class="chart-controls">
+      <span class="chart-label">x-as:</span>
+      <select class="axis-select" onchange="onAxisChange('${id}','x',this.value)">${getVarOptions(defaultX)}</select>
+      <span class="chart-label">y-as:</span>
+      <select class="axis-select" onchange="onAxisChange('${id}','y',this.value)">${getVarOptions(defaultY)}</select>
+      <button class="tangent-btn" id="tb-${id}" onclick="toggleTangent('${id}')">Raaklijn</button>
+      <button class="remove-chart-btn" onclick="removeChart('${id}')">×</button>
+    </div>
+    <div class="point-info" id="pi-${id}"></div>
+    <div class="chart-canvas-wrap"><canvas id="cv-${id}"></canvas></div>`;
+  document.getElementById('charts-container').appendChild(div);
+  const ctx=document.getElementById('cv-'+id).getContext('2d');
+  const chart=new Chart(ctx,makeChartConfig([],[],axisLabel(defaultX),axisLabel(defaultY),null,null));
+  const obj={id,chart,xVar:defaultX,yVar:defaultY,tangentActive:false,selectedIdx:null};
+  chartInstances.push(obj);
+  div.addEventListener('click',e=>onChartClick(id,e));
+  div.addEventListener('keydown',e=>onChartKey(id,e),true);
+  div.setAttribute('tabindex','0');
+  if(simulationData.length) updateChart(obj);
+  updateAddBtn();
+}
+
+function removeChart(id){
+  const i=chartInstances.findIndex(c=>c.id===id);
+  if(i===-1) return;
+  chartInstances[i].chart.destroy();
+  chartInstances.splice(i,1);
+  document.getElementById(id).remove();
+  updateAddBtn();
+}
+
+function updateAddBtn(){
+  const btn=document.getElementById('add-chart-btn');
+  if(btn) btn.style.display=chartInstances.length>=MAX_CHARTS?'none':'block';
+}
+
+function onAxisChange(id,axis,val){
+  const obj=chartInstances.find(c=>c.id===id);
+  if(!obj) return;
+  if(axis==='x') obj.xVar=val; else obj.yVar=val;
+  obj.selectedIdx=null;
+  updateChart(obj);
+}
+
+function toggleTangent(id){
+  const obj=chartInstances.find(c=>c.id===id);
+  if(!obj) return;
+  obj.tangentActive=!obj.tangentActive;
+  document.getElementById('tb-'+id).classList.toggle('active',obj.tangentActive);
+  updateChart(obj);
+}
+
+function onChartClick(id,e){
+  const obj=chartInstances.find(c=>c.id===id);
+  if(!obj||!simulationData.length) return;
+  const el=document.getElementById(id);
+  el.focus();
+  const rect=document.getElementById('cv-'+id).getBoundingClientRect();
+  const chart=obj.chart;
+  const canvasX=e.clientX-rect.left;
+  const xMin=chart.scales.x.min, xMax=chart.scales.x.max;
+  const xVal=xMin+(canvasX/rect.width)*(xMax-xMin);
+  const xData=simulationData.map(d=>d[obj.xVar]);
+  let best=0,bestDist=Infinity;
+  xData.forEach((x,i)=>{const d=Math.abs(x-xVal);if(d<bestDist){bestDist=d;best=i}});
+  obj.selectedIdx=best;
+  updateChart(obj);
+}
+
+function onChartKey(id,e){
+  const obj=chartInstances.find(c=>c.id===id);
+  if(!obj||obj.selectedIdx===null) return;
+  if(e.key==='ArrowLeft'){e.preventDefault();obj.selectedIdx=Math.max(0,obj.selectedIdx-1);updateChart(obj)}
+  if(e.key==='ArrowRight'){e.preventDefault();obj.selectedIdx=Math.min(simulationData.length-1,obj.selectedIdx+1);updateChart(obj)}
+}
+
+function updateChart(obj){
+  if(!simulationData.length){obj.chart.data.datasets[0].data=[];obj.chart.update();return}
+  const xData=simulationData.map(d=>+d[obj.xVar]||0);
+  const yData=simulationData.map(d=>+d[obj.yVar]||0);
+  const pts=xData.map((x,i)=>({x,y:yData[i]}));
+  const sel=obj.selectedIdx;
+  const tangent=obj.tangentActive&&sel!==null?computeTangent(pts,sel):null;
+  const c=chartColors();
+  const cfg=makeChartConfig(xData,yData,axisLabel(obj.xVar),axisLabel(obj.yVar),sel,tangent);
+  obj.chart.data=cfg.data;
+  obj.chart.options=cfg.options;
+  obj.chart.update();
+  const pi=document.getElementById('pi-'+obj.id);
+  if(pi&&sel!==null){
+    pi.textContent=`${axisLabel(obj.xVar)} = ${xData[sel].toPrecision(5)}  |  ${axisLabel(obj.yVar)} = ${yData[sel].toPrecision(5)}`;
+  } else if(pi) pi.textContent='';
+}
+
+function updateAllChartColors(){
+  chartInstances.forEach(obj=>{if(simulationData.length) updateChart(obj)});
+}
+
+function updateAxisDropdowns(){
+  document.querySelectorAll('.axis-select').forEach(sel=>{
+    const cur=sel.value;
+    sel.innerHTML=varNames.map(v=>`<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
+  });
+}
+
+// ─── TABEL ───────────────────────────────────────────────────────────────
+let tableVisible=false;
+function toggleTable(){
+  tableVisible=!tableVisible;
+  const wrap=document.getElementById('data-table-wrap');
+  const btn=document.getElementById('table-toggle-btn');
+  wrap.style.display=tableVisible?'block':'none';
+  btn.querySelector('span:first-child').textContent=tableVisible?'Verberg tabel':'Toon tabel';
+  if(tableVisible&&simulationData.length) renderTable();
+}
+
+function renderTable(){
+  const head=document.getElementById('data-table-head');
+  const body=document.getElementById('data-table-body');
+  if(!simulationData.length){head.innerHTML='';body.innerHTML='';return}
+  const vars=Object.keys(simulationData[0]);
+  head.innerHTML='<tr>'+vars.map(v=>{const u=unitForVar(v);return`<th>${v}${u?' ('+u+')':''}</th>`}).join('')+'</tr>';
+  const maxRows=Math.min(simulationData.length,10000);
+  body.innerHTML=simulationData.slice(0,maxRows).map((row,i)=>
+    '<tr>'+vars.map(v=>`<td>${typeof row[v]==='number'?row[v].toPrecision(5):row[v]}</td>`).join('')+'</tr>'
+  ).join('');
+}
+
+// ─── PARSER ──────────────────────────────────────────────────────────────
+function parseExpr(expr,vars){
+  // vervang 10^n door Math.pow(10,n) en variabelenamen
+  let e=expr.trim();
+  // wetenschappelijke notatie: 6.67*10^-11
+  e=e.replace(/\*\s*10\s*\^\s*(-?\d+)/g,(m,p)=>`*1e${p}`);
+  // ^-operator -> Math.pow
+  e=e.replace(/(\w[\w.]*|\))\s*\^\s*(\w[\w.]*|\()/g,'Math.pow($1,$2)');
+  // wiskundige functies en constanten
+  e=e.replace(/\bsqrt\b/g,'Math.sqrt')
+     .replace(/\babs\b/g,'Math.abs')
+     .replace(/\bsin\b/g,'Math.sin')
+     .replace(/\bcos\b/g,'Math.cos')
+     .replace(/\btan\b/g,'Math.tan')
+     .replace(/\bexp\b/g,'Math.exp')
+     .replace(/\bln\b/g,'Math.log')
+     .replace(/\bpi\b/g,'Math.PI')
+     .replace(/\bPI\b/g,'Math.PI');
+  // variabelenamen injecteren
+  const keys=Object.keys(vars).sort((a,b)=>b.length-a.length);
+  // vervang variabelenamen die niet direct achter Math. staan
+  keys.forEach(k=>{
+    const re=new RegExp('(?<!Math\\.)(?<![\\w.])'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\w.])','g');
+    e=e.replace(re,`(${vars[k]})`);
+  });
+  return eval(e); // eslint-disable-line no-eval
+}
+
+function parseLine(line,vars){
+  const trimmed=line.trim();
+  if(!trimmed||trimmed.startsWith('//')||trimmed.startsWith("'")) return{stop:false};
+  if(trimmed.toUpperCase()==='STOP') return{stop:true};
+  // als (conditie) dan variabele = waarde
+  const condMatch=trimmed.match(/^als\s*\((.+?)\)\s*dan\s+(\w+)\s*=\s*(.+)$/i);
+  if(condMatch){
+    const [,cond,vname,valExpr]=condMatch;
+    let condVal=false;
+    try{condVal=!!parseExpr(cond,vars)}catch(err){}
+    if(condVal){
+      try{const v=parseExpr(valExpr,vars);return{assign:{[vname]:v}}}catch(err){}
+    }
+    return{stop:false};
+  }
+  // gewone toewijzing: var = expr
+  const assignMatch=trimmed.match(/^(\w+)\s*=\s*(.+)$/);
+  if(assignMatch){
+    const [,vname,valExpr]=assignMatch;
+    try{const v=parseExpr(valExpr,vars);return{assign:{[vname]:v}}}catch(err){return{error:`Fout in: ${trimmed}`}}
+  }
+  return{stop:false};
+}
+
+// ─── MODEL UITVOEREN ─────────────────────────────────────────────────────
+function runModel(){
+  const statusEl=document.getElementById('status-bar');
+  statusEl.className='status-bar';
+  statusEl.textContent='Bezig met simuleren…';
+
+  // lees startwaarden
+  const vars={};
+  for(const row of svRows){
+    const name=row.name.trim();
+    if(!name) continue;
+    const val=parseFloat(row.value);
+    vars[name]=isNaN(val)?0:val;
+  }
+  if(!('dt' in vars)){statusEl.className='status-bar err';statusEl.textContent='⚠ Voeg dt toe als startwaarde.';return}
+  if(!('t' in vars)) vars.t=0;
+
+  const lines=document.getElementById('model-textarea').value.split('\n');
+  const maxIter=Math.min(10000,Math.max(1,parseInt(document.getElementById('max-iter').value)||1000));
+
+  const allVarNames=Object.keys(vars);
+  // ontdek nieuwe variabelen in modelregels
+  lines.forEach(l=>{
+    const m=l.match(/^(\w+)\s*=/);
+    if(m&&!allVarNames.includes(m[1])) allVarNames.push(m[1]);
+    const cm=l.match(/^als\s*\(.+?\)\s*dan\s+(\w+)\s*=/i);
+    if(cm&&!allVarNames.includes(cm[1])) allVarNames.push(cm[1]);
+  });
+
+  simulationData=[];
+  let stopped=false;
+  let errorMsg=null;
+
+  for(let iter=0;iter<maxIter;iter++){
+    simulationData.push({...vars});
+    // t bijwerken
+    const newVars={...vars};
+    for(const line of lines){
+      const res=parseLine(line,vars);
+      if(res.stop){stopped=true;break}
+      if(res.error){errorMsg=res.error;stopped=true;break}
+      if(res.assign) Object.assign(newVars,res.assign);
+    }
+    // t ophogen
+    newVars.t=(vars.t||0)+vars.dt;
+    Object.assign(vars,newVars);
+    if(stopped) break;
+  }
+
+  varNames=allVarNames.filter(v=>simulationData.length&&v in simulationData[0]);
+
+  if(errorMsg){statusEl.className='status-bar err';statusEl.textContent='⚠ '+errorMsg}
+  else if(stopped){statusEl.className='status-bar ok';statusEl.textContent=`✓ Simulatie gestopt na ${simulationData.length} iteraties`}
+  else{statusEl.className='status-bar ok';statusEl.textContent=`✓ ${simulationData.length} iteraties berekend`}
+
+  // update grafieken
+  if(chartInstances.length===0) addChart();
+  updateAxisDropdowns();
+  chartInstances.forEach(obj=>{obj.selectedIdx=null;updateChart(obj)});
+  if(tableVisible) renderTable();
+}
+
+// ─── VOORBEELDMODELLEN ───────────────────────────────────────────────────
+const EXAMPLES=[
+  {
+    name:'Constante snelheid',
+    desc:'x = x + v·dt',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'10',unit:'m/s'}],
+    model:'x = x + v*dt',
+    iter:1000,
+  },
+  {
+    name:'Vrije val',
+    desc:'v en x met a=9.8 m/s²',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    model:'v = v + a*dt\nx = x + v*dt',
+    iter:1000,
+  },
+  {
+    name:'Val met luchtweerstand',
+    desc:'F_w ∝ v²',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'c',value:'0.47',unit:''},{name:'A',value:'0.01',unit:'m²'},{name:'rho',value:'1.2',unit:'kg/m³'}],
+    model:"// Luchtweerstand: F = 0.5*c*rho*A*v²\nacc = 9.8 - (0.5*c*rho*A*v*v)/m\nv = v + acc*dt\nx = x + v*dt",
+    iter:1000,
+  },
+  {
+    name:'Stuiterende bal',
+    desc:'vrije val + terugstuit',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'}],
+    model:'v = v + a*dt\nx = x + v*dt\nals (x <= 0) dan v = -0.8*v\nals (x <= 0) dan x = 0',
+    iter:2000,
+  },
+  {
+    name:'Bungee jumper',
+    desc:'veer + zwaartekracht + weerstand',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'y',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'70',unit:'kg'},{name:'k',value:'20',unit:'N/m'},{name:'L',value:'30',unit:'m'},{name:'b',value:'10',unit:'kg/s'}],
+    model:"// y is afstand naar beneden, L = natuurlijke lengte touw\nFg = m*9.8\nFs = als (y > L) dan k*(y-L) dan 0\nFw = b*v\nals (y > L) dan acc = (Fg - Fs - Fw)/m\nals (y <= L) dan acc = (Fg - Fw)/m\nv = v + acc*dt\ny = y + v*dt",
+    iter:2000,
+  },
+  {
+    name:'RC-circuit opladen',
+    desc:'U_c = U_c + (U_b - U_c)/(R·C)·dt',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.001',unit:'s'},{name:'U',value:'0',unit:'V'},{name:'Ubron',value:'5',unit:'V'},{name:'R',value:'1000',unit:'Ω'},{name:'C',value:'0.001',unit:'F'}],
+    model:'U = U + (Ubron - U)/(R*C)*dt',
+    iter:5000,
+  },
+  {
+    name:'Radioactief verval',
+    desc:'N = N - λ·N·dt',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'},{name:'N',value:'1000',unit:''},{name:'lambda',value:'0.001',unit:'s⁻¹'}],
+    model:'N = N - lambda*N*dt',
+    iter:5000,
+  },
+  {
+    name:'Harmonische oscillator',
+    desc:'massa aan veer (F = -k·x)',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'1',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'k',value:'10',unit:'N/m'},{name:'m',value:'1',unit:'kg'}],
+    model:'a = -k/m*x\nv = v + a*dt\nx = x + v*dt',
+    iter:2000,
+  },
+  {
+    name:'Planetenbaan',
+    desc:'2D gravitatie (x,y,vx,vy)',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1000',unit:'s'},{name:'x',value:'1.5e11',unit:'m'},{name:'y',value:'0',unit:'m'},{name:'vx',value:'0',unit:'m/s'},{name:'vy',value:'29800',unit:'m/s'},{name:'M',value:'2e30',unit:'kg'},{name:'G',value:'6.67e-11',unit:''}],
+    model:'r = sqrt(x*x + y*y)\nFx = -G*M/r^3*x\nFy = -G*M/r^3*y\nvx = vx + Fx*dt\nvy = vy + Fy*dt\nx = x + vx*dt\ny = y + vy*dt',
+    iter:400,
+  },
+];
+
+function loadExample(ex){
+  svRows=ex.sv.map(r=>({...r}));
+  renderSvTable();
+  document.getElementById('model-textarea').value=ex.model;
+  document.getElementById('max-iter').value=ex.iter;
+  document.getElementById('status-bar').textContent='';
+  simulationData=[];
+  chartInstances.forEach(obj=>obj.chart.destroy());
+  chartInstances=[];
+  document.getElementById('charts-container').innerHTML='';
+  updateAddBtn();
+}
+
+function renderExamples(){
+  const grid=document.getElementById('examples-grid');
+  grid.innerHTML=EXAMPLES.map((ex,i)=>`
+    <button class="example-btn" onclick="loadExample(EXAMPLES[${i}])">
+      <strong>${ex.name}</strong>
+      <span>${ex.desc}</span>
+    </button>`).join('');
+}
+renderExamples();
+
+// initieel één grafiek (leeg)
+addChart();
+</script>
+</body>
+</html>
