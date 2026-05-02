@@ -9,11 +9,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
   --bg:#f8f9fa;
+  --bg-primary-rgb:248, 249, 250;
   --bg-secondary:#ffffff;
   --bg-card:#ffffff;
   --bg-card-hover:#f0fafb;
@@ -36,6 +38,7 @@
 
 [data-theme="dark"]{
   --bg:#0f1117;
+  --bg-primary-rgb:15, 17, 23;
   --bg-secondary:#161b26;
   --bg-card:#1c2333;
   --bg-card-hover:#222b3d;
@@ -61,7 +64,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
 
 /* HEADER */
-.app-header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px;position:relative;z-index:10}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px;position:sticky;top:0;z-index:100}
 .header-left{display:flex;align-items:center;gap:12px}
 .back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
 .back-link:hover{color:var(--accent);background:var(--accent-dim)}
@@ -181,9 +184,70 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .range-input{width:52px;padding:4px 6px;border:1.5px solid var(--border-solid);border-radius:6px;font-family:var(--mono);font-size:11px;background:var(--bg-secondary);color:var(--text);outline:none}
 .range-input:focus{border-color:var(--accent)}
 
+/* RUN LEGEND */
+.run-legend{padding:8px 0 4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.run-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.run-entry{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);font-family:var(--mono)}
+/* UNIT WARNINGS */
+.unit-warning-box{border-radius:8px;padding:7px 11px;font-size:12px;font-family:var(--mono);line-height:1.6;margin-bottom:4px;background:var(--accent-amber-glow);border:1px solid rgba(212,146,58,0.3);color:var(--accent-amber)}
+
 /* FOOTER */
 footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
 .footer-logo{height:24px;opacity:.3;display:block;margin:0 auto 8px}
+
+/* LEER MODELLEREN */
+.learn-exercise{border:1px solid var(--border-solid);border-radius:10px;margin-bottom:12px;overflow:hidden;transition:border-color .15s}
+.learn-exercise.locked{opacity:.4;pointer-events:none;user-select:none}
+.learn-ex-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg-secondary);font-weight:700;font-size:14px;color:var(--text)}
+.learn-ex-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:5px;padding:2px 8px;min-width:28px;text-align:center;flex-shrink:0}
+.learn-ex-num.locked-num{color:var(--text-muted);background:transparent;border-color:var(--border-solid)}
+.learn-ex-body{padding:14px 16px;font-size:14px;line-height:1.7;color:var(--text-secondary)}
+.learn-uitleg{background:var(--bg-secondary);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;line-height:1.7;color:var(--text-secondary)}
+.learn-uitleg code{font-family:var(--mono);font-size:12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent)}
+.learn-opdracht{margin:10px 0 8px;padding:10px 14px;background:var(--accent-amber-glow);border:1px solid rgba(212,146,58,0.25);border-radius:8px;font-size:13px;color:var(--text)}
+.learn-opdracht strong{color:var(--accent-amber);display:block;margin-bottom:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.learn-hint-wrap{margin-top:8px}
+.learn-hint-wrap details{margin-bottom:4px}
+.learn-hint-wrap summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--accent);padding:4px 0;user-select:none;list-style:none;display:flex;align-items:center;gap:5px}
+.learn-hint-wrap summary::-webkit-details-marker{display:none}
+.learn-hint-wrap summary::before{content:'▶';font-size:9px;transition:transform .2s;display:inline-block}
+.learn-hint-wrap details[open] summary::before{transform:rotate(90deg)}
+.learn-hint-content{margin-top:4px;padding:8px 12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:7px;font-size:13px;color:var(--text-secondary);line-height:1.6}
+.learn-hint-content code{font-family:var(--mono);font-size:11px;background:rgba(11,181,200,.15);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent)}
+.learn-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.learn-load-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:var(--font);transition:all .15s;border:1px solid var(--accent-border);color:var(--accent);background:var(--accent-dim)}
+.learn-load-btn:hover{background:rgba(11,181,200,.15)}
+.learn-sol-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:var(--font);transition:all .15s;border:1px solid rgba(212,146,58,0.3);color:var(--accent-amber);background:var(--accent-amber-glow)}
+.learn-sol-btn:hover{background:rgba(212,146,58,.25)}
+.learn-lock-badge{font-size:12px;color:var(--text-muted);font-family:var(--mono);margin-left:auto}
+.learn-tip{font-size:12px;color:var(--text-muted);background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:6px;padding:6px 10px;margin:8px 0;line-height:1.6;font-family:var(--mono)}
+
+/* ZWEVEND OEFENKAARTJE */
+#float-card{position:fixed;bottom:24px;right:24px;width:560px;max-width:calc(100vw - 32px);background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:1000;font-size:13px;transition:box-shadow .2s;display:none;user-select:none}
+#float-card.minimized #float-body{display:none}
+#float-card.minimized #float-hints-wrap{display:none}
+#float-card.minimized #float-actions{display:none}
+#float-actions{padding:10px 14px 12px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border-solid)}
+#float-topbar{background:var(--accent-amber);border-radius:11px 11px 0 0;padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:grab;color:#fff}
+#float-topbar:active{cursor:grabbing}
+#float-ex-num{font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(0,0,0,0.18);border-radius:4px;padding:1px 7px;flex-shrink:0}
+#float-title{font-weight:700;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#float-min-btn,#float-close-btn{background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;border-radius:4px;transition:background .15s;flex-shrink:0}
+#float-min-btn:hover,#float-close-btn:hover{background:rgba(0,0,0,0.18);color:#fff}
+#float-body{padding:12px 14px 0}
+#float-opdracht{color:var(--text-secondary);line-height:1.6;margin-bottom:10px}
+#float-hints-wrap{padding:0 14px 12px}
+#float-hints-toggle{font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px;margin-bottom:6px}
+#float-hints-toggle::before{content:'▶';font-size:9px;transition:transform .2s;display:inline-block}
+#float-hints-toggle.open::before{transform:rotate(90deg)}
+#float-hints-list{display:none}
+#float-hints-list.open{display:block}
+#float-hints-list details{margin-bottom:4px}
+#float-hints-list summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--accent);padding:4px 0;list-style:none;display:flex;align-items:center;gap:5px}
+#float-hints-list summary::-webkit-details-marker{display:none}
+#float-hints-list summary::before{content:'▶';font-size:9px;transition:transform .2s;display:inline-block}
+#float-hints-list details[open] summary::before{transform:rotate(90deg)}
+#float-hints-list .learn-hint-content{margin-top:4px}
 </style>
 </head>
 <body>
@@ -193,23 +257,20 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
 <header class="app-header">
   <div class="header-left">
-    <a href="/" class="back-link" title="Terug naar NatuurkundeHub">←</a>
     <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
       <img id="header-logo" src="../assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
-      <span class="app-title">Natuurkunde<span>Hub</span></span>
+      <span class="app-title">NatuurkundeHub</span>
     </a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Modelleren</span>
   </div>
   <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
 </header>
 
 <div class="page-wrap">
   <div style="margin-bottom:20px">
-    <h1 style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:10px">Numeriek Modelleren</h1>
-    <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:720px">
-      <p>Modelleren betekent dat je een natuurkundig systeem beschrijft met vergelijkingen en de computer de toestand stap voor stap laat berekenen. In plaats van een exacte wiskundige oplossing, rekent de computer kleine stapjes Δt vooruit — de <strong>Euler-methode</strong>:</p>
-      <pre style="font-family:var(--mono);font-size:12px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:8px;padding:10px 14px;margin:10px 0;color:var(--text-muted)">x_nieuw = x_oud + (dx/dt) · Δt</pre>
-      <p>Hoe kleiner <code style="font-family:var(--mono);font-size:12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 6px;color:var(--accent)">dt</code>, hoe nauwkeuriger de simulatie. Gebruik de voorbeeldmodellen onderaan om snel te starten.</p>
-    </div>
+    <h1 style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">Numeriek Modelleren</h1>
+    <p style="font-size:14px;color:var(--text-muted)">Begin bij <strong style="color:var(--accent)">Leer modelleren</strong> voor een begeleide introductie, gebruik de <strong>Voorbeeldmodellen</strong> om snel te starten, of bouw direct je eigen model.</p>
   </div>
 
   <div id="status-bar" class="status-bar"></div>
@@ -236,6 +297,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
         </table>
         <button class="add-row-btn" onclick="addSvRow()">+ Variabele toevoegen</button>
       </div>
+      <div id="unit-warnings" style="display:none;margin-bottom:16px"></div>
 
       <!-- MODELREGELS -->
       <div class="card">
@@ -253,7 +315,7 @@ als x <= 0 dan v = -0.8*v
         </div>
         <div id="model-errors" style="margin-bottom:6px"></div>
         <div style="margin-top:0px;font-size:11px;color:var(--text-muted);font-family:var(--mono);line-height:1.7">
-          Syntax: gewone toewijzing · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">als (v&gt;0) dan x=0</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">STOP</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">// commentaar</code>
+          Syntax: gewone toewijzing · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">als v&gt;0 dan x=0</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">STOP</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">// commentaar</code>
         </div>
       </div>
 
@@ -265,13 +327,18 @@ als x <= 0 dan v = -0.8*v
           <input type="number" id="max-iter" value="1000" min="1" max="10000">
         </div>
         <button class="start-btn" onclick="runModel()">▶ Simuleer</button>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="add-row-btn" style="flex:1" onclick="bewaarRun()">📌 Bewaar run</button>
+          <button class="add-row-btn" style="flex:1" onclick="wisRuns()">✕ Wis runs</button>
+        </div>
       </div>
 
       <!-- OPGESLAGEN MODELLEN -->
       <div class="card" id="saved-models-card">
         <div class="section-title amber">Opgeslagen modellen</div>
         <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
-          <button class="add-row-btn" onclick="saveModel()">Sla op</button>
+          <button class="add-row-btn" onclick="saveModel()">Sla huidig model op</button>
+          <button class="add-row-btn" id="deel-model-btn" onclick="deelModel()">🔗 Deel model</button>
           <button class="add-row-btn" onclick="exportModelJSON()">Exporteer JSON</button>
           <label class="add-row-btn" style="cursor:pointer">Importeer JSON<input type="file" accept=".json" style="display:none" onchange="importModelJSON(this)"></label>
         </div>
@@ -286,6 +353,7 @@ als x <= 0 dan v = -0.8*v
       <div class="card" style="margin-bottom:16px">
         <div class="section-title amber">Grafieken</div>
         <div id="charts-container"></div>
+        <div id="run-legend" class="run-legend" style="display:none"></div>
         <button class="add-chart-btn" id="add-chart-btn" onclick="addChart()">+ Voeg grafiek toe</button>
       </div>
 
@@ -318,6 +386,18 @@ als x <= 0 dan v = -0.8*v
     </div>
   </div>
 
+  <!-- LEER MODELLEREN -->
+  <div style="margin-top:8px">
+    <div class="collapse-header" id="leer-header" onclick="toggleCollapse('leer')">
+      <h2>Leer modelleren</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="collapse-body" id="leer-body">
+      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.7">Doorloop de oefeningen stap voor stap. Elke oefening wordt ontgrendeld zodra je de vorige hebt gesimuleerd.</p>
+      <div id="learn-container"></div>
+    </div>
+  </div>
+
   <!-- UITLEG -->
   <div style="margin-top:8px">
     <div class="collapse-header" id="uitleg-header" onclick="toggleCollapse('uitleg')">
@@ -336,7 +416,7 @@ als x <= 0 dan v = -0.8*v
           <h3>De Euler-methode</h3>
           <p>De eenvoudigste methode is de Euler-methode. Als je weet hoe snel iets verandert (de afgeleid), dan is de nieuwe waarde:</p>
           <pre>x_nieuw = x_oud + (dx/dt) · Δt</pre>
-          <p>Hoe kleiner <code>dt</code>, hoe nauwkeuriger de simulatie — maar hoe meer iteraties er nodig zijn.</p>
+          <p>Hoe kleiner <code>dt</code>, hoe nauwkeuriger de simulatie, maar hoe meer iteraties er nodig zijn.</p>
           <h3>Wanneer gebruik je modelleren?</h3>
           <p>Als een systeem te complex is voor een analytische oplossing, of als er niet-lineaire krachten (luchtweerstand, stuiteren, koppeling) in het spel zijn.</p>
         </div>
@@ -350,8 +430,8 @@ als x <= 0 dan v = -0.8*v
           <pre>v = v + a*dt      // snelheid bijwerken
 x = x + v*dt      // positie bijwerken</pre>
           <h3>Speciale syntax</h3>
-          <p><strong>Conditie:</strong> <code>als (x &lt;= 0) dan v = -0.8*v</code></p>
-          <p><strong>Stoppen:</strong> <code>STOP</code> — stopt de simulatie op dat moment</p>
+          <p><strong>Conditie:</strong> <code>als x &lt;= 0 dan v = -0.8*v</code> &nbsp;<span style="color:var(--text-muted);font-size:12px">Haakjes om de voorwaarde zijn ook toegestaan.</span></p>
+          <p><strong>Stoppen:</strong> <code>STOP</code> stopt de simulatie op dat moment</p>
           <p><strong>Commentaar:</strong> regels die beginnen met <code>//</code> of <code>'</code> worden genegeerd</p>
           <p><strong>Wetenschappelijke notatie:</strong> <code>6.67e-11</code> of <code>6.67*10^-11</code></p>
           <p><strong>Wiskundige functies:</strong> <code>sqrt(x)</code>, <code>sin(x)</code>, <code>cos(x)</code>, <code>abs(x)</code>, <code>pi</code></p>
@@ -368,12 +448,35 @@ x = x + v*dt      // positie bijwerken</pre>
 
 </div><!-- /page-wrap -->
 
+<!-- ZWEVEND OEFENKAARTJE -->
+<div id="float-card">
+  <div id="float-topbar">
+    <span id="float-ex-num">1</span>
+    <span id="float-title">Oefening</span>
+    <button id="float-min-btn" title="Minimaliseer">−</button>
+    <button id="float-close-btn" title="Sluiten">×</button>
+  </div>
+  <div id="float-body">
+    <div id="float-opdracht"></div>
+  </div>
+  <div id="float-hints-wrap">
+    <button id="float-hints-toggle">Hints</button>
+    <div id="float-hints-list"></div>
+  </div>
+  <div id="float-actions">
+    <button id="float-next-btn" class="learn-load-btn">Volgende oefening →</button>
+  </div>
+</div>
+
 <footer>
   <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" id="footer-logo">
   Jop van der Kooij · NatuurkundeHub · © 2026
 </footer>
 
 <script>
+// Prevent browser from restoring scroll position on reload/back-navigation
+history.scrollRestoration='manual';
+
 // ─── ALLE DECLARATIES BOVENAAN ────────────────────────────────────────────
 var svRows=[
   {name:'t',value:'0',unit:'s'},
@@ -385,69 +488,71 @@ var simulationData=[];
 var varNames=[];
 var tableVisible=false;
 var savedModels=JSON.parse(localStorage.getItem('nh_modellen')||'[]');
+var savedRuns=[];
+var RUN_COLORS=['#D4923A','#22c55e','#8b5cf6','#ef4444'];
 var EXAMPLES=[
   {
     name:'Constante snelheid',
-    desc:'x = x + v·dt',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'10',unit:'m/s'}],
+    desc:'Een object beweegt met constante snelheid. Plot x tegen t voor een rechte lijn. De helling van de lijn is gelijk aan de snelheid. Onderzoeksvraag: wat verandert er als je v aanpast?',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'10',unit:'m/s'}],
     model:'x = x + v*dt\nt = t + dt',
     iter:1000,
   },
   {
     name:'Vrije val',
-    desc:'v en x met a = 9.8 m/s²',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    desc:'Een object valt naar beneden onder invloed van de zwaartekracht. Plot x tegen t voor een kwadratische kromme. Plot v tegen t voor een rechte lijn. Controleer: na 10 s is x=490 m en v=98 m/s. Onderzoeksvraag: hoe groot is de afwijking als je dt vergroot naar 1 s?',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
     model:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
     iter:1000,
   },
   {
     name:'Val met luchtweerstand',
-    desc:'F_w ∝ v²',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'0.1',unit:'kg/m'}],
-    model:'Fres = m*9.8 - k*v*v\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    desc:'Een object valt door lucht met luchtweerstand evenredig met v². Plot v tegen t om de eindsnelheid te zien. De eindsnelheid is bereikt als de versnelling nul is: v_eind = √(m·g/k) ≈ 9,9 m/s. Onderzoeksvraag: wat gebeurt er als je k verdubbelt? En als je m verdubbelt?',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'0.1',unit:'kg/m'},{name:'g',value:'9.8',unit:'m/s²'}],
+    model:'Fw = k*v*v\nFres = m*g - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
     iter:1000,
   },
   {
     name:'Stuiterende bal',
-    desc:'vrije val + terugstuit',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'}],
-    model:'v = v + a*dt\nx = x + v*dt\nals x <= 0 dan v = -0.8*v\nals x <= 0 dan x = 0\nt = t + dt',
+    desc:'Een bal valt en stuitert op de grond. De bouncefactor b bepaalt hoeveel energie behouden blijft bij elke stuit. Plot x tegen t. Onderzoeksvraag: hoeveel stuiteringen zijn er voor de bal tot rust komt? Wat verandert er als je b aanpast?',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'},{name:'b',value:'0.8',unit:''}],
+    model:'v = v + a*dt\nals x <= 0 dan v = -b*v\nx = x - v*dt\nt = t + dt',
     iter:2000,
   },
   {
     name:'Bungee jumper',
-    desc:'veer + zwaartekracht + weerstand',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'80',unit:'kg'},{name:'k',value:'20',unit:'N/m'},{name:'L',value:'10',unit:'m'},{name:'b',value:'0.5',unit:''}],
-    model:'Fz = m*9.8\nals x > L dan Fv = k*(x-L)\nals x <= L dan Fv = 0\nFw = b*v*v\nFres = Fz - Fv - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    desc:'Een bungee jumper valt naar beneden. Positieve richting is naar beneden. Het touw begint te trekken als x groter is dan de rustlengte L. Plot x tegen t om de oscillatie te zien. Onderzoeksvraag: hoe ver valt de jumper maximaal? Wat is de invloed van k op de maximale uitwijking?',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'80',unit:'kg'},{name:'g',value:'9.8',unit:'m/s²'},{name:'k',value:'20',unit:'N/m'},{name:'L',value:'10',unit:'m'},{name:'b',value:'0.5',unit:''}],
+    model:'Fz = m*g\nals x > L dan Fe = k*(x-L)\nals x <= L dan Fe = 0\nals v > 0 dan Fw = b*v*v\nals v <= 0 dan Fw = -b*v*v\nFres = Fz - Fe - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
     iter:2000,
   },
   {
     name:'RC-circuit opladen',
-    desc:'U_c stijgt naar U_bron',
+    desc:'Een condensator laadt op via een weerstand. Plot U tegen t. De tijdconstante is τ=R·C=1 s. Na één tijdconstante is U ≈ 63% van Ubron. Na vijf tijdconstanten is de condensator vrijwel volledig opgeladen. Onderzoeksvraag: wat verandert er als je R of C aanpast?',
     sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.001',unit:'s'},{name:'U',value:'0',unit:'V'},{name:'Ubron',value:'5',unit:'V'},{name:'R',value:'1000',unit:'Ω'},{name:'C',value:'0.001',unit:'F'}],
     model:'U = U + (Ubron-U)/(R*C)*dt\nt = t + dt',
     iter:5000,
   },
   {
     name:'Radioactief verval',
-    desc:'N = N − λ·N·dt',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'},{name:'N',value:'1000',unit:''},{name:'lambda',value:'0.05',unit:'1/s'}],
-    model:'N = N - lambda*N*dt\nt = t + dt',
-    iter:200,
+    desc:'Het aantal radioactieve kernen neemt exponentieel af. Plot N tegen t om het verval te zien. Plot A tegen t voor de activiteit. Na één halfwaardetijd is N gehalveerd. Lees de halfwaardetijd af uit de grafiek en vergelijk met de startwaarde t_half. Onderzoeksvraag: wat verandert er als je t_half aanpast?',
+    sv:[{name:'t_half',value:'1e9',unit:'s'},{name:'N',value:'1e21',unit:''},{name:'t',value:'0',unit:'s'}],
+    model:'dt = t_half/1000\nlambda = 0.693/t_half\nA = lambda*N\nN = N - A*dt\nt = t + dt',
+    iter:1000,
   },
   {
     name:'Harmonische oscillator',
-    desc:'massa aan veer (F = −k·x)',
+    desc:'Een massa aan een veer oscilleert zonder energieverlies. Plot x tegen t voor een sinusvorm. De theoretische periode is T=2π√(m/k)≈2,0 s. Gebruik de pijltjestoetsen om de periode af te lezen. Onderzoeksvraag: verandert de periode als je de beginuitwijking aanpast? En als je m of k aanpast?',
     sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'1',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'10',unit:'N/m'}],
     model:'Fres = -k*x\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
     iter:2000,
   },
   {
     name:'Planetenbaan',
-    desc:'2D gravitatie (x,y,vx,vy)',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'100',unit:'s'},{name:'x',value:'1.5e11',unit:'m'},{name:'y',value:'0',unit:'m'},{name:'vx',value:'0',unit:'m/s'},{name:'vy',value:'29783',unit:'m/s'},{name:'M',value:'2e30',unit:'kg'},{name:'G',value:'6.67e-11',unit:''}],
+    desc:'De aarde beweegt om de zon onder invloed van de zwaartekracht. Plot y tegen x om de baan te zien. Met dt=3600 s en 10000 iteraties zie je bijna één volledige omloop (≈416 dagen). De baan is bijna cirkelvormig. Onderzoeksvraag: wat gebeurt er als je vy aanpast? Bij welke waarde verlaat de planeet zijn baan?',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'3600',unit:'s'},{name:'x',value:'1.5e11',unit:'m'},{name:'y',value:'0',unit:'m'},{name:'vx',value:'0',unit:'m/s'},{name:'vy',value:'29783',unit:'m/s'},{name:'M',value:'2e30',unit:'kg'},{name:'G',value:'6.67e-11',unit:''}],
     model:'r = sqrt(x*x+y*y)\nF = G*M/(r*r)\nax = -F*x/r\nay = -F*y/r\nvx = vx + ax*dt\nvy = vy + ay*dt\nx = x + vx*dt\ny = y + vy*dt\nt = t + dt',
-    iter:400,
+    iter:10000,
   },
 ];
 
@@ -522,6 +627,35 @@ function switchTab(id){
 }
 
 // ─── GRAFIEKEN ───────────────────────────────────────────────────────────
+Chart.register({
+  id:'tangentLabelPlugin',
+  afterDraw:function(chart){
+    var opts=chart.options.plugins&&chart.options.plugins.tangentLabel;
+    if(!opts||!opts.label) return;
+    var xScale=chart.scales.x, yScale=chart.scales.y;
+    if(!xScale||!yScale) return;
+    var px=xScale.getPixelForValue(opts.midX);
+    var py=yScale.getPixelForValue(opts.midY);
+    var area=chart.chartArea;
+    px=Math.max(area.left+44,Math.min(area.right-44,px));
+    py=Math.max(area.top+22,Math.min(area.bottom-8,py));
+    var ctx=chart.ctx;
+    ctx.save();
+    ctx.font='bold 12px "JetBrains Mono",monospace';
+    ctx.textAlign='center';
+    ctx.textBaseline='bottom';
+    var text=opts.label;
+    var tw=ctx.measureText(text).width;
+    var dark=document.documentElement.getAttribute('data-theme')==='dark';
+    ctx.fillStyle=dark?'rgba(28,35,51,0.92)':'rgba(255,255,255,0.92)';
+    var rx=px-tw/2-5,ry=py-20,rw=tw+10,rh=20;
+    ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.fill();
+    ctx.fillStyle='#D4923A';
+    ctx.fillText(text,px,py-3);
+    ctx.restore();
+  }
+});
+
 function getVarOptions(selected,extra){
   return varNames.map(v=>`<option value="${v}" ${v===selected?'selected':''}>${v}</option>`).join('');
 }
@@ -538,6 +672,13 @@ function chartColors(){
   };
 }
 
+function fmtNum(v){
+  if(v===0) return '0';
+  var abs=Math.abs(v);
+  if(abs>=1e5||abs<1e-3) return v.toExponential(2);
+  return +v.toPrecision(4)+'';
+}
+
 function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine,xMin,xMax,yMin,yMax){
   const c=chartColors();
   const datasets=[{
@@ -546,26 +687,51 @@ function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine,xMin,xMax,
     borderColor:c.line,
     backgroundColor:'transparent',
     borderWidth:2,
-    pointRadius:xData.length<200?3:0,
+    pointRadius:0,
     pointHoverRadius:5,
-    pointBackgroundColor:xData.map((_,i)=>i===selIdx?c.pointSelected:c.line),
     tension:0,
     parsing:false,
   }];
+  // selected point as separate dataset so it's always visible regardless of pointRadius
+  if(selIdx!==null&&selIdx!==undefined&&xData.length){
+    datasets.push({
+      label:'Geselecteerd',
+      data:[{x:xData[selIdx],y:yData[selIdx]}],
+      backgroundColor:c.pointSelected,
+      borderColor:'#ffffff',
+      pointRadius:4,
+      pointHoverRadius:5,
+      borderWidth:2,
+      showLine:false,
+      parsing:false,
+    });
+  }
+  var tangentLabelOpts=null;
   if(tangentLine){
     datasets.push({
       label:'Raaklijn',
       data:[{x:tangentLine.x1,y:tangentLine.y1},{x:tangentLine.x2,y:tangentLine.y2}],
-      borderColor:c.tangent,
-      borderWidth:1.5,
-      borderDash:[5,4],
+      borderColor:'#D4923A',
+      borderWidth:3,
+      borderDash:[6,3],
       pointRadius:0,
       parsing:false,
       clip:false,
     });
+    var tSlope=(tangentLine.y2-tangentLine.y1)/(tangentLine.x2-tangentLine.x1);
+    var yUnitM=yLabel.match(/\(([^)]+)\)/);
+    var xUnitM=xLabel.match(/\(([^)]+)\)/);
+    var sUnit=yUnitM&&xUnitM?' '+yUnitM[1]+'/'+xUnitM[1]:yUnitM?' '+yUnitM[1]:'';
+    var xVarName=xLabel.split(' ')[0];
+    var yVarName=yLabel.split(' ')[0];
+    tangentLabelOpts={
+      label:'d'+yVarName+'/d'+xVarName+' = '+fmtNum(tSlope)+sUnit,
+      midX:(tangentLine.x1+tangentLine.x2)/2,
+      midY:(tangentLine.y1+tangentLine.y2)/2,
+    };
   }
-  // build y scale options — prevent tangent from affecting auto-scale
-  var yScaleOpts={title:{display:true,text:yLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:6}};
+  // build y scale options: prevent tangent from affecting auto-scale
+  var yScaleOpts={title:{display:true,text:yLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:6,callback:fmtNum}};
   if(yMin!==''&&yMin!==undefined&&yMin!==null) yScaleOpts.min=parseFloat(yMin);
   else if(tangentLine&&yData.length){
     var dataMin=Math.min(...yData);
@@ -576,7 +742,7 @@ function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine,xMin,xMax,
   }
   if(yMax!==''&&yMax!==undefined&&yMax!==null) yScaleOpts.max=parseFloat(yMax);
   // build x scale options
-  var xScaleOpts={type:'linear',title:{display:true,text:xLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:8}};
+  var xScaleOpts={type:'linear',title:{display:true,text:xLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:8,callback:fmtNum}};
   if(xMin!==''&&xMin!==undefined&&xMin!==null) xScaleOpts.min=parseFloat(xMin);
   if(xMax!==''&&xMax!==undefined&&xMax!==null) xScaleOpts.max=parseFloat(xMax);
   return{
@@ -596,9 +762,10 @@ function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine,xMin,xMax,
           }
         },
         zoom:{
-          zoom:{wheel:{enabled:true},pinch:{enabled:true},mode:'xy'},
-          pan:{enabled:true,mode:'xy'},
-        }
+          zoom:{wheel:{enabled:true},pinch:{enabled:true},mode:'xy',onZoom:function(e){saveZoomState(e.chart)}},
+          pan:{enabled:true,mode:'xy',onPan:function(e){saveZoomState(e.chart)}},
+        },
+        tangentLabel:tangentLabelOpts,
       },
       scales:{
         x:xScaleOpts,
@@ -656,7 +823,7 @@ function addChart(){
   document.getElementById('charts-container').appendChild(div);
   const ctx=document.getElementById('cv-'+id).getContext('2d');
   const chart=new Chart(ctx,makeChartConfig([],[],axisLabel(defaultX),axisLabel(defaultY),null,null,'','','',''));
-  const obj={id,chart,xVar:defaultX,yVar:defaultY,tangentActive:false,selectedIdx:null,xMin:'',xMax:'',yMin:'',yMax:''};
+  const obj={id,chart,xVar:defaultX,yVar:defaultY,tangentActive:false,selectedIdx:null,xMin:'',xMax:'',yMin:'',yMax:'',zoomSnapshot:null};
   chartInstances.push(obj);
   div.addEventListener('click',e=>onChartClick(id,e));
   div.addEventListener('keydown',e=>onChartKey(id,e),true);
@@ -684,6 +851,8 @@ function onAxisChange(id,axis,val){
   if(!obj) return;
   if(axis==='x') obj.xVar=val; else obj.yVar=val;
   obj.selectedIdx=null;
+  obj.zoomSnapshot=null;
+  if(obj.chart.resetZoom) obj.chart.resetZoom();
   updateChart(obj);
 }
 
@@ -701,11 +870,11 @@ function onChartClick(id,e){
   if(!obj||!simulationData.length) return;
   const el=document.getElementById(id);
   el.focus();
-  const rect=document.getElementById('cv-'+id).getBoundingClientRect();
+  const canvas=document.getElementById('cv-'+id);
   const chart=obj.chart;
-  const canvasX=e.clientX-rect.left;
-  const xMin=chart.scales.x.min, xMax=chart.scales.x.max;
-  const xVal=xMin+(canvasX/rect.width)*(xMax-xMin);
+  const rect=canvas.getBoundingClientRect();
+  const offsetX=e.clientX-rect.left;
+  const xVal=chart.scales.x.getValueForPixel(offsetX);
   const xData=simulationData.map(d=>d[obj.xVar]);
   let best=0,bestDist=Infinity;
   xData.forEach((x,i)=>{const d=Math.abs(x-xVal);if(d<bestDist){bestDist=d;best=i}});
@@ -720,21 +889,78 @@ function onChartKey(id,e){
   if(e.key==='ArrowRight'){e.preventDefault();obj.selectedIdx=Math.min(simulationData.length-1,obj.selectedIdx+1);syncCursor(obj.xVar,obj.selectedIdx)}
 }
 
+function saveZoomState(chart){
+  var o=chartInstances.find(function(c){return c.chart===chart});
+  if(!o||!chart.scales||!chart.scales.x) return;
+  var xMin=chart.scales.x.min, xMax=chart.scales.x.max;
+  var yMin=chart.scales.y.min, yMax=chart.scales.y.max;
+  o.zoomSnapshot={xMin:xMin,xMax:xMax,yMin:yMin,yMax:yMax};
+  // sync x-axis zoom to all charts with the same xVar
+  chartInstances.forEach(function(peer){
+    if(peer===o||peer.xVar!==o.xVar) return;
+    peer.zoomSnapshot=peer.zoomSnapshot||{};
+    peer.zoomSnapshot.xMin=xMin;
+    peer.zoomSnapshot.xMax=xMax;
+    if(peer.chart.scales&&peer.chart.scales.x){
+      peer.chart.scales.x.options.min=xMin;
+      peer.chart.scales.x.options.max=xMax;
+      peer.chart.update('none');
+    }
+  });
+}
+
 function updateChart(obj){
-  if(!simulationData.length){obj.chart.data.datasets[0].data=[];obj.chart.update();return}
+  if(!simulationData.length){
+    obj.chart.data.datasets=[{label:'',data:[],borderColor:chartColors().line,backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0,parsing:false}];
+    obj.chart.update();return;
+  }
   const xData=simulationData.map(d=>+d[obj.xVar]||0);
   const yData=simulationData.map(d=>+d[obj.yVar]||0);
   const pts=xData.map((x,i)=>({x,y:yData[i]}));
   const sel=obj.selectedIdx;
   const tangent=obj.tangentActive&&sel!==null?computeTangent(pts,sel):null;
-  const c=chartColors();
   const cfg=makeChartConfig(xData,yData,axisLabel(obj.xVar),axisLabel(obj.yVar),sel,tangent,obj.xMin,obj.xMax,obj.yMin,obj.yMax);
+  // prepend saved runs (rendered behind active line)
+  savedRuns.forEach(function(run,ri){
+    if(!run.data.length) return;
+    var rxData=run.data.map(function(d){return+d[obj.xVar]||0});
+    var ryData=run.data.map(function(d){return+d[obj.yVar]||0});
+    cfg.data.datasets.unshift({
+      label:run.label,
+      data:rxData.map(function(x,i){return{x:x,y:ryData[i]}}),
+      borderColor:run.color,
+      backgroundColor:'transparent',
+      borderWidth:1.5,
+      pointRadius:0,
+      tension:0,
+      parsing:false,
+    });
+  });
   obj.chart.data=cfg.data;
   obj.chart.options=cfg.options;
   obj.chart.update();
+  // restore zoom snapshot via scale.options after update so pan/zoom state survives re-renders
+  if(obj.zoomSnapshot&&obj.chart.scales&&obj.chart.scales.x){
+    if(obj.xMin===''&&obj.xMax===''){
+      obj.chart.scales.x.options.min=obj.zoomSnapshot.xMin;
+      obj.chart.scales.x.options.max=obj.zoomSnapshot.xMax;
+    }
+    if(obj.yMin===''&&obj.yMax===''){
+      obj.chart.scales.y.options.min=obj.zoomSnapshot.yMin;
+      obj.chart.scales.y.options.max=obj.zoomSnapshot.yMax;
+    }
+    obj.chart.update('none');
+  }
   const pi=document.getElementById('pi-'+obj.id);
   if(pi&&sel!==null){
-    pi.textContent=`${axisLabel(obj.xVar)} = ${xData[sel].toPrecision(5)}  |  ${axisLabel(obj.yVar)} = ${yData[sel].toPrecision(5)}`;
+    var infoText=axisLabel(obj.xVar)+' = '+xData[sel].toPrecision(5)+'  |  '+axisLabel(obj.yVar)+' = '+yData[sel].toPrecision(5);
+    if(tangent){
+      var slope=(tangent.y2-tangent.y1)/(tangent.x2-tangent.x1);
+      var xu=unitForVar(obj.xVar), yu=unitForVar(obj.yVar);
+      var slopeUnit=yu&&xu?' '+yu+'/'+xu:'';
+      infoText+='  |  d'+obj.yVar+'/d'+obj.xVar+' = '+fmtNum(slope)+slopeUnit;
+    }
+    pi.textContent=infoText;
   } else if(pi) pi.textContent='';
 }
 
@@ -842,6 +1068,22 @@ function parseLine(line,vars,lineNum){
     return{};
   }
 
+  // als ... dan STOP
+  const condStopMatch=trimmed.match(/^als\s+(.+?)\s+dan\s+STOP\s*$/i);
+  if(condStopMatch){
+    let cond=condStopMatch[1].trim();
+    if(cond.startsWith('(')&&cond.endsWith(')')) cond=cond.slice(1,-1).trim();
+    if(!checkParens(cond)) return{error:'Regel '+lineNum+': haakjes sluiten niet in conditie'};
+    let condVal=false;
+    try{condVal=!!parseExpr(cond,vars)}
+    catch(err){
+      const m=err.message&&err.message.match(/(\w+) is not defined/);
+      return{error:'Regel '+lineNum+': variabele \''+(m?m[1]:err.message)+'\' is niet gedefinieerd'};
+    }
+    if(condVal) return{stop:true};
+    return{};
+  }
+
   // syntax: als zonder dan
   if(/^als\b/i.test(trimmed)){
     return{error:'Regel '+lineNum+': als zonder dan'};
@@ -881,6 +1123,19 @@ function validateSyntax(lines){
   return errors;
 }
 
+// ─── VARIABELE VALIDATIE (dry-run iteratie 0) ────────────────────────────
+function checkFirstIteration(lines,startVars){
+  // run exactly one iteration with parseLine to catch undefined variables early
+  var workVars=Object.assign({},startVars);
+  for(var li=0;li<lines.length;li++){
+    var res=parseLine(lines[li],workVars,li+1);
+    if(res.error) return res.error;
+    if(res.assign) Object.assign(workVars,res.assign);
+    if(res.stop) break;
+  }
+  return null;
+}
+
 // ─── MODEL UITVOEREN ─────────────────────────────────────────────────────
 function runModel(){
   const statusEl=document.getElementById('status-bar');
@@ -905,8 +1160,20 @@ function runModel(){
     const val=parseFloat(row.value);
     vars[name]=isNaN(val)?0:val;
   }
-  if(!('dt' in vars)){statusEl.className='status-bar err';statusEl.textContent='⚠ Voeg dt toe als startwaarde.';return}
+  const dtInModel=rawLines.some(l=>/^dt\s*=/.test(l.trim()));
+  if(!('dt' in vars)&&!dtInModel){statusEl.className='status-bar err';statusEl.textContent='⚠ Voeg dt toe als startwaarde of definieer het als eerste modelregel.';return}
   if(!('t' in vars)) vars.t=0;
+
+  // eenheden check (waarschuwing, geen blokkade)
+  checkUnits();
+
+  // variabele-validatie via dry-run: voer iteratie 0 uit en vang fouten op
+  const firstErr=checkFirstIteration(rawLines,vars);
+  if(firstErr){
+    statusEl.className='status-bar err';
+    statusEl.textContent='⚠ '+firstErr;
+    return;
+  }
 
   const maxIter=Math.min(10000,Math.max(1,parseInt(document.getElementById('max-iter').value)||1000));
 
@@ -940,7 +1207,8 @@ function runModel(){
     if(stopped) break;
   }
 
-  varNames=allVarNames.filter(v=>simulationData.length&&v in simulationData[0]);
+  // vars is na de loop bijgewerkt met alle tussenvariabelen; gebruik dat als filter
+  varNames=allVarNames.filter(v=>v in vars);
 
   if(errorMsg){statusEl.className='status-bar err';statusEl.textContent='⚠ '+errorMsg}
   else if(stopped){statusEl.className='status-bar ok';statusEl.textContent='✓ Simulatie gestopt na '+simulationData.length+' iteraties'}
@@ -949,7 +1217,7 @@ function runModel(){
   // update grafieken
   if(chartInstances.length===0) addChart();
   updateAxisDropdowns();
-  chartInstances.forEach(obj=>{obj.selectedIdx=null;updateChart(obj)});
+  chartInstances.forEach(obj=>{obj.selectedIdx=null;obj.zoomSnapshot=null;updateChart(obj)});
   if(tableVisible) renderTable();
 }
 
@@ -960,13 +1228,18 @@ function loadExample(i){
   renderSvTable();
   document.getElementById('model-textarea').value=ex.model;
   document.getElementById('max-iter').value=ex.iter;
+  updateLineNumbers();
   document.getElementById('status-bar').className='status-bar';
   document.getElementById('status-bar').textContent='';
   simulationData=[];
+  savedRuns=[];renderRunLegend();
   chartInstances.forEach(function(obj){obj.chart.destroy()});
   chartInstances=[];
   document.getElementById('charts-container').innerHTML='';
   updateAddBtn();
+  currentLearnIdx=-1;
+  window.showFloatCardExample(i);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function renderExamples(){
@@ -982,7 +1255,7 @@ renderExamples();
 
 // ─── REGELNUMMERS ────────────────────────────────────────────────────────
 var _errLines=[];
-function updateLineNumbers(){
+function renderLineNumbers(){
   const ta=document.getElementById('model-textarea');
   const ln=document.getElementById('line-numbers');
   if(!ta||!ln) return;
@@ -991,7 +1264,20 @@ function updateLineNumbers(){
     const n=i+1;
     return _errLines.includes(n)?'<span class="ln-err">'+n+'</span>':String(n);
   }).join('\n');
-  ln.scrollTop=ta.scrollTop;
+  if(ta.scrollTop) ln.scrollTop=ta.scrollTop;
+}
+function updateLineNumbers(){
+  // called oninput: compute live syntax errors and re-render, no showLineErrors call
+  const ta=document.getElementById('model-textarea');
+  if(!ta) return;
+  const lines=ta.value.split('\n');
+  _errLines=validateSyntax(lines);
+  const container=document.getElementById('model-errors');
+  if(container){
+    if(_errLines.length) container.innerHTML='<span style="font-family:var(--mono);font-size:11px;color:#ef4444">⚠ Syntaxfout op regel '+_errLines.join(', ')+'</span>';
+    else container.innerHTML='';
+  }
+  renderLineNumbers();
 }
 function syncLnScroll(){
   const ta=document.getElementById('model-textarea');
@@ -1000,14 +1286,12 @@ function syncLnScroll(){
 }
 function showLineErrors(errNums){
   _errLines=errNums||[];
-  updateLineNumbers();
   const container=document.getElementById('model-errors');
-  if(!container) return;
-  if(_errLines.length){
-    container.innerHTML='<span style="font-family:var(--mono);font-size:11px;color:#ef4444">⚠ Syntaxfout op regel '+_errLines.join(', ')+'</span>';
-  } else {
-    container.innerHTML='';
+  if(container){
+    if(_errLines.length) container.innerHTML='<span style="font-family:var(--mono);font-size:11px;color:#ef4444">⚠ Syntaxfout op regel '+_errLines.join(', ')+'</span>';
+    else container.innerHTML='';
   }
+  renderLineNumbers();
 }
 
 // ─── AXIS RANGE + ZOOM ───────────────────────────────────────────────────
@@ -1022,6 +1306,7 @@ function resetZoom(id){
   var obj=chartInstances.find(c=>c.id===id);
   if(!obj) return;
   obj.xMin='';obj.xMax='';obj.yMin='';obj.yMax='';
+  obj.zoomSnapshot=null;
   var div=document.getElementById(id);
   if(div) div.querySelectorAll('.range-input').forEach(function(inp){inp.value='';});
   if(obj.chart.resetZoom) obj.chart.resetZoom();
@@ -1042,8 +1327,17 @@ function syncCursor(xVar,idx){
 function downloadPNG(id){
   var obj=chartInstances.find(c=>c.id===id);
   if(!obj) return;
+  var src=obj.chart.canvas;
+  var tmp=document.createElement('canvas');
+  tmp.width=src.width;
+  tmp.height=src.height;
+  var ctx=tmp.getContext('2d');
+  var bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim()||'#ffffff';
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,tmp.width,tmp.height);
+  ctx.drawImage(src,0,0);
   var a=document.createElement('a');
-  a.href=obj.chart.toBase64Image('image/png',1);
+  a.href=tmp.toDataURL('image/png');
   a.download='grafiek_'+obj.yVar+'_vs_'+obj.xVar+'.png';
   a.click();
 }
@@ -1097,6 +1391,7 @@ function loadSavedModel(i){
   document.getElementById('max-iter').value=m.iter;
   updateLineNumbers();
   simulationData=[];
+  savedRuns=[];renderRunLegend();
   chartInstances.forEach(function(obj){obj.chart.destroy()});
   chartInstances=[];
   document.getElementById('charts-container').innerHTML='';
@@ -1135,6 +1430,529 @@ function importModelJSON(input){
   reader.readAsText(file);
   input.value='';
 }
+
+// ─── MEERDERE RUNS ───────────────────────────────────────────────────────
+function bewaarRun(){
+  if(!simulationData.length){alert('Voer eerst een simulatie uit.');return}
+  if(savedRuns.length>=4){alert('Maximum 4 bewaarde runs bereikt. Gebruik "Wis runs" om te beginnen.');return}
+  var prevSv=savedRuns.length?savedRuns[savedRuns.length-1].svSnapshot:null;
+  var runNum=savedRuns.length+1;
+  var label='Run '+runNum;
+  if(prevSv){
+    var diffs=svRows.filter(function(r){
+      var p=prevSv.find(function(x){return x.name===r.name});
+      return !p||p.value!==r.value;
+    }).map(function(r){return r.name+' = '+r.value+(r.unit?' '+r.unit:'')});
+    if(diffs.length) label+=': '+diffs.join(', ');
+  }
+  savedRuns.push({
+    data:simulationData.map(function(d){return Object.assign({},d)}),
+    svSnapshot:svRows.map(function(r){return Object.assign({},r)}),
+    label:label,
+    color:RUN_COLORS[(savedRuns.length)%RUN_COLORS.length],
+  });
+  chartInstances.forEach(function(obj){updateChart(obj)});
+  renderRunLegend();
+}
+
+function wisRuns(){
+  savedRuns=[];
+  chartInstances.forEach(function(obj){updateChart(obj)});
+  renderRunLegend();
+}
+
+function renderRunLegend(){
+  var el=document.getElementById('run-legend');
+  if(!el) return;
+  if(!savedRuns.length){el.style.display='none';return}
+  el.style.display='flex';
+  el.innerHTML=savedRuns.map(function(run){
+    return '<span class="run-entry">'+
+      '<span class="run-dot" style="background:'+run.color+'"></span>'+
+      '<span>'+run.label+'</span></span>';
+  }).join('');
+}
+
+// ─── EENHEDEN CHECK ───────────────────────────────────────────────────────
+function checkUnits(){
+  var warnings=[];
+  var tRow=svRows.find(function(r){return r.name==='t'});
+  var dtRow=svRows.find(function(r){return r.name==='dt'});
+  if(tRow&&dtRow&&tRow.unit&&dtRow.unit&&tRow.unit!==dtRow.unit){
+    warnings.push('⚠ Let op: t heeft eenheid "'+tRow.unit+'" maar dt heeft eenheid "'+dtRow.unit+'"');
+  }
+  var missingUnit=svRows.filter(function(r){return r.name&&!r.unit&&r.name!=='dt'});
+  if(missingUnit.length){
+    warnings.push('Tip: voeg eenheden toe aan '+missingUnit.map(function(r){return r.name}).join(', ')+' voor duidelijkere grafieklabels');
+  }
+  var el=document.getElementById('unit-warnings');
+  if(!el) return;
+  if(warnings.length){
+    el.innerHTML=warnings.map(function(w){
+      return '<div class="unit-warning-box">'+w+'</div>';
+    }).join('');
+    el.style.display='block';
+  } else {
+    el.innerHTML='';
+    el.style.display='none';
+  }
+}
+
+// ─── URL DELEN ────────────────────────────────────────────────────────────
+function deelModel(){
+  var data=JSON.stringify({
+    sv:svRows,
+    model:document.getElementById('model-textarea').value,
+    iter:parseInt(document.getElementById('max-iter').value)||1000,
+  });
+  var compressed=LZString.compressToEncodedURIComponent(data);
+  var url=location.origin+location.pathname+'?model='+compressed;
+  var btn=document.getElementById('deel-model-btn');
+  navigator.clipboard.writeText(url).then(function(){
+    var orig=btn.textContent;
+    btn.textContent='✓ Link gekopieerd!';
+    setTimeout(function(){btn.textContent=orig},2000);
+  }).catch(function(){
+    prompt('Kopieer deze URL:',url);
+  });
+}
+
+// ─── URL MODEL LADEN ─────────────────────────────────────────────────────
+(function(){
+  var params=new URLSearchParams(location.search);
+  var modelParam=params.get('model');
+  if(modelParam){
+    try{
+      var data=JSON.parse(LZString.decompressFromEncodedURIComponent(modelParam));
+      svRows=data.sv.map(function(r){return Object.assign({},r)});
+      renderSvTable();
+      document.getElementById('model-textarea').value=data.model||'';
+      document.getElementById('max-iter').value=data.iter||1000;
+      updateLineNumbers();
+    }catch(e){console.warn('Ongeldig model in URL',e)}
+  }
+})();
+
+// ─── LEER MODELLEREN ─────────────────────────────────────────────────────
+var LEARN_EXERCISES=[
+  {
+    title:'Je eerste model',
+    context:'Welkom bij het numeriek modelleren. In deze eerste oefening bouw je je eerste model: een object dat met constante snelheid beweegt.',
+    uitleg:'<strong>Wat is modelleren?</strong><br>Bij modelleren deel je een berekening op in kleine stapjes. Bij elke stap worden grootheden zoals positie en snelheid bijgewerkt. Door dit heel vaak te herhalen kun je complexe bewegingen en processen nabootsen die je niet met één formule kunt uitrekenen.<br><br><strong>Waarom modelleren?</strong><br>Veel situaties in de natuur zijn te ingewikkeld voor een exacte formule, zoals luchtweerstand, botsingen of planetenbanen. Met een model kun je die situaties toch doorrekenen en grafisch maken. En je kunt makkelijk dingen aanpassen en kijken wat er verandert.<br><br><strong>Hoe werkt het?</strong><br>Elke modelregel beschrijft hoe één grootheid verandert per tijdstap dt:<br><code>x = x + v*dt</code><br>Dit heet de Euler-methode. Je kiest startwaarden en laat de computer de rest berekenen, stap voor stap.<br><br>Een modelregel heeft altijd de vorm: <code>variabele = nieuwe waarde</code>. Het =-teken betekent hier niet "is gelijk aan" maar "wordt de nieuwe waarde van".',
+    opdracht:'Voer de twee modelregels in: één voor x en één voor t. Druk op <strong>▶ Simuleer</strong>. Zet t op de x-as en x op de y-as. Wat voor grafiek krijg je?<div class="learn-tip">→ De modelregels voer je in het tekstvlak "Modelregels" links in.</div><div class="learn-tip">→ Na het simuleren verschijnt een grafiek rechts. Boven de grafiek staan twee dropdowns: x-as en y-as.</div>',
+    hints:[
+      {label:'Hint: welke regels?',text:'Je hebt twee regels nodig. De nieuwe positie hangt af van de oude positie, de snelheid en dt.'},
+      {label:'Hint: de formules',text:'<code>x = x + v*dt</code> berekent de nieuwe positie. Voeg daarna <code>t = t + dt</code> toe zodat de tijd bijgehouden wordt.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'20',unit:'m/s'}],
+    startModel:'',
+    startIter:100,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'20',unit:'m/s'}],
+    solModel:'x = x + v*dt\nt = t + dt',
+    solIter:100,
+  },
+  {
+    title:'Van tabel naar grafiek',
+    context:'Na het simuleren berekent de computer honderden waarden. Je kunt ze lezen als tabel of bekijken als grafiek.',
+    uitleg:'Na het simuleren berekent de computer honderden waarden. Al die getallen staan in de tabel. Een tabel geeft exacte waarden maar je ziet geen patroon. Een grafiek laat het patroon zien maar je verliest precisie. Beide hebben hun waarde: gebruik de tabel voor exacte aflezing en de grafiek voor begrip.',
+    opdracht:'Simuleer en open de tabel. Lees x en v af op t = 1 s, t = 2 s en t = 3 s. Sluit de tabel en maak een grafiek van x tegen t en een tweede grafiek van v tegen t. Zoom in op de eerste 2 seconden. Gebruik de pijltjestoetsen om precies bij t = 1,5 s uit te komen. Controleer de grafiekwaarde met de tabel.<div class="learn-tip">→ Open de tabel via de knop "Toon tabel" onder de grafieken.</div><div class="learn-tip">→ Voeg een tweede grafiek toe via "+ Voeg grafiek toe". Zet v op de y-as.</div><div class="learn-tip">→ Zoom in door met het muiswiel over de grafiek te scrollen. Klik op een punt om het te selecteren, gebruik daarna ← → om door datapunten te navigeren.</div>',
+    hints:[
+      {label:'Hint: tabel lezen',text:'Elke rij in de tabel is één iteratie. Bij dt = 0,1 s is t = 1 s na 10 rijen.'},
+      {label:'Hint: verwachte waarden',text:'v = a·t = 9,8 m/s² × t. Op t = 1 s: v ≈ 9,8 m/s, x ≈ 4,9 m. Op t = 2 s: v ≈ 19,6 m/s, x ≈ 19,6 m.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    startModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:100,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    solModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:100,
+  },
+  {
+    title:'Versnelling',
+    context:'Tot nu toe was de snelheid constant. Maar wat als er een kracht werkt? Dan verandert de snelheid elke tijdstap.',
+    uitleg:'Tot nu toe was de snelheid constant. Maar wat als er een kracht werkt op een object? Volgens Newton geldt F = m·a, dus a = F/m. Bij vrije val is de enige kracht de zwaartekracht: F = m·g. Dus a = g = 9,8 m/s².<br><br>De snelheid verandert elke tijdstap: <code>v = v + a*dt</code>. En de positie verandert op basis van de nieuwe snelheid: <code>x = x + v*dt</code>.<br><br>Let op de volgorde: bereken eerst de nieuwe snelheid, dan pas de nieuwe positie. Anders gebruik je een verouderde snelheidswaarde.',
+    opdracht:'Voer de drie modelregels in: één voor v, één voor x en één voor t. Plot x tegen t. Wat voor vorm heeft de grafiek? Is dat wat je verwacht bij versnelde beweging?',
+    hints:[
+      {label:'Hint: welke regels?',text:'Je hebt drie regels nodig: één voor v (met de versnelling), één voor x (met de snelheid), één voor t.'},
+      {label:'Hint: volgorde',text:'Bereken eerst v met de versnelling, dan pas x met de nieuwe v. De volgorde is belangrijk.'},
+      {label:'Hint: richting',text:'De versnelling bij vrije val is 9,8 m/s² naar beneden. Als omlaag positief is, is a positief.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    startModel:'',
+    startIter:100,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    solModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:100,
+  },
+  {
+    title:'Omhoog gooien',
+    context:'Nu gooien we een bal omhoog. We kiezen een richtingsafspraak en passen de startwaarden zelf in.',
+    uitleg:'In oefening 3 viel de bal naar beneden. Nu gooien we de bal omhoog. We moeten afspreken welke richting positief is.<br><br>Afspraak: omhoog is positief. Dan is de beginsnelheid v = +20 m/s en de versnelling a = -9,8 m/s² want de zwaartekracht werkt naar beneden.<br><br>De modelregels zijn hetzelfde als bij oefening 3 maar nu met een negatieve versnelling. Voeg ook de startwaarden zelf toe: wat is de beginpositie? Wat is de beginsnelheid? Vergeet de eenheden niet.',
+    opdracht:'Voeg de ontbrekende startwaarden toe (x, v en a met de juiste waarden). Vul de modelregels in. Let op het teken van a. Plot x tegen t én v tegen t. Op welk tijdstip is de bal op zijn hoogste punt? Hoe hoog komt de bal? Wanneer raakt hij de grond?<div class="learn-tip">→ Op het hoogste punt is v = 0. Gebruik de pijltjestoetsen op de v-t grafiek om het exacte tijdstip te vinden.</div>',
+    hints:[
+      {label:'Hint: modelregels',text:'De modelregels zijn identiek aan oefening 3. Alleen de startwaarden zijn anders.'},
+      {label:'Hint: hoogste punt',text:'Op het hoogste punt is v = 0. Gebruik de pijltjestoetsen op de v-t grafiek om het exacte tijdstip te vinden.'},
+      {label:'Hint: stopconditie',text:'Voeg toe: <code>als x &lt; 0 dan STOP</code> zodat de simulatie stopt als de bal de grond raakt.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'}],
+    startModel:'t = t + dt',
+    startIter:200,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'20',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'}],
+    solModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:200,
+  },
+  {
+    title:'Hoe nauwkeurig is je model?',
+    context:'De numerieke methode maakt een fout bij elke iteratie. Hoe kleiner dt, hoe nauwkeuriger, maar hoe meer stappen je nodig hebt.',
+    uitleg:'De numerieke methode maakt een fout bij elke iteratie. Hoe kleiner dt, hoe kleiner de fout per stap maar hoe meer stappen je nodig hebt.<br><br>Belangrijk: als je dt kleiner maakt moet je ook het aantal iteraties verhogen om dezelfde totale tijd te simuleren. Bij dt = 1 s en 100 iteraties simuleer je 100 seconden. Bij dt = 0,1 s heb je 1000 iteraties nodig voor dezelfde 100 seconden.<br><br>Bij constante snelheid maakt dt geen verschil want de verandering per stap is altijd exact. Bij versnelling stapelen kleine fouten op en zie je bij grote dt duidelijk dat het model afwijkt.',
+    opdracht:'Voeg de ontbrekende startwaarden toe (x = 0 m, v = 0 m/s, a = 9,8 m/s²). Simuleer met dt = 1 s (stel iteraties in voor 10 s) en bewaar de run. Verander dt naar 0,1 s en pas het aantal iteraties aan. Simuleer en bewaar. Doe dit nogmaals met dt = 0,01 s. Vergelijk x na t = 10 s met de exacte formule x = ½·a·t² = 490 m.<div class="learn-tip">→ Klik na elke simulatie op "📌 Bewaar run" om runs te bewaren en te vergelijken.</div>',
+    hints:[
+      {label:'Hint: iteraties aanpassen',text:'Als je dt 10 keer kleiner maakt moet je het aantal iteraties 10 keer groter maken. Voor 10 s bij dt = 0,1 s heb je 100 iteraties nodig.'},
+      {label:'Hint: exacte uitkomst',text:'De exacte uitkomst na 10 s is x = ½ × 9,8 × 100 = 490 m. Hoe groot is de afwijking bij dt = 1 s?'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'}],
+    startModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:10,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    solModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:1000,
+  },
+  {
+    title:'Een kracht die verandert',
+    context:'Luchtweerstand is niet constant: F_w = k·v². Hoe sneller je valt, hoe groter de rem. Er is een eindsnelheid waarbij de krachten in evenwicht zijn.',
+    uitleg:'Tot nu toe was de versnelling constant. Bij een vallend object door lucht is er luchtweerstand. Deze kracht is niet constant maar hangt af van de snelheid:<br><code>Fw = k*v*v</code><br><br>Hoe sneller je beweegt, hoe groter de tegenwerkende kracht. De resulterende kracht is:<br><code>Fres = m*g - Fw</code><br><br>De versnelling is dan: <code>a = Fres/m</code><br><br>Naarmate de snelheid toeneemt neemt Fw toe en neemt Fres af. Er is een punt waarop Fz = Fw en de resulterende kracht nul is. Op dat moment is a = 0 en bereik je de eindsnelheid.<br><br>Let op: Fw, Fres en a zijn tussenvariabelen. Je berekent ze in de modelregels maar ze staan niet in de startwaarden.',
+    opdracht:'Voeg alle startwaarden toe (m = 1 kg, k = 0,1 kg/m, g = 9,8 m/s², v = 0 m/s, x = 0 m, dt = 0,1 s). Voeg daarna de ontbrekende modelregels toe voor Fw, Fres en a, vóór de bestaande regels voor v, x en t. Wat is de eindsnelheid? Controleer met de formule m·g = k·v², los op naar v.',
+    hints:[
+      {label:'Hint: drie regels toevoegen',text:'Je hebt drie extra regels nodig vóór de bestaande: Fw, Fres en a.'},
+      {label:'Hint: Fres richting',text:'Fw werkt tegen de beweging in (naar boven), dus Fres = m*g - Fw.'},
+      {label:'Hint: eindsnelheid',text:'De eindsnelheid bereik je als a = 0. Dan geldt m·g = k·v², dus v = √(m·g/k) = √(1×9,8/0,1) ≈ 9,9 m/s.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'}],
+    startModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:500,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'0.1',unit:'kg/m'},{name:'g',value:'9.8',unit:'m/s²'}],
+    solModel:'Fw = k*v*v\nFres = m*g - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:500,
+  },
+  {
+    title:'De raaklijn',
+    context:'De helling van de raaklijn aan een grafiek geeft de momentane veranderingssnelheid: de afgeleide.',
+    uitleg:'De helling van de raaklijn aan een grafiek geeft de momentane veranderingssnelheid van de y-variabele ten opzichte van de x-variabele. Dit is de afgeleide.<br><br>Voorbeelden:<br>Helling van x-t grafiek = snelheid (dx/dt = v)<br>Helling van v-t grafiek = versnelling (dv/dt = a)<br><br>De raaklijn verbindt dus je grafiek direct met de bijbehorende modelregel.',
+    opdracht:'Maak twee grafieken: x tegen t en v tegen t. Activeer de raaklijn op de x-t grafiek op t = 5 s. Lees de helling af. Vergelijk met de waarde van v in de v-t grafiek op hetzelfde tijdstip. Doe dit ook bij t = 20 s en t = 50 s. Wat valt op bij de eindsnelheid?<div class="learn-tip">→ Activeer de raaklijn via de knop "Raaklijn" boven de grafiek. Selecteer eerst een punt door erop te klikken.</div>',
+    hints:[
+      {label:'Hint: helling bij t=0',text:'Bij t = 0 is v = 0, dus Fw = 0. De versnelling is dan a = g = 9,8 m/s². De raaklijn op de v-t grafiek heeft helling 9,8.'},
+      {label:'Hint: helling bij eindsnelheid',text:'Bij de eindsnelheid is de resulterende kracht nul: a = 0. De raaklijn op de v-t grafiek is horizontaal (helling ≈ 0).'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'0.1',unit:'kg/m'},{name:'g',value:'9.8',unit:'m/s²'}],
+    startModel:'Fw = k*v*v\nFres = m*g - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:1000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.1',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'0.1',unit:'kg/m'},{name:'g',value:'9.8',unit:'m/s²'}],
+    solModel:'Fw = k*v*v\nFres = m*g - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:1000,
+  },
+  {
+    title:'Als ... dan',
+    context:'Met een conditie kun je het gedrag van het model aanpassen als aan een voorwaarde is voldaan.',
+    uitleg:'Soms moet het model een beslissing nemen. Als een bal de grond raakt keert zijn snelheid om. Met als...dan kun je dit aanpakken:<br><code>als x &lt;= 0 dan v = -b*v</code><br><br>Hierbij is b de bouncefactor: een getal tussen 0 en 1 dat aangeeft hoeveel energie behouden blijft. Bij b = 1 verliest de bal geen energie. Bij b = 0 blijft de bal direct liggen.<br><br>Voeg b toe als startwaarde zodat je hem makkelijk kunt aanpassen zonder de modelregels te wijzigen.',
+    opdracht:'<div class="learn-tip">→ Een als...dan regel schrijf je zo: <code>als voorwaarde dan variabele = waarde</code>.</div>Voeg alle startwaarden toe inclusief b = 0,8. Vul de modelregels in. Vergeet de als...dan regel niet. Zet die na de snelheidsberekening maar vóór de positieberekening. Experimenteer met b in de startwaarden. Wat gebeurt er bij b = 1? En bij b = 0,5?',
+    hints:[
+      {label:'Hint: welke regels?',text:'Je hebt vier regels nodig: v (zwaartekracht), de als...dan (stuit), x (positie) en t.'},
+      {label:'Hint: volgorde',text:'Bereken eerst de nieuwe v, controleer dan of de bal de grond raakt, bereken dan pas de nieuwe x. Zo: v = v + a*dt, als x &lt;= 0 dan v = -b*v, x = x + v*dt.'},
+      {label:'Hint: bal zakt door grond',text:'Voeg een tweede regel toe om de bal boven de grond te houden: <code>als x &lt;= 0 dan x = 0</code>.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'}],
+    startModel:'t = t + dt',
+    startIter:2000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'},{name:'b',value:'0.8',unit:''}],
+    solModel:'v = v + a*dt\nals x <= 0 dan v = -b*v\nx = x + v*dt\nals x <= 0 dan x = 0\nt = t + dt',
+    solIter:2000,
+  },
+  {
+    title:'De veer',
+    context:'Een massa aan een veer trilt heen en weer. De kracht is proportioneel aan de uitwijking maar werkt altijd terug naar het midden.',
+    uitleg:'Een massa aan een veer is een van de meest fundamentele systemen in de natuurkunde. De veerkracht trekt het object altijd terug naar de evenwichtspositie:<br><code>F = -k*x</code><br><br>Het minteken is cruciaal: als x positief is (uitgetrokken) werkt de kracht negatief (terug naar midden). Als x negatief is (ingedrukt) werkt de kracht positief.<br><br>De versnelling volgt uit Newton: <code>a = F/m = -k*x/m</code><br><br>Dit leidt tot een periodieke beweging: de harmonische oscillator. De periode hangt alleen af van m en k, niet van de beginuitwijking.',
+    opdracht:'Voeg de startwaarden toe (m = 1 kg, k = 10 N/m, x = 1 m, v = 0 m/s). Voeg de ontbrekende modelregels toe voor Fres en a vóór de bestaande regels. Let op het minteken bij de veerkracht. Plot x tegen t. Hoe lang duurt één periode? Vergelijk met T = 2π√(m/k). Wat gebeurt er als je de beginuitwijking verdubbelt?',
+    hints:[
+      {label:'Hint: veerkracht',text:'De veerkracht heeft een minteken want hij werkt terug naar de evenwichtspositie: Fres = -k*x.'},
+      {label:'Hint: periode',text:'T = 2π·√(m/k) = 2π·√(1/10) ≈ 2,0 s. Zoom in op de grafiek en klik op twee opeenvolgende pieken om de periode af te lezen.'},
+      {label:'Hint: amplitude',text:'De amplitude verandert als je de beginuitwijking aanpast maar de periode blijft hetzelfde.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'}],
+    startModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:2000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'1',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'10',unit:'N/m'}],
+    solModel:'Fres = -k*x\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:2000,
+  },
+  {
+    title:'Demping',
+    context:'In de praktijk verliest een veer energie door wrijving. De dempingskracht is: F_d = -b·v. Het systeem trilt dan steeds minder ver uit.',
+    uitleg:'Hetzelfde veersysteem maar nu met wrijving. De dempingskracht werkt altijd tegen de bewegingsrichting in:<br><code>Fd = -b*v</code><br><br>De resulterende kracht is de som van veerkracht en demping:<br><code>Fres = -k*x - b*v</code><br><br>Bij kleine b trilt het systeem langzaam uit. Bij grote b keert het object terug zonder te trillen: overdemping. De kritische demping ligt bij b = 2·√(m·k). Boven die waarde is er overdemping.',
+    opdracht:'Voeg alle startwaarden toe inclusief b = 0,5. Voeg de modelregels toe voor Fres en a. Vergelijk via Bewaar run de gedempte en ongedempte beweging. Verhoog b totdat de oscillatie verdwijnt. Bij welke waarde van b treedt overdemping op? Klopt dit met de formule?',
+    hints:[
+      {label:'Hint: amplitude aflezen',text:'Zoek de eerste piek in x vs t en noteer de waarde. Zoek daarna de piek waarbij x nog maar de helft is.'},
+      {label:'Hint: overdemping ontdekken',text:'Verhoog b geleidelijk (probeer b = 2, 4, 6...). Op een bepaald moment verdwijnt de oscillatie en kruist x de nul niet meer. Die grenswaarde heet de kritische demping; voor een massa-veersysteem is dat b_krit = 2·√(k·m).'},
+      {label:'Hint: kritische dempingswaarde',text:'Met k = 10 en m = 1 is b_krit = 2·√10 ≈ 6,32. Boven deze waarde is het systeem overgedempt.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'}],
+    startModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:2000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'1',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'10',unit:'N/m'},{name:'b',value:'0.5',unit:''}],
+    solModel:'Fres = -k*x - b*v\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:2000,
+  },
+  {
+    title:'Stopconditie',
+    context:'Met het sleutelwoord STOP kun je de simulatie automatisch beëindigen als aan een conditie is voldaan.',
+    uitleg:'Met STOP kun je de simulatie vroegtijdig beëindigen. Combineer dit met een als...dan:<br><code>als abs(v) &lt; 0.001 dan STOP</code><br><br>We gebruiken abs(v) in plaats van gewoon v omdat de snelheid bij de stuiterende bal van teken wisselt. Als je <code>v &lt; 0.001</code> zou gebruiken zou de conditie altijd waar zijn wanneer de bal omhoog beweegt. Met abs(v) controleer je de absolute waarde ongeacht de richting.<br><br>Let op: kies een kleine drempelwaarde zoals 0,001. Als de drempel te groot is stopt de simulatie direct bij de eerste stuit voordat je iets ziet.',
+    opdracht:'Bouw het stuiterende balmodel opnieuw op vanuit de basisregels. Voeg daarna een stopconditie toe. Experimenteer met de drempelwaarde. Wanneer stopt het model te vroeg?',
+    hints:[
+      {label:'Hint: STOP-conditie',text:'Voeg toe: <code>als abs(v) &lt; 0.001 dan STOP</code> vlak voor de tijdstap. Het aantal iteraties staat in de statusbalk.'},
+      {label:'Hint: waarom abs(v)?',text:'Na een stuit is v negatief (de bal beweegt omhoog). Zonder abs zou <code>v &lt; 0.001</code> altijd waar zijn als v negatief is, en stopt de simulatie te vroeg.'},
+      {label:'Hint: drempelwaarde',text:'Een kleinere drempel (0.0001) laat de simulatie langer doorlopen; groter (0.01) stopt eerder. Maar pas op: bij een te grote drempel stopt de simulatie al bij de eerste stuit.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'}],
+    startModel:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    startIter:5000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'},{name:'b',value:'0.8',unit:''}],
+    solModel:'v = v + a*dt\nals x <= 0 dan v = -b*v\nx = x + v*dt\nals x <= 0 dan x = 0\nals abs(v) < 0.001 dan STOP\nt = t + dt',
+    solIter:5000,
+  },
+  {
+    title:'Bouw je eigen model',
+    context:'Je gaat nu zelf een volledig model bouwen zonder hulp. De bungee jumper valt naar beneden vanaf een brug.',
+    uitleg:'Je gaat nu zelf een volledig model bouwen zonder hulp. De bungee jumper valt naar beneden vanaf hoogte x = 0. Positieve richting is naar beneden.<br><br>Er werken drie krachten:<br>Zwaartekracht: Fz = m·g (naar beneden, positief)<br>Elastische kracht van het touw: Fe = k·(x-L) maar alleen als x &gt; L (naar boven)<br>Luchtweerstand: Fw = b·v² maar de richting hangt af van de beweging. Bij vallen (v &gt; 0) werkt Fw omhoog: Fw = +b·v². Bij stijgen (v &lt; 0) werkt Fw omlaag: Fw = -b·v². Gebruik twee als...dan regels voor Fw.<br><br>Bouw het model op in stappen: begin met alleen de zwaartekracht. Voeg dan de elastische kracht toe. Voeg als laatste de luchtweerstand toe.',
+    opdracht:'Voeg alle startwaarden toe (m = 80 kg, g = 9,8 m/s², k = 20 N/m, L = 10 m, b = 0,5, x = 0 m, v = 0 m/s, dt = 0,01 s). Schrijf alle modelregels zelf. Er zijn geen standaardregels voorgeladen.',
+    hints:[
+      {label:'Hint: begin simpel',text:'Begin met alleen Fz = m*g en a = Fz/m. Voeg dan de elastische kracht toe met een als...dan.'},
+      {label:'Hint: luchtweerstand richting',text:'Luchtweerstand werkt altijd tegen de beweging in. Bij v &gt; 0 (vallen) werkt Fw omhoog (negatief in Fres), bij v &lt; 0 (stijgen) werkt Fw omlaag (positief in Fres). Gebruik twee als...dan regels:<br><code>als v &gt; 0 dan Fw = b*v*v</code><br><code>als v &lt;= 0 dan Fw = -b*v*v</code>'},
+      {label:'Hint: tekens controleren',text:'Fres = Fz - Fe - Fw. Fz is altijd positief (naar beneden). Fe is positief als x &gt; L. Fw wisselt van teken afhankelijk van de bewegingsrichting — dat is precies de bedoeling.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'}],
+    startModel:'',
+    startIter:2000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'80',unit:'kg'},{name:'k',value:'20',unit:'N/m'},{name:'L',value:'10',unit:'m'},{name:'b',value:'0.5',unit:''},{name:'g',value:'9.8',unit:'m/s²'}],
+    solModel:'Fz = m*g\nals x > L dan Fe = k*(x-L)\nals x <= L dan Fe = 0\nals v > 0 dan Fw = b*v*v\nals v <= 0 dan Fw = -b*v*v\nFres = Fz - Fe - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    solIter:2000,
+  },
+  {
+    title:'Twee dimensies',
+    context:'Tot nu toe bewoog alles in één richting. In twee dimensies heb je twee posities en twee snelheden.',
+    uitleg:'Tot nu toe bewoog alles in één richting. In twee dimensies heb je twee posities (x en y) en twee snelheden (vx en vy). De zwaartekracht werkt alleen in de y-richting.<br><br>Afspraak: omhoog is positief voor y. De beginsnelheid vy is positief (omhoog) en de zwaartekracht is negatief: <code>vy = vy - g*dt</code>.<br><br>De horizontale snelheid vx verandert niet want er is geen horizontale kracht. Dat betekent dat vx constant blijft en je er geen modelregel voor nodig hebt.',
+    opdracht:'Voeg alle startwaarden toe (vx = 20 m/s, vy = 30 m/s, g = 9,8 m/s², x = 0 m, y = 0 m, dt = 0,01 s). Voeg de ontbrekende modelregel toe voor vy. Voeg ook een stopconditie toe. Plot y tegen x voor de baan. Hoe ver komt de bal? Wat is de maximale hoogte?<div class="learn-tip">→ Kies bij x-as: x en bij y-as: y om de parabolische baan te zien.</div>',
+    hints:[
+      {label:'Hint: vy regel',text:'vx verandert niet, dus je hebt geen modelregel voor vx nodig. Wel een regel voor vy: vy = vy - g*dt.'},
+      {label:'Hint: stopconditie',text:'De stopconditie is <code>als y &lt;= 0 dan STOP</code>. Zet die na de positieberekening.'},
+      {label:'Hint: bereik en hoogte',text:'Vluchttijd ≈ 2×30/9,8 ≈ 6,1 s. Bereik ≈ 20×6,1 ≈ 122 m. Maximale hoogte ≈ 30²/(2×9,8) ≈ 45,9 m.'},
+    ],
+    startSv:[{name:'t',value:'0',unit:'s'}],
+    startModel:'x = x + vx*dt\ny = y + vy*dt\nt = t + dt',
+    startIter:1000,
+    solSv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'y',value:'0',unit:'m'},{name:'vx',value:'20',unit:'m/s'},{name:'vy',value:'30',unit:'m/s'},{name:'g',value:'9.8',unit:'m/s²'}],
+    solModel:'vy = vy - g*dt\nx = x + vx*dt\ny = y + vy*dt\nals y <= 0 dan STOP\nt = t + dt',
+    solIter:1000,
+  },
+];
+
+var unlockedCount=parseInt(localStorage.getItem('nh_learn_unlocked')||'1');
+var currentLearnIdx=-1; // which exercise's start/sol model was last loaded
+
+// ─── ZWEVEND OEFENKAARTJE ─────────────────────────────────────────────────
+(function(){
+  var card=document.getElementById('float-card');
+  var minBtn=document.getElementById('float-min-btn');
+  var closeBtn=document.getElementById('float-close-btn');
+  var hintsToggle=document.getElementById('float-hints-toggle');
+  var hintsList=document.getElementById('float-hints-list');
+  var minimized=false;
+
+  // dragging
+  var dragStartX,dragStartY,cardStartLeft,cardStartTop,dragging=false;
+  document.getElementById('float-topbar').addEventListener('mousedown',function(e){
+    if(e.target===minBtn||e.target===closeBtn) return;
+    dragging=true;
+    dragStartX=e.clientX;
+    dragStartY=e.clientY;
+    var r=card.getBoundingClientRect();
+    cardStartLeft=r.left;
+    cardStartTop=r.top;
+    // switch from bottom/right to top/left positioning for free drag
+    card.style.right='auto';
+    card.style.bottom='auto';
+    card.style.left=cardStartLeft+'px';
+    card.style.top=cardStartTop+'px';
+    document.addEventListener('mousemove',onDragMove);
+    document.addEventListener('mouseup',onDragUp);
+    e.preventDefault();
+  });
+  function onDragMove(e){
+    if(!dragging) return;
+    var dx=e.clientX-dragStartX, dy=e.clientY-dragStartY;
+    var newLeft=cardStartLeft+dx, newTop=cardStartTop+dy;
+    // clamp inside viewport
+    newLeft=Math.max(8,Math.min(window.innerWidth-card.offsetWidth-8,newLeft));
+    newTop=Math.max(8,Math.min(window.innerHeight-card.offsetHeight-8,newTop));
+    card.style.left=newLeft+'px';
+    card.style.top=newTop+'px';
+  }
+  function onDragUp(){
+    dragging=false;
+    document.removeEventListener('mousemove',onDragMove);
+    document.removeEventListener('mouseup',onDragUp);
+  }
+
+  minBtn.addEventListener('click',function(){
+    minimized=!minimized;
+    card.classList.toggle('minimized',minimized);
+    minBtn.textContent=minimized?'+':'−';
+    minBtn.title=minimized?'Uitklappen':'Minimaliseer';
+  });
+
+  closeBtn.addEventListener('click',function(){
+    card.style.display='none';
+    currentLearnIdx=-1;
+  });
+
+  hintsToggle.addEventListener('click',function(){
+    hintsToggle.classList.toggle('open');
+    hintsList.classList.toggle('open');
+  });
+
+  window.showFloatCard=function(idx){
+    var ex=LEARN_EXERCISES[idx];
+    document.getElementById('float-ex-num').textContent=idx+1;
+    document.getElementById('float-title').textContent=ex.title;
+    document.getElementById('float-opdracht').innerHTML=ex.floatOpdracht!==undefined?ex.floatOpdracht:ex.opdracht;
+    hintsList.innerHTML=ex.hints.map(function(h){
+      return '<details><summary>'+h.label+'</summary><div class="learn-hint-content">'+h.text+'</div></details>';
+    }).join('');
+    // reset hints toggle
+    hintsToggle.classList.remove('open');
+    hintsList.classList.remove('open');
+    // wire up Volgende oefening button
+    var nextBtn=document.getElementById('float-next-btn');
+    if(idx+1<LEARN_EXERCISES.length){
+      nextBtn.style.display='';
+      nextBtn.onclick=function(){
+        var el=document.querySelectorAll('#learn-container .learn-exercise')[idx+1];
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      };
+    } else {
+      nextBtn.style.display='none';
+    }
+    // reset position to bottom-right if not dragged yet
+    if(card.style.left===''){
+      card.style.right='24px';
+      card.style.bottom='24px';
+    }
+    // un-minimize if minimized
+    if(minimized){minimized=false;card.classList.remove('minimized');minBtn.textContent='−';minBtn.title='Minimaliseer';}
+    card.style.display='block';
+  };
+
+  window.showFloatCardExample=function(i){
+    var ex=EXAMPLES[i];
+    // split desc into main body and "Onderzoeksvraag"
+    var splitIdx=ex.desc.indexOf('Onderzoeksvraag:');
+    var mainDesc=splitIdx>=0?ex.desc.substring(0,splitIdx).trim():ex.desc;
+    var vraag=splitIdx>=0?ex.desc.substring(splitIdx+'Onderzoeksvraag:'.length).trim():null;
+    // build opdracht html: sentences starting with "Plot" become learn-tip blocks
+    var html='';
+    var parts=mainDesc.split(/\.\s+/);
+    parts.forEach(function(s){
+      s=s.trim();
+      if(!s) return;
+      if(!s.endsWith('.')) s+='.';
+      if(/^Plot\b/i.test(s)){
+        html+='<div class="learn-tip">→ '+s+'</div>';
+      } else {
+        html+='<span style="display:block;margin-bottom:4px">'+s+'</span>';
+      }
+    });
+    document.getElementById('float-ex-num').textContent='▶';
+    document.getElementById('float-title').textContent=ex.name;
+    document.getElementById('float-opdracht').innerHTML=html;
+    hintsList.innerHTML=vraag
+      ?'<details><summary>Onderzoeksvraag</summary><div class="learn-hint-content">'+vraag+'</div></details>'
+      :'';
+    hintsToggle.classList.remove('open');
+    hintsList.classList.remove('open');
+    document.getElementById('float-next-btn').style.display='none';
+    if(card.style.left===''){card.style.right='24px';card.style.bottom='24px';}
+    if(minimized){minimized=false;card.classList.remove('minimized');minBtn.textContent='−';minBtn.title='Minimaliseer';}
+    card.style.display='block';
+  };
+})();
+
+function laadLearnModel(idx,useSol){
+  var ex=LEARN_EXERCISES[idx];
+  var sv=useSol?ex.solSv:ex.startSv;
+  var model=useSol?ex.solModel:ex.startModel;
+  var iter=useSol?ex.solIter:ex.startIter;
+  svRows=sv.map(function(r){return Object.assign({},r)});
+  renderSvTable();
+  document.getElementById('model-textarea').value=model;
+  document.getElementById('max-iter').value=iter;
+  updateLineNumbers();
+  simulationData=[];
+  savedRuns=[];renderRunLegend();
+  chartInstances.forEach(function(obj){obj.chart.destroy()});
+  chartInstances=[];
+  document.getElementById('charts-container').innerHTML='';
+  updateAddBtn();
+  document.getElementById('status-bar').className='status-bar';
+  document.getElementById('status-bar').textContent='';
+  currentLearnIdx=idx;
+  showFloatCard(idx);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderLearnExercises(){
+  var container=document.getElementById('learn-container');
+  if(!container) return;
+  container.innerHTML=LEARN_EXERCISES.map(function(ex,i){
+    var num=i+1;
+    var locked=i>=unlockedCount;
+    var numClass=locked?'learn-ex-num locked-num':'learn-ex-num';
+    var lockBadge=locked?'<span class="learn-lock-badge">🔒 Voltooi oefening '+i+' om dit te ontgrendelen</span>':'';
+    var body=locked
+      ?'<div class="learn-ex-body"><span style="font-size:13px;color:var(--text-muted);font-family:var(--mono)">Voltooi oefening '+i+' om dit te ontgrendelen.</span></div>'
+      :('<div class="learn-ex-body">'
+        +'<p style="margin-bottom:8px">'+ex.context+'</p>'
+        +'<div class="learn-uitleg">'+ex.uitleg+'</div>'
+        +'<div class="learn-opdracht"><strong>Opdracht</strong>'+ex.opdracht+'</div>'
+        +(ex.hints.length?'<div class="learn-hint-wrap">'+ex.hints.map(function(h){
+          return '<details><summary>'+h.label+'</summary><div class="learn-hint-content">'+h.text+'</div></details>';
+        }).join('')+'</div>':'')
+        +'<div class="learn-actions">'
+        +'<button class="learn-load-btn" onclick="laadLearnModel('+i+',false)">▶ Laad startmodel</button>'
+        +'<button class="learn-sol-btn" onclick="laadLearnModel('+i+',true)">✓ Laat oplossing zien</button>'
+        +'</div>'
+        +'</div>');
+    return '<div class="learn-exercise'+(locked?' locked':'')+'">'
+      +'<div class="learn-ex-header"><span class="'+numClass+'">'+num+'</span><span>'+ex.title+'</span>'+lockBadge+'</div>'
+      +body
+      +'</div>';
+  }).join('');
+}
+renderLearnExercises();
+
+// hook into runModel to unlock next exercise
+var _origRunModel=runModel;
+runModel=function(){
+  _origRunModel();
+  // if a simulation ran and a learn exercise is active, unlock next
+  if(currentLearnIdx>=0&&simulationData.length>0){
+    var next=currentLearnIdx+1;
+    if(next>=unlockedCount&&next<=LEARN_EXERCISES.length){
+      unlockedCount=next+1>LEARN_EXERCISES.length?LEARN_EXERCISES.length:next+1;
+      // cap at total exercises (all unlocked)
+      if(unlockedCount>LEARN_EXERCISES.length) unlockedCount=LEARN_EXERCISES.length;
+      localStorage.setItem('nh_learn_unlocked',String(unlockedCount));
+      renderLearnExercises();
+    }
+  }
+};
 
 // initieel één grafiek (leeg) + regelnummers
 updateLineNumbers();
