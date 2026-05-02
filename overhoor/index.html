@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Overhoorprogramma · NatuurkundeHub</title>
 <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg">
-<script src="data/grootheden.js"></script>
+<script src="/overhoor/data/grootheden.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -13,6 +13,7 @@
 /* ── LIGHT THEME (default) ── */
 :root{
   --bg:#f8f9fa;
+  --bg-primary-rgb:248, 249, 250;
   --bg-secondary:#ffffff;
   --bg-card:#ffffff;
   --bg-card-hover:#f0fafb;
@@ -43,6 +44,7 @@
 /* ── DARK THEME ── */
 [data-theme="dark"]{
   --bg:#0f1117;
+  --bg-primary-rgb:15, 17, 23;
   --bg-secondary:#161b26;
   --bg-card:#1c2333;
   --bg-card-hover:#222b3d;
@@ -87,8 +89,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 /* ── HEADER ── */
 .app-header{
-  background:var(--bg-secondary);
+  background:rgba(var(--bg-primary-rgb),0.85);
+  backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  z-index:100;
   padding:0 24px;
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
   min-height:56px;position:relative;z-index:10;
@@ -306,9 +312,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 <div class="app-header">
   <div class="header-left">
-    <a href="/" class="back-link" title="Terug naar NatuurkundeHub">←</a>
-    <img src="../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
-    <div class="app-title">Grootheden <span>Overhoor</span></div>
+    <a href="/" class="app-title" style="text-decoration:none">NatuurkundeHub</a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Overhoor</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>

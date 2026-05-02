@@ -7,6 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 
@@ -90,12 +92,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .sv-table input::placeholder{color:var(--text-muted);opacity:.6;font-size:12px}
 .sv-table .del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:5px;transition:all .15s;line-height:1}
 .sv-table .del-btn:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:5px;transition:all .15s;line-height:1}
+.del-btn:hover{color:#ef4444;background:rgba(239,68,68,.1)}
 .add-row-btn{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:7px;padding:5px 12px;cursor:pointer;font-family:var(--font);transition:all .15s}
 .add-row-btn:hover{background:rgba(11,181,200,.15)}
 
 /* MODELREGELS */
-.model-textarea{width:100%;min-height:140px;padding:10px 12px;border:1.5px solid var(--border-solid);border-radius:9px;font-family:var(--mono);font-size:13px;background:var(--bg-secondary);color:var(--text);resize:vertical;outline:none;transition:border-color .15s;line-height:1.6}
-.model-textarea:focus{border-color:var(--accent)}
+.editor-wrap{display:flex;border:1.5px solid var(--border-solid);border-radius:9px;overflow:hidden;background:var(--bg-secondary);transition:border-color .15s;margin-bottom:8px}
+.editor-wrap:focus-within{border-color:var(--accent)}
+.line-numbers{font-family:var(--mono);font-size:13px;line-height:1.6;padding:10px 8px;background:var(--bg);color:var(--text-muted);border-right:1px solid var(--border-solid);text-align:right;min-width:32px;user-select:none;overflow:hidden;white-space:pre;flex-shrink:0}
+.line-numbers .ln-err{color:#ef4444;font-weight:700}
+.model-textarea{flex:1;min-height:140px;padding:10px 12px;border:none;border-radius:0;font-family:var(--mono);font-size:13px;background:transparent;color:var(--text);resize:vertical;outline:none;line-height:1.6;width:0}
 
 /* INSTELLINGEN */
 .settings-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:var(--text-secondary)}
@@ -170,6 +177,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 [data-theme="dark"] .status-bar.ok{color:#22c55e}
 [data-theme="dark"] .status-bar.err{color:#ef4444}
 
+/* RANGE INPUTS */
+.range-input{width:52px;padding:4px 6px;border:1.5px solid var(--border-solid);border-radius:6px;font-family:var(--mono);font-size:11px;background:var(--bg-secondary);color:var(--text);outline:none}
+.range-input:focus{border-color:var(--accent)}
+
 /* FOOTER */
 footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
 .footer-logo{height:24px;opacity:.3;display:block;margin:0 auto 8px}
@@ -193,8 +204,12 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
 <div class="page-wrap">
   <div style="margin-bottom:20px">
-    <h1 style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">Numeriek Modelleren</h1>
-    <p style="font-size:14px;color:var(--text-muted)">Simuleer beweging en processen met differentiaalvergelijkingen</p>
+    <h1 style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:10px">Numeriek Modelleren</h1>
+    <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:720px">
+      <p>Modelleren betekent dat je een natuurkundig systeem beschrijft met vergelijkingen en de computer de toestand stap voor stap laat berekenen. In plaats van een exacte wiskundige oplossing, rekent de computer kleine stapjes Δt vooruit — de <strong>Euler-methode</strong>:</p>
+      <pre style="font-family:var(--mono);font-size:12px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:8px;padding:10px 14px;margin:10px 0;color:var(--text-muted)">x_nieuw = x_oud + (dx/dt) · Δt</pre>
+      <p>Hoe kleiner <code style="font-family:var(--mono);font-size:12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 6px;color:var(--accent)">dt</code>, hoe nauwkeuriger de simulatie. Gebruik de voorbeeldmodellen onderaan om snel te starten.</p>
+    </div>
   </div>
 
   <div id="status-bar" class="status-bar"></div>
@@ -225,13 +240,19 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       <!-- MODELREGELS -->
       <div class="card">
         <div class="section-title amber">Modelregels</div>
-        <textarea class="model-textarea" id="model-textarea" placeholder="// Vul hier je modelregels in, één per regel
+        <div class="editor-wrap">
+          <div class="line-numbers" id="line-numbers">1</div>
+          <textarea class="model-textarea" id="model-textarea"
+            oninput="updateLineNumbers()" onscroll="syncLnScroll()"
+            placeholder="// Vul hier je modelregels in, één per regel
 // Voorbeeld: vrije val
 v = v + a*dt
 x = x + v*dt
-als (x <= 0) dan v = -0.8*v
+als x <= 0 dan v = -0.8*v
 // Typ STOP om de simulatie te stoppen"></textarea>
-        <div style="margin-top:8px;font-size:11px;color:var(--text-muted);font-family:var(--mono);line-height:1.7">
+        </div>
+        <div id="model-errors" style="margin-bottom:6px"></div>
+        <div style="margin-top:0px;font-size:11px;color:var(--text-muted);font-family:var(--mono);line-height:1.7">
           Syntax: gewone toewijzing · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">als (v&gt;0) dan x=0</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">STOP</code> · <code style="font-family:var(--mono);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:3px;padding:1px 5px;color:var(--accent);font-size:11px">// commentaar</code>
         </div>
       </div>
@@ -246,6 +267,17 @@ als (x <= 0) dan v = -0.8*v
         <button class="start-btn" onclick="runModel()">▶ Simuleer</button>
       </div>
 
+      <!-- OPGESLAGEN MODELLEN -->
+      <div class="card" id="saved-models-card">
+        <div class="section-title amber">Opgeslagen modellen</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="add-row-btn" onclick="saveModel()">Sla op</button>
+          <button class="add-row-btn" onclick="exportModelJSON()">Exporteer JSON</button>
+          <label class="add-row-btn" style="cursor:pointer">Importeer JSON<input type="file" accept=".json" style="display:none" onchange="importModelJSON(this)"></label>
+        </div>
+        <div id="saved-models-list"></div>
+      </div>
+
     </div><!-- /left-panel -->
 
     <!-- RECHTS: GRAFIEKEN + OUTPUT -->
@@ -256,6 +288,9 @@ als (x <= 0) dan v = -0.8*v
         <div id="charts-container"></div>
         <button class="add-chart-btn" id="add-chart-btn" onclick="addChart()">+ Voeg grafiek toe</button>
       </div>
+
+      <!-- DOWNLOAD CSV -->
+      <button class="add-row-btn" onclick="downloadCSV()" style="margin-bottom:10px">⬇ Download CSV</button>
 
       <!-- DATATABELLE -->
       <button class="table-toggle-btn" onclick="toggleTable()" id="table-toggle-btn">
@@ -339,6 +374,83 @@ x = x + v*dt      // positie bijwerken</pre>
 </footer>
 
 <script>
+// ─── ALLE DECLARATIES BOVENAAN ────────────────────────────────────────────
+var svRows=[
+  {name:'t',value:'0',unit:'s'},
+  {name:'dt',value:'0.01',unit:'s'},
+];
+var MAX_CHARTS=4;
+var chartInstances=[];
+var simulationData=[];
+var varNames=[];
+var tableVisible=false;
+var savedModels=JSON.parse(localStorage.getItem('nh_modellen')||'[]');
+var EXAMPLES=[
+  {
+    name:'Constante snelheid',
+    desc:'x = x + v·dt',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'10',unit:'m/s'}],
+    model:'x = x + v*dt\nt = t + dt',
+    iter:1000,
+  },
+  {
+    name:'Vrije val',
+    desc:'v en x met a = 9.8 m/s²',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
+    model:'v = v + a*dt\nx = x + v*dt\nt = t + dt',
+    iter:1000,
+  },
+  {
+    name:'Val met luchtweerstand',
+    desc:'F_w ∝ v²',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'0.1',unit:'kg/m'}],
+    model:'Fres = m*9.8 - k*v*v\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    iter:1000,
+  },
+  {
+    name:'Stuiterende bal',
+    desc:'vrije val + terugstuit',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'}],
+    model:'v = v + a*dt\nx = x + v*dt\nals x <= 0 dan v = -0.8*v\nals x <= 0 dan x = 0\nt = t + dt',
+    iter:2000,
+  },
+  {
+    name:'Bungee jumper',
+    desc:'veer + zwaartekracht + weerstand',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'80',unit:'kg'},{name:'k',value:'20',unit:'N/m'},{name:'L',value:'10',unit:'m'},{name:'b',value:'0.5',unit:''}],
+    model:'Fz = m*9.8\nals x > L dan Fv = k*(x-L)\nals x <= L dan Fv = 0\nFw = b*v*v\nFres = Fz - Fv - Fw\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    iter:2000,
+  },
+  {
+    name:'RC-circuit opladen',
+    desc:'U_c stijgt naar U_bron',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.001',unit:'s'},{name:'U',value:'0',unit:'V'},{name:'Ubron',value:'5',unit:'V'},{name:'R',value:'1000',unit:'Ω'},{name:'C',value:'0.001',unit:'F'}],
+    model:'U = U + (Ubron-U)/(R*C)*dt\nt = t + dt',
+    iter:5000,
+  },
+  {
+    name:'Radioactief verval',
+    desc:'N = N − λ·N·dt',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'},{name:'N',value:'1000',unit:''},{name:'lambda',value:'0.05',unit:'1/s'}],
+    model:'N = N - lambda*N*dt\nt = t + dt',
+    iter:200,
+  },
+  {
+    name:'Harmonische oscillator',
+    desc:'massa aan veer (F = −k·x)',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'1',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'k',value:'10',unit:'N/m'}],
+    model:'Fres = -k*x\na = Fres/m\nv = v + a*dt\nx = x + v*dt\nt = t + dt',
+    iter:2000,
+  },
+  {
+    name:'Planetenbaan',
+    desc:'2D gravitatie (x,y,vx,vy)',
+    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'100',unit:'s'},{name:'x',value:'1.5e11',unit:'m'},{name:'y',value:'0',unit:'m'},{name:'vx',value:'0',unit:'m/s'},{name:'vy',value:'29783',unit:'m/s'},{name:'M',value:'2e30',unit:'kg'},{name:'G',value:'6.67e-11',unit:''}],
+    model:'r = sqrt(x*x+y*y)\nF = G*M/(r*r)\nax = -F*x/r\nay = -F*y/r\nvx = vx + ax*dt\nvy = vy + ay*dt\nx = x + vx*dt\ny = y + vy*dt\nt = t + dt',
+    iter:400,
+  },
+];
+
 // ─── THEME ───────────────────────────────────────────────────────────────
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
@@ -374,11 +486,6 @@ function toggleTheme(){
 })();
 
 // ─── STARTWAARDEN ────────────────────────────────────────────────────────
-let svRows=[
-  {name:'t',value:'0',unit:'s'},
-  {name:'dt',value:'0.01',unit:'s'},
-];
-
 function renderSvTable(){
   const tb=document.getElementById('sv-tbody');
   tb.innerHTML='';
@@ -415,11 +522,6 @@ function switchTab(id){
 }
 
 // ─── GRAFIEKEN ───────────────────────────────────────────────────────────
-const MAX_CHARTS=4;
-let chartInstances=[];     // {id, chart, xVar, yVar, tangentActive, selectedIdx}
-let simulationData=[];     // array of {varname: value, ...} per iteratie
-let varNames=[];           // alle variabelenamen
-
 function getVarOptions(selected,extra){
   return varNames.map(v=>`<option value="${v}" ${v===selected?'selected':''}>${v}</option>`).join('');
 }
@@ -436,7 +538,7 @@ function chartColors(){
   };
 }
 
-function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine){
+function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine,xMin,xMax,yMin,yMax){
   const c=chartColors();
   const datasets=[{
     label:yLabel,
@@ -459,8 +561,24 @@ function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine){
       borderDash:[5,4],
       pointRadius:0,
       parsing:false,
+      clip:false,
     });
   }
+  // build y scale options — prevent tangent from affecting auto-scale
+  var yScaleOpts={title:{display:true,text:yLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:6}};
+  if(yMin!==''&&yMin!==undefined&&yMin!==null) yScaleOpts.min=parseFloat(yMin);
+  else if(tangentLine&&yData.length){
+    var dataMin=Math.min(...yData);
+    var dataMax=Math.max(...yData);
+    var pad=(dataMax-dataMin)*0.05||1;
+    yScaleOpts.min=dataMin-pad;
+    yScaleOpts.max=dataMax+pad;
+  }
+  if(yMax!==''&&yMax!==undefined&&yMax!==null) yScaleOpts.max=parseFloat(yMax);
+  // build x scale options
+  var xScaleOpts={type:'linear',title:{display:true,text:xLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:8}};
+  if(xMin!==''&&xMin!==undefined&&xMin!==null) xScaleOpts.min=parseFloat(xMin);
+  if(xMax!==''&&xMax!==undefined&&xMax!==null) xScaleOpts.max=parseFloat(xMax);
   return{
     type:'line',
     data:{datasets},
@@ -476,11 +594,15 @@ function makeChartConfig(xData,yData,xLabel,yLabel,selIdx,tangentLine){
             title:items=>`${xLabel}: ${items[0].parsed.x.toPrecision(5)}`,
             label:item=>`${yLabel}: ${item.parsed.y.toPrecision(5)}`,
           }
+        },
+        zoom:{
+          zoom:{wheel:{enabled:true},pinch:{enabled:true},mode:'xy'},
+          pan:{enabled:true,mode:'xy'},
         }
       },
       scales:{
-        x:{type:'linear',title:{display:true,text:xLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:8}},
-        y:{title:{display:true,text:yLabel,color:c.text,font:{size:11}},grid:{color:c.grid},ticks:{color:c.text,maxTicksLimit:6}},
+        x:xScaleOpts,
+        y:yScaleOpts,
       }
     }
   };
@@ -519,14 +641,22 @@ function addChart(){
       <span class="chart-label">y-as:</span>
       <select class="axis-select" onchange="onAxisChange('${id}','y',this.value)">${getVarOptions(defaultY)}</select>
       <button class="tangent-btn" id="tb-${id}" onclick="toggleTangent('${id}')">Raaklijn</button>
+      <span class="chart-label">x:</span>
+      <input class="range-input" placeholder="min" oninput="onRangeChange('${id}','xMin',this.value)">
+      <input class="range-input" placeholder="max" oninput="onRangeChange('${id}','xMax',this.value)">
+      <span class="chart-label">y:</span>
+      <input class="range-input" placeholder="min" oninput="onRangeChange('${id}','yMin',this.value)">
+      <input class="range-input" placeholder="max" oninput="onRangeChange('${id}','yMax',this.value)">
+      <button class="tangent-btn" onclick="resetZoom('${id}')">↺ Zoom</button>
+      <button class="tangent-btn" onclick="downloadPNG('${id}')">⬇ PNG</button>
       <button class="remove-chart-btn" onclick="removeChart('${id}')">×</button>
     </div>
     <div class="point-info" id="pi-${id}"></div>
     <div class="chart-canvas-wrap"><canvas id="cv-${id}"></canvas></div>`;
   document.getElementById('charts-container').appendChild(div);
   const ctx=document.getElementById('cv-'+id).getContext('2d');
-  const chart=new Chart(ctx,makeChartConfig([],[],axisLabel(defaultX),axisLabel(defaultY),null,null));
-  const obj={id,chart,xVar:defaultX,yVar:defaultY,tangentActive:false,selectedIdx:null};
+  const chart=new Chart(ctx,makeChartConfig([],[],axisLabel(defaultX),axisLabel(defaultY),null,null,'','','',''));
+  const obj={id,chart,xVar:defaultX,yVar:defaultY,tangentActive:false,selectedIdx:null,xMin:'',xMax:'',yMin:'',yMax:''};
   chartInstances.push(obj);
   div.addEventListener('click',e=>onChartClick(id,e));
   div.addEventListener('keydown',e=>onChartKey(id,e),true);
@@ -566,6 +696,7 @@ function toggleTangent(id){
 }
 
 function onChartClick(id,e){
+  if(e.target.closest('.chart-controls')) return;
   const obj=chartInstances.find(c=>c.id===id);
   if(!obj||!simulationData.length) return;
   const el=document.getElementById(id);
@@ -579,14 +710,14 @@ function onChartClick(id,e){
   let best=0,bestDist=Infinity;
   xData.forEach((x,i)=>{const d=Math.abs(x-xVal);if(d<bestDist){bestDist=d;best=i}});
   obj.selectedIdx=best;
-  updateChart(obj);
+  syncCursor(obj.xVar,obj.selectedIdx);
 }
 
 function onChartKey(id,e){
   const obj=chartInstances.find(c=>c.id===id);
   if(!obj||obj.selectedIdx===null) return;
-  if(e.key==='ArrowLeft'){e.preventDefault();obj.selectedIdx=Math.max(0,obj.selectedIdx-1);updateChart(obj)}
-  if(e.key==='ArrowRight'){e.preventDefault();obj.selectedIdx=Math.min(simulationData.length-1,obj.selectedIdx+1);updateChart(obj)}
+  if(e.key==='ArrowLeft'){e.preventDefault();obj.selectedIdx=Math.max(0,obj.selectedIdx-1);syncCursor(obj.xVar,obj.selectedIdx)}
+  if(e.key==='ArrowRight'){e.preventDefault();obj.selectedIdx=Math.min(simulationData.length-1,obj.selectedIdx+1);syncCursor(obj.xVar,obj.selectedIdx)}
 }
 
 function updateChart(obj){
@@ -597,7 +728,7 @@ function updateChart(obj){
   const sel=obj.selectedIdx;
   const tangent=obj.tangentActive&&sel!==null?computeTangent(pts,sel):null;
   const c=chartColors();
-  const cfg=makeChartConfig(xData,yData,axisLabel(obj.xVar),axisLabel(obj.yVar),sel,tangent);
+  const cfg=makeChartConfig(xData,yData,axisLabel(obj.xVar),axisLabel(obj.yVar),sel,tangent,obj.xMin,obj.xMax,obj.yMin,obj.yMax);
   obj.chart.data=cfg.data;
   obj.chart.options=cfg.options;
   obj.chart.update();
@@ -612,14 +743,21 @@ function updateAllChartColors(){
 }
 
 function updateAxisDropdowns(){
-  document.querySelectorAll('.axis-select').forEach(sel=>{
-    const cur=sel.value;
-    sel.innerHTML=varNames.map(v=>`<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
+  chartInstances.forEach(obj=>{
+    const div=document.getElementById(obj.id);
+    if(!div) return;
+    const sels=div.querySelectorAll('.axis-select');
+    // als huidige var niet meer bestaat, kies verstandige default
+    if(!varNames.includes(obj.xVar)) obj.xVar=varNames.includes('t')?'t':(varNames[0]||'');
+    if(!varNames.includes(obj.yVar)){
+      obj.yVar=varNames.find(v=>v!==obj.xVar)||(varNames[1]||varNames[0]||'');
+    }
+    if(sels[0]) sels[0].innerHTML=getVarOptions(obj.xVar);
+    if(sels[1]) sels[1].innerHTML=getVarOptions(obj.yVar);
   });
 }
 
 // ─── TABEL ───────────────────────────────────────────────────────────────
-let tableVisible=false;
 function toggleTable(){
   tableVisible=!tableVisible;
   const wrap=document.getElementById('data-table-wrap');
@@ -643,13 +781,9 @@ function renderTable(){
 
 // ─── PARSER ──────────────────────────────────────────────────────────────
 function parseExpr(expr,vars){
-  // vervang 10^n door Math.pow(10,n) en variabelenamen
   let e=expr.trim();
-  // wetenschappelijke notatie: 6.67*10^-11
-  e=e.replace(/\*\s*10\s*\^\s*(-?\d+)/g,(m,p)=>`*1e${p}`);
-  // ^-operator -> Math.pow
+  e=e.replace(/\*\s*10\s*\^\s*(-?[\d.]+)/g,(m,p)=>'*1e'+p);
   e=e.replace(/(\w[\w.]*|\))\s*\^\s*(\w[\w.]*|\()/g,'Math.pow($1,$2)');
-  // wiskundige functies en constanten
   e=e.replace(/\bsqrt\b/g,'Math.sqrt')
      .replace(/\babs\b/g,'Math.abs')
      .replace(/\bsin\b/g,'Math.sin')
@@ -659,38 +793,92 @@ function parseExpr(expr,vars){
      .replace(/\bln\b/g,'Math.log')
      .replace(/\bpi\b/g,'Math.PI')
      .replace(/\bPI\b/g,'Math.PI');
-  // variabelenamen injecteren
   const keys=Object.keys(vars).sort((a,b)=>b.length-a.length);
-  // vervang variabelenamen die niet direct achter Math. staan
   keys.forEach(k=>{
     const re=new RegExp('(?<!Math\\.)(?<![\\w.])'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\w.])','g');
-    e=e.replace(re,`(${vars[k]})`);
+    e=e.replace(re,'('+vars[k]+')');
   });
-  return eval(e); // eslint-disable-line no-eval
+  const result=eval(e); // eslint-disable-line no-eval
+  return result;
 }
 
-function parseLine(line,vars){
+function checkParens(s){
+  var d=0;
+  for(var c of s){if(c==='(')d++;else if(c===')')d--;}
+  return d===0;
+}
+
+function parseLine(line,vars,lineNum){
   const trimmed=line.trim();
-  if(!trimmed||trimmed.startsWith('//')||trimmed.startsWith("'")) return{stop:false};
+  if(!trimmed||trimmed.startsWith('//')||trimmed.startsWith("'")) return{skip:true};
   if(trimmed.toUpperCase()==='STOP') return{stop:true};
-  // als (conditie) dan variabele = waarde
-  const condMatch=trimmed.match(/^als\s*\((.+?)\)\s*dan\s+(\w+)\s*=\s*(.+)$/i);
+
+  // als ... dan var = expr  (haakjes optioneel)
+  const condMatch=trimmed.match(/^als\s+(.+?)\s+dan\s+(\w+)\s*=\s*(.+)$/i);
   if(condMatch){
-    const [,cond,vname,valExpr]=condMatch;
+    let cond=condMatch[1].trim();
+    // strip optionele buitenste haakjes
+    if(cond.startsWith('(')&&cond.endsWith(')')) cond=cond.slice(1,-1).trim();
+    const vname=condMatch[2], valExpr=condMatch[3];
+    if(!checkParens(cond)) return{error:'Regel '+lineNum+': haakjes sluiten niet in conditie'};
     let condVal=false;
-    try{condVal=!!parseExpr(cond,vars)}catch(err){}
-    if(condVal){
-      try{const v=parseExpr(valExpr,vars);return{assign:{[vname]:v}}}catch(err){}
+    try{condVal=!!parseExpr(cond,vars)}
+    catch(err){
+      const m=err.message&&err.message.match(/(\w+) is not defined/);
+      return{error:'Regel '+lineNum+': variabele \''+(m?m[1]:err.message)+'\' is niet gedefinieerd'};
     }
-    return{stop:false};
+    if(condVal){
+      if(!checkParens(valExpr)) return{error:'Regel '+lineNum+': haakjes sluiten niet'};
+      try{
+        const v=parseExpr(valExpr,vars);
+        if(isNaN(v)) return{error:'Regel '+lineNum+': resultaat is NaN'};
+        if(!isFinite(v)) return{error:'Regel '+lineNum+': deling door nul of oneindig getal'};
+        return{assign:{[vname]:v}};
+      }catch(err){
+        const m=err.message&&err.message.match(/(\w+) is not defined/);
+        return{error:'Regel '+lineNum+': variabele \''+(m?m[1]:err.message)+'\' is niet gedefinieerd'};
+      }
+    }
+    return{};
   }
+
+  // syntax: als zonder dan
+  if(/^als\b/i.test(trimmed)){
+    return{error:'Regel '+lineNum+': als zonder dan'};
+  }
+
   // gewone toewijzing: var = expr
   const assignMatch=trimmed.match(/^(\w+)\s*=\s*(.+)$/);
   if(assignMatch){
     const [,vname,valExpr]=assignMatch;
-    try{const v=parseExpr(valExpr,vars);return{assign:{[vname]:v}}}catch(err){return{error:`Fout in: ${trimmed}`}}
+    if(!checkParens(valExpr)) return{error:'Regel '+lineNum+': haakjes sluiten niet'};
+    try{
+      const v=parseExpr(valExpr,vars);
+      if(isNaN(v)) return{error:'Regel '+lineNum+': resultaat is NaN (controleer de formule)'};
+      if(!isFinite(v)) return{error:'Regel '+lineNum+': deling door nul of oneindig getal'};
+      return{assign:{[vname]:v}};
+    }catch(err){
+      const m=err.message&&err.message.match(/(\w+) is not defined/);
+      if(m) return{error:'Regel '+lineNum+': variabele \''+m[1]+'\' is niet gedefinieerd'};
+      return{error:'Regel '+lineNum+': syntaxfout in expressie'};
+    }
   }
-  return{stop:false};
+
+  // geen geldig =
+  if(trimmed.length>0) return{error:'Regel '+lineNum+': geen toewijzing (ontbreekt = teken)'};
+  return{};
+}
+
+function validateSyntax(lines){
+  var errors=[];
+  lines.forEach(function(line,i){
+    var t=line.trim();
+    if(!t||t.startsWith('//')||t.startsWith("'")||t.toUpperCase()==='STOP') return;
+    if(/^als\b/i.test(t)&&!/\bdan\b/i.test(t)){errors.push(i+1);return;}
+    if(!checkParens(t)){errors.push(i+1);return;}
+    if(!/^als\b/i.test(t)&&!t.includes('=')){errors.push(i+1);}
+  });
+  return errors;
 }
 
 // ─── MODEL UITVOEREN ─────────────────────────────────────────────────────
@@ -698,6 +886,16 @@ function runModel(){
   const statusEl=document.getElementById('status-bar');
   statusEl.className='status-bar';
   statusEl.textContent='Bezig met simuleren…';
+
+  // syntax pre-validatie
+  const rawLines=document.getElementById('model-textarea').value.split('\n');
+  const syntaxErrors=validateSyntax(rawLines);
+  showLineErrors(syntaxErrors);
+  if(syntaxErrors.length){
+    statusEl.className='status-bar err';
+    statusEl.textContent='⚠ Syntaxfout op regel '+syntaxErrors.join(', ')+' (zie rode regelnummers)';
+    return;
+  }
 
   // lees startwaarden
   const vars={};
@@ -710,15 +908,14 @@ function runModel(){
   if(!('dt' in vars)){statusEl.className='status-bar err';statusEl.textContent='⚠ Voeg dt toe als startwaarde.';return}
   if(!('t' in vars)) vars.t=0;
 
-  const lines=document.getElementById('model-textarea').value.split('\n');
   const maxIter=Math.min(10000,Math.max(1,parseInt(document.getElementById('max-iter').value)||1000));
 
+  // ontdek variabelenamen uit modelregels (ook tussenvariabelen)
   const allVarNames=Object.keys(vars);
-  // ontdek nieuwe variabelen in modelregels
-  lines.forEach(l=>{
-    const m=l.match(/^(\w+)\s*=/);
+  rawLines.forEach(l=>{
+    const m=l.trim().match(/^(\w+)\s*=/);
     if(m&&!allVarNames.includes(m[1])) allVarNames.push(m[1]);
-    const cm=l.match(/^als\s*\(.+?\)\s*dan\s+(\w+)\s*=/i);
+    const cm=l.trim().match(/^als\s+.+?\s+dan\s+(\w+)\s*=/i);
     if(cm&&!allVarNames.includes(cm[1])) allVarNames.push(cm[1]);
   });
 
@@ -727,26 +924,27 @@ function runModel(){
   let errorMsg=null;
 
   for(let iter=0;iter<maxIter;iter++){
-    simulationData.push({...vars});
-    // t bijwerken
-    const newVars={...vars};
-    for(const line of lines){
-      const res=parseLine(line,vars);
+    simulationData.push(Object.assign({},vars));
+    // workVars: wordt per regel bijgewerkt zodat tussenvariabelen direct beschikbaar zijn
+    const workVars=Object.assign({},vars);
+    for(let li=0;li<rawLines.length;li++){
+      const res=parseLine(rawLines[li],workVars,li+1);
       if(res.stop){stopped=true;break}
-      if(res.error){errorMsg=res.error;stopped=true;break}
-      if(res.assign) Object.assign(newVars,res.assign);
+      if(res.error){
+        errorMsg='Fout in iteratie '+(iter+1)+', '+res.error;
+        stopped=true;break;
+      }
+      if(res.assign) Object.assign(workVars,res.assign);
     }
-    // t ophogen
-    newVars.t=(vars.t||0)+vars.dt;
-    Object.assign(vars,newVars);
+    Object.assign(vars,workVars);
     if(stopped) break;
   }
 
   varNames=allVarNames.filter(v=>simulationData.length&&v in simulationData[0]);
 
   if(errorMsg){statusEl.className='status-bar err';statusEl.textContent='⚠ '+errorMsg}
-  else if(stopped){statusEl.className='status-bar ok';statusEl.textContent=`✓ Simulatie gestopt na ${simulationData.length} iteraties`}
-  else{statusEl.className='status-bar ok';statusEl.textContent=`✓ ${simulationData.length} iteraties berekend`}
+  else if(stopped){statusEl.className='status-bar ok';statusEl.textContent='✓ Simulatie gestopt na '+simulationData.length+' iteraties'}
+  else{statusEl.className='status-bar ok';statusEl.textContent='✓ '+simulationData.length+' iteraties berekend'}
 
   // update grafieken
   if(chartInstances.length===0) addChart();
@@ -756,97 +954,192 @@ function runModel(){
 }
 
 // ─── VOORBEELDMODELLEN ───────────────────────────────────────────────────
-const EXAMPLES=[
-  {
-    name:'Constante snelheid',
-    desc:'x = x + v·dt',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'10',unit:'m/s'}],
-    model:'x = x + v*dt',
-    iter:1000,
-  },
-  {
-    name:'Vrije val',
-    desc:'v en x met a=9.8 m/s²',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'9.8',unit:'m/s²'}],
-    model:'v = v + a*dt\nx = x + v*dt',
-    iter:1000,
-  },
-  {
-    name:'Val met luchtweerstand',
-    desc:'F_w ∝ v²',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'1',unit:'kg'},{name:'c',value:'0.47',unit:''},{name:'A',value:'0.01',unit:'m²'},{name:'rho',value:'1.2',unit:'kg/m³'}],
-    model:"// Luchtweerstand: F = 0.5*c*rho*A*v²\nacc = 9.8 - (0.5*c*rho*A*v*v)/m\nv = v + acc*dt\nx = x + v*dt",
-    iter:1000,
-  },
-  {
-    name:'Stuiterende bal',
-    desc:'vrije val + terugstuit',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'10',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'a',value:'-9.8',unit:'m/s²'}],
-    model:'v = v + a*dt\nx = x + v*dt\nals (x <= 0) dan v = -0.8*v\nals (x <= 0) dan x = 0',
-    iter:2000,
-  },
-  {
-    name:'Bungee jumper',
-    desc:'veer + zwaartekracht + weerstand',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'y',value:'0',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'m',value:'70',unit:'kg'},{name:'k',value:'20',unit:'N/m'},{name:'L',value:'30',unit:'m'},{name:'b',value:'10',unit:'kg/s'}],
-    model:"// y is afstand naar beneden, L = natuurlijke lengte touw\nFg = m*9.8\nFs = als (y > L) dan k*(y-L) dan 0\nFw = b*v\nals (y > L) dan acc = (Fg - Fs - Fw)/m\nals (y <= L) dan acc = (Fg - Fw)/m\nv = v + acc*dt\ny = y + v*dt",
-    iter:2000,
-  },
-  {
-    name:'RC-circuit opladen',
-    desc:'U_c = U_c + (U_b - U_c)/(R·C)·dt',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.001',unit:'s'},{name:'U',value:'0',unit:'V'},{name:'Ubron',value:'5',unit:'V'},{name:'R',value:'1000',unit:'Ω'},{name:'C',value:'0.001',unit:'F'}],
-    model:'U = U + (Ubron - U)/(R*C)*dt',
-    iter:5000,
-  },
-  {
-    name:'Radioactief verval',
-    desc:'N = N - λ·N·dt',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1',unit:'s'},{name:'N',value:'1000',unit:''},{name:'lambda',value:'0.001',unit:'s⁻¹'}],
-    model:'N = N - lambda*N*dt',
-    iter:5000,
-  },
-  {
-    name:'Harmonische oscillator',
-    desc:'massa aan veer (F = -k·x)',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'0.01',unit:'s'},{name:'x',value:'1',unit:'m'},{name:'v',value:'0',unit:'m/s'},{name:'k',value:'10',unit:'N/m'},{name:'m',value:'1',unit:'kg'}],
-    model:'a = -k/m*x\nv = v + a*dt\nx = x + v*dt',
-    iter:2000,
-  },
-  {
-    name:'Planetenbaan',
-    desc:'2D gravitatie (x,y,vx,vy)',
-    sv:[{name:'t',value:'0',unit:'s'},{name:'dt',value:'1000',unit:'s'},{name:'x',value:'1.5e11',unit:'m'},{name:'y',value:'0',unit:'m'},{name:'vx',value:'0',unit:'m/s'},{name:'vy',value:'29800',unit:'m/s'},{name:'M',value:'2e30',unit:'kg'},{name:'G',value:'6.67e-11',unit:''}],
-    model:'r = sqrt(x*x + y*y)\nFx = -G*M/r^3*x\nFy = -G*M/r^3*y\nvx = vx + Fx*dt\nvy = vy + Fy*dt\nx = x + vx*dt\ny = y + vy*dt',
-    iter:400,
-  },
-];
-
-function loadExample(ex){
-  svRows=ex.sv.map(r=>({...r}));
+function loadExample(i){
+  var ex=EXAMPLES[i];
+  svRows=ex.sv.map(function(r){return{name:r.name,value:r.value,unit:r.unit}});
   renderSvTable();
   document.getElementById('model-textarea').value=ex.model;
   document.getElementById('max-iter').value=ex.iter;
+  document.getElementById('status-bar').className='status-bar';
   document.getElementById('status-bar').textContent='';
   simulationData=[];
-  chartInstances.forEach(obj=>obj.chart.destroy());
+  chartInstances.forEach(function(obj){obj.chart.destroy()});
   chartInstances=[];
   document.getElementById('charts-container').innerHTML='';
   updateAddBtn();
 }
 
 function renderExamples(){
-  const grid=document.getElementById('examples-grid');
-  grid.innerHTML=EXAMPLES.map((ex,i)=>`
-    <button class="example-btn" onclick="loadExample(EXAMPLES[${i}])">
-      <strong>${ex.name}</strong>
-      <span>${ex.desc}</span>
-    </button>`).join('');
+  var grid=document.getElementById('examples-grid');
+  grid.innerHTML=EXAMPLES.map(function(ex,i){return(
+    '<button class="example-btn" onclick="loadExample('+i+')">'+
+    '<strong>'+ex.name+'</strong>'+
+    '<span>'+ex.desc+'</span>'+
+    '</button>'
+  )}).join('');
 }
 renderExamples();
 
-// initieel één grafiek (leeg)
+// ─── REGELNUMMERS ────────────────────────────────────────────────────────
+var _errLines=[];
+function updateLineNumbers(){
+  const ta=document.getElementById('model-textarea');
+  const ln=document.getElementById('line-numbers');
+  if(!ta||!ln) return;
+  const count=ta.value.split('\n').length;
+  ln.innerHTML=Array.from({length:count},(_,i)=>{
+    const n=i+1;
+    return _errLines.includes(n)?'<span class="ln-err">'+n+'</span>':String(n);
+  }).join('\n');
+  ln.scrollTop=ta.scrollTop;
+}
+function syncLnScroll(){
+  const ta=document.getElementById('model-textarea');
+  const ln=document.getElementById('line-numbers');
+  if(ln&&ta) ln.scrollTop=ta.scrollTop;
+}
+function showLineErrors(errNums){
+  _errLines=errNums||[];
+  updateLineNumbers();
+  const container=document.getElementById('model-errors');
+  if(!container) return;
+  if(_errLines.length){
+    container.innerHTML='<span style="font-family:var(--mono);font-size:11px;color:#ef4444">⚠ Syntaxfout op regel '+_errLines.join(', ')+'</span>';
+  } else {
+    container.innerHTML='';
+  }
+}
+
+// ─── AXIS RANGE + ZOOM ───────────────────────────────────────────────────
+function onRangeChange(id,key,val){
+  var obj=chartInstances.find(c=>c.id===id);
+  if(!obj) return;
+  obj[key]=val;
+  updateChart(obj);
+}
+
+function resetZoom(id){
+  var obj=chartInstances.find(c=>c.id===id);
+  if(!obj) return;
+  obj.xMin='';obj.xMax='';obj.yMin='';obj.yMax='';
+  var div=document.getElementById(id);
+  if(div) div.querySelectorAll('.range-input').forEach(function(inp){inp.value='';});
+  if(obj.chart.resetZoom) obj.chart.resetZoom();
+  updateChart(obj);
+}
+
+// ─── SYNCHRONIZED CURSOR ─────────────────────────────────────────────────
+function syncCursor(xVar,idx){
+  chartInstances.forEach(function(obj){
+    if(obj.xVar===xVar){
+      obj.selectedIdx=idx;
+      updateChart(obj);
+    }
+  });
+}
+
+// ─── DOWNLOAD PNG ─────────────────────────────────────────────────────────
+function downloadPNG(id){
+  var obj=chartInstances.find(c=>c.id===id);
+  if(!obj) return;
+  var a=document.createElement('a');
+  a.href=obj.chart.toBase64Image('image/png',1);
+  a.download='grafiek_'+obj.yVar+'_vs_'+obj.xVar+'.png';
+  a.click();
+}
+
+// ─── DOWNLOAD CSV ─────────────────────────────────────────────────────────
+function downloadCSV(){
+  if(!simulationData.length) return;
+  var vars=Object.keys(simulationData[0]);
+  var header=vars.map(function(v){var u=unitForVar(v);return u?v+' ('+u+')':v}).join(',');
+  var rows=simulationData.map(function(row){return vars.map(function(v){return typeof row[v]==='number'?row[v].toString():''}).join(',')});
+  var csv=[header].concat(rows).join('\n');
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='simulatie.csv';
+  a.click();
+}
+
+// ─── SAVE / LOAD MODELS ───────────────────────────────────────────────────
+function saveModel(){
+  var name=prompt('Naam voor dit model:');
+  if(!name) return;
+  var model={name:name,sv:svRows.map(function(r){return Object.assign({},r)}),model:document.getElementById('model-textarea').value,iter:parseInt(document.getElementById('max-iter').value)||1000};
+  savedModels.push(model);
+  localStorage.setItem('nh_modellen',JSON.stringify(savedModels));
+  renderSavedModels();
+}
+
+function deleteModel(i){
+  savedModels.splice(i,1);
+  localStorage.setItem('nh_modellen',JSON.stringify(savedModels));
+  renderSavedModels();
+}
+
+function renderSavedModels(){
+  var list=document.getElementById('saved-models-list');
+  if(!list) return;
+  if(!savedModels.length){list.innerHTML='<span style="font-size:12px;color:var(--text-muted)">Nog geen modellen opgeslagen.</span>';return;}
+  list.innerHTML=savedModels.map(function(m,i){
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+      '<button class="example-btn" style="flex:1;padding:6px 10px" onclick="loadSavedModel('+i+')"><strong>'+m.name+'</strong></button>'+
+      '<button class="del-btn" onclick="deleteModel('+i+')">×</button>'+
+      '</div>';
+  }).join('');
+}
+
+function loadSavedModel(i){
+  var m=savedModels[i];
+  svRows=m.sv.map(function(r){return Object.assign({},r)});
+  renderSvTable();
+  document.getElementById('model-textarea').value=m.model;
+  document.getElementById('max-iter').value=m.iter;
+  updateLineNumbers();
+  simulationData=[];
+  chartInstances.forEach(function(obj){obj.chart.destroy()});
+  chartInstances=[];
+  document.getElementById('charts-container').innerHTML='';
+  updateAddBtn();
+}
+
+function exportModelJSON(){
+  var name=prompt('Naam voor export:','mijn-model');
+  if(!name) return;
+  var data={name:name,sv:svRows,model:document.getElementById('model-textarea').value,iter:parseInt(document.getElementById('max-iter').value)||1000};
+  var a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download=name+'.json';
+  a.click();
+}
+
+function importModelJSON(input){
+  var file=input.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      svRows=data.sv.map(function(r){return Object.assign({},r)});
+      renderSvTable();
+      document.getElementById('model-textarea').value=data.model||'';
+      document.getElementById('max-iter').value=data.iter||1000;
+      updateLineNumbers();
+      simulationData=[];
+      chartInstances.forEach(function(obj){obj.chart.destroy()});
+      chartInstances=[];
+      document.getElementById('charts-container').innerHTML='';
+      updateAddBtn();
+    }catch(err){alert('Ongeldig JSON bestand');}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+// initieel één grafiek (leeg) + regelnummers
+updateLineNumbers();
 addChart();
+renderSavedModels();
 </script>
 </body>
 </html>

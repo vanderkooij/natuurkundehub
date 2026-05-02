@@ -146,3 +146,31 @@ Netlify pikt de push automatisch op en deployt naar natuurkundehub.nl.
 
 Daarna committen en pushen.
 
+
+
+\## Naamgeving in de header
+
+
+
+De header van elke subpagina toont een breadcrumb: **NatuurkundeHub › Paginanaam**.
+
+
+
+| Pagina | Header tekst |
+
+|--------|-------------|
+
+| Homepage | NatuurkundeHub (alleen logo-tekst) |
+
+| Overhoor | NatuurkundeHub › Overhoor |
+
+| Modelleren | NatuurkundeHub › Modelleren |
+
+| CircuitSketch | NatuurkundeHub › CircuitSketch |
+
+
+
+"NatuurkundeHub" is een klikbare link naar `/`. De `›` separator en de paginanaam staan in `--text-muted` kleur, iets kleiner lettertype (15px, font-weight 600).
+
+De stijl gebruikt de bestaande `.app-title` CSS-klasse voor de NatuurkundeHub-link.
+
