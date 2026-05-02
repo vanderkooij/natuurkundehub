@@ -9,6 +9,7 @@
 <style>
   :root {
     --bg-primary: #f8f9fa;
+    --bg-primary-rgb: 248, 249, 250;
     --bg-secondary: #eef6f7;
     --bg-card: #ffffff;
     --bg-card-hover: #f0fafb;
@@ -29,6 +30,7 @@
 
   [data-theme="dark"] {
     --bg-primary: #0f1117;
+    --bg-primary-rgb: 15, 17, 23;
     --bg-secondary: #161b26;
     --bg-card: #1c2333;
     --bg-card-hover: #222b3d;
@@ -93,6 +95,11 @@
     padding: 24px 0;
     border-bottom: 1px solid var(--border);
     animation: fadeDown 0.6s ease-out;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: rgba(var(--bg-primary-rgb), 0.85);
   }
 
   .logo {
@@ -344,6 +351,18 @@
         <h3>CircuitSketch</h3>
         <p>Teken elektrische schakelingen snel en netjes. Handig voor practica en samenvattingen.</p>
         <span class="tool-tag">tekenen</span>
+      </a>
+
+      <a href="/modelleren" class="tool-card">
+        <div class="tool-icon tool-icon--purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <span class="tool-arrow">→</span>
+        <h3>Modelleren</h3>
+        <p>Bouw numerieke modellen en bekijk het gedrag van natuurkundige systemen in grafieken. Met begeleide oefeningen.</p>
+        <span class="tool-tag">simulatie</span>
       </a>
 
       <div class="tool-card tool-card--soon">
