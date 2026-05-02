@@ -174,3 +174,45 @@ De header van elke subpagina toont een breadcrumb: **NatuurkundeHub › Paginana
 
 De stijl gebruikt de bestaande `.app-title` CSS-klasse voor de NatuurkundeHub-link.
 
+
+
+\## Modelleren app aanpassen
+
+
+
+De modelleer-tool heeft zijn eigen repo maar staat ook als kopie in natuurkundehub.
+
+
+
+1\. Werk in `C:\Users\jopva\Documents\GitHub\modelleren`
+
+2\. Test lokaal
+
+3\. Push naar `vanderkooij/modelleren`
+
+4\. Kopieer naar natuurkundehub:
+
+   Open PowerShell en voer uit:
+
+   ```
+
+   $src = "C:\Users\jopva\Documents\GitHub\modelleren"
+
+   $dst = "C:\Users\jopva\Documents\GitHub\natuurkundehub\modelleren"
+
+   Get-ChildItem -Path $src -Recurse | Where-Object { $_.FullName -notlike "*\.git*" } | ForEach-Object {
+
+       $target = $_.FullName.Replace($src, $dst)
+
+       if ($_.PSIsContainer) { New-Item -ItemType Directory -Path $target -Force | Out-Null }
+
+       else { Copy-Item -Path $_.FullName -Destination $target -Force }
+
+   }
+
+   ```
+
+5\. Commit en push naar natuurkundehub
+
+6\. Netlify deployt automatisch naar natuurkundehub.nl/modelleren/
+

@@ -162,16 +162,28 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .example-btn strong{display:block;color:var(--text);font-weight:700;margin-bottom:2px}
 .example-btn span{font-size:11px;color:var(--text-muted)}
 
-/* UITLEG TABBLADEN */
-.tabs{display:flex;gap:4px;margin-bottom:16px}
-.tab-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border-solid);font-size:13px;font-weight:600;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);font-family:var(--font);transition:all .15s}
-.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.tab-panel{display:none}.tab-panel.active{display:block}
-.uitleg-content{font-size:14px;line-height:1.7;color:var(--text-secondary)}
-.uitleg-content h3{font-size:14px;font-weight:700;color:var(--text);margin:14px 0 6px}
-.uitleg-content h3:first-child{margin-top:0}
-.uitleg-content code{font-family:var(--mono);font-size:12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:4px;padding:1px 6px;color:var(--accent)}
-.uitleg-content pre{font-family:var(--mono);font-size:12px;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:12px;margin:8px 0;line-height:1.6;overflow-x:auto;color:var(--text-secondary)}
+/* HELP PANEL */
+.help-overlay{display:none;position:fixed;inset:0;z-index:199}
+.help-overlay.open{display:block}
+.help-panel{position:fixed;top:0;right:0;height:100vh;width:420px;max-width:90vw;background:var(--bg-card);box-shadow:-8px 0 32px rgba(0,0,0,0.18);z-index:200;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+.help-panel.open{transform:translateX(0)}
+.help-panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-card);z-index:1}
+.help-panel-hdr h2{font-size:16px;font-weight:700;color:var(--text);margin:0}
+.help-close{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:17px;color:var(--text-muted);transition:all .2s;line-height:1;font-family:var(--font)}
+.help-close:hover{border-color:var(--accent-border);color:var(--accent)}
+.help-body{padding:16px 20px;flex:1}
+.help-acc{border:1px solid var(--border-solid);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.help-acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;cursor:pointer;background:var(--bg-secondary);transition:background .15s;user-select:none}
+.help-acc-hdr:hover{background:var(--accent-dim)}
+.help-acc-hdr h3{font-size:13.5px;font-weight:700;color:var(--accent-amber);margin:0}
+.help-acc-chevron{color:var(--text-muted);font-size:11px;transition:transform .2s}
+.help-acc.open .help-acc-chevron{transform:rotate(180deg)}
+.help-acc-body{display:none;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--text-secondary);border-top:1px solid var(--border)}
+.help-acc.open .help-acc-body{display:block}
+.help-sub{font-size:13px;font-weight:700;color:var(--text);margin:12px 0 4px}
+.help-sub:first-child{margin-top:0}
+.help-acc-body code{font-family:var(--mono);font-size:11.5px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:4px;padding:1px 5px;color:var(--accent)}
+.help-acc-body pre{font-family:var(--mono);font-size:12px;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:10px 12px;margin:6px 0;line-height:1.6;overflow-x:auto;color:var(--text-secondary);white-space:pre-wrap}
 
 /* STATUS */
 .status-bar{font-family:var(--mono);font-size:12px;color:var(--text-muted);padding:6px 0 12px;min-height:24px}
@@ -264,7 +276,10 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     <span style="color:var(--text-muted);font-size:15px">›</span>
     <span style="color:var(--text-muted);font-size:15px;font-weight:600">Modelleren</span>
   </div>
-  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="theme-toggle" onclick="openHelp()" title="Help &amp; Uitleg" style="font-weight:700;font-size:15px">?</button>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
 </header>
 
 <div class="page-wrap">
@@ -398,55 +413,59 @@ als x <= 0 dan v = -0.8*v
     </div>
   </div>
 
-  <!-- UITLEG -->
-  <div style="margin-top:8px">
-    <div class="collapse-header" id="uitleg-header" onclick="toggleCollapse('uitleg')">
-      <h2>Uitleg &amp; Help</h2>
-      <span class="chevron">▼</span>
+
+</div><!-- /page-wrap -->
+
+<!-- HELP PANEL -->
+<div class="help-overlay" id="help-overlay" onclick="closeHelp()"></div>
+<div class="help-panel" id="help-panel">
+  <div class="help-panel-hdr">
+    <h2>Help &amp; Uitleg</h2>
+    <button class="help-close" onclick="closeHelp()">×</button>
+  </div>
+  <div class="help-body">
+    <div class="help-acc open" id="help-acc-0">
+      <div class="help-acc-hdr" onclick="toggleHelpAcc(0)">
+        <h3>Wat is modelleren?</h3>
+        <span class="help-acc-chevron">▼</span>
+      </div>
+      <div class="help-acc-body">
+        <p>Bij modelleren deel je een berekening op in kleine stapjes. Bij elke stap worden grootheden zoals positie en snelheid bijgewerkt op basis van de huidige toestand. Door dit heel vaak te herhalen kun je complexe bewegingen en processen nabootsen die je niet met één formule kunt uitrekenen.</p>
+        <p class="help-sub">Iteraties en tijdstap dt</p>
+        <p>Elke herhaling heet een iteratie. De tijdstap <code>dt</code> bepaalt hoe groot elke stap is. Hoe kleiner <code>dt</code>, hoe nauwkeuriger de simulatie — maar hoe meer iteraties je nodig hebt om dezelfde totale tijd te simuleren.</p>
+        <p class="help-sub">Tussenvariabelen</p>
+        <p>Tussenvariabelen zijn grootheden die je berekent binnen een iteratie maar die je niet als startwaarde opgeeft — denk aan kracht of versnelling. Je berekent ze elke stap opnieuw uit andere variabelen.</p>
+        <p class="help-sub">Richtingen en tekens</p>
+        <p>Spreek altijd af welke richting positief is. Krachten en snelheden in de tegengestelde richting krijgen een minteken. Dit is cruciaal bij modellen met stuiteren, veren of meerdere krachten.</p>
+      </div>
     </div>
-    <div class="collapse-body" id="uitleg-body">
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('wat')">Wat is modelleren?</button>
-        <button class="tab-btn" onclick="switchTab('hoe')">Hoe gebruik je deze tool?</button>
+    <div class="help-acc" id="help-acc-1">
+      <div class="help-acc-hdr" onclick="toggleHelpAcc(1)">
+        <h3>Hoe gebruik je deze tool?</h3>
+        <span class="help-acc-chevron">▼</span>
       </div>
-      <div class="tab-panel active" id="tab-wat">
-        <div class="uitleg-content">
-          <h3>Numerieke simulatie</h3>
-          <p>Modelleren betekent dat je een natuurkundig systeem beschrijft met vergelijkingen en de computer de toestand stap voor stap laat berekenen. In plaats van een exacte wiskundige oplossing, rekent de computer kleine stapjes Δt vooruit.</p>
-          <h3>De Euler-methode</h3>
-          <p>De eenvoudigste methode is de Euler-methode. Als je weet hoe snel iets verandert (de afgeleid), dan is de nieuwe waarde:</p>
-          <pre>x_nieuw = x_oud + (dx/dt) · Δt</pre>
-          <p>Hoe kleiner <code>dt</code>, hoe nauwkeuriger de simulatie, maar hoe meer iteraties er nodig zijn.</p>
-          <h3>Wanneer gebruik je modelleren?</h3>
-          <p>Als een systeem te complex is voor een analytische oplossing, of als er niet-lineaire krachten (luchtweerstand, stuiteren, koppeling) in het spel zijn.</p>
-        </div>
-      </div>
-      <div class="tab-panel" id="tab-hoe">
-        <div class="uitleg-content">
-          <h3>Startwaarden</h3>
-          <p>Vul de beginwaarden in van alle variabelen. <code>t</code> is de tijd, <code>dt</code> de tijdstap. Je kunt ook eigen variabelen toevoegen zoals <code>x</code>, <code>v</code>, <code>a</code>.</p>
-          <h3>Modelregels</h3>
-          <p>Elke regel is een formule die per iteratie wordt uitgevoerd. Volgorde is belangrijk!</p>
-          <pre>v = v + a*dt      // snelheid bijwerken
-x = x + v*dt      // positie bijwerken</pre>
-          <h3>Speciale syntax</h3>
-          <p><strong>Conditie:</strong> <code>als x &lt;= 0 dan v = -0.8*v</code> &nbsp;<span style="color:var(--text-muted);font-size:12px">Haakjes om de voorwaarde zijn ook toegestaan.</span></p>
-          <p><strong>Stoppen:</strong> <code>STOP</code> stopt de simulatie op dat moment</p>
-          <p><strong>Commentaar:</strong> regels die beginnen met <code>//</code> of <code>'</code> worden genegeerd</p>
-          <p><strong>Wetenschappelijke notatie:</strong> <code>6.67e-11</code> of <code>6.67*10^-11</code></p>
-          <p><strong>Wiskundige functies:</strong> <code>sqrt(x)</code>, <code>sin(x)</code>, <code>cos(x)</code>, <code>abs(x)</code>, <code>pi</code></p>
-          <h3>Grafieken</h3>
-          <p>Kies voor elke grafiek de x- en y-as variabele. Er zijn maximaal 4 grafieken mogelijk.</p>
-          <h3>Navigatie in grafieken</h3>
-          <p>Hover over een grafiek voor exacte waarden. <strong>Klik</strong> op een punt om het te selecteren, gebruik dan <strong>←/→</strong> om door de datapunten te navigeren. De <strong>raaklijn-knop</strong> tekent de raaklijn op het geselecteerde punt.</p>
-          <h3>Tabel</h3>
-          <p>Klik "Toon tabel" om alle berekende waarden per iteratie te bekijken (max. 10.000 rijen).</p>
-        </div>
+      <div class="help-acc-body">
+        <p class="help-sub">Startwaarden</p>
+        <p>Elke variabele heeft een naam, beginwaarde en optionele eenheid. De eenheid verschijnt op de grafiekas. Voeg rijen toe met de <code>+</code> knop.</p>
+        <p class="help-sub">Modelregels</p>
+        <pre>v = v + a*dt             // gewone toewijzing
+// dit is commentaar      // commentaar
+' dit ook                 // ook commentaar
+als x &gt; 0 dan v = -v     // voorwaarde (haakjes optioneel)
+als abs(v) &lt; 0.001 dan STOP  // stopconditie</pre>
+        <p>Wetenschappelijke notatie: <code>6.67e-11</code>. Beschikbare functies: <code>sqrt()</code> <code>abs()</code> <code>sin()</code> <code>cos()</code> <code>pi</code>.</p>
+        <p class="help-sub">Grafieken</p>
+        <p>Kies x- en y-as via de dropdowns. Zoom met muiswiel of sleep. Klik op een punt om het te selecteren en navigeer met de pijltjestoetsen. De raaklijnknop toont <em>dy/dx</em> met echte variabelenamen. Voeg extra grafieken toe via <em>+ Voeg grafiek toe</em> — grafieken met dezelfde x-as zijn gesynchroniseerd.</p>
+        <p class="help-sub">Runs vergelijken</p>
+        <p>Simuleer, klik <em>Bewaar run</em>, pas startwaarden aan en simuleer opnieuw. Maximaal 4 bewaarde runs per grafiek.</p>
+        <p class="help-sub">Model opslaan en delen</p>
+        <p><em>Sla huidig model op</em> bewaart in de browser. <em>Exporteer model</em> downloadt een JSON-bestand. <em>Deel model</em> kopieert een link naar het klembord.</p>
+        <p class="help-sub">Tabel en export</p>
+        <p><em>Toon tabel</em> toont alle berekende waarden. <em>Download CSV</em> exporteert voor gebruik in Excel. <em>↓ PNG</em> exporteert een grafiek als afbeelding.</p>
       </div>
     </div>
   </div>
-
-</div><!-- /page-wrap -->
+</div>
 
 <!-- ZWEVEND OEFENKAARTJE -->
 <div id="float-card">
@@ -616,14 +635,17 @@ function toggleCollapse(id){
   b.classList.toggle('open');
 }
 
-// ─── TABS ────────────────────────────────────────────────────────────────
-function switchTab(id){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active',['wat','hoe'][i]===id);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p=>{
-    p.classList.toggle('active',p.id==='tab-'+id);
-  });
+// ─── HELP PANEL ──────────────────────────────────────────────────────────
+function openHelp(){
+  document.getElementById('help-panel').classList.add('open');
+  document.getElementById('help-overlay').classList.add('open');
+}
+function closeHelp(){
+  document.getElementById('help-panel').classList.remove('open');
+  document.getElementById('help-overlay').classList.remove('open');
+}
+function toggleHelpAcc(i){
+  document.getElementById('help-acc-'+i).classList.toggle('open');
 }
 
 // ─── GRAFIEKEN ───────────────────────────────────────────────────────────
