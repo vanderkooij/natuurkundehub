@@ -1,8 +1,9 @@
 # Ideeën voor nieuwe apps
 
-## In ontwikkeling
-- Overhoor-app
-- Circuit tekenen app (sketch-circuit-draw)
+## Afgerond
+- [x] Overhoor-app
+- [x] CircuitSketch (sketch-circuit-draw)
+- [x] Modelleren
 
 ## Te ontwikkelen
 - [ ] Formule omschrijf app — leerling krijgt een formule en moet deze omschrijven naar een opgegeven grootheid
