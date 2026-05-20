@@ -3,7 +3,34 @@
   publish = "dist"
 
 # CircuitSketch is een SPA: stuur alle routes binnen /circuitsketch/* naar de app
+# (moet vóór de catch-all staan)
 [[redirects]]
   from = "/circuitsketch/*"
   to = "/circuitsketch/index.html"
   status = 200
+
+# Expliciete trailing-slash redirects per submap
+[[redirects]]
+  from = "/formules-omschrijven"
+  to = "/formules-omschrijven/"
+  status = 301
+
+[[redirects]]
+  from = "/overhoor"
+  to = "/overhoor/"
+  status = 301
+
+[[redirects]]
+  from = "/modelleren"
+  to = "/modelleren/"
+  status = 301
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact/"
+  status = 301
+
+[[redirects]]
+  from = "/significantie"
+  to = "/significantie/"
+  status = 301

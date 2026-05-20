@@ -89,21 +89,23 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 /* ── HEADER ── */
 .app-header{
-  background:rgba(var(--bg-primary-rgb),0.85);
+  background:rgba(255,255,255,0.6);
   backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);
   position:sticky;
   top:0;
   z-index:100;
-  padding:0 24px;
+  padding:0 32px;
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-  min-height:56px;position:relative;z-index:10;
+  min-height:68px;
 }
+[data-theme="dark"] .app-header{background:rgba(15,17,23,0.6)}
 .header-left{display:flex;align-items:center;gap:12px}
 .back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
 .back-link:hover{color:var(--accent);background:var(--accent-dim)}
 .app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
 .app-title span{color:var(--accent)}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 20px;position:relative;z-index:1}
 .nav{display:flex;gap:2px}
 .nav-btn{
   padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:500;
@@ -329,6 +331,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <div class="main">
+
+<h1 class="tool-name">Overhoor</h1>
 
 <!-- SETTINGS PANEL -->
 <div class="panel active" id="panel-settings">
@@ -687,6 +691,7 @@ init();
 <footer style="text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1;">
   <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
   Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
 
 </body>

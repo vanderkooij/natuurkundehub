@@ -37,7 +37,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
 .theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
 
-.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px}
+.app-header{background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+[data-theme="dark"] .app-header{background:rgba(15,17,23,0.6)}
 .header-left{display:flex;align-items:center;gap:12px}
 .app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
 .app-title span{color:var(--accent)}
@@ -125,14 +126,13 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 <div class="main">
 
   <div class="hero">
-    <div class="hero-badge">Formules omschrijven</div>
     <h1>Kies een <span class="grad">oefenmodus</span></h1>
     <p>Oefen het omschrijven van formules — van stap-voor-stap uitleg tot de echte formules uit je examenprogramma.</p>
   </div>
 
   <div class="cards-grid">
 
-    <div class="mode-card mode-card--c" onclick="window.location='uitleg/'">
+    <div class="mode-card mode-card--c" onclick="window.location='/formules-omschrijven/uitleg/'">
       <span class="mode-letter">UITLEG</span>
       <h2>Leren omschrijven</h2>
       <p>Begrijp de methode stap voor stap, met interactieve voorbeelden.</p>
@@ -141,21 +141,21 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
         <li>Drie stappen met voorbeelden</li>
         <li>Oefenen met directe feedback</li>
       </ul>
-      <a href="uitleg/" class="mode-btn">Bekijk uitleg →</a>
+      <a href="/formules-omschrijven/uitleg/" class="mode-btn">Bekijk uitleg →</a>
     </div>
 
-    <div class="mode-card" onclick="window.location='abstract/'">
-      <h2>Abstract oefenen</h2>
+    <div class="mode-card" onclick="window.location='/formules-omschrijven/abstract/'">
+      <h2>Oefenmodus</h2>
       <p>Procedureel gegenereerde letterformules. Kies een level en oefen onbeperkt.</p>
       <ul class="bullets">
         <li>Level 1 — 3 variabelen, alleen × en ÷</li>
         <li>Level 2 — 4–5 variabelen, alleen × en ÷</li>
         <li>Level 3 — machten, wortels en haakjes</li>
       </ul>
-      <a href="abstract/" class="mode-btn">Ga naar Modus A →</a>
+      <a href="/formules-omschrijven/abstract/" class="mode-btn">Ga naar Modus A →</a>
     </div>
 
-    <div class="mode-card mode-card--b" onclick="window.location='tabel35/'">
+    <div class="mode-card mode-card--b" onclick="window.location='/formules-omschrijven/tabel35/'">
       <h2>Natuurkunde formules</h2>
       <p>Echte natuurkundeformules uit het examenprogramma. Kies thema's en niveau.</p>
       <ul class="bullets">
@@ -163,7 +163,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
         <li>Kies thema's zelf</li>
         <li>Optica als optionele extra</li>
       </ul>
-      <a href="tabel35/" class="mode-btn">Ga naar Modus B →</a>
+      <a href="/formules-omschrijven/tabel35/" class="mode-btn">Ga naar Modus B →</a>
     </div>
 
   </div>
@@ -174,6 +174,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 <footer>
   <img src="assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
   Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
 
 <script>

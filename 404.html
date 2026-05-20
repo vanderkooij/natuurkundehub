@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 · Pagina niet gevonden · NatuurkundeHub</title>
+<meta name="description" content="Deze pagina kon niet gevonden worden op NatuurkundeHub.">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_light.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{height:30px;opacity:.9}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+
+.main{max-width:720px;margin:0 auto;padding:64px 20px 60px;position:relative;z-index:1;text-align:center}
+
+/* The damped sine wave illustration */
+.scene{width:min(560px,90vw);height:140px;margin:0 auto 40px;position:relative}
+.scene svg{width:100%;height:100%;display:block;overflow:visible}
+.wave-path{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 6px var(--accent-glow))}
+.wave-path.fade{stroke:var(--accent-amber);opacity:0.55}
+.dot{fill:var(--accent-amber);filter:drop-shadow(0 0 8px var(--accent-amber-glow))}
+
+.code{
+  font-size:clamp(72px,16vw,128px);
+  font-weight:700;
+  line-height:1;
+  letter-spacing:-4px;
+  margin-bottom:10px;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent-amber) 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:flicker 4s ease-in-out infinite;
+}
+@keyframes flicker{
+  0%,100%{opacity:1}
+  48%{opacity:1}
+  50%{opacity:0.65}
+  52%{opacity:1}
+}
+
+.page-title{font-size:clamp(22px,4vw,30px);font-weight:700;letter-spacing:-0.6px;margin-bottom:14px}
+.page-title span{color:var(--accent)}
+.page-subtitle{font-size:16px;color:var(--text-secondary);line-height:1.6;margin:0 auto 36px;max-width:520px}
+
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:48px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;
+  font-size:14px;font-weight:600;font-family:var(--font);text-decoration:none;
+  transition:all .2s;cursor:pointer;border:1.5px solid transparent;letter-spacing:-0.1px;
+}
+.btn-primary{background:var(--accent-amber);color:#fff}
+.btn-primary:hover{background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.btn-ghost{background:transparent;color:var(--text-muted);border-color:var(--border-solid)}
+.btn-ghost:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.suggest-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px 28px;box-shadow:0 2px 16px rgba(11,181,200,0.07);
+  max-width:560px;margin:0 auto;
+}
+.suggest-label{
+  font-family:var(--mono);font-size:11px;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;text-align:left;
+}
+.suggest-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.suggest-list a{
+  display:block;padding:10px 14px;color:var(--text);text-decoration:none;
+  border-radius:9px;font-size:14px;font-weight:500;text-align:left;
+  border:1px solid var(--border);transition:all .15s;
+}
+.suggest-list a:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+.suggest-list a::before{content:"→ ";color:var(--accent-amber);margin-right:4px}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+footer img{height:24px;opacity:0.3;display:block;margin:0 auto 8px}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.main{animation:fadeUp .5s ease-out both}
+
+@media (max-width: 680px) {
+  .app-header{padding:0 16px}
+  .main{padding:40px 16px 40px}
+  .actions{flex-direction:column;align-items:stretch}
+  .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<header class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img id="header-logo" src="/assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+  </div>
+  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+</header>
+
+<div class="main">
+
+  <!-- Damped sine wave: a "fading signal" -->
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 560 140" preserveAspectRatio="none">
+      <line x1="0" y1="70" x2="560" y2="70" stroke="rgba(100,116,139,0.15)" stroke-width="1" stroke-dasharray="3,5"/>
+      <path class="wave-path fade" id="waveGhost" d=""/>
+      <path class="wave-path" id="wave" d=""/>
+      <circle class="dot" id="dot" cx="0" cy="70" r="5"/>
+    </svg>
+  </div>
+
+  <div class="code">404</div>
+  <h1 class="page-title">Het signaal is verloren gegaan in de <span>ruis</span>.</h1>
+  <p class="page-subtitle">
+    Deze pagina kon niet gevonden worden — misschien is hij gedempt, misschien is
+    de URL verschoven, of misschien bestaat hij gewoon (nog) niet.
+  </p>
+
+  <div class="actions">
+    <a class="btn btn-primary" href="/">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12 L12 3 L21 12"/><path d="M5 10 V21 H19 V10"/>
+      </svg>
+      Terug naar de hub
+    </a>
+    <a class="btn btn-ghost" href="javascript:history.back()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12 H5"/><path d="M12 19 L5 12 L12 5"/>
+      </svg>
+      Vorige pagina
+    </a>
+  </div>
+
+  <div class="suggest-card">
+    <div class="suggest-label">Of probeer een tool</div>
+    <ul class="suggest-list">
+      <li><a href="/overhoor">Overhoor</a></li>
+      <li><a href="/circuitsketch">CircuitSketch</a></li>
+      <li><a href="/modelleren">Modelleren</a></li>
+      <li><a href="/formules-omschrijven">Formules omschrijven</a></li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  <img id="footer-logo" src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:6px">Klopt er iets niet? <a href="/contact/">Laat het weten →</a></div>
+</footer>
+
+<script>
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  const logo=document.getElementById('header-logo');
+  const footerLogo=document.getElementById('footer-logo');
+  const btn=document.getElementById('theme-btn');
+  const favicon=document.getElementById('favicon');
+  if(theme==='dark'){
+    if(logo) logo.src='/assets/logo/JK_dark.svg';
+    if(footerLogo) footerLogo.src='/assets/logo/JK_white.svg';
+    if(favicon) favicon.href='/assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='☀️';
+  } else {
+    if(logo) logo.src='/assets/logo/JK_light.svg';
+    if(footerLogo) footerLogo.src='/assets/logo/JK_black.svg';
+    if(favicon) favicon.href='/assets/logo/JK_light.svg';
+    if(btn) btn.textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme')||'light';
+  const next=current==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',next);
+  applyTheme(next);
+}
+(function(){
+  const saved=localStorage.getItem('nh-theme');
+  if(saved) applyTheme(saved);
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
+  else applyTheme('light');
+})();
+
+// Damped sine wave animation — visualisation of a fading signal.
+(function(){
+  const wave  = document.getElementById('wave');
+  const ghost = document.getElementById('waveGhost');
+  const dot   = document.getElementById('dot');
+
+  const W = 560, CY = 70;
+  const AMP = 38;
+  const k   = 1.6;
+  const cycles = 3.2;
+  const omega = (cycles * 2 * Math.PI) / W;
+
+  function buildPath(phase, dampingScale) {
+    const pts = [];
+    for (let x = 0; x <= W; x += 4) {
+      const env = Math.exp(-k * (x / W) * dampingScale);
+      const y = CY - AMP * env * Math.sin(omega * x + phase);
+      pts.push((x === 0 ? 'M ' : 'L ') + x.toFixed(1) + ' ' + y.toFixed(2));
+    }
+    return pts.join(' ');
+  }
+
+  let t = 0;
+  function frame() {
+    t += 0.025;
+    const phase = -t * 2;
+    wave.setAttribute('d',  buildPath(phase, 1));
+    ghost.setAttribute('d', buildPath(phase - 0.6, 0.85));
+
+    const dotX = (t * 60) % (W + 40);
+    const env  = Math.exp(-k * (dotX / W));
+    const dotY = CY - AMP * env * Math.sin(omega * dotX + phase);
+    dot.setAttribute('cx', dotX.toFixed(2));
+    dot.setAttribute('cy', dotY.toFixed(2));
+    dot.setAttribute('opacity', Math.max(0.15, env).toFixed(2));
+
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+</script>
+
+</body>
+</html>

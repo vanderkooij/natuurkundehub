@@ -73,10 +73,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 #app{display:none}
 
 .app-header{
-  background:var(--bg-secondary);border-bottom:1px solid var(--border);
-  padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-  min-height:56px;position:relative;z-index:10;
+  background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  min-height:68px;position:sticky;top:0;z-index:100;
 }
+[data-theme="dark"] .app-header{background:rgba(15,17,23,0.6)}
 .header-left{display:flex;align-items:center;gap:12px}
 .back-link{color:var(--text-muted);text-decoration:none;font-size:18px;padding:4px 8px;border-radius:6px;transition:all .2s}
 .back-link:hover{color:var(--accent);background:var(--accent-dim)}

@@ -1,0 +1,20 @@
+# Eén keer goed: bewaar alle tekstbestanden met LF in de repo.
+# Voorkomt CRLF<->LF ruis op cross-platform commits (Windows vs Linux/Netlify).
+
+* text=auto eol=lf
+
+# Binaire bestanden expliciet
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.svg    text
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.eot    binary
+*.mp4    binary
+*.mov    binary
+*.webm   binary
+*.pdf    binary

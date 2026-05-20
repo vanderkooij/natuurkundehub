@@ -1043,6 +1043,61 @@ export default function CircuitEditor() {
     };
   }, []);
 
+  const deleteSelection = useCallback(() => {
+    if (multiSel) {
+      const cIds = new Set(multiSel.componentIds);
+      const wIds = new Set(multiSel.wireIds);
+      const lIds = new Set(multiSel.labelIds);
+      const next: CircuitState = {
+        components: state.components.filter(c => !cIds.has(c.id)),
+        wires: state.wires
+          .filter(w => !wIds.has(w.id))
+          .map(w => ({
+            ...w,
+            startAttach: w.startAttach?.kind === 'component' && cIds.has(w.startAttach.componentId) ? undefined : w.startAttach,
+            endAttach: w.endAttach?.kind === 'component' && cIds.has(w.endAttach.componentId) ? undefined : w.endAttach,
+          })),
+        labels: state.labels.filter(l => !lIds.has(l.id)),
+      };
+      commit(next);
+      setMultiSel(null);
+      setSelection(null);
+      return;
+    }
+    if (!selection) return;
+    const next = { ...state };
+    if (selection.kind === 'component') {
+      next.components = state.components.filter(c => c.id !== selection.id);
+      next.wires = state.wires.map(w => ({
+        ...w,
+        startAttach: w.startAttach?.kind === 'component' && w.startAttach.componentId === selection.id ? undefined : w.startAttach,
+        endAttach: w.endAttach?.kind === 'component' && w.endAttach.componentId === selection.id ? undefined : w.endAttach,
+      }));
+    }
+    if (selection.kind === 'wire') {
+      next.wires = state.wires.filter(w => w.id !== selection.id);
+      next.wires = next.wires.map(w => ({
+        ...w,
+        startAttach: w.startAttach?.kind === 'wire' && w.startAttach.wireId === selection.id ? undefined : w.startAttach,
+        endAttach: w.endAttach?.kind === 'wire' && w.endAttach.wireId === selection.id ? undefined : w.endAttach,
+      }));
+    }
+    if (selection.kind === 'label') next.labels = state.labels.filter(l => l.id !== selection.id);
+    commit(next);
+    setSelection(null);
+  }, [selection, multiSel, state, commit]);
+
+  const rotateSelection = useCallback(() => {
+    if (selection?.kind !== 'component') return;
+    const next = syncWires({
+      ...state,
+      components: state.components.map(c =>
+        c.id === selection.id ? { ...c, rotation: ((c.rotation + 90) % 360) as 0 | 90 | 180 | 270 } : c
+      ),
+    });
+    commit(next);
+  }, [selection, state, commit]);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (isMobileRef.current) return;
@@ -1078,6 +1133,11 @@ export default function CircuitEditor() {
         e.preventDefault();
         setWireOrient(o => (o === 'HV' ? 'VH' : 'HV'));
         setWireOrientLocked(true);
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        setTool('select');
+        setWireStart(null);
+        setWireOrientLocked(false);
       }
       // W toggles between wire and select (the two most-used tools)
       if (e.key === 'w' || e.key === 'W') {
@@ -1145,62 +1205,6 @@ export default function CircuitEditor() {
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
   }, []);
 
-  const deleteSelection = useCallback(() => {
-    if (multiSel) {
-      const cIds = new Set(multiSel.componentIds);
-      const wIds = new Set(multiSel.wireIds);
-      const lIds = new Set(multiSel.labelIds);
-      const next: CircuitState = {
-        components: state.components.filter(c => !cIds.has(c.id)),
-        wires: state.wires
-          .filter(w => !wIds.has(w.id))
-          .map(w => ({
-            ...w,
-            startAttach: w.startAttach?.kind === 'component' && cIds.has(w.startAttach.componentId) ? undefined : w.startAttach,
-            endAttach: w.endAttach?.kind === 'component' && cIds.has(w.endAttach.componentId) ? undefined : w.endAttach,
-          })),
-        labels: state.labels.filter(l => !lIds.has(l.id)),
-      };
-      commit(next);
-      setMultiSel(null);
-      setSelection(null);
-      return;
-    }
-    if (!selection) return;
-    const next = { ...state };
-    if (selection.kind === 'component') {
-      next.components = state.components.filter(c => c.id !== selection.id);
-      // Detach wires that pointed at this component
-      next.wires = state.wires.map(w => ({
-        ...w,
-        startAttach: w.startAttach?.kind === 'component' && w.startAttach.componentId === selection.id ? undefined : w.startAttach,
-        endAttach: w.endAttach?.kind === 'component' && w.endAttach.componentId === selection.id ? undefined : w.endAttach,
-      }));
-    }
-    if (selection.kind === 'wire') {
-      next.wires = state.wires.filter(w => w.id !== selection.id);
-      // Detach wires that pointed at this wire
-      next.wires = next.wires.map(w => ({
-        ...w,
-        startAttach: w.startAttach?.kind === 'wire' && w.startAttach.wireId === selection.id ? undefined : w.startAttach,
-        endAttach: w.endAttach?.kind === 'wire' && w.endAttach.wireId === selection.id ? undefined : w.endAttach,
-      }));
-    }
-    if (selection.kind === 'label') next.labels = state.labels.filter(l => l.id !== selection.id);
-    commit(next);
-    setSelection(null);
-  }, [selection, multiSel, state, commit]);
-
-  const rotateSelection = useCallback(() => {
-    if (selection?.kind !== 'component') return;
-    const next = syncWires({
-      ...state,
-      components: state.components.map(c =>
-        c.id === selection.id ? { ...c, rotation: ((c.rotation + 90) % 360) as 0 | 90 | 180 | 270 } : c
-      ),
-    });
-    commit(next);
-  }, [selection, state, commit]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (isMobileRef.current) return;

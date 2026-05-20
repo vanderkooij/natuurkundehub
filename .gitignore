@@ -1,0 +1,22 @@
+# Netlify
+.netlify
+
+# Build-output
+dist/
+*/dist/
+**/dist/
+
+# Lokale IDE / editor / agent-instellingen
+.claude/
+.vscode/
+.idea/
+
+# Node / package managers
+node_modules/
+*.tsbuildinfo
+
+# Tijdelijke / artifact-bestanden
+**/.gitignore_xcopy
+
+# Tools waar nog aan gewerkt wordt (nog niet pushen)
+videometen/

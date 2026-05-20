@@ -17,7 +17,7 @@ const CATS_DATA=[
     {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW'},
     {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde',esym:'kg·m/s; kg m s⁻¹'},
-    {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm'},
+    {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm; J'},
     {lv:'hv',naam:'arm',sym:'r',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'straal',sym:'r',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'hoogte',sym:'h',eenh:'meter',esym:'m'},

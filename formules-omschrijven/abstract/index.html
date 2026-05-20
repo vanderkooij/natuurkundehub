@@ -45,10 +45,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
 .theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
 .theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
-.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
 .header-left{display:flex;align-items:center;gap:12px}
 .app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
 .app-title span{color:var(--accent)}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 20px;position:relative;z-index:1}
 .main{max-width:760px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
 .section-title{font-size:15px;font-weight:700;color:var(--accent);padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px}
 .section-title.amber{color:var(--accent-amber);border-left-color:var(--accent-amber)}
@@ -136,6 +137,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
 </div>
 <div class="main">
+<h1 class="tool-name">Oefenmodus</h1>
 <!-- SETTINGS -->
 <div class="panel active" id="panel-settings">
   <div class="section-title amber">Kies je level(s)</div>
@@ -197,6 +199,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 <footer>
   <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
   Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
 <script>
 // ── THEME ──

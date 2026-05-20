@@ -3,11 +3,154 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Circuit Sketch — Minimalist Circuit Drawing Tool</title>
+    <title>CircuitSketch · NatuurkundeHub</title>
     <meta name="description" content="A clean, distraction-free tool for sketching electrical circuits." />
+    <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_light.svg" id="favicon">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --nh-bg:       #ffffff;
+        --nh-border:   rgba(11, 181, 200, 0.15);
+        --nh-text:     #1A1A2E;
+        --nh-muted:    #64748b;
+        --nh-accent:   #0BB5C8;
+        --nh-h:        44px;
+      }
+      [data-theme="dark"] {
+        --nh-bg:     #161b26;
+        --nh-border: rgba(11, 181, 200, 0.12);
+        --nh-text:   #e2e8f0;
+        --nh-muted:  #64748b;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body { margin: 0; padding: 0; }
+
+      /* Push the React app below the header */
+      #root > div {
+        height: calc(100vh - var(--nh-h)) !important;
+        margin-top: var(--nh-h) !important;
+      }
+
+      #nh-header {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: var(--nh-h);
+        background: var(--nh-bg);
+        border-bottom: 1px solid var(--nh-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 9999;
+        font-family: 'Space Grotesk', -apple-system, sans-serif;
+        transition: background .3s;
+      }
+
+      #nh-header .nh-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #nh-header .nh-back {
+        color: var(--nh-muted);
+        text-decoration: none;
+        font-size: 18px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        line-height: 1;
+        transition: color .15s;
+      }
+      #nh-header .nh-back:hover { color: var(--nh-accent); }
+
+      #nh-header .nh-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+      #nh-header .nh-logo img {
+        height: 28px;
+      }
+      #nh-header .nh-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--nh-text);
+        letter-spacing: -0.3px;
+      }
+      #nh-header .nh-title span {
+        color: var(--nh-accent);
+      }
+
+      #nh-header .nh-toggle {
+        background: transparent;
+        border: 1px solid var(--nh-border);
+        border-radius: 7px;
+        padding: 4px 9px;
+        cursor: pointer;
+        font-size: 15px;
+        color: var(--nh-muted);
+        line-height: 1;
+        transition: border-color .15s, color .15s;
+      }
+      #nh-header .nh-toggle:hover {
+        border-color: var(--nh-accent);
+        color: var(--nh-accent);
+      }
+    </style>
   </head>
   <body>
+
+    <header id="nh-header">
+      <div class="nh-left">
+        <a href="/" class="nh-back" title="Terug naar NatuurkundeHub">←</a>
+        <a href="/" class="nh-logo">
+          <img id="nh-logo-img" src="../assets/logo/JK_light.svg" alt="NatuurkundeHub logo">
+          <span class="nh-title">Natuurkunde<span>Hub</span></span>
+        </a>
+      </div>
+      <button class="nh-toggle" id="nh-theme-btn" onclick="nhToggleTheme()">🌙</button>
+    </header>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <script>
+      function nhApplyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const logo = document.getElementById('nh-logo-img');
+        const favicon = document.getElementById('favicon');
+        const btn = document.getElementById('nh-theme-btn');
+        if (theme === 'dark') {
+          if (logo) logo.src = '../assets/logo/JK_dark.svg';
+          if (favicon) favicon.href = '../assets/logo/JK_dark.svg';
+          if (btn) btn.textContent = '☀️';
+        } else {
+          if (logo) logo.src = '../assets/logo/JK_light.svg';
+          if (favicon) favicon.href = '../assets/logo/JK_light.svg';
+          if (btn) btn.textContent = '🌙';
+        }
+      }
+
+      function nhToggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('nh-theme', next);
+        nhApplyTheme(next);
+      }
+
+      (function () {
+        const saved = localStorage.getItem('nh-theme');
+        if (saved) {
+          nhApplyTheme(saved);
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          nhApplyTheme('dark');
+        } else {
+          nhApplyTheme('light');
+        }
+      })();
+    </script>
   </body>
 </html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{height:30px;opacity:.9}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+
+.main{max-width:640px;margin:0 auto;padding:48px 20px 80px;position:relative;z-index:1}
+
+.page-title{font-size:clamp(26px,5vw,36px);font-weight:700;letter-spacing:-0.8px;margin-bottom:8px}
+.page-title span{color:var(--accent)}
+.page-subtitle{font-size:15px;color:var(--text-secondary);line-height:1.6;margin-bottom:40px}
+
+.form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:0 2px 16px rgba(11,181,200,0.07)}
+
+.field{margin-bottom:22px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px;letter-spacing:-0.1px}
+.field .hint{display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px;font-family:var(--mono)}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border-solid);border-radius:10px;
+  font-size:14px;font-family:var(--font);background:var(--bg-secondary);color:var(--text);
+  transition:border-color .2s,box-shadow .2s;outline:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);
+}
+.field textarea{resize:vertical;min-height:130px;line-height:1.55}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+
+.submit-btn{
+  width:100%;padding:13px 20px;background:var(--accent-amber);color:#fff;border:none;
+  border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:all .2s;letter-spacing:-0.2px;
+}
+.submit-btn:hover{background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+.success-card{
+  background:var(--bg-card);border:1px solid var(--accent-border);border-radius:var(--radius);
+  padding:40px 32px;text-align:center;box-shadow:0 2px 16px rgba(11,181,200,0.07);
+  display:none;
+}
+.success-icon{font-size:40px;margin-bottom:16px}
+.success-card h2{font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:10px;color:var(--accent)}
+.success-card p{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:20px}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;
+  border:1.5px solid var(--border-solid);background:transparent;color:var(--text-muted);
+  font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);
+  text-decoration:none;transition:all .2s;
+}
+.back-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+footer img{height:24px;opacity:0.3;display:block;margin:0 auto 8px}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.main{animation:fadeUp .5s ease-out both}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<header class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img id="header-logo" src="../assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
+      <span class="app-title">NatuurkundeHub</span>
+    </a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Contact</span>
+  </div>
+  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+</header>
+
+<div class="main">
+  <h1 class="page-title">Contact &amp; <span>Feedback</span></h1>
+  <p class="page-subtitle">Heb je een bug gevonden, een idee voor een nieuwe functie, of een vraag? Stuur een bericht.</p>
+
+  <div class="form-card" id="form-wrap">
+    <form name="contact" netlify netlify-honeypot="bot-field" onsubmit="handleSubmit(event)">
+      <input type="hidden" name="form-name" value="contact">
+      <div style="display:none">
+        <label>Niet invullen: <input name="bot-field"></label>
+      </div>
+
+      <div class="field">
+        <label for="naam">Naam <span style="font-weight:400;color:var(--text-muted)">(optioneel)</span></label>
+        <input type="text" id="naam" name="naam" placeholder="Jouw naam" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label for="email">E-mailadres <span style="font-weight:400;color:var(--text-muted)">(optioneel)</span></label>
+        <span class="hint">Vul in als je een antwoord wilt ontvangen</span>
+        <input type="email" id="email" name="email" placeholder="jouw@email.nl" autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label for="onderwerp">Onderwerp</label>
+        <select id="onderwerp" name="onderwerp">
+          <option value="Feedback">Feedback</option>
+          <option value="Bug melden">Bug melden</option>
+          <option value="Vraag">Vraag</option>
+          <option value="Anders">Anders</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="bericht">Bericht <span style="font-weight:400;color:var(--text-muted)">*</span></label>
+        <textarea id="bericht" name="bericht" placeholder="Schrijf je bericht hier..." required></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Verstuur bericht</button>
+    </form>
+  </div>
+
+  <div class="success-card" id="success-wrap">
+    <div class="success-icon">✓</div>
+    <h2>Bericht verzonden!</h2>
+    <p>Bedankt voor je bericht. Als je een e-mailadres hebt achtergelaten, probeer ik zo snel mogelijk te reageren.</p>
+    <a href="/" class="back-btn">← Terug naar NatuurkundeHub</a>
+  </div>
+</div>
+
+<footer>
+  <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+</footer>
+
+<script>
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  const logo=document.getElementById('header-logo');
+  const footerLogo=document.querySelector('.footer-logo');
+  const btn=document.getElementById('theme-btn');
+  const favicon=document.getElementById('favicon');
+  if(theme==='dark'){
+    if(logo) logo.src='../assets/logo/JK_dark.svg';
+    if(footerLogo) footerLogo.src='../assets/logo/JK_white.svg';
+    if(favicon) favicon.href='../assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='☀️';
+  } else {
+    if(logo) logo.src='../assets/logo/JK_light.svg';
+    if(footerLogo) footerLogo.src='../assets/logo/JK_black.svg';
+    if(favicon) favicon.href='../assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme')||'light';
+  const next=current==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',next);
+  applyTheme(next);
+}
+(function(){
+  const saved=localStorage.getItem('nh-theme');
+  if(saved) applyTheme(saved);
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
+  else applyTheme('light');
+})();
+
+function handleSubmit(e){
+  e.preventDefault();
+  const bericht=document.getElementById('bericht').value.trim();
+  if(!bericht) return;
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;
+  btn.textContent='Verzenden...';
+  const form=e.target;
+  const data=new FormData(form);
+  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data).toString()})
+    .then(function(){
+      document.getElementById('form-wrap').style.display='none';
+      document.getElementById('success-wrap').style.display='block';
+    })
+    .catch(function(){
+      btn.disabled=false;
+      btn.textContent='Verstuur bericht';
+      alert('Er ging iets mis. Probeer het opnieuw.');
+    });
+}
+</script>
+
+</body>
+</html>

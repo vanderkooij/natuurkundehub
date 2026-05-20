@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Significantie · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --amber-dim:rgba(212,146,58,0.08);--amber-border:rgba(212,146,58,0.25);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.1);
+  --orange:#d97706;--orange-dim:rgba(217,119,6,0.1);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --amber-dim:rgba(212,146,58,0.1);--amber-border:rgba(212,146,58,0.3);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --orange:#f59e0b;--orange-dim:rgba(245,158,11,0.1);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{height:30px;opacity:.9}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 8px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:14px;color:var(--text-muted);padding-bottom:24px;position:relative;z-index:1;font-family:var(--mono);letter-spacing:.04em}
+.main{max-width:840px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
+
+/* Intro */
+.intro{text-align:center;max-width:580px;margin:0 auto 28px;font-size:15px;color:var(--text-secondary);line-height:1.6}
+
+/* Mode cards (landing) */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:24px}
+.mode-card{background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:var(--radius);padding:22px 22px 18px;box-shadow:0 2px 12px rgba(11,181,200,0.05);position:relative;overflow:hidden;display:flex;flex-direction:column;transition:all .2s}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent)}
+.mode-card--b::before{background:linear-gradient(90deg,var(--accent-amber),transparent)}
+.mode-card--c::before{background:linear-gradient(90deg,#8b5cf6,transparent)}
+.mode-card:hover{transform:translateY(-2px);border-color:var(--accent-border);box-shadow:0 8px 24px rgba(11,181,200,0.10)}
+.mode-card--b:hover{border-color:var(--amber-border);box-shadow:0 8px 24px rgba(212,146,58,0.10)}
+.mode-card--c:hover{border-color:rgba(139,92,246,0.3);box-shadow:0 8px 24px rgba(139,92,246,0.10)}
+.mode-card.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow),0 8px 24px rgba(11,181,200,0.10)}
+.mode-card--b.active{border-color:var(--accent-amber);box-shadow:0 0 0 3px var(--accent-amber-glow),0 8px 24px rgba(212,146,58,0.10)}
+.mode-card--c.active{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,0.18),0 8px 24px rgba(139,92,246,0.10)}
+
+.mode-letter{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:3px 9px;border-radius:6px;display:inline-block;margin-bottom:12px;letter-spacing:1px;align-self:flex-start}
+.mode-card--b .mode-letter{color:var(--accent-amber);background:var(--amber-dim);border-color:var(--amber-border)}
+.mode-card--c .mode-letter{color:#8b5cf6;background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.25)}
+.mode-card h2{font-size:17px;font-weight:700;letter-spacing:-0.3px;margin-bottom:6px;color:var(--text)}
+.mode-card p{font-size:13px;color:var(--text-secondary);line-height:1.55;margin-bottom:14px}
+
+.sub-mode-row{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+.sub-mode-btn{padding:9px 14px;border:1.5px solid var(--border-solid);background:var(--bg-secondary);color:var(--text-secondary);border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;flex:1;min-width:0;white-space:nowrap}
+.sub-mode-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
+.sub-mode-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mode-card--b .sub-mode-btn.primary{background:var(--accent-amber);border-color:var(--accent-amber)}
+.sub-mode-btn.primary:hover{background:#0999aa;color:#fff}
+.mode-card--b .sub-mode-btn.primary:hover{background:#c07d2a;color:#fff}
+.sub-mode-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 6px var(--accent-glow)}
+.mode-card--b .sub-mode-btn.active{background:var(--accent-amber);border-color:var(--accent-amber);box-shadow:0 2px 6px var(--accent-amber-glow)}
+.mode-card--c .sub-mode-btn.active{background:#8b5cf6;border-color:#8b5cf6;color:#fff;box-shadow:0 2px 6px rgba(139,92,246,0.3)}
+
+.exercise-area{display:none}
+.exercise-area.show{display:block;animation:fadeUp .25s ease-out both}
+
+/* Score row */
+.score-row{display:flex;align-items:center;justify-content:space-between;padding:0 4px;margin-bottom:14px;font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.streak{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.streak .flame{font-size:14px;filter:grayscale(1);opacity:.4;transition:all .2s}
+.streak.hot .flame{filter:none;opacity:1}
+.streak.hot{color:var(--accent-amber)}
+.session-score{font-weight:500}
+
+/* Exercise card */
+.exercise-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:28px 26px;box-shadow:0 4px 16px rgba(0,0,0,0.04)}
+.mode-label{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;display:inline-block;margin-bottom:18px}
+
+.question{text-align:center;padding:14px 0 22px;font-size:1.5rem;line-height:1.6;min-height:60px;overflow-x:auto}
+.question .q-text{font-size:15px;color:var(--text-secondary);margin-bottom:14px;font-family:var(--font)}
+.question .q-target{color:var(--accent-amber);font-weight:600}
+
+/* Input */
+.input-block{margin-top:6px}
+.input-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.input-label{font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:-0.1px}
+.help-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border-solid);background:transparent;color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s;line-height:1;display:flex;align-items:center;justify-content:center}
+.help-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.input-row{display:flex;gap:10px}
+.answer-input{flex:1;border:2px solid var(--border-solid);border-radius:10px;padding:12px 14px;font-size:16px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);transition:all .15s}
+.answer-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.answer-input.correct{border-color:var(--green);background:var(--green-dim)}
+.answer-input.wrong{border-color:var(--red);background:var(--red-dim)}
+.answer-input.small{max-width:120px;text-align:center;font-size:18px;font-weight:700}
+
+.preview-wrap{min-height:38px;padding:10px 0 4px;font-size:1.2rem;color:var(--text-secondary);text-align:center;overflow-x:auto}
+.preview-wrap .ph{font-size:12px;color:var(--text-muted);font-family:var(--mono);letter-spacing:.04em}
+
+/* Feedback */
+.feedback{display:none;margin-top:8px;padding:14px 16px;border-radius:10px;border-left:4px solid;font-size:14px;line-height:1.55}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-dim);color:var(--green);border-color:var(--green)}
+.feedback.wrong{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.feedback strong{font-weight:700}
+.feedback .feedback-title{font-weight:700;margin-bottom:4px;font-size:15px}
+.feedback .feedback-body{color:var(--text);font-weight:400}
+.feedback.wrong .feedback-body{color:var(--text-secondary)}
+.feedback .feedback-formula{display:block;margin:8px 0 4px;font-size:1.1rem;text-align:center}
+
+/* Action buttons */
+.actions{margin-top:16px;display:flex;gap:10px}
+.btn{padding:12px 22px;border:none;border-radius:10px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:-0.2px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--accent-amber);color:#fff;flex:1}
+.btn-primary:hover:not(:disabled){background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.btn-primary:disabled{opacity:.4;cursor:default}
+.btn-ghost{background:transparent;border:1.5px solid var(--border-solid);color:var(--text-secondary)}
+.btn-ghost:hover{border-color:var(--accent-border);color:var(--accent)}
+
+/* Help popup */
+.help-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.help-overlay.show{display:flex;animation:fadeIn .15s ease-out}
+.help-popup{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.25);position:relative}
+.help-popup h2{font-size:20px;font-weight:700;letter-spacing:-0.4px;margin-bottom:6px;color:var(--text)}
+.help-popup h2 span{color:var(--accent)}
+.help-popup .help-intro{font-size:14px;color:var(--text-muted);margin-bottom:20px}
+.help-popup h3{font-size:13px;font-weight:700;color:var(--accent-amber);letter-spacing:.06em;text-transform:uppercase;margin:18px 0 8px}
+.help-popup h3:first-of-type{margin-top:0}
+.help-popup table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:10px}
+.help-popup td{padding:7px 10px;border-bottom:1px solid var(--border)}
+.help-popup td:first-child{font-family:var(--mono);color:var(--accent);font-size:13px;white-space:nowrap;width:45%}
+.help-popup td:last-child{color:var(--text-secondary)}
+.help-popup tr:last-child td{border-bottom:none}
+.help-close{position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;border:none;background:var(--bg-secondary);color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.help-close:hover{background:var(--red-dim);color:var(--red)}
+.help-rule{background:var(--accent-dim);border-left:3px solid var(--accent);padding:10px 14px;border-radius:6px;font-size:13px;color:var(--text);margin-bottom:6px}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+footer img{height:24px;opacity:0.3;display:block;margin:0 auto 8px}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.exercise-card{animation:fadeUp .25s ease-out both}
+
+@media (max-width: 680px){
+  .app-header{padding:0 14px}
+  .main{padding:0 14px 60px}
+  .exercise-card{padding:22px 18px}
+  .mode-tab{padding:9px 6px;font-size:13px}
+  .actions{flex-direction:column}
+  .btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<header class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img id="header-logo" src="../assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Significantie</span>
+  </div>
+  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+</header>
+
+<h1 class="tool-name">Significantie</h1>
+<div class="tool-sub">oefenen met significante cijfers</div>
+
+<div class="main">
+
+  <p class="intro">
+    Bij natuurkunde mag je antwoord niet meer precisie suggereren dan je gegevens. Oefen hier met
+    significante cijfers; tellen, afronden, en bij een berekening het juiste aantal cijfers kiezen.
+    Kies hieronder een oefening.
+  </p>
+
+  <div class="cards-grid">
+
+    <div class="mode-card" data-mode-group="A">
+      <div class="mode-letter">A</div>
+      <h2>Tellen</h2>
+      <p>Tel het aantal significante cijfers van een gegeven getal.</p>
+      <div class="sub-mode-row">
+        <button class="sub-mode-btn primary" data-mode="A" type="button">Start →</button>
+      </div>
+    </div>
+
+    <div class="mode-card mode-card--b" data-mode-group="B">
+      <div class="mode-letter">B</div>
+      <h2>Afronden</h2>
+      <p>Schrijf een getal in een gegeven aantal significante cijfers.</p>
+      <div class="sub-mode-row">
+        <button class="sub-mode-btn primary" data-mode="B" type="button">Start →</button>
+      </div>
+    </div>
+
+    <div class="mode-card mode-card--c" data-mode-group="C">
+      <div class="mode-letter">C</div>
+      <h2>Berekenen + afronden</h2>
+      <p>Reken een sommetje uit en rond significant af volgens de regels.</p>
+      <div class="sub-mode-row">
+        <button class="sub-mode-btn" data-mode="C-mix" type="button">Alles</button>
+        <button class="sub-mode-btn" data-mode="C-mult" type="button">× en ÷</button>
+        <button class="sub-mode-btn" data-mode="C-add" type="button">+ en −</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="exercise-area" id="exercise-area">
+
+    <div class="score-row">
+      <span class="streak" id="streak"><span class="flame">🔥</span><span id="streak-num">0</span></span>
+      <span class="session-score" id="session-score">0 / 0 deze sessie</span>
+    </div>
+
+    <div class="exercise-card" id="exercise-card">
+      <div class="mode-label" id="mode-label"></div>
+      <div class="question" id="question"></div>
+
+      <div class="input-block">
+        <div class="input-label-row">
+          <span class="input-label" id="input-label">Jouw antwoord</span>
+          <button class="help-btn" id="help-btn" type="button" title="Notatie-hulp">?</button>
+        </div>
+        <div class="input-row">
+          <input type="text" class="answer-input" id="answer-input" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="preview-wrap" id="preview"><span class="ph">↓ live voorbeeld van wat je typt</span></div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="check-btn">Controleer</button>
+        <button class="btn btn-ghost" id="skip-btn" type="button">Overslaan →</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Help popup -->
+<div class="help-overlay" id="help-overlay">
+  <div class="help-popup">
+    <button class="help-close" id="help-close" type="button" aria-label="Sluiten">×</button>
+    <h2>Hoe noteer je <span>je antwoord</span>?</h2>
+    <p class="help-intro">De tool accepteert verschillende manieren om wetenschappelijke notatie te typen — kies wat voor jou werkt.</p>
+
+    <h3>Wetenschappelijke notatie</h3>
+    <table>
+      <tr><td>3,0e3</td><td>= 3,0·10³</td></tr>
+      <tr><td>3,0*10^3</td><td>= 3,0·10³</td></tr>
+      <tr><td>3,0·10^3</td><td>= 3,0·10³</td></tr>
+      <tr><td>3,0×10^3</td><td>= 3,0·10³</td></tr>
+      <tr><td>3,0·10³</td><td>= 3,0·10³ (Unicode-superscript)</td></tr>
+      <tr><td>3,0e-2</td><td>= 3,0·10⁻² = 0,030</td></tr>
+    </table>
+
+    <h3>Decimaalteken</h3>
+    <table>
+      <tr><td>3,14</td><td>komma (Nederlands)</td></tr>
+      <tr><td>3.14</td><td>punt — ook geaccepteerd</td></tr>
+    </table>
+
+    <h3>Belangrijk: precisie telt</h3>
+    <div class="help-rule"><strong>1</strong> en <strong>1,0</strong> zijn níet hetzelfde antwoord — ze hebben een verschillend aantal significante cijfers.</div>
+    <div class="help-rule"><strong>60</strong> alleen is dubbelzinnig (1 óf 2 sig.cijfers). Bij vraagstukken waar dat ertoe doet, gebruik wetenschappelijke notatie: <strong>6,0·10¹</strong>.</div>
+
+    <h3>De afrondregels</h3>
+    <div class="help-rule">Bij <strong>×</strong> en <strong>÷</strong>: antwoord in het kleinste aantal <strong>significante cijfers</strong> van de gegeven getallen.</div>
+    <div class="help-rule">Bij <strong>+</strong> en <strong>−</strong>: antwoord in het kleinste aantal <strong>decimalen</strong> van de gegeven getallen.</div>
+  </div>
+</div>
+
+<footer>
+  <img id="footer-logo" src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:6px">Feedback of een bug? <a href="/contact/">Laat het weten →</a></div>
+</footer>
+
+<script>
+/* ====================================================================
+   Theme handling
+   ==================================================================== */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  const logo=document.getElementById('header-logo');
+  const footerLogo=document.getElementById('footer-logo');
+  const btn=document.getElementById('theme-btn');
+  const favicon=document.getElementById('favicon');
+  if(theme==='dark'){
+    if(logo) logo.src='../assets/logo/JK_dark.svg';
+    if(footerLogo) footerLogo.src='../assets/logo/JK_white.svg';
+    if(favicon) favicon.href='../assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='☀️';
+  } else {
+    if(logo) logo.src='../assets/logo/JK_light.svg';
+    if(footerLogo) footerLogo.src='../assets/logo/JK_black.svg';
+    if(favicon) favicon.href='../assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const c=document.documentElement.getAttribute('data-theme')||'light';
+  const n=c==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',n);
+  applyTheme(n);
+}
+(function(){
+  const s=localStorage.getItem('nh-theme');
+  if(s) applyTheme(s);
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
+  else applyTheme('light');
+})();
+
+/* ====================================================================
+   Math utilities — sig figs, decimals, rounding
+   ==================================================================== */
+function countSigFigsFromMantissa(mStr){
+  let s = String(mStr).replace(/^[-+]/,'');
+  if(s.includes('.') || s.includes(',')){
+    let d = s.replace(/[.,]/g,'').replace(/^0+/,'');
+    return d.length || 1;
+  }
+  let d = s.replace(/^0+/,'');
+  return d.length || 1;
+}
+
+function parseAnswer(input){
+  if(!input || !input.trim()) return { valid:false, error:'empty' };
+  let s = input.trim();
+  // Unicode superscript exponents → ^digits
+  const sup = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+'};
+  s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, m => '^' + m.split('').map(c=>sup[c]).join(''));
+  // [*·×x] 10 ^ n  →  en
+  s = s.replace(/\s*[\*·×x]\s*10\s*\^\s*\(?\s*([-+]?\d+)\s*\)?/g, 'e$1');
+  const sDot = s.replace(/,/g,'.');
+  const m = sDot.match(/^([-+]?)(\d+(?:\.\d+)?|\.\d+)(?:e([-+]?\d+))?$/i);
+  if(!m) return { valid:false, error:'parse_fail' };
+  const sign = m[1]==='-' ? -1 : 1;
+  const mantissaStr = m[2];
+  const exponent = m[3] ? parseInt(m[3],10) : 0;
+  const value = sign * parseFloat(mantissaStr) * Math.pow(10,exponent);
+  const sigFigs = countSigFigsFromMantissa(mantissaStr);
+  const hasDecimal = mantissaStr.includes('.');
+  const hasTrailingZeros = /[1-9]0+$/.test(mantissaStr);
+  const hasScientific = m[3] !== undefined;
+  const ambiguous = !hasDecimal && hasTrailingZeros && !hasScientific;
+  let decimalPlaces = null;
+  if(!hasScientific){
+    const i = mantissaStr.indexOf('.');
+    decimalPlaces = i === -1 ? 0 : mantissaStr.length - i - 1;
+  }
+  return { valid:true, value, sigFigs, decimalPlaces, ambiguous, hasScientific, mantissaStr, exponent };
+}
+
+function roundToSigFigs(value, n){
+  if(value === 0) return 0;
+  const sign = value < 0 ? -1 : 1;
+  const abs = Math.abs(value);
+  const mag = Math.floor(Math.log10(abs));
+  const factor = Math.pow(10, n - 1 - mag);
+  return sign * Math.round(abs * factor) / factor;
+}
+
+function roundToDecimals(value, d){
+  const f = Math.pow(10, d);
+  return Math.round(value * f) / f;
+}
+
+/* Format expected answer for display */
+function formatNumberPlain(value, decimals){
+  if(decimals < 0) decimals = 0;
+  let str = value.toFixed(decimals);
+  return str.replace('.', ',');
+}
+
+/* Choose between decimal and scientific form for display.
+   For mult/div: must avoid ambiguity (trailing zeros without decimal).
+   For add/sub: prefer plain decimal form. */
+function formatSigFigsLatex(value, sigFigs){
+  if(value === 0) return '0';
+  const sign = value < 0 ? '-' : '';
+  const abs = Math.abs(value);
+  const mag = Math.floor(Math.log10(abs));
+  // Use scientific if integer form would be ambiguous (trailing zeros, no decimal),
+  // OR if number is very small.
+  const decimalsNeeded = sigFigs - 1 - mag;
+  if(decimalsNeeded < 0 || mag <= -3){
+    // Scientific notation
+    const mantissa = abs / Math.pow(10, mag);
+    const mantissaStr = mantissa.toFixed(sigFigs - 1).replace('.', '{,}');
+    return `${sign}${mantissaStr} \\cdot 10^{${mag}}`;
+  }
+  // Decimal form
+  const str = abs.toFixed(decimalsNeeded).replace('.', '{,}');
+  return `${sign}${str}`;
+}
+
+function formatDecimalsLatex(value, decimals){
+  if(decimals < 0) decimals = 0;
+  const str = value.toFixed(decimals).replace('.', '{,}');
+  return str;
+}
+
+function formatNumLatex(value, useScientific){
+  if(useScientific){
+    if(value === 0) return '0';
+    const sign = value < 0 ? '-' : '';
+    const abs = Math.abs(value);
+    const mag = Math.floor(Math.log10(abs));
+    const mantissa = abs / Math.pow(10, mag);
+    // up to 4 decimal places, trim trailing zeros
+    let mStr = mantissa.toFixed(6).replace(/0+$/,'').replace(/\.$/,'').replace('.', '{,}');
+    return `${sign}${mStr} \\cdot 10^{${mag}}`;
+  }
+  return String(value).replace('.', '{,}');
+}
+
+/* ====================================================================
+   Operand model
+   { mantissaStr:'3,0', exponent:0|3, value, sigFigs, decimalsOfMantissa }
+   ==================================================================== */
+
+function makeOperandPlain(mantissaStr){
+  // No scientific notation
+  const sigFigs = countSigFigsFromMantissa(mantissaStr);
+  const sDot = mantissaStr.replace(/,/g,'.');
+  const value = parseFloat(sDot);
+  const i = mantissaStr.indexOf(',');
+  const decimals = i === -1 ? 0 : mantissaStr.length - i - 1;
+  return { mantissaStr, exponent: 0, value, sigFigs, decimals, scientific:false };
+}
+
+function makeOperandSci(mantissaStr, exponent){
+  const sigFigs = countSigFigsFromMantissa(mantissaStr);
+  const sDot = mantissaStr.replace(/,/g,'.');
+  const value = parseFloat(sDot) * Math.pow(10, exponent);
+  return { mantissaStr, exponent, value, sigFigs, decimals: null, scientific:true };
+}
+
+function operandToLatex(op){
+  const m = op.mantissaStr.replace(',','{,}');
+  if(op.scientific){
+    return `${m} \\cdot 10^{${op.exponent}}`;
+  }
+  return m;
+}
+
+/* ====================================================================
+   Generators — Mode A (count sig figs)
+   ==================================================================== */
+
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function genModeA(){
+  // Categories of numbers to count, all unambiguous
+  const variants = ['int_no_trailing', 'decimal_simple', 'decimal_lead_zeros', 'decimal_trailing_zeros', 'scientific'];
+  const v = pick(variants);
+  let mantissaStr, exponent = 0, isSci = false, displayLatex;
+
+  if(v === 'int_no_trailing'){
+    // 26, 278, 4562 — no trailing zeros so unambiguous
+    const digits = randInt(2,5);
+    let s = String(randInt(1,9));
+    for(let i=1;i<digits;i++){
+      // avoid trailing zero on the last digit
+      const d = i === digits-1 ? randInt(1,9) : randInt(0,9);
+      s += String(d);
+    }
+    mantissaStr = s;
+  } else if(v === 'decimal_simple'){
+    // 278,09 — non-zero last digit
+    const intDigits = randInt(1,3);
+    const decDigits = randInt(1,3);
+    let intP = String(randInt(1,9));
+    for(let i=1;i<intDigits;i++) intP += String(randInt(0,9));
+    let decP = '';
+    for(let i=0;i<decDigits-1;i++) decP += String(randInt(0,9));
+    decP += String(randInt(1,9));
+    mantissaStr = intP + ',' + decP;
+  } else if(v === 'decimal_lead_zeros'){
+    // 0,0970 — leading zeros before significant digits
+    const leadZeros = randInt(1,3);
+    const sigDigits = randInt(2,4);
+    let dec = '0'.repeat(leadZeros) + String(randInt(1,9));
+    for(let i=1;i<sigDigits;i++) dec += String(randInt(0,9));
+    mantissaStr = '0,' + dec;
+  } else if(v === 'decimal_trailing_zeros'){
+    // 0,80910 or 3000,7 — ensures trailing zeros do count
+    if(Math.random() < 0.5){
+      // 0,Xxxxx0 — trailing zero in decimal part
+      const sigDigits = randInt(3,5);
+      let dec = String(randInt(1,9));
+      for(let i=1;i<sigDigits-1;i++) dec += String(randInt(0,9));
+      dec += '0';
+      mantissaStr = '0,' + dec;
+    } else {
+      // 3000,7 — internal zeros count + decimal at end
+      const intP = String(randInt(1,9)) + '0'.repeat(randInt(2,3));
+      const decP = String(randInt(1,9));
+      mantissaStr = intP + ',' + decP;
+    }
+  } else if(v === 'scientific'){
+    // 3,4·10⁻³, 0,1250·10⁶
+    const intDigits = randInt(1,2);
+    const decDigits = randInt(1,3);
+    let intP = randInt(0,1) === 0 ? String(randInt(1,9)) : '0';
+    if(intP === '0' && intDigits === 2) intP = '0' + String(randInt(0,9));
+    let decP = '';
+    for(let i=0;i<decDigits-1;i++) decP += String(randInt(0,9));
+    decP += String(randInt(0,9));  // last digit can be zero (it counts in decimals)
+    if(decP === '0'.repeat(decDigits)) decP = decP.slice(0,-1) + String(randInt(1,9));
+    mantissaStr = intP + ',' + decP;
+    exponent = randInt(-12, 12);
+    if(exponent === 0) exponent = pick([-3,-2,2,3,6]);
+    isSci = true;
+  }
+
+  const sigFigs = countSigFigsFromMantissa(mantissaStr);
+  const mantLatex = mantissaStr.replace(',','{,}');
+  displayLatex = isSci ? `${mantLatex} \\cdot 10^{${exponent}}` : mantLatex;
+
+  return {
+    mode: 'A',
+    displayLatex,
+    expectedSigFigs: sigFigs,
+    sourceNumber: { mantissaStr, exponent, scientific: isSci }
+  };
+}
+
+/* ====================================================================
+   Generators — Mode B (round to N sig figs)
+   ==================================================================== */
+
+function genModeB(){
+  // Pick a source number with MORE digits than the target N
+  const n = pick([2,2,2,3,3,4]); // bias toward 2 sig figs
+  const variants = ['big_int', 'small_decimal', 'mid_decimal', 'scientific_source'];
+  const v = pick(variants);
+  let sourceLatex, sourceValue, sourceText;
+
+  if(v === 'big_int'){
+    // 7892000000 → must use scientific in answer
+    const digits = randInt(4,7);
+    let s = String(randInt(1,9));
+    for(let i=1;i<digits;i++) s += String(randInt(0,9));
+    // Pad with zeros
+    const trailing = randInt(0,3);
+    s += '0'.repeat(trailing);
+    sourceValue = parseFloat(s);
+    sourceLatex = s.split('').reverse().reduce((a,c,i) => (i>0 && i%3===0 ? c+a : c+a), '').replace(/\B(?=(\d{3})+(?!\d))/g, '\\,'); // thousand separators
+    sourceLatex = s; // simpler: no thousand separators
+    sourceText = s;
+  } else if(v === 'small_decimal'){
+    // 0,0588
+    const leadZeros = randInt(1,3);
+    const sigDigits = randInt(3,5);
+    let dec = '0'.repeat(leadZeros) + String(randInt(1,9));
+    for(let i=1;i<sigDigits;i++) dec += String(randInt(0,9));
+    sourceText = '0,' + dec;
+    sourceValue = parseFloat(sourceText.replace(',','.'));
+    sourceLatex = sourceText.replace(',','{,}');
+  } else if(v === 'mid_decimal'){
+    // 4,562 or 1,000009
+    const intP = String(randInt(1,9));
+    const decDigits = randInt(3,6);
+    let dec = '';
+    for(let i=0;i<decDigits;i++) dec += String(randInt(0,9));
+    if(dec.replace(/0/g,'').length === 0) dec = dec.slice(0,-1) + String(randInt(1,9));
+    sourceText = intP + ',' + dec;
+    sourceValue = parseFloat(sourceText.replace(',','.'));
+    sourceLatex = sourceText.replace(',','{,}');
+  } else {
+    // Source already in scientific — e.g., 7,89216·10^4
+    const intP = String(randInt(1,9));
+    const decDigits = randInt(3,5);
+    let dec = '';
+    for(let i=0;i<decDigits;i++) dec += String(randInt(0,9));
+    if(dec.replace(/0/g,'').length === 0) dec = dec.slice(0,-1) + String(randInt(1,9));
+    const mant = intP + ',' + dec;
+    const exp = randInt(-10, 12);
+    if(exp === 0){
+      sourceText = mant;
+      sourceValue = parseFloat(mant.replace(',','.'));
+      sourceLatex = mant.replace(',','{,}');
+    } else {
+      sourceText = `${mant}·10^${exp}`;
+      sourceValue = parseFloat(mant.replace(',','.')) * Math.pow(10, exp);
+      sourceLatex = `${mant.replace(',','{,}')} \\cdot 10^{${exp}}`;
+    }
+  }
+
+  const expectedValue = roundToSigFigs(sourceValue, n);
+
+  return {
+    mode: 'B',
+    n,
+    sourceLatex,
+    sourceText,
+    sourceValue,
+    expectedValue,
+    expectedSigFigs: n,
+    expectedLatex: formatSigFigsLatex(expectedValue, n)
+  };
+}
+
+/* ====================================================================
+   Generators — Mode C (calculate + round)
+   ==================================================================== */
+
+function randomMantissa(minSig, maxSig){
+  // Returns a mantissa string like "3,0" or "8,265"
+  const sig = randInt(minSig, maxSig);
+  let s = String(randInt(1,9));
+  if(sig === 1) return s;
+  s += ',';
+  for(let i=1;i<sig-1;i++) s += String(randInt(0,9));
+  // Last digit: avoid trailing zero so sigFigs is unambiguous
+  s += String(randInt(1,9));
+  // But occasionally include an internal trailing zero like "3,0" — sig=2 means one digit after comma
+  // Actually: we want occasionally to end in 0 to teach the "trailing 0 counts" rule.
+  // Re-roll: 30% chance the last digit is 0
+  if(Math.random() < 0.35 && sig > 1){
+    s = s.slice(0,-1) + '0';
+  }
+  return s;
+}
+
+function genOperandMultDiv(){
+  // Sometimes plain, sometimes scientific
+  if(Math.random() < 0.4){
+    // Plain decimal
+    const mant = randomMantissa(2,4);
+    return makeOperandPlain(mant);
+  }
+  // Scientific
+  const mant = randomMantissa(2,4);
+  const exp = pick([-12,-8,-6,-5,-3,-2,2,3,4,5,6,8,10,14]);
+  return makeOperandSci(mant, exp);
+}
+
+function genOperandAddSub(){
+  // For add/sub, no scientific notation (rarely used in practice)
+  // Generate a number with a specific number of decimal places, varying ranges
+  const decimals = randInt(0,3);
+  const intDigits = randInt(1,3);
+  let intP = String(randInt(1,9));
+  for(let i=1;i<intDigits;i++) intP += String(randInt(0,9));
+  // Occasionally use trailing-zero integer like "60" — for these we use the unambiguous form (0 decimals)
+  if(decimals === 0){
+    return makeOperandPlain(intP);
+  }
+  let dec = '';
+  for(let i=0;i<decimals-1;i++) dec += String(randInt(0,9));
+  dec += String(randInt(1,9)); // last digit non-zero to keep decimals count clear
+  return makeOperandPlain(intP + ',' + dec);
+}
+
+function genModeC(filter){
+  // filter: 'mix' | 'mult' | 'add'
+  if(filter === 'mult') return genMultDivQuestion();
+  if(filter === 'add')  return genAddSubQuestion();
+  // mix: bias slightly toward mult/div (more common in physics)
+  return Math.random() < 0.6 ? genMultDivQuestion() : genAddSubQuestion();
+}
+
+function genMultDivQuestion(){
+  const op = Math.random() < 0.5 ? '*' : '/';
+  let a = genOperandMultDiv();
+  let b = genOperandMultDiv();
+  // Avoid: same sig figs (less interesting), divide-by-very-small, exact integers
+  if(a.sigFigs === b.sigFigs && Math.random() < 0.6){
+    // Force different sig figs
+    b = genOperandMultDiv();
+    if(a.sigFigs === b.sigFigs && b.sigFigs > 2){
+      // Trim b's mantissa to fewer sig figs
+      const bMant = b.mantissaStr;
+      const newMant = bMant.length > 3 ? bMant.slice(0, bMant.indexOf(',') + 2) : bMant;
+      b = b.scientific ? makeOperandSci(newMant, b.exponent) : makeOperandPlain(newMant);
+    }
+  }
+  if(op === '/' && Math.abs(b.value) < 1e-15) b = genOperandMultDiv();
+
+  const exact = op === '*' ? a.value * b.value : a.value / b.value;
+  const requiredSigFigs = Math.min(a.sigFigs, b.sigFigs);
+  const rounded = roundToSigFigs(exact, requiredSigFigs);
+  const bottleneck = a.sigFigs <= b.sigFigs ? a : b;
+  const richer = a.sigFigs > b.sigFigs ? a : b;
+
+  // Build LaTeX
+  let latex;
+  if(op === '/'){
+    latex = `\\dfrac{${operandToLatex(a)}}{${operandToLatex(b)}}`;
+  } else {
+    latex = `${operandToLatex(a)} \\cdot ${operandToLatex(b)}`;
+  }
+
+  return {
+    mode: 'C',
+    type: 'mult',
+    operator: op,
+    a, b,
+    exactValue: exact,
+    rounded,
+    requiredSigFigs,
+    bottleneck,
+    richer,
+    latex,
+    expectedLatex: formatSigFigsLatex(rounded, requiredSigFigs)
+  };
+}
+
+/* Tricky case: engineer two operands whose sum/difference ends in a trailing zero,
+   so students must keep the zero (e.g., 9,1 + 0,9 = 10,0). */
+function genTrickyAddSubOperands(op){
+  const d = randInt(1, 2); // 1 or 2 decimals on both operands
+  if(op === '+'){
+    // last decimals must sum to 10 → result's last decimal = 0 (with carry)
+    const a_last = randInt(1, 9);
+    const b_last = 10 - a_last;
+    let aDec = '', bDec = '';
+    for(let i=0;i<d-1;i++){
+      aDec += String(randInt(0,9));
+      bDec += String(randInt(0,9));
+    }
+    aDec += String(a_last);
+    bDec += String(b_last);
+    const aInt = String(randInt(0, 9));
+    const bInt = String(randInt(0, 9));
+    return [
+      makeOperandPlain(aInt + ',' + aDec),
+      makeOperandPlain(bInt + ',' + bDec)
+    ];
+  } else {
+    // minus: force last decimals equal → difference's last decimal = 0
+    const last = randInt(1, 9);
+    let aDec = '', bDec = '';
+    for(let i=0;i<d-1;i++){
+      aDec += String(randInt(0,9));
+      bDec += String(randInt(0,9));
+    }
+    aDec += String(last);
+    bDec += String(last);
+    const aInt = randInt(2, 9);
+    const bInt = randInt(0, aInt - 1);
+    return [
+      makeOperandPlain(String(aInt) + ',' + aDec),
+      makeOperandPlain(String(bInt) + ',' + bDec)
+    ];
+  }
+}
+
+function genAddSubQuestion(){
+  const op = Math.random() < 0.5 ? '+' : '-';
+  let a, b;
+
+  // ~30% chance: tricky trailing-zero case (forces students to keep the zero,
+  //              like 9,1 + 0,9 = 10,0)
+  if(Math.random() < 0.3){
+    [a, b] = genTrickyAddSubOperands(op);
+  } else {
+    a = genOperandAddSub();
+    b = genOperandAddSub();
+    // Encourage different decimal counts (more instructive)
+    let tries = 0;
+    while(a.decimals === b.decimals && tries < 4){
+      b = genOperandAddSub();
+      tries++;
+    }
+  }
+  // Avoid result that's essentially zero or tiny
+  if(op === '-' && Math.abs(a.value - b.value) < 0.01){
+    // Re-roll b smaller
+    b = genOperandAddSub();
+  }
+  const exact = op === '+' ? a.value + b.value : a.value - b.value;
+  const requiredDecimals = Math.min(a.decimals, b.decimals);
+  const rounded = roundToDecimals(exact, requiredDecimals);
+  const bottleneck = a.decimals <= b.decimals ? a : b;
+  const richer = a.decimals > b.decimals ? a : b;
+
+  const aL = operandToLatex(a);
+  const bL = operandToLatex(b);
+  const latex = `${aL} ${op === '+' ? '+' : '-'} ${bL}`;
+
+  return {
+    mode: 'C',
+    type: 'add',
+    operator: op,
+    a, b,
+    exactValue: exact,
+    rounded,
+    requiredDecimals,
+    bottleneck,
+    richer,
+    latex,
+    expectedLatex: formatDecimalsLatex(rounded, requiredDecimals)
+  };
+}
+
+/* ====================================================================
+   Checkers — compare student answer to expected
+   ==================================================================== */
+
+function checkModeA(input, expected){
+  const n = parseInt(input.trim(), 10);
+  if(!Number.isFinite(n) || n < 1){
+    return { ok:false, reason:'parse', title:'Geen geldig getal',
+             body:`Vul het aantal significante cijfers in als een geheel getal.` };
+  }
+  if(n === expected){
+    return { ok:true, title:'Goed!', body:`Dit getal heeft inderdaad <strong>${expected}</strong> significante cijfers.` };
+  }
+  return {
+    ok:false, reason:'wrong_count',
+    title:`Niet correct — antwoord is ${expected}`,
+    body:`Onthoud: <strong>voorloop-nullen tellen niet mee</strong>, maar nullen na een cijfer ongelijk aan nul (zoals in 0,80910) en tussen cijfers wél. Bij wetenschappelijke notatie tellen alleen de cijfers vóór ·10ⁿ.`
+  };
+}
+
+function checkModeB(input, q){
+  const parsed = parseAnswer(input);
+  if(!parsed.valid){
+    return { ok:false, reason:'parse', title:'Notatie niet herkend',
+             body:`Bekijk de notatie-hulp (?) voor de geaccepteerde manieren om je antwoord te schrijven.` };
+  }
+  if(parsed.ambiguous){
+    return {
+      ok:false, reason:'ambiguous',
+      title:'Dubbelzinnige precisie',
+      body:`Je schreef <code>${input}</code>. Dat is dubbelzinnig: het kan ${parsed.sigFigs===1?'1':'meerdere aantallen'} sig.cijfers betekenen. Gebruik wetenschappelijke notatie zodat ondubbelzinnig is dat het er ${q.n} zijn — bijvoorbeeld het verwachte antwoord:`,
+      formulaLatex: q.expectedLatex
+    };
+  }
+  if(parsed.sigFigs !== q.n){
+    return {
+      ok:false, reason:'wrong_sig_count',
+      title:`Verkeerd aantal sig.cijfers — je gaf er ${parsed.sigFigs}, gevraagd ${q.n}`,
+      body:`Het gevraagde antwoord is:`,
+      formulaLatex: q.expectedLatex
+    };
+  }
+  const tol = Math.max(Math.abs(q.expectedValue) * 1e-6, 1e-12);
+  if(Math.abs(parsed.value - q.expectedValue) > Math.abs(q.expectedValue) * 0.01){
+    return {
+      ok:false, reason:'wrong_value',
+      title:'Verkeerde afronding',
+      body:`Je antwoord heeft wel ${q.n} sig.cijfers, maar de waarde klopt niet. Correct antwoord:`,
+      formulaLatex: q.expectedLatex
+    };
+  }
+  return { ok:true, title:'Goed!', body:`Mooi afgerond op ${q.n} sig.cijfers.` };
+}
+
+function checkModeC(input, q){
+  const parsed = parseAnswer(input);
+  if(!parsed.valid){
+    return { ok:false, reason:'parse', title:'Notatie niet herkend',
+             body:`Bekijk de notatie-hulp (?) voor de geaccepteerde notaties.` };
+  }
+
+  // Check mathematical value (against the EXACT, not rounded — within generous tolerance)
+  const exactTol = Math.max(Math.abs(q.exactValue) * 0.005, 1e-12);
+  const roundedTol = Math.max(Math.abs(q.rounded) * 1e-6, 1e-12);
+  // If the value is way off from the exact result → rekenfout
+  if(Math.abs(parsed.value - q.exactValue) > Math.abs(q.exactValue) * 0.1 + 0.001){
+    return {
+      ok:false, reason:'calc_error',
+      title:'Rekenfout',
+      body:`De waarde van je antwoord klopt niet. Bereken eerst met de rekenmachine, en rond daarna af. Correct antwoord:`,
+      formulaLatex: q.expectedLatex
+    };
+  }
+
+  if(q.type === 'mult'){
+    if(parsed.ambiguous){
+      return {
+        ok:false, reason:'ambiguous',
+        title:'Dubbelzinnige precisie',
+        body:`Je antwoord <code>${input}</code> is dubbelzinnig in aantal sig.cijfers. Bij <strong>×</strong> en <strong>÷</strong> geldt: kleinste aantal sig.cijfers van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft ${q.bottleneck.sigFigs} sig.cijfers, dus het antwoord ook. Verwacht:`,
+        formulaLatex: q.expectedLatex
+      };
+    }
+    if(parsed.sigFigs !== q.requiredSigFigs){
+      return {
+        ok:false, reason:'wrong_sig_count',
+        title:`Verkeerd aantal sig.cijfers (je gaf er ${parsed.sigFigs}, moet ${q.requiredSigFigs})`,
+        body:`Bij <strong>×</strong> en <strong>÷</strong> noteer je het antwoord in het kleinste aantal sig.cijfers van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft er ${q.bottleneck.sigFigs}, <strong>${q.richer.mantissaStr}</strong> heeft er ${q.richer.sigFigs} → antwoord met ${q.requiredSigFigs}. Verwacht:`,
+        formulaLatex: q.expectedLatex
+      };
+    }
+    // Value is right, precision is right
+    if(Math.abs(parsed.value - q.rounded) > Math.abs(q.rounded) * 0.01){
+      return {
+        ok:false, reason:'rounding',
+        title:'Afronding klopt niet',
+        body:`Je hebt het juiste aantal sig.cijfers, maar de afronding zelf klopt niet. Verwacht:`,
+        formulaLatex: q.expectedLatex
+      };
+    }
+    return {
+      ok:true,
+      title:'Goed!',
+      body:`Bij ×/÷ telt het kleinste aantal sig.cijfers: <strong>${q.bottleneck.sigFigs}</strong> (van het getal ${q.bottleneck.mantissaStr}).`
+    };
+  } else {
+    // add/sub
+    if(parsed.hasScientific){
+      return {
+        ok:false, reason:'no_scientific_for_addsub',
+        title:'Gebruik gewone decimale notatie',
+        body:`Bij <strong>+</strong> en <strong>−</strong> draait het om decimalen, niet om sig.cijfers. Schrijf je antwoord als gewone decimaal:`,
+        formulaLatex: q.expectedLatex
+      };
+    }
+    if(parsed.decimalPlaces !== q.requiredDecimals){
+      return {
+        ok:false, reason:'wrong_decimals',
+        title:`Verkeerd aantal decimalen (je gaf er ${parsed.decimalPlaces}, moet ${q.requiredDecimals})`,
+        body:`Bij <strong>+</strong> en <strong>−</strong> noteer je het antwoord in het kleinste aantal decimalen van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft ${q.bottleneck.decimals} decimalen, <strong>${q.richer.mantissaStr}</strong> heeft er ${q.richer.decimals} → antwoord met ${q.requiredDecimals}. Verwacht:`,
+        formulaLatex: q.expectedLatex
+      };
+    }
+    if(Math.abs(parsed.value - q.rounded) > Math.pow(10, -q.requiredDecimals) * 0.6){
+      return {
+        ok:false, reason:'rounding',
+        title:'Afronding klopt niet',
+        body:`Je hebt het juiste aantal decimalen, maar de afronding zelf klopt niet. Verwacht:`,
+        formulaLatex: q.expectedLatex
+      };
+    }
+    return {
+      ok:true,
+      title:'Goed!',
+      body:`Bij +/− telt het kleinste aantal decimalen: <strong>${q.bottleneck.decimals}</strong> (van het getal ${q.bottleneck.mantissaStr}).`
+    };
+  }
+}
+
+/* ====================================================================
+   Live preview rendering
+   ==================================================================== */
+
+function inputToPreviewLatex(input){
+  if(!input || !input.trim()) return null;
+  const parsed = parseAnswer(input);
+  if(!parsed.valid) return { error:true, msg:'kan deze notatie niet lezen' };
+  if(parsed.hasScientific){
+    const mant = parsed.mantissaStr.replace('.','{,}');
+    return { latex: `${mant} \\cdot 10^{${parsed.exponent}}`, ambiguous: parsed.ambiguous, sigFigs: parsed.sigFigs };
+  }
+  const mant = parsed.mantissaStr.replace('.','{,}');
+  return { latex: mant, ambiguous: parsed.ambiguous, sigFigs: parsed.sigFigs, decimalPlaces: parsed.decimalPlaces };
+}
+
+/* ====================================================================
+   State & UI
+   ==================================================================== */
+
+const MODES = ['A','B','C-mix','C-mult','C-add'];
+const state = {
+  mode: null,           // null on landing; one of MODES once a card is clicked
+  current: null,
+  awaiting: 'check',    // 'check' or 'next'
+  streak: { A:0, B:0, 'C-mix':0, 'C-mult':0, 'C-add':0 },
+  score:  { A:{right:0,total:0}, B:{right:0,total:0},
+            'C-mix':{right:0,total:0}, 'C-mult':{right:0,total:0}, 'C-add':{right:0,total:0} }
+};
+
+const ui = {
+  exerciseArea: document.getElementById('exercise-area'),
+  modeLabel: document.getElementById('mode-label'),
+  question: document.getElementById('question'),
+  inputLabel: document.getElementById('input-label'),
+  input: document.getElementById('answer-input'),
+  preview: document.getElementById('preview'),
+  feedback: document.getElementById('feedback'),
+  checkBtn: document.getElementById('check-btn'),
+  skipBtn: document.getElementById('skip-btn'),
+  streakEl: document.getElementById('streak'),
+  streakNum: document.getElementById('streak-num'),
+  sessionScore: document.getElementById('session-score'),
+  cards: document.querySelectorAll('.mode-card'),
+  subBtns: document.querySelectorAll('.sub-mode-btn')
+};
+
+function renderKatex(el, latex){
+  if(!el) return;
+  if(window.katex){
+    try { katex.render(latex, el, { throwOnError:false, displayMode:false, output:'html' }); }
+    catch(e){ el.textContent = latex; }
+  } else {
+    // KaTeX may not be loaded yet — retry
+    setTimeout(() => renderKatex(el, latex), 80);
+  }
+}
+
+function modeDescriptor(mode){
+  return {
+    'A':      { label: 'A · tel de significante cijfers',              inputLabel: 'Aantal significante cijfers' },
+    'B':      { label: 'B · schrijf in N significante cijfers',        inputLabel: 'Jouw antwoord' },
+    'C-mix':  { label: 'C · berekenen + afronden (alles)',             inputLabel: 'Jouw antwoord' },
+    'C-mult': { label: 'C · berekenen + afronden (× en ÷)',            inputLabel: 'Jouw antwoord' },
+    'C-add':  { label: 'C · berekenen + afronden (+ en −)',            inputLabel: 'Jouw antwoord' }
+  }[mode];
+}
+
+function setActiveCard(mode){
+  ui.cards.forEach(c => c.classList.remove('active'));
+  ui.subBtns.forEach(b => b.classList.remove('active'));
+  if(!mode) return;
+  const group = mode.startsWith('C') ? 'C' : mode;
+  const card = document.querySelector(`.mode-card[data-mode-group="${group}"]`);
+  if(card) card.classList.add('active');
+  const btn = document.querySelector(`.sub-mode-btn[data-mode="${mode}"]`);
+  if(btn) btn.classList.add('active');
+}
+
+function newQuestion(){
+  state.awaiting = 'check';
+  ui.feedback.classList.remove('show','ok','wrong');
+  ui.feedback.innerHTML = '';
+  ui.input.classList.remove('correct','wrong');
+  ui.input.value = '';
+  ui.input.disabled = false;
+  ui.checkBtn.textContent = 'Controleer';
+  ui.checkBtn.disabled = false;
+  ui.skipBtn.textContent = 'Overslaan →';
+
+  const desc = modeDescriptor(state.mode);
+  ui.modeLabel.textContent = desc.label;
+  ui.inputLabel.textContent = desc.inputLabel;
+
+  if(state.mode === 'A'){
+    state.current = genModeA();
+    ui.input.classList.add('small');
+    ui.input.type = 'number';
+    ui.input.min = '1';
+    ui.input.placeholder = 'bv. 3';
+    ui.input.inputMode = 'numeric';
+    ui.question.innerHTML = `<div class="q-text">Hoeveel significante cijfers heeft dit getal?</div><div id="q-render"></div>`;
+    renderKatex(document.getElementById('q-render'), state.current.displayLatex);
+    ui.preview.innerHTML = '<span class="ph">type een geheel getal</span>';
+  } else if(state.mode === 'B'){
+    state.current = genModeB();
+    ui.input.classList.remove('small');
+    ui.input.type = 'text';
+    ui.input.placeholder = 'bv. 3,0·10^3';
+    ui.input.removeAttribute('inputMode');
+    ui.question.innerHTML = `<div class="q-text">Schrijf het volgende getal in <span class="q-target">${state.current.n} significante cijfers</span>:</div><div id="q-render"></div>`;
+    renderKatex(document.getElementById('q-render'), state.current.sourceLatex);
+    ui.preview.innerHTML = '<span class="ph">↓ live voorbeeld van wat je typt</span>';
+  } else {
+    // C-mix, C-mult, C-add
+    const filter = state.mode === 'C-mult' ? 'mult' : (state.mode === 'C-add' ? 'add' : 'mix');
+    state.current = genModeC(filter);
+    ui.input.classList.remove('small');
+    ui.input.type = 'text';
+    ui.input.placeholder = 'bv. 3,0·10^3';
+    ui.input.removeAttribute('inputMode');
+    ui.question.innerHTML = `<div class="q-text">Bereken en rond significant af:</div><div id="q-render"></div>`;
+    renderKatex(document.getElementById('q-render'), state.current.latex + ' =');
+    ui.preview.innerHTML = '<span class="ph">↓ live voorbeeld van wat je typt</span>';
+  }
+  ui.input.focus();
+}
+
+function updatePreview(){
+  if(state.mode === 'A'){
+    // No KaTeX preview for A — just shows a hint
+    return;
+  }
+  const v = ui.input.value;
+  if(!v.trim()){
+    ui.preview.innerHTML = '<span class="ph">↓ live voorbeeld van wat je typt</span>';
+    return;
+  }
+  const r = inputToPreviewLatex(v);
+  if(!r) return;
+  if(r.error){
+    ui.preview.innerHTML = `<span class="ph" style="color:var(--red)">notatie nog niet herkend — typ verder</span>`;
+    return;
+  }
+  ui.preview.innerHTML = '<span id="prev-render"></span>';
+  renderKatex(document.getElementById('prev-render'), r.latex);
+  if(r.ambiguous){
+    const note = document.createElement('div');
+    note.style.fontSize = '11px';
+    note.style.color = 'var(--text-muted)';
+    note.style.fontFamily = 'var(--mono)';
+    note.style.marginTop = '4px';
+    note.textContent = 'let op: aantal sig.cijfers is dubbelzinnig';
+    ui.preview.appendChild(note);
+  }
+}
+
+function setStreak(mode, value){
+  state.streak[mode] = value;
+  if(state.mode === mode){
+    ui.streakNum.textContent = String(value);
+    if(value >= 3){
+      ui.streakEl.classList.add('hot');
+    } else {
+      ui.streakEl.classList.remove('hot');
+    }
+  }
+}
+function refreshStreakDisplay(){
+  const v = state.streak[state.mode];
+  ui.streakNum.textContent = String(v);
+  ui.streakEl.classList.toggle('hot', v >= 3);
+}
+function refreshScoreDisplay(){
+  const s = state.score[state.mode];
+  ui.sessionScore.textContent = `${s.right} / ${s.total} deze sessie`;
+}
+
+function showFeedback(result){
+  ui.feedback.classList.remove('ok','wrong');
+  ui.feedback.classList.add('show', result.ok ? 'ok' : 'wrong');
+  let html = `<div class="feedback-title">${result.title}</div><div class="feedback-body">${result.body || ''}</div>`;
+  if(result.formulaLatex){
+    html += `<div class="feedback-formula" id="fb-formula"></div>`;
+  }
+  ui.feedback.innerHTML = html;
+  if(result.formulaLatex){
+    renderKatex(document.getElementById('fb-formula'), result.formulaLatex);
+  }
+}
+
+function onCheck(){
+  if(state.awaiting === 'next'){
+    newQuestion();
+    return;
+  }
+  const input = ui.input.value;
+  let result;
+  if(state.mode === 'A') result = checkModeA(input, state.current.expectedSigFigs);
+  else if(state.mode === 'B') result = checkModeB(input, state.current);
+  else result = checkModeC(input, state.current);
+
+  // Update score
+  state.score[state.mode].total += 1;
+  if(result.ok){
+    state.score[state.mode].right += 1;
+    setStreak(state.mode, state.streak[state.mode] + 1);
+    ui.input.classList.add('correct');
+  } else {
+    setStreak(state.mode, 0);
+    ui.input.classList.add('wrong');
+  }
+  refreshScoreDisplay();
+  showFeedback(result);
+
+  state.awaiting = 'next';
+  ui.checkBtn.textContent = 'Volgende →';
+  ui.skipBtn.textContent = 'Nieuwe opgave';
+  ui.input.disabled = true;
+}
+
+function onSkip(){
+  if(state.awaiting === 'check'){
+    // Just skip without scoring
+    setStreak(state.mode, 0);
+  }
+  newQuestion();
+}
+
+function switchMode(mode){
+  const wasActive = state.mode === mode;
+  state.mode = mode;
+  setActiveCard(mode);
+  ui.exerciseArea.classList.add('show');
+  refreshStreakDisplay();
+  refreshScoreDisplay();
+  newQuestion();
+  // Scroll to exercise area so the student sees the question
+  if(!wasActive){
+    setTimeout(() => {
+      ui.exerciseArea.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 50);
+  }
+}
+
+/* Wire up */
+ui.subBtns.forEach(b => b.addEventListener('click', () => switchMode(b.dataset.mode)));
+ui.checkBtn.addEventListener('click', onCheck);
+ui.skipBtn.addEventListener('click', onSkip);
+ui.input.addEventListener('input', updatePreview);
+ui.input.addEventListener('keydown', e => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    onCheck();
+  }
+});
+
+// Help popup
+const helpOverlay = document.getElementById('help-overlay');
+document.getElementById('help-btn').addEventListener('click', () => helpOverlay.classList.add('show'));
+document.getElementById('help-close').addEventListener('click', () => helpOverlay.classList.remove('show'));
+helpOverlay.addEventListener('click', e => {
+  if(e.target === helpOverlay) helpOverlay.classList.remove('show');
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && helpOverlay.classList.contains('show')){
+    helpOverlay.classList.remove('show');
+  }
+});
+
+// Initial render — wait for KaTeX to load
+function waitForKatex(cb, tries){
+  tries = tries || 0;
+  if(window.katex){ cb(); return; }
+  if(tries > 50) { cb(); return; }
+  setTimeout(() => waitForKatex(cb, tries + 1), 80);
+}
+// On load: landing state (no exercise visible) — KaTeX still needs to be ready
+// for when a card is clicked.
+waitForKatex(() => { /* ready */ });
+
+</script>
+</body>
+</html>
