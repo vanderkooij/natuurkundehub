@@ -1,0 +1,165 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * NatuurkundeHub design tokens — identiek aan mockup-analyse.html.
+ * Wijzigingen hier moeten ook in andere NH-tools doorgevoerd worden.
+ */
+:root {
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #eef6f7;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0fafb;
+
+  --accent: #0bb5c8;
+  --accent-glow: rgba(11, 181, 200, 0.2);
+  --accent-amber: #d4923a;
+  --accent-amber-glow: rgba(212, 146, 58, 0.2);
+  /* 07f: fit-curve kleur — paars (Tailwind purple-500), visueel onderscheiden
+     van scatter (teal/accent) en raaklijn (amber). Toegepast op alle drie
+     fit-zones; alleen opacity/dash varieert per zone. */
+  --fit-color: #a855f7;
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #2d2d4a;
+  --text-muted: #64748b;
+
+  --border: rgba(11, 181, 200, 0.12);
+  --border-hover: rgba(11, 181, 200, 0.45);
+  --border-solid: #d4e8ec;
+
+  --radius: 14px;
+  --header-h: 56px;
+  --workflow-h: 50px;
+
+  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Tracking-trail tokens — tunable maten en kleuren voor TrailOverlay. */
+  --track-dot-radius: 3px;
+  --track-dot-active-radius: 5px;
+  --track-trail-stroke-width: 1px;
+
+  --trail-dot: #0d9488;
+  --trail-ring: #ffffff;
+  --trail-line-opacity: 0.6;
+}
+
+[data-trail-color="teal"] {
+  --trail-dot: #0d9488;
+  --trail-ring: #ffffff;
+  --trail-line-opacity: 0.6;
+}
+[data-trail-color="amber"] {
+  --trail-dot: #f59e0b;
+  --trail-ring: #ffffff;
+  --trail-line-opacity: 0.6;
+}
+[data-trail-color="magenta"] {
+  --trail-dot: #d946ef;
+  --trail-ring: #ffffff;
+  --trail-line-opacity: 0.6;
+}
+[data-trail-color="white"] {
+  --trail-dot: #ffffff;
+  --trail-ring: #0f1117;
+  --trail-line-opacity: 0.7;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0f1117;
+  --bg-secondary: #161b26;
+  --bg-card: #1c2333;
+  --bg-card-hover: #222b3d;
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border: rgba(11, 181, 200, 0.08);
+  --border-hover: rgba(11, 181, 200, 0.45);
+  --border-solid: #1e2d44;
+}
+
+/*
+ * Map NH tokens into Tailwind utilities (bg-card, text-muted, border-border, etc.).
+ * Plus the radii used by shadcn primitives.
+ */
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-card);
+  --color-card-foreground: var(--text-primary);
+  --color-card-hover: var(--bg-card-hover);
+  --color-popover: var(--bg-card);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--bg-secondary);
+  --color-secondary-foreground: var(--text-secondary);
+  --color-muted: var(--bg-secondary);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: #ffffff;
+  --color-accent-amber: var(--accent-amber);
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--border);
+  --color-border-solid: var(--border-solid);
+  --color-input: var(--border-solid);
+  --color-ring: var(--accent);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    transition:
+      background 0.3s,
+      color 0.3s;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Default border color so shadcn primitives that use `border` look right. */
+  *:where([class*="border"]) {
+    border-color: var(--border-solid);
+  }
+}
+
+@layer utilities {
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
+}

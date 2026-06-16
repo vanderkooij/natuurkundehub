@@ -7,6 +7,12 @@ npm install
 npm run build
 cd ..
 
+# Build de Videometen Vite app
+cd videometen
+npm install
+npm run build
+cd ..
+
 # Maak de output map aan
 rm -rf dist
 mkdir -p dist
@@ -33,3 +39,6 @@ cp -r contact dist/contact
 
 # Kopieer de gebouwde CircuitSketch app
 cp -r circuitsketch/dist dist/circuitsketch
+
+# Kopieer de gebouwde Videometen app
+cp -r videometen/dist dist/videometen

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Videometen · NatuurkundeHub</title>
+    <meta
+      name="description"
+      content="Analyseer bewegingen in video's frame voor frame — drempelloos, in de browser."
+    />
+    <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_light.svg" id="favicon" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Apply nh-theme before body render to prevent FOUC.
+      (function () {
+        try {
+          const saved = localStorage.getItem("nh-theme");
+          const prefersDark =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const theme = saved ? saved : prefersDark ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+          const favicon = document.getElementById("favicon");
+          if (favicon) {
+            favicon.href = theme === "dark" ? "../assets/logo/JK_dark.svg" : "../assets/logo/JK_light.svg";
+          }
+        } catch (_) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

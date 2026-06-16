@@ -14,7 +14,7 @@ const CATS_DATA=[
     {lv:'ob',naam:'volume',sym:'V',eenh:'kubieke meter',esym:'m³'},
     {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule; kilowattuur',esym:'J; kWh'},
     {lv:'ob',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
-    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW'},
+    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW; J/s'},
     {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde',esym:'kg·m/s; kg m s⁻¹'},
     {lv:'hv',naam:'moment',sym:'M',eenh:'newton meter',esym:'N·m; Nm; J'},
