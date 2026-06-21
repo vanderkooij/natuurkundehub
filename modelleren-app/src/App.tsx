@@ -292,7 +292,11 @@ export function App() {
 
       <div className="page-wrap">
         <h1 className="tool-name">Modelleren</h1>
-        <p className="tool-sub">React-versie (in opbouw) · zelfde reken-engine als de huidige tool</p>
+        <p className="tool-sub">
+          Begin bij <strong style={{ color: "var(--accent)" }}>Leer modelleren</strong> voor een
+          begeleide introductie, gebruik de <strong>Voorbeeldmodellen</strong> om snel te starten,
+          of bouw direct je eigen model.
+        </p>
 
         {/* Boven: startwaarden + modelregels naast elkaar */}
         <div className="input-row">
