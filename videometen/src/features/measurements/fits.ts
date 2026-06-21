@@ -19,7 +19,7 @@ import {
   type Fit1D,
   type FitType,
 } from "@/_reusable/fit";
-import { type ChartPoint } from "@/_reusable/InteractiveChart";
+import { type ChartPoint } from "@nh/shared/InteractiveChart";
 import { type MeasurementRow } from "@/features/measurements/derive";
 import { type GraphTypeKey } from "@/features/measurements/graph-types";
 import { type FitConfig } from "@/features/measurements/GraphsLayoutState";

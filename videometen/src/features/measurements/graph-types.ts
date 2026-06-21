@@ -3,7 +3,7 @@
  * hoe een `MeasurementRow` om te zetten naar een (x, y) en welke labels +
  * minimum-puntenaantal nodig zijn. Tool-specifiek; geen reusable.
  */
-import { type ChartPoint } from "@/_reusable/InteractiveChart";
+import { type ChartPoint } from "@nh/shared/InteractiveChart";
 import { type LengthUnit } from "@/features/calibration/CalibrationState";
 import { type MeasurementRow } from "@/features/measurements/derive";
 

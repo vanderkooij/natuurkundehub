@@ -33,9 +33,9 @@ import {
   type ScatterDataPoint,
 } from "chart.js";
 
-import { ensureChartPluginsRegistered } from "@/_reusable/chart-plugins";
-import { niceAxis } from "@/_reusable/niceAxis";
-import { useThemeColors, type ThemeColors } from "@/_reusable/useThemeColors";
+import { ensureChartPluginsRegistered } from "./chart-plugins";
+import { niceAxis } from "./niceAxis";
+import { useThemeColors, type ThemeColors } from "./useThemeColors";
 
 ensureChartPluginsRegistered();
 
@@ -191,6 +191,12 @@ export interface InteractiveChartProps {
   onChartReady?: (chart: Chart | null) => void;
   /** As-sleep aan/uit per as. Default: beide aan. */
   axisDrag?: AxisDragConfig;
+  /**
+   * Compacte puntmarkers: kleinere radius (1,5/2 i.p.v. 3/3,5) en hover (5
+   * i.p.v. 8). Bedoeld voor zeer dichte puntenreeksen zoals Modelleren's
+   * iteratie-output. Default `false` (videometen-formaat).
+   */
+  compact?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -287,6 +293,7 @@ function buildConfig({ props, colors }: BuildArgs): ChartConfiguration<"line", S
     measureLines,
     xBand = null,
     showLegend = false,
+    compact = false,
   } = props;
 
   const datasets: ChartDataset<"line", ScatterDataPoint[]>[] = [];
@@ -347,7 +354,9 @@ function buildConfig({ props, colors }: BuildArgs): ChartConfiguration<"line", S
     const pointBg = s.points.map((p) =>
       p.dimmed ? withAlpha(baseColor, 0.35) : baseColor,
     );
-    const pointRadius = lineOnly ? 0 : s.points.map((p) => (p.dimmed ? 3 : 3.5));
+    const dimR = compact ? 1.5 : 3;
+    const baseR = compact ? 2 : 3.5;
+    const pointRadius = lineOnly ? 0 : s.points.map((p) => (p.dimmed ? dimR : baseR));
 
     datasets.push({
       label: s.label,
@@ -359,7 +368,7 @@ function buildConfig({ props, colors }: BuildArgs): ChartConfiguration<"line", S
       pointRadius,
       // Iets groter bolletje bij hover voor visuele feedback; klik-hit-detection
       // doen we sinds 05f volledig zelf (zie `findNearestSeriesHit`).
-      pointHoverRadius: lineOnly ? 0 : 8,
+      pointHoverRadius: lineOnly ? 0 : compact ? 5 : 8,
       borderWidth: lineOnly ? 2.2 : 1.8,
       borderDash: s.dashed ? [6, 3] : undefined,
       tension: 0,
@@ -1182,6 +1191,16 @@ interface AxisOverlaysProps {
  */
 function AxisOverlays({ geometry, xEnabled, yEnabled, onAxisDown }: AxisOverlaysProps) {
   const { area, canvas } = geometry;
+  // Tijdens mount in een (nog) 0px-container kan de chart-geometrie niet-eindig
+  // zijn → render de overlays pas zodra de afmetingen geldig zijn (voorkomt
+  // NaN/Infinity-style-warnings, bv. in een resizable grid-pane).
+  if (
+    ![area.left, area.right, area.top, area.bottom, area.width, area.height, canvas.height].every(
+      Number.isFinite,
+    )
+  ) {
+    return null;
+  }
   const xBandTop = area.bottom;
   const xBandHeight = Math.max(0, canvas.height - area.bottom);
   const yBandLeft = 0;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { InteractiveChart, type ChartSeries } from "../_reusable/InteractiveChart";
+import { InteractiveChart, type ChartSeries } from "@nh/shared/InteractiveChart";
 import type { DisplayRun } from "../runs";
 
 interface Props {
@@ -147,6 +147,7 @@ export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, 
             yLabel={label(yVar)}
             themeMode={themeMode}
             height="100%"
+            compact
             selectedIdx={selectedIdx}
             resetTrigger={zoomReset}
             tangent={{ active: tangentActive, atIdx: selectedIdx }}

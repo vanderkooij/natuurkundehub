@@ -15,18 +15,14 @@ runs, activeerbaar, diff t.o.v. Run 1), **model-I/O** (opgeslagen modellen,
 deel-URL `?model=`, JSON, CSV Excel-NL), **Leer-modelleren** (13 oefeningen +
 zwevend kaartje + unlock-progressie) en een **Help-paneel**.
 
-De cut-over zelf (`build.sh` omzetten, `/modelleren/` naar deze build, vanilla verwijderen)
-is **gedaan**. Resteert als **Fase 6-vervolg**: de echte extractie van de gevendorde
-reusables naar `@nh/shared` (npm-workspaces), zodat de tijdelijke duplicatie met
-Videometen verdwijnt. Bewust uitgesteld om de cut-over los te koppelen van Videometens build.
+De migratie is **afgerond** (cut-over Fase 6a + extractie Fase 6b).
 
-> **Let op — tijdelijke duplicatie.** De chart-code in `src/_reusable/`
-> (`InteractiveChart`, `chart-plugins/`, `niceAxis`, `useThemeColors`) is in Fase 4
-> **gevendord** uit `videometen/src/_reusable/` (vrijwel identiek; één bewuste
-> afwijking: kleinere `pointRadius` in `InteractiveChart.tsx` omdat modelregels veel
-> dichtere puntenreeksen geven dan videometen). De echte
-> unificatie naar een gedeeld `@nh/shared` (npm-workspaces) gebeurt in Fase 6,
-> samen met de `build.sh`/deploy-wijziging. Zie [`../modelleren/MIGRATION.md`](../modelleren/MIGRATION.md).
+> **Gedeelde chart-laag.** De chart-code (`InteractiveChart`, `chart-plugins/`,
+> `niceAxis`, `useThemeColors`, `csvNL`) is in Fase 6b verhuisd naar het gedeelde
+> npm-workspace-package [`@nh/shared`](../packages/shared/) en wordt nu door zowel
+> deze app als videometen geïmporteerd (`@nh/shared/…`). De tijdelijke Fase-4-vendoring
+> in `src/_reusable/` is daarmee opgeheven. De kleinere puntmarkers voor modelleren
+> lopen via de `compact`-prop op `InteractiveChart`. Zie [`../modelleren/MIGRATION.md`](../modelleren/MIGRATION.md).
 
 ## Commando's
 

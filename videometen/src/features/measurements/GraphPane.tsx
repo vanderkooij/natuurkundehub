@@ -27,8 +27,8 @@ import {
   type ChartSeries,
   type PointHoverInfo,
   type ZoomState,
-} from "@/_reusable/InteractiveChart";
-import { useThemeColors } from "@/_reusable/useThemeColors";
+} from "@nh/shared/InteractiveChart";
+import { useThemeColors } from "@nh/shared/useThemeColors";
 import { useInteractionZone } from "@/features/app/InteractionZoneState";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

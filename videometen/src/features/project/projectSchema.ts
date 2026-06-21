@@ -7,7 +7,7 @@ import {
 } from "@/features/calibration/CalibrationState";
 import { type GraphTypeKey } from "@/features/measurements/graph-types";
 import { type FitConfig } from "@/features/measurements/GraphsLayoutState";
-import { type ZoomState } from "@/_reusable/InteractiveChart";
+import { type ZoomState } from "@nh/shared/InteractiveChart";
 import { type TrackedPoint, type TrailColor } from "@/features/tracking/TrackingState";
 
 /**

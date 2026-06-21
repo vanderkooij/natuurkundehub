@@ -1,21 +1,24 @@
 #!/bin/bash
 set -e
 
-# Build de CircuitSketch Vite app
+# Installeer alle workspaces in één keer (videometen, modelleren-app, @nh/shared).
+# npm linkt @nh/shared als symlink in node_modules; het package wordt NIET
+# gebouwd — Vite + tsc consumeren de TS-bron direct in elke consumer.
+npm install
+
+# Build de CircuitSketch Vite app (standalone — geen workspace)
 cd circuitsketch
 npm install
 npm run build
 cd ..
 
-# Build de Videometen Vite app
+# Build de Videometen Vite app (workspace)
 cd videometen
-npm install
 npm run build
 cd ..
 
-# Build de Modelleren Vite app
+# Build de Modelleren Vite app (workspace)
 cd modelleren-app
-npm install
 npm run build
 cd ..
 

@@ -1,7 +1,7 @@
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from "lz-string";
 
 import type { SvRow } from "./engine";
-import { buildCsvNL, downloadBlob, formatCsvCell } from "./_reusable/csvNL";
+import { buildCsvNL, downloadBlob, formatCsvCell } from "@nh/shared/csvNL";
 
 /** Een opgeslagen/gedeeld model. Schema is gelijk aan de vanilla tool (interop). */
 export interface ModelDoc {

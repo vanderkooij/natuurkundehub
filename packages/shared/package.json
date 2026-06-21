@@ -1,0 +1,21 @@
+{
+  "name": "@nh/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gedeelde, domein-agnostische NatuurkundeHub-bouwstenen: InteractiveChart (+ chart-plugins), niceAxis, useThemeColors, csvNL. Geconsumeerd als TS-bron door videometen en modelleren-app via Vite + tsc (moduleResolution: bundler).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./InteractiveChart": "./src/InteractiveChart.tsx",
+    "./chart-plugins": "./src/chart-plugins/index.ts",
+    "./niceAxis": "./src/niceAxis.ts",
+    "./useThemeColors": "./src/useThemeColors.ts",
+    "./csvNL": "./src/csvNL.ts"
+  },
+  "peerDependencies": {
+    "chart.js": "^4.5.1",
+    "chartjs-plugin-zoom": "^2.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { buildCsvNL, downloadBlob, formatCsvCell } from "@/_reusable/csvNL";
+import { buildCsvNL, downloadBlob, formatCsvCell } from "@nh/shared/csvNL";
 import { toast } from "@/_reusable/Toaster";
 import { useAppMode } from "@/features/app/AppMode";
 import { useCalibration } from "@/features/calibration/CalibrationState";

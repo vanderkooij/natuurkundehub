@@ -1,6 +1,11 @@
 {
   "name": "natuurkundehub",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "videometen",
+    "modelleren-app"
+  ],
   "scripts": {
     "build": "bash build.sh",
     "serve": "npx netlify-cli dev --dir dist --port 8080",
