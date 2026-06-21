@@ -262,6 +262,22 @@ function TransistorIcon() {
     </svg>
   );
 }
+function TransistorPNPIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#000" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      {/* Base lead */}
+      <line x1="1" y1="10" x2="6" y2="10" />
+      {/* Base bar */}
+      <line x1="6" y1="4" x2="6" y2="16" />
+      {/* Collector */}
+      <line x1="6" y1="5.5" x2="19" y2="2" />
+      {/* Emitter */}
+      <line x1="6" y1="14.5" x2="19" y2="18" />
+      {/* Emitter arrow pointing inward toward the base = PNP */}
+      <polygon points="8.3,15.1 12,14.2 11,17.4" fill="#000" stroke="none" />
+    </svg>
+  );
+}
 function TransformerIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#000" strokeWidth="1.3" strokeLinecap="round">
@@ -277,6 +293,20 @@ function TransformerIcon() {
       {/* Core lines */}
       <line x1="9.5" y1="3" x2="9.5" y2="17" />
       <line x1="10.5" y1="3" x2="10.5" y2="17" />
+    </svg>
+  );
+}
+function ChipIcon({ text }: { text: string }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round">
+      <rect x="5" y="3.5" width="10" height="13" />
+      <line x1="2" y1="6" x2="5" y2="6" />
+      <line x1="2" y1="10" x2="5" y2="10" />
+      <line x1="2" y1="14" x2="5" y2="14" />
+      <line x1="15" y1="6" x2="18" y2="6" />
+      <line x1="15" y1="10" x2="18" y2="10" />
+      <line x1="15" y1="14" x2="18" y2="14" />
+      <text x="10" y="11.4" fontSize="5.5" textAnchor="middle" fill="#000" stroke="none" fontFamily="sans-serif" fontWeight="bold">{text}</text>
     </svg>
   );
 }
@@ -318,6 +348,7 @@ const advanced: ToolDef[] = [
   { id: 'fuse', key: 'tool.fuse', icon: <FuseIcon /> },
   { id: 'transformer', key: 'tool.transformer', icon: <TransformerIcon /> },
   { id: 'transistor', key: 'tool.transistor', icon: <TransistorIcon /> },
+  { id: 'transistor_pnp', key: 'tool.transistor_pnp', icon: <TransistorPNPIcon /> },
   { id: 'ground', key: 'tool.ground', icon: <GroundIcon /> },
   { id: 'potentiometer', key: 'tool.potentiometer', icon: <PotmeterIcon /> },
   { id: 'ntc', key: 'tool.ntc', icon: <NTCIcon /> },
@@ -326,13 +357,18 @@ const advanced: ToolDef[] = [
   { id: 'pushbutton', key: 'tool.pushbutton', icon: <PushButtonIcon /> },
   { id: 'buzzer', key: 'tool.buzzer', icon: <BuzzerIcon /> },
   { id: 'relay', key: 'tool.relay', icon: <RelayIcon /> },
+  { id: 'chip_stepup', key: 'tool.chip_stepup', icon: <ChipIcon text="↑" /> },
+  { id: 'chip_stepdown', key: 'tool.chip_stepdown', icon: <ChipIcon text="↓" /> },
+  { id: 'chip_esp', key: 'tool.chip_esp', icon: <ChipIcon text="E" /> },
+  { id: 'chip_ic8', key: 'tool.chip_ic8', icon: <ChipIcon text="IC" /> },
 ];
 
 const componentTools = new Set<Tool>([
   'voltage', 'voltage_ac', 'resistor', 'led', 'motor', 'lamp',
   'ammeter', 'voltmeter', 'capacitor', 'inductor', 'switch', 'diode', 'ground', 'potentiometer',
-  'fuse', 'transformer', 'transistor',
+  'fuse', 'transformer', 'transistor', 'transistor_pnp',
   'ntc', 'ptc', 'ldr', 'pushbutton', 'buzzer', 'relay',
+  'chip_stepup', 'chip_stepdown', 'chip_esp', 'chip_ic8',
 ]);
 
 function ToolButton({ t: tdef, current, onPick, label, draggable, onDragEnd }: {

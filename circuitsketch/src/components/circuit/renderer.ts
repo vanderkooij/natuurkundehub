@@ -1,5 +1,5 @@
-import type { CircuitComponent, Wire, TextLabel, Point, WireAttachment, LRouteOrientation } from './types';
-import { GRID, snap, orthogonalRoute } from './types';
+import type { CircuitComponent, Wire, TextLabel, Point, WireAttachment, LRouteOrientation, ChipPreset } from './types';
+import { GRID, snap, orthogonalRoute, LABEL_FONT, CHIP_PRESETS, isChipType, chipTerminalLocal } from './types';
 
 export function clearCanvas(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillStyle = '#fff';
@@ -250,14 +250,70 @@ export function drawComponent(ctx: CanvasRenderingContext2D, c: CircuitComponent
     case 'potentiometer': return drawPotentiometer(ctx, c, selected);
     case 'fuse': return drawFuse(ctx, c, selected);
     case 'transformer': return drawTransformer(ctx, c, selected);
-    case 'transistor': return drawTransistor(ctx, c, selected);
+    case 'transistor': return drawTransistor(ctx, c, selected, false);
+    case 'transistor_pnp': return drawTransistor(ctx, c, selected, true);
     case 'ntc': return drawThermistor(ctx, c, selected, 'NTC');
     case 'ptc': return drawThermistor(ctx, c, selected, 'PTC');
     case 'ldr': return drawLDR(ctx, c, selected);
     case 'pushbutton': return drawPushButton(ctx, c, selected);
     case 'buzzer': return drawBuzzer(ctx, c, selected);
     case 'relay': return drawRelay(ctx, c, selected);
+    default:
+      if (isChipType(c.type)) return drawChip(ctx, c, selected, CHIP_PRESETS[c.type]);
   }
+}
+
+function drawChip(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: boolean, preset: ChipPreset) {
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate((c.rotation * Math.PI) / 180);
+  const color = selected ? '#555' : '#000';
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = selected ? 2.5 : 1.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const w = preset.halfW * GRID, h = preset.halfH * GRID;
+
+  // Body rectangle
+  ctx.strokeRect(-w, -h, w * 2, h * 2);
+
+  // Pins: stub from body edge to terminal, plus an inside label
+  ctx.font = `${GRID * 0.42}px sans-serif`;
+  ctx.textBaseline = 'middle';
+  preset.pins.forEach((pin, i) => {
+    const tp = chipTerminalLocal(preset, i);
+    let edge: Point;
+    switch (pin.side) {
+      case 'L': edge = { x: -w, y: tp.y }; break;
+      case 'R': edge = { x:  w, y: tp.y }; break;
+      case 'T': edge = { x: tp.x, y: -h }; break;
+      default:  edge = { x: tp.x, y:  h }; break;
+    }
+    ctx.beginPath();
+    ctx.moveTo(edge.x, edge.y);
+    ctx.lineTo(tp.x, tp.y);
+    ctx.stroke();
+    // Terminal dot
+    ctx.beginPath();
+    ctx.arc(tp.x, tp.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // Inside label
+    ctx.textAlign = pin.side === 'L' ? 'left' : pin.side === 'R' ? 'right' : 'center';
+    const lx = pin.side === 'L' ? -w + GRID * 0.2 : pin.side === 'R' ? w - GRID * 0.2 : edge.x;
+    const ly = (pin.side === 'T') ? -h + GRID * 0.3 : (pin.side === 'B') ? h - GRID * 0.3 : edge.y;
+    drawUprightText(ctx, c.rotation, lx, ly, pin.label);
+  });
+
+  // Centre name
+  ctx.font = `bold ${GRID * 0.55}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  drawUprightText(ctx, c.rotation, 0, 0, c.name || preset.label);
+
+  if (selected) drawSelectionBox(ctx, w + GRID * 0.6, h + GRID * 0.3);
+  ctx.restore();
 }
 
 function drawMeter(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: boolean, letter: string) {
@@ -516,14 +572,58 @@ function drawTransformer(ctx: CanvasRenderingContext2D, c: CircuitComponent, sel
   ctx.restore();
 }
 
-function drawTransistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: boolean) {
+// Filled arrowhead somewhere along the segment (x1,y1)→(x2,y2).
+// `inward` = arrow points back toward (x1,y1) (PNP); otherwise toward (x2,y2) (NPN).
+function drawArrowOnLine(
+  ctx: CanvasRenderingContext2D,
+  x1: number, y1: number, x2: number, y2: number, inward: boolean,
+) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = dx / len, ny = dy / len;
+  const px = -ny, py = nx;
+  const aLen = 9, aW = 4.5;
+  const f = inward ? 0.42 : 0.7; // PNP arrow sits nearer the base, NPN nearer the tip
+  const bx = x1 + dx * f, by = y1 + dy * f;
+  const dir = inward ? -1 : 1;
+  const tipX = bx + dir * nx * (aLen / 2), tipY = by + dir * ny * (aLen / 2);
+  const backX = bx - dir * nx * (aLen / 2), backY = by - dir * ny * (aLen / 2);
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(backX + aW * px, backY + aW * py);
+  ctx.lineTo(backX - aW * px, backY - aW * py);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// Draw text at local point (lx,ly) but kept upright on screen despite component rotation.
+function drawUprightText(
+  ctx: CanvasRenderingContext2D,
+  rotation: number, lx: number, ly: number, text: string,
+) {
+  ctx.save();
+  ctx.translate(lx, ly);
+  ctx.rotate((-rotation * Math.PI) / 180);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+}
+
+function drawTransistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: boolean, pnp: boolean) {
   ctx.save();
   ctx.translate(c.x, c.y);
   ctx.rotate((c.rotation * Math.PI) / 180);
-  ctx.strokeStyle = selected ? '#555' : '#000';
-  ctx.fillStyle = selected ? '#555' : '#000';
+  const color = selected ? '#555' : '#000';
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
   ctx.lineWidth = selected ? 2.5 : 1.5;
   ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Enclosing circle (discrete-transistor style)
+  const R = GRID * 1.15;
+  ctx.beginPath();
+  ctx.arc(0, 0, R, 0, Math.PI * 2);
+  ctx.stroke();
 
   // Base lead: terminal 0 (-GRID*2, 0) → base bar
   ctx.beginPath();
@@ -532,34 +632,31 @@ function drawTransistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
 
   // Base bar (vertical)
   ctx.beginPath();
-  ctx.moveTo(-GRID * 0.5, -GRID); ctx.lineTo(-GRID * 0.5, GRID);
+  ctx.moveTo(-GRID * 0.5, -GRID * 0.75); ctx.lineTo(-GRID * 0.5, GRID * 0.75);
   ctx.stroke();
 
   // Collector: base bar → terminal 1 (GRID*2, -GRID*1.5)
   ctx.beginPath();
-  ctx.moveTo(-GRID * 0.5, -GRID * 0.6); ctx.lineTo(GRID * 2, -GRID * 1.5);
+  ctx.moveTo(-GRID * 0.5, -GRID * 0.45); ctx.lineTo(GRID * 2, -GRID * 1.5);
   ctx.stroke();
 
   // Emitter: base bar → terminal 2 (GRID*2, GRID*1.5)
-  const ex1 = -GRID * 0.5, ey1 = GRID * 0.6;
+  const ex1 = -GRID * 0.5, ey1 = GRID * 0.45;
   const ex2 = GRID * 2, ey2 = GRID * 1.5;
   ctx.beginPath();
   ctx.moveTo(ex1, ey1); ctx.lineTo(ex2, ey2);
   ctx.stroke();
 
-  // Emitter arrow (filled triangle near tip)
-  const edx = ex2 - ex1, edy = ey2 - ey1;
-  const elen = Math.sqrt(edx * edx + edy * edy);
-  const enx = edx / elen, eny = edy / elen;
-  const epx = -eny, epy = enx;
-  const aLen = 7, aW = 3.5;
-  const ax = ex2 - aLen * enx, ay = ey2 - aLen * eny;
-  ctx.beginPath();
-  ctx.moveTo(ex2, ey2);
-  ctx.lineTo(ax + aW * epx, ay + aW * epy);
-  ctx.lineTo(ax - aW * epx, ay - aW * epy);
-  ctx.closePath();
-  ctx.fill();
+  // Emitter arrow: NPN points outward (toward emitter), PNP points inward (toward base)
+  drawArrowOnLine(ctx, ex1, ey1, ex2, ey2, pnp);
+
+  // Terminal labels B / C / E — kept upright regardless of component rotation
+  ctx.font = `bold ${GRID * 0.5}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  drawUprightText(ctx, c.rotation, -GRID * 1.5, -GRID * 0.45, 'B');
+  drawUprightText(ctx, c.rotation, GRID * 1.2, -GRID * 1.6, 'C');
+  drawUprightText(ctx, c.rotation, GRID * 1.2, GRID * 1.6, 'E');
 
   if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.7);
   ctx.restore();
@@ -792,7 +889,7 @@ export function drawWire(ctx: CanvasRenderingContext2D, w: Wire, selected: boole
 }
 
 export function drawLabel(ctx: CanvasRenderingContext2D, l: TextLabel, selected: boolean) {
-  ctx.font = '14px "SF Mono", "Fira Code", monospace';
+  ctx.font = LABEL_FONT;
   ctx.fillStyle = '#000';
   ctx.textBaseline = 'middle';
   ctx.fillText(l.text || '(text)', l.x, l.y);
@@ -986,32 +1083,60 @@ export function drawWireCrossings(
     }
   }
 
-  // T-junction dots: wire endpoint lies on another wire's segment interior
-  for (const w of wires) {
-    for (const endPt of [w.nodes[0], w.nodes[w.nodes.length - 1]]) {
-      for (const other of wires) {
-        if (other.id === w.id) continue;
-        for (let s = 0; s < other.nodes.length - 1; s++) {
-          const a = other.nodes[s], b = other.nodes[s + 1];
-          const isH = a.y === b.y;
-          const hit = isH
-            ? endPt.y === a.y && endPt.x > Math.min(a.x, b.x) && endPt.x < Math.max(a.x, b.x)
-            : a.x === b.x && endPt.x === a.x && endPt.y > Math.min(a.y, b.y) && endPt.y < Math.max(a.y, b.y);
-          if (hit) {
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(endPt.x, endPt.y, 3.5, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
-    }
+  // Junction dots: a connection point where ≥3 wire strands meet and at least one
+  // wire actually ends there (T-junction, or 3+ wires meeting). A pure 4-way
+  // crossing (two wires passing through, none ending) is NOT auto-connected — it
+  // stays an arc unless the user clicks it (handled via connectedKeys above).
+  for (const p of collectJunctionDots(wires)) {
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 
+// Is P strictly interior to the axis-aligned segment a→b (not an endpoint)?
+function pointOnSegmentInterior(p: Point, a: Point, b: Point): boolean {
+  if (a.y === b.y && p.y === a.y) return p.x > Math.min(a.x, b.x) && p.x < Math.max(a.x, b.x);
+  if (a.x === b.x && p.x === a.x) return p.y > Math.min(a.y, b.y) && p.y < Math.max(a.y, b.y);
+  return false;
+}
+
+// Points that should be drawn as a connection dot. A point qualifies when the
+// total number of wire strands meeting there (segment-ends count 1, a segment
+// passing through counts 2) is ≥3 AND at least one wire ends there. That covers
+// T-junctions and 3+ wires meeting, but excludes plain crossings and the simple
+// end-to-end joint of two wires (degree 2 = a continuous line, no dot).
+export function collectJunctionDots(wires: Wire[]): Point[] {
+  const candidates = new Map<string, Point>();
+  for (const w of wires) for (const node of w.nodes) candidates.set(`${node.x},${node.y}`, node);
+
+  const dots: Point[] = [];
+  for (const P of candidates.values()) {
+    let ends = 0, through = 0;
+    for (const w of wires) {
+      for (let i = 0; i < w.nodes.length - 1; i++) {
+        const a = w.nodes[i], b = w.nodes[i + 1];
+        const aAt = a.x === P.x && a.y === P.y;
+        const bAt = b.x === P.x && b.y === P.y;
+        if (aAt) ends++;
+        if (bAt) ends++;
+        if (!aAt && !bAt && pointOnSegmentInterior(P, a, b)) through++;
+      }
+    }
+    if (ends >= 1 && ends + 2 * through >= 3) dots.push(P);
+  }
+  return dots;
+}
+
 export function hitTestComponent(c: CircuitComponent, p: Point): boolean {
-  const dx = GRID * 2.2;
-  const dy = c.type === 'transistor' ? GRID * 1.7 : c.type === 'ground' ? GRID * 2.2 : GRID * 1.2;
+  let dx = GRID * 2.2;
+  let dy = (c.type === 'transistor' || c.type === 'transistor_pnp') ? GRID * 1.7 : c.type === 'ground' ? GRID * 2.2 : GRID * 1.2;
+  if (isChipType(c.type)) {
+    const preset = CHIP_PRESETS[c.type];
+    dx = (preset.halfW + 0.6) * GRID;
+    dy = (preset.halfH + 0.3) * GRID;
+  }
   const cos = Math.cos((-c.rotation * Math.PI) / 180);
   const sin = Math.sin((-c.rotation * Math.PI) / 180);
   const lx = (p.x - c.x) * cos - (p.y - c.y) * sin;
@@ -1021,9 +1146,10 @@ export function hitTestComponent(c: CircuitComponent, p: Point): boolean {
 
 // Returns the number of connectable terminals for a given component type.
 export function getTerminalCount(type: CircuitComponent['type']): number {
+  if (isChipType(type)) return CHIP_PRESETS[type].pins.length;
   if (type === 'potentiometer') return 3;
   if (type === 'transformer') return 4;
-  if (type === 'transistor') return 3;
+  if (type === 'transistor' || type === 'transistor_pnp') return 3;
   if (type === 'relay') return 4;
   if (type === 'ground') return 1;
   return 2;
@@ -1031,6 +1157,7 @@ export function getTerminalCount(type: CircuitComponent['type']): number {
 
 // Local (unrotated) position of a terminal relative to component center.
 function terminalLocalPos(type: CircuitComponent['type'], terminal: number): Point {
+  if (isChipType(type)) return chipTerminalLocal(CHIP_PRESETS[type], terminal);
   switch (type) {
     case 'potentiometer':
       if (terminal === 0) return { x: -GRID * 2, y: 0 };
@@ -1049,6 +1176,7 @@ function terminalLocalPos(type: CircuitComponent['type'], terminal: number): Poi
       if (terminal === 2) return { x: GRID * 2, y: -GRID };
       return { x: GRID * 2, y: GRID };
     case 'transistor':
+    case 'transistor_pnp':
       if (terminal === 0) return { x: -GRID * 2, y: 0 };        // base
       if (terminal === 1) return { x: GRID * 2, y: -GRID * 1.5 }; // collector
       return { x: GRID * 2, y: GRID * 1.5 };                      // emitter
@@ -1065,6 +1193,31 @@ export function getTerminal(c: CircuitComponent, terminal: number): Point {
     x: c.x + local.x * cos - local.y * sin,
     y: c.y + local.x * sin + local.y * cos,
   };
+}
+
+// A point beyond a chip terminal along the pin's outward (lead) direction. Wires
+// route to this stub first so the orthogonal turn lands beside the pin column
+// instead of along it. The distance is STAGGERED per pin (each pin on a side gets
+// its own breakout column) so that wires to different pins never share a vertical
+// channel — otherwise multiple wires to one side merge into a bus touching every
+// pin. `step` is the per-rank spacing; returns null for non-chip terminals.
+export function getTerminalStub(c: CircuitComponent, terminal: number, step: number): Point | null {
+  if (!isChipType(c.type)) return null;
+  const preset = CHIP_PRESETS[c.type];
+  const pin = preset.pins[terminal];
+  // Rank among same-side pins (ordered along the side) → distinct breakout column.
+  const sideOrder = preset.pins.filter(p => p.side === pin.side).sort((a, b) => a.pos - b.pos);
+  const rank = sideOrder.indexOf(pin);
+  const dist = step * (rank + 1);
+  let ox = 0, oy = 0;
+  if (pin.side === 'L') ox = -1;
+  else if (pin.side === 'R') ox = 1;
+  else if (pin.side === 'T') oy = -1;
+  else oy = 1;
+  const cos = Math.cos((c.rotation * Math.PI) / 180);
+  const sin = Math.sin((c.rotation * Math.PI) / 180);
+  const t = getTerminal(c, terminal);
+  return { x: t.x + (ox * cos - oy * sin) * dist, y: t.y + (ox * sin + oy * cos) * dist };
 }
 
 export function findTerminalNear(
@@ -1182,7 +1335,7 @@ export function hitTestWireNode(w: Wire, p: Point): number | null {
 }
 
 export function hitTestLabel(ctx: CanvasRenderingContext2D, l: TextLabel, p: Point): boolean {
-  ctx.font = '14px "SF Mono", "Fira Code", monospace';
+  ctx.font = LABEL_FONT;
   const m = ctx.measureText(l.text || '(text)');
   return p.x >= l.x - 2 && p.x <= l.x + m.width + 2 && p.y >= l.y - 10 && p.y <= l.y + 10;
 }

@@ -1,5 +1,5 @@
 import type { CircuitState } from './types';
-import { GRID } from './types';
+import { GRID, CHIP_PRESETS, CHIP_LEAD, isChipType } from './types';
 import { drawComponent, drawWire, drawLabel, drawWireCrossings } from './renderer';
 
 export interface SaveFile {
@@ -14,8 +14,17 @@ export function computeBoundingBox(state: CircuitState, padding = 40): BBox | nu
   const xs: number[] = [];
   const ys: number[] = [];
   for (const c of state.components) {
-    xs.push(c.x - GRID * 2.5, c.x + GRID * 2.5);
-    ys.push(c.y - GRID * 2.5, c.y + GRID * 2.5);
+    if (isChipType(c.type)) {
+      const preset = CHIP_PRESETS[c.type];
+      const rotated = c.rotation % 180 === 90;
+      const hw = ((rotated ? preset.halfH : preset.halfW) + CHIP_LEAD) * GRID;
+      const hh = ((rotated ? preset.halfW : preset.halfH) + CHIP_LEAD) * GRID;
+      xs.push(c.x - hw, c.x + hw);
+      ys.push(c.y - hh, c.y + hh);
+    } else {
+      xs.push(c.x - GRID * 2.5, c.x + GRID * 2.5);
+      ys.push(c.y - GRID * 2.5, c.y + GRID * 2.5);
+    }
   }
   for (const w of state.wires) for (const n of w.nodes) { xs.push(n.x); ys.push(n.y); }
   for (const l of state.labels) { xs.push(l.x); ys.push(l.y); }

@@ -1,8 +1,16 @@
 export const GRID = 20;
 
-export type Tool = 'select' | 'voltage' | 'voltage_ac' | 'resistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | 'wire' | 'text' | 'delete';
+// Text-label font. Clean sans-serif (not Arial); also used by PNG/SVG export and
+// the inline edit field so on-screen text matches what gets exported.
+export const LABEL_FONT_FAMILY = '"Segoe UI", system-ui, sans-serif';
+export const LABEL_FONT_SIZE = 14;
+export const LABEL_FONT = `${LABEL_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
 
-export type ComponentType = 'voltage' | 'voltage_ac' | 'resistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay';
+export type ChipType = 'chip_stepup' | 'chip_stepdown' | 'chip_esp' | 'chip_ic8';
+
+export type Tool = 'select' | 'voltage' | 'voltage_ac' | 'resistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'transistor_pnp' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | ChipType | 'wire' | 'text' | 'delete';
+
+export type ComponentType = 'voltage' | 'voltage_ac' | 'resistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'transistor_pnp' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | ChipType;
 
 export type LRouteOrientation = 'HV' | 'VH';
 
@@ -19,6 +27,8 @@ export interface CircuitComponent {
   rotation: 0 | 90 | 180 | 270;
   // Switch only: open/closed state. Defaults to open (false).
   closed?: boolean;
+  // Chip only: editable name shown in the centre of the block. Falls back to the preset label.
+  name?: string;
 }
 
 export type WireAttachment =
@@ -79,4 +89,71 @@ export function inferOrientation(nodes: Point[]): LRouteOrientation {
 let _id = 0;
 export function uid(): string {
   return `el_${Date.now()}_${_id++}`;
+}
+
+// ---- Chip / IC blocks --------------------------------------------------------
+// Rectangular blocks with a fixed pin layout (presets). Sizes/offsets are in GRID
+// units; the lead length (body edge → terminal) is CHIP_LEAD grid cells.
+
+export type ChipSide = 'L' | 'R' | 'T' | 'B';
+
+export interface ChipPin {
+  side: ChipSide;
+  pos: number;   // offset along the side from the centre, in GRID units
+  label: string; // shown inside the block next to the pin
+}
+
+export interface ChipPreset {
+  label: string; // default centre name
+  halfW: number; // half width in GRID units
+  halfH: number; // half height in GRID units
+  pins: ChipPin[];
+}
+
+export const CHIP_LEAD = 1; // grid cells from body edge to terminal point
+
+// A vertical column of pins down one side, evenly spaced one grid apart, centred.
+function sidePins(side: ChipSide, labels: string[]): ChipPin[] {
+  const start = -(labels.length - 1) / 2;
+  return labels.map((label, i) => ({ side, pos: start + i, label }));
+}
+
+export const CHIP_PRESETS: Record<ChipType, ChipPreset> = {
+  chip_stepup: {
+    label: 'Step-up', halfW: 1.75, halfH: 1,
+    pins: [...sidePins('L', ['IN+', 'IN−']), ...sidePins('R', ['OUT+', 'OUT−'])],
+  },
+  chip_stepdown: {
+    label: 'Step-down', halfW: 1.75, halfH: 1,
+    pins: [...sidePins('L', ['IN+', 'IN−']), ...sidePins('R', ['OUT+', 'OUT−'])],
+  },
+  chip_esp: {
+    label: 'ESP32', halfW: 1.75, halfH: 3,
+    pins: [
+      ...sidePins('L', ['3V3', 'GND', 'EN', 'IO0', 'IO2', 'IO4']),
+      ...sidePins('R', ['VIN', 'GND', 'TX', 'RX', 'IO5', 'IO15']),
+    ],
+  },
+  chip_ic8: {
+    label: 'IC', halfW: 1.25, halfH: 2,
+    pins: [
+      ...sidePins('L', ['1', '2', '3', '4']),
+      ...sidePins('R', ['8', '7', '6', '5']),
+    ],
+  },
+};
+
+export function isChipType(type: ComponentType): type is ChipType {
+  return type in CHIP_PRESETS;
+}
+
+// Local (unrotated) terminal point for a chip pin, in pixels relative to centre.
+export function chipTerminalLocal(preset: ChipPreset, terminal: number): Point {
+  const pin = preset.pins[terminal];
+  switch (pin.side) {
+    case 'L': return { x: -(preset.halfW + CHIP_LEAD) * GRID, y: pin.pos * GRID };
+    case 'R': return { x:  (preset.halfW + CHIP_LEAD) * GRID, y: pin.pos * GRID };
+    case 'T': return { x: pin.pos * GRID, y: -(preset.halfH + CHIP_LEAD) * GRID };
+    default:  return { x: pin.pos * GRID, y:  (preset.halfH + CHIP_LEAD) * GRID };
+  }
 }

@@ -1,11 +1,11 @@
 import { useRef, useState, useReducer, useCallback, useEffect } from 'react';
 import type { CircuitState, Tool, Point, CircuitComponent, Wire, TextLabel, WireAttachment, ComponentType, LRouteOrientation } from './types';
-import { GRID, snap, snapPoint, uid, orthogonalRoute, inferOrientation } from './types';
+import { GRID, snap, snapPoint, uid, orthogonalRoute, inferOrientation, LABEL_FONT, CHIP_PRESETS, isChipType } from './types';
 import {
   clearCanvas, drawComponent, drawWire, drawLabel, drawPreviewWire, drawSnapHint,
   drawAlignmentGuides, drawDistanceLabels, drawWireCrossings, findWireCrossings,
   hitTestComponent, hitTestWire, hitTestWireNode, hitTestLabel,
-  getTerminal, getTerminalCount, findSnapTarget,
+  getTerminal, getTerminalCount, getTerminalStub, findSnapTarget,
 } from './renderer';
 import { Toolbar } from './Toolbar';
 import { HelpPanel } from './HelpPanel';
@@ -24,8 +24,9 @@ const TOOLBAR_H = 52;
 const COMPONENT_TYPES = new Set<Tool>([
   'voltage', 'voltage_ac', 'resistor', 'led', 'motor', 'lamp',
   'ammeter', 'voltmeter', 'capacitor', 'inductor', 'switch', 'diode', 'ground',
-  'potentiometer', 'fuse', 'transformer', 'transistor',
+  'potentiometer', 'fuse', 'transformer', 'transistor', 'transistor_pnp',
   'ntc', 'ptc', 'ldr', 'pushbutton', 'buzzer', 'relay',
+  'chip_stepup', 'chip_stepdown', 'chip_esp', 'chip_ic8',
 ]);
 
 export interface AlignGuide { x?: number; y?: number }
@@ -127,6 +128,13 @@ function cleanupWireNodes(nodes: Point[]): Point[] {
 type BBox = { x1: number; y1: number; x2: number; y2: number };
 
 function getCompBodyBBox(comp: CircuitComponent): BBox | null {
+  if (isChipType(comp.type)) {
+    const preset = CHIP_PRESETS[comp.type];
+    const rotated = comp.rotation % 180 === 90;
+    const hw = (rotated ? preset.halfH : preset.halfW) * GRID;
+    const hh = (rotated ? preset.halfW : preset.halfH) * GRID;
+    return { x1: comp.x - hw, y1: comp.y - hh, x2: comp.x + hw, y2: comp.y + hh };
+  }
   const count = getTerminalCount(comp.type);
   if (count <= 1) return null; // ground etc.: no body to avoid
   const t0 = getTerminal(comp, 0), t1 = getTerminal(comp, 1);
@@ -236,6 +244,17 @@ function resolveAttach(s: CircuitState, a: WireAttachment): Point | null {
   }
 }
 
+// Standoff distance for chip-pin lead stubs (one grid cell).
+const CHIP_STUB = GRID;
+
+// If the attachment is a chip terminal, the outward stub point to route to before
+// reaching the pin (so wires turn beside the pin column, not along it). Else null.
+function attachStub(components: CircuitComponent[], a: WireAttachment | undefined): Point | null {
+  if (a?.kind !== 'component') return null;
+  const c = components.find(c => c.id === a.componentId);
+  return c ? getTerminalStub(c, a.terminal, CHIP_STUB) : null;
+}
+
 // Route start → waypoints → end, each segment avoiding component bodies.
 function routeThroughWaypoints(
   start: Point,
@@ -330,7 +349,13 @@ function syncWires(s: CircuitState): CircuitState {
       const newEnd   = endP   ?? curEnd;
       const orient   = inferOrientation(w.nodes);
 
-      const route = routeThroughWaypoints(newStart, newEnd, junctionPositions, cur.components, orient);
+      // Approach chip pins via an outward stub so the turn lands beside the pin column.
+      const startStub = attachStub(cur.components, w.startAttach) ?? newStart;
+      const endStub   = attachStub(cur.components, w.endAttach)   ?? newEnd;
+      let route = routeThroughWaypoints(startStub, endStub, junctionPositions, cur.components, orient);
+      if (startStub !== newStart) route = [newStart, ...route];
+      if (endStub !== newEnd) route = [...route, newEnd];
+      route = cleanupWireNodes(route);
 
       // Record new nodeIndex for each junction so dependent wires can be updated
       if (junctions.length > 0) {
@@ -385,6 +410,57 @@ function hitTestWireSegment(w: Wire, p: Point): number | null {
     if (Math.hypot(p.x - px, p.y - py) < 8) return i;
   }
   return null;
+}
+
+// Does point p coincide with a node of w, or lie strictly interior on one of its
+// axis-aligned segments? Used to decide whether two wires are electrically joined.
+function pointOnWire(p: Point, w: Wire): boolean {
+  for (const n of w.nodes) if (n.x === p.x && n.y === p.y) return true;
+  for (let i = 0; i < w.nodes.length - 1; i++) {
+    const a = w.nodes[i], b = w.nodes[i + 1];
+    if (a.y === b.y && p.y === a.y && p.x > Math.min(a.x, b.x) && p.x < Math.max(a.x, b.x)) return true;
+    if (a.x === b.x && p.x === a.x && p.y > Math.min(a.y, b.y) && p.y < Math.max(a.y, b.y)) return true;
+  }
+  return false;
+}
+
+// Two wires are joined if an endpoint of one touches the other (T-junction or
+// end-to-end), or they reference each other via a wire-attach.
+function wiresConnected(u: Wire, v: Wire): boolean {
+  const uEnds = [u.nodes[0], u.nodes[u.nodes.length - 1]];
+  const vEnds = [v.nodes[0], v.nodes[v.nodes.length - 1]];
+  for (const e of uEnds) if (pointOnWire(e, v)) return true;
+  for (const e of vEnds) if (pointOnWire(e, u)) return true;
+  if (u.startAttach?.kind === 'wire' && u.startAttach.wireId === v.id) return true;
+  if (u.endAttach?.kind === 'wire' && u.endAttach.wireId === v.id) return true;
+  if (v.startAttach?.kind === 'wire' && v.startAttach.wireId === u.id) return true;
+  if (v.endAttach?.kind === 'wire' && v.endAttach.wireId === u.id) return true;
+  return false;
+}
+
+// Connected component (the "net") containing startId: all wires reachable through
+// junctions and user-confirmed crossings. Pure (un-dotted) crossings do NOT link.
+// Exported as the reusable connectivity primitive (also the basis for a simulator).
+export function computeWireNet(wires: Wire[], connectedCrossings: string[], startId: string): Set<string> {
+  const cc = new Set(connectedCrossings);
+  const crossLinks: [string, string][] = [];
+  for (const { p, hWireId, vWireId } of findWireCrossings(wires)) {
+    if (cc.has(`${p.x},${p.y}`)) crossLinks.push([hWireId, vWireId]);
+  }
+  const net = new Set<string>([startId]);
+  const queue = [startId];
+  while (queue.length) {
+    const curId = queue.shift()!;
+    const cur = wires.find(w => w.id === curId);
+    if (!cur) continue;
+    for (const w of wires) {
+      if (net.has(w.id)) continue;
+      let conn = wiresConnected(cur, w);
+      if (!conn) for (const [a, b] of crossLinks) if ((a === curId && b === w.id) || (b === curId && a === w.id)) { conn = true; break; }
+      if (conn) { net.add(w.id); queue.push(w.id); }
+    }
+  }
+  return net;
 }
 
 // Connect wire endpoints that land on component terminals after placement.
@@ -538,7 +614,7 @@ function applyPaste(
     ...c, id: idMap.get(c.id)!, x: snap(c.x + dx), y: snap(c.y + dy),
   }));
   const newLabels = data.labels.map(l => ({
-    ...l, id: uid(), x: snap(l.x + dx), y: snap(l.y + dy),
+    ...l, id: uid(), x: l.x + dx, y: l.y + dy,
   }));
   const newWires = data.wires.map(w => ({
     ...w, id: uid(),
@@ -644,6 +720,8 @@ export default function CircuitEditor() {
   const [multiDragOffsets, setMultiDragOffsets] = useState<Map<string, { dx: number; dy: number }>>(new Map());
   const [multiDragPrimaryStart, setMultiDragPrimaryStart] = useState<Point | null>(null);
   const [multiDragWireNodes, setMultiDragWireNodes] = useState<Map<string, Point[]>>(new Map());
+  // Net drag: translating a whole connected wire-net (point 6 "two wires = one")
+  const [netDrag, setNetDrag] = useState<{ start: Point; startNodes: Map<string, Point[]> } | null>(null);
   const [clipboard, setClipboard] = useState<ClipboardData | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [isDirty, setIsDirty] = useState(false);
@@ -668,9 +746,9 @@ export default function CircuitEditor() {
   const panRef = useRef(pan);
   panRef.current = pan;
   const [lang, setLang] = useState<Lang>(() => {
-    if (typeof window === 'undefined') return 'en';
+    if (typeof window === 'undefined') return 'nl';
     const saved = window.localStorage?.getItem('circuit.lang');
-    return (saved === 'nl' || saved === 'en') ? saved : 'en';
+    return (saved === 'nl' || saved === 'en') ? saved : 'nl';
   });
   const [helpOpen, setHelpOpen] = useState(false);
   useEffect(() => {
@@ -686,12 +764,14 @@ export default function CircuitEditor() {
     dispatch({ type: 'UNDO' });
     setSelection(null);
     setWireStart(null);
+    setNetDrag(null);
   }, []);
 
   const redo = useCallback(() => {
     dispatch({ type: 'REDO' });
     setSelection(null);
     setWireStart(null);
+    setNetDrag(null);
   }, []);
 
   const reset = useCallback(() => {
@@ -1058,6 +1138,7 @@ export default function CircuitEditor() {
             endAttach: w.endAttach?.kind === 'component' && cIds.has(w.endAttach.componentId) ? undefined : w.endAttach,
           })),
         labels: state.labels.filter(l => !lIds.has(l.id)),
+        connectedCrossings: state.connectedCrossings,
       };
       commit(next);
       setMultiSel(null);
@@ -1111,7 +1192,7 @@ export default function CircuitEditor() {
         redo();
       }
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selection) {
+        if (selection || multiSelRef.current) {
           e.preventDefault();
           deleteSelection();
         }
@@ -1125,6 +1206,7 @@ export default function CircuitEditor() {
         setSelection(null);
         setMultiSel(null);
         setRubberBand(null);
+        setNetDrag(null);
         setTool('select');
         setContextMenu(null);
         setHelpOpen(false);
@@ -1267,14 +1349,17 @@ export default function CircuitEditor() {
         curWires = matEnd.wires;
         const realEa = matEnd.attach;
 
-        const route = routeThroughWaypoints(
-          wireStart.point, point, [],
-          state.components, wireOrient,
-        );
+        // Approach chip pins via an outward stub so the turn lands beside the pin column.
+        const startStub = attachStub(state.components, realSa) ?? wireStart.point;
+        const endStub = attachStub(state.components, realEa) ?? point;
+        let nodes = routeThroughWaypoints(startStub, endStub, [], state.components, wireOrient);
+        if (startStub !== wireStart.point) nodes = [wireStart.point, ...nodes];
+        if (endStub !== point) nodes = [...nodes, point];
+        nodes = cleanupWireNodes(nodes);
 
         const wire: Wire = {
           id: uid(),
-          nodes: route,
+          nodes,
           startAttach: realSa,
           endAttach: realEa,
         };
@@ -1286,12 +1371,13 @@ export default function CircuitEditor() {
     }
 
     if (tool === 'text') {
-      const label: TextLabel = { id: uid(), x: sp.x, y: sp.y, text: '' };
+      // Text labels are placed freely (not snapped to the grid)
+      const label: TextLabel = { id: uid(), x: p.x, y: p.y, text: '' };
       const next = { ...state, labels: [...state.labels, label] };
       commit(next);
       setEditingLabel(label.id);
       setEditText('');
-      setEditPos(sp);
+      setEditPos({ x: p.x, y: p.y });
       return;
     }
 
@@ -1373,41 +1459,29 @@ export default function CircuitEditor() {
         return;
       }
     }
+    // Wire node handle → reshape that single node (kept fine-grained on purpose)
     for (const w of [...state.wires].reverse()) {
       const nodeIdx = hitTestWireNode(w, p);
       if (nodeIdx !== null) {
         setSelection({ kind: 'wire', id: w.id, node: nodeIdx, segment: null });
+        setMultiSel(null);
         setDragging(true);
         setDragOffset({ x: 0, y: 0 });
         return;
       }
-      const segIdx = hitTestWireSegment(w, p);
-      if (segIdx !== null) {
-        // Restructure the wire so the segment has 2 interior nodes that we can
-        // freely move. Insert helper nodes at the start/end if they're attached
-        // (those endpoints must stay anchored). After this, simply moving the
-        // two segment nodes perpendicular grows/shrinks the neighbour segments.
-        const isStartSeg = segIdx === 0;
-        const isEndSeg = segIdx === w.nodes.length - 2;
-        const a = w.nodes[segIdx], b = w.nodes[segIdx + 1];
-        const newNodes = w.nodes.map(n => ({ ...n }));
-        let leftIdx = segIdx;
-        let rightIdx = segIdx + 1;
-        if (isStartSeg && w.startAttach) {
-          // Duplicate the anchor so leftIdx becomes a free copy at the same spot
-          newNodes.splice(1, 0, { ...a });
-          leftIdx = 1;
-          rightIdx = 2;
+    }
+    // Wire body → select & move the whole connected net (point 6 "two wires = one")
+    for (const w of [...state.wires].reverse()) {
+      if (hitTestWire(w, p)) {
+        const ids = [...computeWireNet(state.wires, state.connectedCrossings ?? [], w.id)];
+        const startNodes = new Map<string, Point[]>();
+        for (const id of ids) {
+          const ww = state.wires.find(x => x.id === id);
+          if (ww) startNodes.set(id, ww.nodes.map(n => ({ ...n })));
         }
-        if (isEndSeg && w.endAttach) {
-          newNodes.splice(rightIdx, 0, { ...b });
-          // right anchor stays at the (new) last position; leftIdx unchanged
-        }
-        commit({
-          ...state,
-          wires: state.wires.map(x => x.id === w.id ? { ...x, nodes: newNodes } : x),
-        });
-        setSelection({ kind: 'wire', id: w.id, node: null, segment: segIdx, segLeft: leftIdx, segRight: rightIdx } as Selection);
+        setMultiSel({ componentIds: [], wireIds: ids, labelIds: [] });
+        setSelection(null);
+        setNetDrag({ start: p, startNodes });
         setDragging(true);
         setDragOffset({ x: 0, y: 0 });
         return;
@@ -1465,6 +1539,20 @@ export default function CircuitEditor() {
       setHoverSnap(t ? t.point : null);
     } else if (hoverSnap) {
       setHoverSnap(null);
+    }
+
+    // Net drag: translate the whole connected net by a grid-snapped delta
+    if (dragging && netDrag) {
+      const dx = snap(p.x - netDrag.start.x);
+      const dy = snap(p.y - netDrag.start.y);
+      dispatch({ type: 'SET_LIVE', payload: {
+        ...stateRef.current,
+        wires: stateRef.current.wires.map(w => {
+          const sn = netDrag.startNodes.get(w.id);
+          return sn ? { ...w, nodes: sn.map(n => ({ x: n.x + dx, y: n.y + dy })) } : w;
+        }),
+      } });
+      return;
     }
 
     if (!dragging || !selection) return;
@@ -1558,11 +1646,11 @@ export default function CircuitEditor() {
       dispatch({ type: 'SET_LIVE', payload: {
         ...stateRef.current,
         labels: stateRef.current.labels.map(l =>
-          l.id === selection.id ? { ...l, x: snap(p.x - dragOffset.x), y: snap(p.y - dragOffset.y) } : l
+          l.id === selection.id ? { ...l, x: p.x - dragOffset.x, y: p.y - dragOffset.y } : l
         ),
       } });
     }
-  }, [dragging, selection, canvasCoords, dragOffset, panning, panStart, tool, state.components, state.wires, hoverSnap, wireStart, wireOrientLocked, rubberBand, multiDragOffsets, multiDragPrimaryStart, multiDragWireNodes]);
+  }, [dragging, selection, canvasCoords, dragOffset, panning, panStart, tool, state.components, state.wires, hoverSnap, wireStart, wireOrientLocked, rubberBand, multiDragOffsets, multiDragPrimaryStart, multiDragWireNodes, netDrag]);
 
   const handleMouseUp = useCallback(() => {
     if (isMobileRef.current) return;
@@ -1601,16 +1689,25 @@ export default function CircuitEditor() {
       setMultiDragOffsets(new Map());
       setMultiDragPrimaryStart(null);
       setMultiDragWireNodes(new Map());
-      const cleaned: CircuitState = {
-        ...state,
-        wires: state.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
-      };
-      commit(cleaned);
+      // A bare click on a wire only selects its net — don't push an undo entry.
+      const moved = !netDrag
+        || snap(mousePosRef.current.x - netDrag.start.x) !== 0
+        || snap(mousePosRef.current.y - netDrag.start.y) !== 0;
+      if (moved) {
+        // After a net drag, re-sync so component-anchored endpoints snap back to their terminals.
+        const base = netDrag ? syncWires(state) : state;
+        const cleaned: CircuitState = {
+          ...base,
+          wires: base.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
+        };
+        commit(cleaned);
+      }
+      setNetDrag(null);
       if (selection?.kind === 'wire' && selection.segment !== undefined) {
         setSelection({ kind: 'wire', id: selection.id, node: null, segment: null });
       }
     }
-  }, [dragging, state, commit, panning, selection, rubberBand]);
+  }, [dragging, state, commit, panning, selection, rubberBand, netDrag]);
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     if (isMobileRef.current) return;
@@ -1626,6 +1723,17 @@ export default function CircuitEditor() {
             x.id === c.id ? { ...x, closed: !x.closed } : x
           ),
         });
+        return;
+      }
+    }
+
+    // Chips: double-click to rename the centre label
+    for (const c of state.components) {
+      if (isChipType(c.type) && hitTestComponent(c, p)) {
+        const name = window.prompt('Naam van het blok:', c.name ?? CHIP_PRESETS[c.type].label);
+        if (name !== null) {
+          commit({ ...state, components: state.components.map(x => x.id === c.id ? { ...x, name } : x) });
+        }
         return;
       }
     }
@@ -1665,12 +1773,12 @@ export default function CircuitEditor() {
       // Make sure we didn't double-click an existing element
       for (const c of state.components) if (hitTestComponent(c, p)) return;
       for (const w of state.wires) if (hitTestWire(w, p)) return;
-      const sp = snapPoint(p);
-      const label: TextLabel = { id: uid(), x: sp.x, y: sp.y, text: '' };
+      // Text labels are placed freely (not snapped to the grid)
+      const label: TextLabel = { id: uid(), x: p.x, y: p.y, text: '' };
       commit({ ...state, labels: [...state.labels, label] });
       setEditingLabel(label.id);
       setEditText('');
-      setEditPos(sp);
+      setEditPos({ x: p.x, y: p.y });
     }
   }, [canvasCoords, state, selection, commit, tool]);
 
@@ -1806,7 +1914,7 @@ export default function CircuitEditor() {
             onBlur={() => setTimeout(finishLabelEdit, 150)}
             onKeyDown={e => { if (e.key === 'Enter') finishLabelEdit(); if (e.key === 'Escape') { setEditingLabel(null); } }}
             style={{
-              font: '14px "SF Mono", "Fira Code", monospace',
+              font: LABEL_FONT,
               border: '1px solid #000',
               outline: 'none',
               background: '#fff',
