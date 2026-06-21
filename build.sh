@@ -13,6 +13,12 @@ npm install
 npm run build
 cd ..
 
+# Build de Modelleren Vite app
+cd modelleren-app
+npm install
+npm run build
+cd ..
+
 # Maak de output map aan
 rm -rf dist
 mkdir -p dist
@@ -25,8 +31,8 @@ cp -r assets dist/assets
 # Kopieer het Overhoorprogramma (statische HTML)
 cp -r overhoor dist/overhoor
 
-# Kopieer de Modelleer-tool (statische HTML)
-cp -r modelleren dist/modelleren
+# Kopieer de gebouwde Modelleren app
+cp -r modelleren-app/dist dist/modelleren
 
 # Kopieer Formules omschrijven (statische HTML)
 cp -r formules-omschrijven dist/formules-omschrijven
