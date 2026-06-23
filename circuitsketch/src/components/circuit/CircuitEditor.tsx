@@ -397,72 +397,6 @@ type Selection =
   | { kind: 'label'; id: string }
   | null;
 
-// Hit-test which segment of a wire is under p (returns segment index = index of starting node)
-function hitTestWireSegment(w: Wire, p: Point): number | null {
-  for (let i = 0; i < w.nodes.length - 1; i++) {
-    const a = w.nodes[i], b = w.nodes[i + 1];
-    const dx = b.x - a.x, dy = b.y - a.y;
-    const lenSq = dx * dx + dy * dy;
-    if (lenSq === 0) continue;
-    let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq;
-    t = Math.max(0, Math.min(1, t));
-    const px = a.x + t * dx, py = a.y + t * dy;
-    if (Math.hypot(p.x - px, p.y - py) < 8) return i;
-  }
-  return null;
-}
-
-// Does point p coincide with a node of w, or lie strictly interior on one of its
-// axis-aligned segments? Used to decide whether two wires are electrically joined.
-function pointOnWire(p: Point, w: Wire): boolean {
-  for (const n of w.nodes) if (n.x === p.x && n.y === p.y) return true;
-  for (let i = 0; i < w.nodes.length - 1; i++) {
-    const a = w.nodes[i], b = w.nodes[i + 1];
-    if (a.y === b.y && p.y === a.y && p.x > Math.min(a.x, b.x) && p.x < Math.max(a.x, b.x)) return true;
-    if (a.x === b.x && p.x === a.x && p.y > Math.min(a.y, b.y) && p.y < Math.max(a.y, b.y)) return true;
-  }
-  return false;
-}
-
-// Two wires are joined if an endpoint of one touches the other (T-junction or
-// end-to-end), or they reference each other via a wire-attach.
-function wiresConnected(u: Wire, v: Wire): boolean {
-  const uEnds = [u.nodes[0], u.nodes[u.nodes.length - 1]];
-  const vEnds = [v.nodes[0], v.nodes[v.nodes.length - 1]];
-  for (const e of uEnds) if (pointOnWire(e, v)) return true;
-  for (const e of vEnds) if (pointOnWire(e, u)) return true;
-  if (u.startAttach?.kind === 'wire' && u.startAttach.wireId === v.id) return true;
-  if (u.endAttach?.kind === 'wire' && u.endAttach.wireId === v.id) return true;
-  if (v.startAttach?.kind === 'wire' && v.startAttach.wireId === u.id) return true;
-  if (v.endAttach?.kind === 'wire' && v.endAttach.wireId === u.id) return true;
-  return false;
-}
-
-// Connected component (the "net") containing startId: all wires reachable through
-// junctions and user-confirmed crossings. Pure (un-dotted) crossings do NOT link.
-// Exported as the reusable connectivity primitive (also the basis for a simulator).
-export function computeWireNet(wires: Wire[], connectedCrossings: string[], startId: string): Set<string> {
-  const cc = new Set(connectedCrossings);
-  const crossLinks: [string, string][] = [];
-  for (const { p, hWireId, vWireId } of findWireCrossings(wires)) {
-    if (cc.has(`${p.x},${p.y}`)) crossLinks.push([hWireId, vWireId]);
-  }
-  const net = new Set<string>([startId]);
-  const queue = [startId];
-  while (queue.length) {
-    const curId = queue.shift()!;
-    const cur = wires.find(w => w.id === curId);
-    if (!cur) continue;
-    for (const w of wires) {
-      if (net.has(w.id)) continue;
-      let conn = wiresConnected(cur, w);
-      if (!conn) for (const [a, b] of crossLinks) if ((a === curId && b === w.id) || (b === curId && a === w.id)) { conn = true; break; }
-      if (conn) { net.add(w.id); queue.push(w.id); }
-    }
-  }
-  return net;
-}
-
 // Connect wire endpoints that land on component terminals after placement.
 function autoConnect(st: CircuitState, comp: CircuitComponent): CircuitState {
   const count = getTerminalCount(comp.type);
@@ -720,8 +654,9 @@ export default function CircuitEditor() {
   const [multiDragOffsets, setMultiDragOffsets] = useState<Map<string, { dx: number; dy: number }>>(new Map());
   const [multiDragPrimaryStart, setMultiDragPrimaryStart] = useState<Point | null>(null);
   const [multiDragWireNodes, setMultiDragWireNodes] = useState<Map<string, Point[]>>(new Map());
-  // Net drag: translating a whole connected wire-net (point 6 "two wires = one")
-  const [netDrag, setNetDrag] = useState<{ start: Point; startNodes: Map<string, Point[]> } | null>(null);
+  // Whole-wire move (req 4): drag a wire body to reposition it. Attached endpoints
+  // stay anchored (re-routed via syncWires); a free wire translates as a whole.
+  const [wireMoveStart, setWireMoveStart] = useState<{ id: string; nodes: Point[]; start: Point } | null>(null);
   const [clipboard, setClipboard] = useState<ClipboardData | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [isDirty, setIsDirty] = useState(false);
@@ -764,14 +699,14 @@ export default function CircuitEditor() {
     dispatch({ type: 'UNDO' });
     setSelection(null);
     setWireStart(null);
-    setNetDrag(null);
+    setWireMoveStart(null);
   }, []);
 
   const redo = useCallback(() => {
     dispatch({ type: 'REDO' });
     setSelection(null);
     setWireStart(null);
-    setNetDrag(null);
+    setWireMoveStart(null);
   }, []);
 
   const reset = useCallback(() => {
@@ -1206,7 +1141,7 @@ export default function CircuitEditor() {
         setSelection(null);
         setMultiSel(null);
         setRubberBand(null);
-        setNetDrag(null);
+        setWireMoveStart(null);
         setTool('select');
         setContextMenu(null);
         setHelpOpen(false);
@@ -1459,7 +1394,9 @@ export default function CircuitEditor() {
         return;
       }
     }
-    // Wire node handle → reshape that single node (kept fine-grained on purpose)
+    // Wire interaction: a node handle reshapes that single node; clicking the body
+    // selects the whole wire and lets you drag it to a new place (req 4). Selecting
+    // or deleting a wire never touches the wires connected to it.
     for (const w of [...state.wires].reverse()) {
       const nodeIdx = hitTestWireNode(w, p);
       if (nodeIdx !== null) {
@@ -1469,19 +1406,10 @@ export default function CircuitEditor() {
         setDragOffset({ x: 0, y: 0 });
         return;
       }
-    }
-    // Wire body → select & move the whole connected net (point 6 "two wires = one")
-    for (const w of [...state.wires].reverse()) {
       if (hitTestWire(w, p)) {
-        const ids = [...computeWireNet(state.wires, state.connectedCrossings ?? [], w.id)];
-        const startNodes = new Map<string, Point[]>();
-        for (const id of ids) {
-          const ww = state.wires.find(x => x.id === id);
-          if (ww) startNodes.set(id, ww.nodes.map(n => ({ ...n })));
-        }
-        setMultiSel({ componentIds: [], wireIds: ids, labelIds: [] });
-        setSelection(null);
-        setNetDrag({ start: p, startNodes });
+        setSelection({ kind: 'wire', id: w.id, node: null, segment: null });
+        setMultiSel(null);
+        setWireMoveStart({ id: w.id, nodes: w.nodes.map(n => ({ ...n })), start: p });
         setDragging(true);
         setDragOffset({ x: 0, y: 0 });
         return;
@@ -1541,22 +1469,22 @@ export default function CircuitEditor() {
       setHoverSnap(null);
     }
 
-    // Net drag: translate the whole connected net by a grid-snapped delta
-    if (dragging && netDrag) {
-      const dx = snap(p.x - netDrag.start.x);
-      const dy = snap(p.y - netDrag.start.y);
-      dispatch({ type: 'SET_LIVE', payload: {
-        ...stateRef.current,
-        wires: stateRef.current.wires.map(w => {
-          const sn = netDrag.startNodes.get(w.id);
-          return sn ? { ...w, nodes: sn.map(n => ({ x: n.x + dx, y: n.y + dy })) } : w;
-        }),
-      } });
-      return;
-    }
-
     if (!dragging || !selection) return;
     const sp = snapPoint(p);
+
+    // Whole-wire move (req 4): translate the wire by a grid-snapped delta. syncWires
+    // re-anchors any endpoint attached to a component/wire (and dependent branches),
+    // so a free wire slides as a whole while anchored ends stay put and re-route.
+    if (wireMoveStart && selection.kind === 'wire' && selection.id === wireMoveStart.id) {
+      const dx = snap(p.x - wireMoveStart.start.x);
+      const dy = snap(p.y - wireMoveStart.start.y);
+      const moved = wireMoveStart.nodes.map(n => ({ x: n.x + dx, y: n.y + dy }));
+      dispatch({ type: 'SET_LIVE', payload: syncWires({
+        ...stateRef.current,
+        wires: stateRef.current.wires.map(w => w.id === wireMoveStart.id ? { ...w, nodes: moved } : w),
+      }) });
+      return;
+    }
 
     if (selection.kind === 'component') {
       const rawX = snap(p.x - dragOffset.x);
@@ -1650,7 +1578,7 @@ export default function CircuitEditor() {
         ),
       } });
     }
-  }, [dragging, selection, canvasCoords, dragOffset, panning, panStart, tool, state.components, state.wires, hoverSnap, wireStart, wireOrientLocked, rubberBand, multiDragOffsets, multiDragPrimaryStart, multiDragWireNodes, netDrag]);
+  }, [dragging, selection, canvasCoords, dragOffset, panning, panStart, tool, state.components, state.wires, hoverSnap, wireStart, wireOrientLocked, rubberBand, multiDragOffsets, multiDragPrimaryStart, multiDragWireNodes, wireMoveStart]);
 
   const handleMouseUp = useCallback(() => {
     if (isMobileRef.current) return;
@@ -1689,25 +1617,23 @@ export default function CircuitEditor() {
       setMultiDragOffsets(new Map());
       setMultiDragPrimaryStart(null);
       setMultiDragWireNodes(new Map());
-      // A bare click on a wire only selects its net — don't push an undo entry.
-      const moved = !netDrag
-        || snap(mousePosRef.current.x - netDrag.start.x) !== 0
-        || snap(mousePosRef.current.y - netDrag.start.y) !== 0;
+      // A bare click on a wire body only selects it — don't push an undo entry.
+      const moved = !wireMoveStart
+        || snap(mousePosRef.current.x - wireMoveStart.start.x) !== 0
+        || snap(mousePosRef.current.y - wireMoveStart.start.y) !== 0;
       if (moved) {
-        // After a net drag, re-sync so component-anchored endpoints snap back to their terminals.
-        const base = netDrag ? syncWires(state) : state;
         const cleaned: CircuitState = {
-          ...base,
-          wires: base.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
+          ...state,
+          wires: state.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
         };
         commit(cleaned);
       }
-      setNetDrag(null);
+      setWireMoveStart(null);
       if (selection?.kind === 'wire' && selection.segment !== undefined) {
         setSelection({ kind: 'wire', id: selection.id, node: null, segment: null });
       }
     }
-  }, [dragging, state, commit, panning, selection, rubberBand, netDrag]);
+  }, [dragging, state, commit, panning, selection, rubberBand, wireMoveStart]);
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     if (isMobileRef.current) return;

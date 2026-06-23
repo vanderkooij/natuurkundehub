@@ -104,10 +104,10 @@ function MeterIcon({ letter }: { letter: string }) {
 function CapacitorIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#000" strokeWidth="1.3" strokeLinecap="round">
-      <line x1="1" y1="10" x2="8" y2="10" />
-      <line x1="12" y1="10" x2="19" y2="10" />
-      <line x1="8" y1="5" x2="8" y2="15" />
-      <line x1="12" y1="5" x2="12" y2="15" />
+      <line x1="1" y1="10" x2="8.8" y2="10" />
+      <line x1="11.2" y1="10" x2="19" y2="10" />
+      <line x1="8.8" y1="4.5" x2="8.8" y2="15.5" strokeWidth="2.4" />
+      <line x1="11.2" y1="4.5" x2="11.2" y2="15.5" strokeWidth="2.4" />
     </svg>
   );
 }

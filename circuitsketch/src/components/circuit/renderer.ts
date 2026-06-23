@@ -25,24 +25,25 @@ function drawVoltageSource(ctx: CanvasRenderingContext2D, c: CircuitComponent, s
 
   // Short plate (negative)
   ctx.beginPath();
-  ctx.moveTo(-gap, -GRID * 0.4);
-  ctx.lineTo(-gap, GRID * 0.4);
+  ctx.moveTo(-gap, -GRID * 0.35);
+  ctx.lineTo(-gap, GRID * 0.35);
   ctx.stroke();
 
   // Long plate (positive)
   ctx.beginPath();
-  ctx.moveTo(gap, -GRID * 0.7);
-  ctx.lineTo(gap, GRID * 0.7);
+  ctx.moveTo(gap, -GRID * 0.6);
+  ctx.lineTo(gap, GRID * 0.6);
   ctx.stroke();
 
+  // Compact +/- beside the plates (kept low so the symbol isn't unnecessarily tall)
   ctx.fillStyle = selected ? '#555' : '#000';
-  ctx.font = '10px sans-serif';
+  ctx.font = '9px sans-serif';
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('+', gap + GRID * 0.3, -GRID * 0.85);
-  ctx.fillText('−', -gap - GRID * 0.3, -GRID * 0.55);
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', gap + GRID * 0.34, -GRID * 0.38);
+  ctx.fillText('−', -gap - GRID * 0.34, -GRID * 0.38);
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.2);
+  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.8);
   ctx.restore();
 }
 
@@ -347,11 +348,16 @@ function drawCapacitor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selec
   ctx.rotate((c.rotation * Math.PI) / 180);
   ctx.strokeStyle = selected ? '#555' : '#000';
   ctx.lineWidth = selected ? 2.5 : 1.5;
-  ctx.lineCap = 'round';
-  const gap = GRID * 0.25;
+  ctx.lineCap = 'butt';
+  const gap = GRID * 0.16; // plates closer together
+  // Leads
   ctx.beginPath();
   ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-gap, 0);
   ctx.moveTo(gap, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.stroke();
+  // Plates: thicker than the leads
+  ctx.lineWidth = selected ? 4 : 3;
+  ctx.beginPath();
   ctx.moveTo(-gap, -GRID * 0.6); ctx.lineTo(-gap, GRID * 0.6);
   ctx.moveTo(gap, -GRID * 0.6); ctx.lineTo(gap, GRID * 0.6);
   ctx.stroke();
