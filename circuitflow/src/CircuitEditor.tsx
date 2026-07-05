@@ -164,6 +164,17 @@ export function CircuitEditor() {
   circuitRef.current = circuit;
   multiSelRef.current = multiSel;
 
+  // Touch/digibord: zodra we touch of pen zien, tonen we de touch-hulpknoppen.
+  const [touchSeen, setTouchSeen] = useState(false);
+  // Selectiekader-modus: op touch is leeg-slepen standaard pannen; deze knop laat
+  // één sleep-gebaar een selectiekader trekken (daarna weer pannen).
+  const [marqueeMode, setMarqueeMode] = useState(false);
+  const marqueeModeRef = useRef(false);
+  marqueeModeRef.current = marqueeMode;
+  // Actieve pointers (voor pinch-zoom met twee vingers) + pinch-gebaar-state.
+  const pointersRef = useRef(new Map<number, Pt>());
+  const pinchRef = useRef<{ startDist: number; startS: number; startMidWorld: Pt } | null>(null);
+
   // Herstel bij openen: een deellink (#c=…) wint van de lokale autosave.
   useEffect(() => {
     const shared = sharePayloadFromHash();
@@ -288,7 +299,65 @@ export function CircuitEditor() {
       circuitRef.current.moveVertex(vid, p.x, p.y);
     };
 
+    // Geometrie van het pinch-gebaar (afstand + midden van de twee vingers).
+    const pinchGeom = () => {
+      const pts = [...pointersRef.current.values()];
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      return {
+        dist: Math.hypot(dx, dy),
+        mid: { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 },
+      };
+    };
+
+    // Capture-fase: registreer élke pointer die op het canvas begint. Zet de
+    // pointer-capture op de (stabiele) SVG-root, zodat touch-drags blijven lopen
+    // ook als React het gesleepte element opnieuw rendert (anders valt de
+    // impliciete capture weg en stopt pointermove op touch).
+    const onGlobalDown = (e: PointerEvent) => {
+      const svg = svgRef.current;
+      if (!svg || !svg.contains(e.target as Node)) return; // paneel/toolbar → met rust laten
+      if (e.pointerType !== "mouse") setTouchSeen(true);
+      try {
+        svg.setPointerCapture(e.pointerId);
+      } catch {
+        /* sommige browsers weigeren capture op de svg-root; drag werkt dan alsnog via window */
+      }
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointersRef.current.size === 2) {
+        const { dist, mid } = pinchGeom();
+        const rect = svg.getBoundingClientRect();
+        const v = viewRef.current;
+        pinchRef.current = {
+          startDist: dist || 1,
+          startS: v.s,
+          startMidWorld: { x: (mid.x - rect.left - v.tx) / v.s, y: (mid.y - rect.top - v.ty) / v.s },
+        };
+        dragRef.current = null; // een begonnen enkel-drag afbreken t.g.v. de pinch
+        setMarquee(null);
+      }
+    };
+
     const onMove = (e: PointerEvent) => {
+      if (pointersRef.current.has(e.pointerId)) {
+        pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      }
+      // Pinch-zoom (twee vingers) heeft voorrang op elke enkel-drag.
+      if (pinchRef.current && pointersRef.current.size >= 2) {
+        dragRef.current = null;
+        const svg = svgRef.current;
+        if (!svg) return;
+        const rect = svg.getBoundingClientRect();
+        const { dist, mid } = pinchGeom();
+        const p = pinchRef.current;
+        const ns = Math.min(MAX_S, Math.max(MIN_S, p.startS * (dist / p.startDist)));
+        applyView({
+          s: ns,
+          tx: mid.x - rect.left - p.startMidWorld.x * ns,
+          ty: mid.y - rect.top - p.startMidWorld.y * ns,
+        });
+        return;
+      }
       const drag = dragRef.current;
       if (!drag) return;
       if (drag.type === "place") {
@@ -348,6 +417,16 @@ export function CircuitEditor() {
     };
 
     const onUp = (e: PointerEvent) => {
+      pointersRef.current.delete(e.pointerId);
+      // Tijdens/na een pinch geen enkel-drag afhandelen (voorkomt een sprong als
+      // er nog één vinger op het scherm staat).
+      if (pinchRef.current) {
+        if (pointersRef.current.size < 2) pinchRef.current = null;
+        dragRef.current = null;
+        circuitRef.current.commit();
+        setSnapTargetId(null);
+        return;
+      }
       // Einde van elk gebaar: sluit de undo-samenvouwing af (sleep/slider = 1 stap).
       circuitRef.current.commit();
       const drag = dragRef.current;
@@ -400,15 +479,30 @@ export function CircuitEditor() {
       } else if (drag.type === "marquee") {
         setMarquee(null);
         if (dist(drag.startW, w) >= 6) setMultiSel(marqueeHits(docRef.current, drag.startW, w));
+        // Selectiekader-modus (touch) is eenmalig: daarna weer pannen.
+        if (marqueeModeRef.current) setMarqueeMode(false);
       }
       setSnapTargetId(null);
     };
 
+    // Touch kan een gebaar afbreken (bv. systeemgebaar): ruim alles netjes op.
+    const onCancel = (e: PointerEvent) => {
+      pointersRef.current.delete(e.pointerId);
+      if (pointersRef.current.size < 2) pinchRef.current = null;
+      dragRef.current = null;
+      setMarquee(null);
+      setSnapTargetId(null);
+    };
+
+    window.addEventListener("pointerdown", onGlobalDown, true);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
     return () => {
+      window.removeEventListener("pointerdown", onGlobalDown, true);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
     };
     // Mount-only: alle veranderlijke waarden worden via refs gelezen.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -663,12 +757,17 @@ export function CircuitEditor() {
     [screenToWorld, startGroupMove],
   );
 
-  // Slepen op leeg canvas = selectiekader; pannen = Alt+slepen of middelste muisknop.
+  // Leeg canvas: muis → selectiekader (Alt/middenmuis = pannen); touch → pannen
+  // (met de selectiekader-knop actief eenmalig een kader). Bij twee vingers is een
+  // pinch bezig → hier niets doen.
   const onBackgroundPointerDown = useCallback(
     (e: React.PointerEvent) => {
+      if (pointersRef.current.size >= 2) return;
       setSelection(null);
       setMultiSel(null);
-      if (e.altKey || e.button === 1) {
+      const touchLike = e.pointerType !== "mouse";
+      const wantPan = touchLike ? !marqueeModeRef.current : e.altKey || e.button === 1;
+      if (wantPan) {
         const v = viewRef.current;
         dragRef.current = { type: "pan", startX: e.clientX, startY: e.clientY, startTx: v.tx, startTy: v.ty };
       } else {
@@ -863,6 +962,30 @@ export function CircuitEditor() {
           </svg>
 
           <CanvasOverlay width={size.w} height={size.h} flows={flows} view={view} mode={mode} />
+
+          {/* Touch/digibord: knop om één sleep-gebaar een selectiekader te maken
+              (verschijnt pas zodra we touch of pen zien; muis kadert standaard al). */}
+          {touchSeen && (
+            <div className="absolute bottom-3 left-3 z-10 flex flex-col items-start gap-1">
+              <button
+                type="button"
+                onClick={() => setMarqueeMode((m) => !m)}
+                aria-pressed={marqueeMode}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium shadow-sm ${
+                  marqueeMode
+                    ? "border-(--accent) bg-(--accent) text-white"
+                    : "border-(--border-solid) bg-card text-(--text-secondary)"
+                }`}
+              >
+                {marqueeMode ? "Sleep nu een kader…" : "Selecteer meerdere"}
+              </button>
+              {marqueeMode && (
+                <span className="rounded bg-card/90 px-2 py-0.5 text-xs text-(--text-muted) shadow-sm">
+                  Twee vingers = pannen &amp; zoomen
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Groepsactie-balk bij een selectiekader-selectie */}
           {multiSel && (
