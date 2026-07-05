@@ -164,13 +164,6 @@ export function CircuitEditor() {
   circuitRef.current = circuit;
   multiSelRef.current = multiSel;
 
-  // Touch/digibord: zodra we touch of pen zien, tonen we de touch-hulpknoppen.
-  const [touchSeen, setTouchSeen] = useState(false);
-  // Selectiekader-modus: op touch is leeg-slepen standaard pannen; deze knop laat
-  // één sleep-gebaar een selectiekader trekken (daarna weer pannen).
-  const [marqueeMode, setMarqueeMode] = useState(false);
-  const marqueeModeRef = useRef(false);
-  marqueeModeRef.current = marqueeMode;
   // Actieve pointers (voor pinch-zoom met twee vingers) + pinch-gebaar-state.
   const pointersRef = useRef(new Map<number, Pt>());
   const pinchRef = useRef<{ startDist: number; startS: number; startMidWorld: Pt } | null>(null);
@@ -317,7 +310,6 @@ export function CircuitEditor() {
     const onGlobalDown = (e: PointerEvent) => {
       const svg = svgRef.current;
       if (!svg || !svg.contains(e.target as Node)) return; // paneel/toolbar → met rust laten
-      if (e.pointerType !== "mouse") setTouchSeen(true);
       try {
         svg.setPointerCapture(e.pointerId);
       } catch {
@@ -479,8 +471,6 @@ export function CircuitEditor() {
       } else if (drag.type === "marquee") {
         setMarquee(null);
         if (dist(drag.startW, w) >= 6) setMultiSel(marqueeHits(docRef.current, drag.startW, w));
-        // Selectiekader-modus (touch) is eenmalig: daarna weer pannen.
-        if (marqueeModeRef.current) setMarqueeMode(false);
       }
       setSnapTargetId(null);
     };
@@ -758,15 +748,14 @@ export function CircuitEditor() {
   );
 
   // Leeg canvas: muis → selectiekader (Alt/middenmuis = pannen); touch → pannen
-  // (met de selectiekader-knop actief eenmalig een kader). Bij twee vingers is een
-  // pinch bezig → hier niets doen.
+  // (twee vingers = pinch-zoom). Bij twee vingers is een pinch bezig → niets doen.
   const onBackgroundPointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (pointersRef.current.size >= 2) return;
       setSelection(null);
       setMultiSel(null);
       const touchLike = e.pointerType !== "mouse";
-      const wantPan = touchLike ? !marqueeModeRef.current : e.altKey || e.button === 1;
+      const wantPan = touchLike || e.altKey || e.button === 1;
       if (wantPan) {
         const v = viewRef.current;
         dragRef.current = { type: "pan", startX: e.clientX, startY: e.clientY, startTx: v.tx, startTy: v.ty };
@@ -962,30 +951,6 @@ export function CircuitEditor() {
           </svg>
 
           <CanvasOverlay width={size.w} height={size.h} flows={flows} view={view} mode={mode} />
-
-          {/* Touch/digibord: knop om één sleep-gebaar een selectiekader te maken
-              (verschijnt pas zodra we touch of pen zien; muis kadert standaard al). */}
-          {touchSeen && (
-            <div className="absolute bottom-3 left-3 z-10 flex flex-col items-start gap-1">
-              <button
-                type="button"
-                onClick={() => setMarqueeMode((m) => !m)}
-                aria-pressed={marqueeMode}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium shadow-sm ${
-                  marqueeMode
-                    ? "border-(--accent) bg-(--accent) text-white"
-                    : "border-(--border-solid) bg-card text-(--text-secondary)"
-                }`}
-              >
-                {marqueeMode ? "Sleep nu een kader…" : "Selecteer meerdere"}
-              </button>
-              {marqueeMode && (
-                <span className="rounded bg-card/90 px-2 py-0.5 text-xs text-(--text-muted) shadow-sm">
-                  Twee vingers = pannen &amp; zoomen
-                </span>
-              )}
-            </div>
-          )}
 
           {/* Groepsactie-balk bij een selectiekader-selectie */}
           {multiSel && (

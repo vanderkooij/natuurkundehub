@@ -395,15 +395,21 @@ export function CircuitSvg({
                       : "#1a1a2e"
                     : undefined;
               return (
-                <circle
+                <g
                   key={vid}
-                  cx={p.x}
-                  cy={p.y}
-                  r={7}
-                  className="cf-terminal"
-                  style={meterFill ? { fill: meterFill } : undefined}
                   onPointerDown={(e) => onTerminalPointerDown(vid, e)}
-                />
+                  style={{ cursor: "crosshair" }}
+                >
+                  {/* ruim (onzichtbaar) trefvlak: makkelijk te raken met een vinger */}
+                  <circle cx={p.x} cy={p.y} r={15} fill="transparent" />
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={7}
+                    className="cf-terminal"
+                    style={meterFill ? { fill: meterFill } : undefined}
+                  />
+                </g>
               );
             })}
 
@@ -440,16 +446,18 @@ export function CircuitSvg({
         const isJunction = incidentCount(doc, v.id) >= 3;
         const vsel = selection?.kind === "vertex" && selection.id === v.id;
         return (
-          <circle
-            key={`v-${v.id}`}
-            cx={v.x}
-            cy={v.y}
-            r={isJunction ? 7 : 6}
-            className="cf-vertex"
-            stroke={vsel ? "var(--cf-select)" : undefined}
-            strokeWidth={vsel ? 2.5 : undefined}
-            onPointerDown={(e) => onVertexPointerDown(v.id, e)}
-          />
+          <g key={`v-${v.id}`} onPointerDown={(e) => onVertexPointerDown(v.id, e)} style={{ cursor: "grab" }}>
+            {/* ruim (onzichtbaar) trefvlak voor touch */}
+            <circle cx={v.x} cy={v.y} r={14} fill="transparent" />
+            <circle
+              cx={v.x}
+              cy={v.y}
+              r={isJunction ? 7 : 6}
+              className="cf-vertex"
+              stroke={vsel ? "var(--cf-select)" : undefined}
+              strokeWidth={vsel ? 2.5 : undefined}
+            />
+          </g>
         );
       })}
 
@@ -458,35 +466,32 @@ export function CircuitSvg({
         (() => {
           const v = doc.vertices[selection.id];
           if (!v) return null;
-          const tx = v.x + 18;
-          const ty = v.y - 18;
+          const tx = v.x + 22;
+          const ty = v.y - 22;
           return (
             <g>
               <line x1={v.x} y1={v.y} x2={tx} y2={ty} stroke="var(--cf-select)" strokeWidth={1.5} />
-              <circle
-                className="cf-tab"
-                cx={tx}
-                cy={ty}
-                r={9}
-                fill="var(--cf-select)"
+              <g
                 style={{ cursor: "crosshair" }}
                 onPointerDown={(e) => onVertexTabPointerDown(selection.id, e)}
-              />
-              <path
-                d={`M ${tx - 4} ${ty} H ${tx + 4} M ${tx} ${ty - 4} V ${ty + 4}`}
-                stroke="#fff"
-                strokeWidth={1.8}
-                strokeLinecap="round"
-              />
+              >
+                {/* ruim trefvlak voor touch */}
+                <circle cx={tx} cy={ty} r={18} fill="transparent" />
+                <circle className="cf-tab" cx={tx} cy={ty} r={11} fill="var(--cf-select)" />
+                <path
+                  d={`M ${tx - 5} ${ty} H ${tx + 5} M ${tx} ${ty - 5} V ${ty + 5}`}
+                  stroke="#fff"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                />
+              </g>
               {/* Knip-knop: maakt alle aansluitingen op deze knoop los (graad ≥2). */}
               {incidentCount(doc, selection.id) >= 2 && (
-                <g
-                  style={{ cursor: "pointer" }}
-                  onPointerDown={(e) => onCutNode(selection.id, e)}
-                >
-                  <line x1={v.x} y1={v.y} x2={v.x - 18} y2={v.y - 18} stroke="var(--accent-amber)" strokeWidth={1.5} />
-                  <circle cx={v.x - 18} cy={v.y - 18} r={9} fill="var(--accent-amber)" />
-                  <text x={v.x - 18} y={v.y - 18 + 3.6} textAnchor="middle" fontSize={11} fill="#fff">
+                <g style={{ cursor: "pointer" }} onPointerDown={(e) => onCutNode(selection.id, e)}>
+                  <line x1={v.x} y1={v.y} x2={v.x - 22} y2={v.y - 22} stroke="var(--accent-amber)" strokeWidth={1.5} />
+                  <circle cx={v.x - 22} cy={v.y - 22} r={18} fill="transparent" />
+                  <circle cx={v.x - 22} cy={v.y - 22} r={11} fill="var(--accent-amber)" />
+                  <text x={v.x - 22} y={v.y - 22 + 4} textAnchor="middle" fontSize={12} fill="#fff">
                     ✂
                   </text>
                 </g>

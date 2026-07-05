@@ -7,12 +7,17 @@ import { HelpModal } from "./HelpModal";
 export function Header() {
   const { theme, toggle } = useNhTheme();
   const [helpOpen, setHelpOpen] = useState(false);
+  const logoSrc = theme === "dark" ? "../assets/logo/JK_dark.svg" : "../assets/logo/JK_light.svg";
   const iconBtn =
     "grid h-9 w-9 place-items-center rounded-lg border border-(--border-solid) text-(--text-secondary) hover:bg-(--bg-card-hover)";
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-(--border-solid) bg-card px-4">
-      <a href="/" className="text-sm text-(--text-muted) hover:text-(--accent)">
-        home
+      {/* NatuurkundeHub-logo + woordmerk, consistent met de andere tools. */}
+      <a href="/" className="flex items-center gap-2.5 no-underline">
+        <img src={logoSrc} alt="NatuurkundeHub logo" className="h-[26px]" />
+        <span className="hidden text-base font-bold tracking-[-0.3px] text-(--text-primary) sm:inline">
+          Natuurkunde<span className="text-(--accent)">Hub</span>
+        </span>
       </a>
       <span className="text-(--text-muted)">/</span>
       <div className="flex items-baseline gap-2">

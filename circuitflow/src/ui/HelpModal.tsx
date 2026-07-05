@@ -52,7 +52,7 @@ export function HelpModal({ onClose }: Props) {
           <Row k="verbind">Sleep vanaf een aansluitpunt naar een ander om ze met een draad te verbinden; klik onderweg voor een knikpunt.</Row>
           <Row k="klik">Klik een onderdeel om z'n waarde, kleur of bereik in te stellen (of met de pijltjestoetsen ← →; Shift = grote stap). Bij de LDR/NTC stel je zo het licht of de temperatuur in.</Row>
           <Row k="kader">Sleep over leeg canvas voor een selectiekader: meerdere onderdelen tegelijk selecteren, dan dupliceren of verwijderen. Pannen = Alt+slepen (of middelste muisknop).</Row>
-          <Row k="touch">Op een touchscreen/digibord: sleep een onderdeel om het te verplaatsen, sleep leeg canvas om te pannen, en knijp met twee vingers om te zoomen. De knop "Selecteer meerdere" (linksonder) maakt één sleep-gebaar een selectiekader.</Row>
+          <Row k="touch">Op een touchscreen/digibord: sleep een onderdeel om het te verplaatsen, sleep vanaf een aansluitpunt naar een ander voor een draad, sleep leeg canvas om te pannen, en knijp met twee vingers om te zoomen.</Row>
           <Row k="✂">Selecteer een knoop met een draad en klik het schaartje om die aansluiting los te maken.</Row>
           <Row k="meters">Voltmeter meet parallel (over een onderdeel), ampèremeter in serie. De analoge VOS-meters hebben een zwarte poort (0) en drie rode bereik-poorten.</Row>
           <Row k="grafiek">Klik een weerstand, lamp, LED of sensor en kies "Toon I‑U‑grafiek" (bij een LED: alle kleuren naast elkaar; een gloeidraadlamp geeft een kromme).</Row>
