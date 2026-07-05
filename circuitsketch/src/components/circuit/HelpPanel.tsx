@@ -318,6 +318,18 @@ export function HelpPanel({ open, onClose, lang }: HelpPanelProps) {
         ))}
         <AccordionSection section={dummyShortcutsSection} isShortcuts lang={lang} />
       </div>
+
+      {/* Feedback-voettekst (vast onderin het paneel) */}
+      <div style={{
+        padding: '12px 16px', borderTop: '1px solid #e8e8e8', background: '#fff',
+        flexShrink: 0, fontSize: 12, color: '#555',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      }}>
+        {lang === 'nl' ? 'Feedback of een bug gevonden? ' : 'Feedback or found a bug? '}
+        <a href="/contact/" style={{ color: '#0bb5c8', fontWeight: 600, textDecoration: 'none' }}>
+          {lang === 'nl' ? 'Laat het weten →' : 'Let us know →'}
+        </a>
+      </div>
     </div>
   );
 }
