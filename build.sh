@@ -22,6 +22,11 @@ cd modelleren-app
 npm run build
 cd ..
 
+# Build de CircuitFlow Vite app (workspace)
+cd circuitflow
+npm run build
+cd ..
+
 # Maak de output map aan
 rm -rf dist
 mkdir -p dist
@@ -51,3 +56,6 @@ cp -r circuitsketch/dist dist/circuitsketch
 
 # Kopieer de gebouwde Videometen app
 cp -r videometen/dist dist/videometen
+
+# Kopieer de gebouwde CircuitFlow app
+cp -r circuitflow/dist dist/circuitflow

@@ -4,7 +4,8 @@
   "workspaces": [
     "packages/*",
     "videometen",
-    "modelleren-app"
+    "modelleren-app",
+    "circuitflow"
   ],
   "scripts": {
     "build": "bash build.sh",

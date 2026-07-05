@@ -9,6 +9,12 @@
   to = "/circuitsketch/index.html"
   status = 200
 
+# CircuitFlow is een SPA: stuur alle routes binnen /circuitflow/* naar de app
+[[redirects]]
+  from = "/circuitflow/*"
+  to = "/circuitflow/index.html"
+  status = 200
+
 # Expliciete trailing-slash redirects per submap
 [[redirects]]
   from = "/formules-omschrijven"
