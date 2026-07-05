@@ -255,6 +255,9 @@ function LightArrows({ color }: { color: string }) {
 function Ldr() {
   return (
     <g>
+      {/* aansluitbeentjes tot ±LEAD_ATTACH zodat de draden flush aansluiten */}
+      <line className="cf-lead" x1={-30} y1={0} x2={-12} y2={0} />
+      <line className="cf-lead" x1={30} y1={0} x2={12} y2={0} />
       {/* ronde sensor-schijf met slingerspoor, zoals een echte LDR */}
       <circle cx={0} cy={0} r={14} fill="#e8ddc4" stroke="#b6904f" strokeWidth={1.5} />
       <path
@@ -272,6 +275,9 @@ function Ldr() {
 function Ntc() {
   return (
     <g>
+      {/* aansluitbeentjes tot ±LEAD_ATTACH zodat de draden flush aansluiten */}
+      <line className="cf-lead" x1={-30} y1={0} x2={-15} y2={0} />
+      <line className="cf-lead" x1={30} y1={0} x2={15} y2={0} />
       <rect x={-16} y={-12} width={32} height={24} rx={5} fill="#3f4a5a" stroke="#2b323c" strokeWidth={1.5} />
       <text x={0} y={5.5} textAnchor="middle" fontSize={13} fontWeight={700} fill="#e8edf3">
         ϑ
