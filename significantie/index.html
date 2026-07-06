@@ -128,6 +128,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .feedback .feedback-title{font-weight:700;margin-bottom:4px;font-size:15px}
 .feedback .feedback-body{color:var(--text);font-weight:400}
 .feedback.wrong .feedback-body{color:var(--text-secondary)}
+.feedback.info{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.feedback.info .feedback-body{color:var(--text-secondary)}
+.feedback .feedback-answer-label{font-weight:700;font-size:13px;margin-top:10px}
 .feedback .feedback-formula{display:block;margin:8px 0 4px;font-size:1.1rem;text-align:center}
 
 /* Action buttons */
@@ -170,7 +173,6 @@ footer a:hover{text-decoration:underline}
   .app-header{padding:0 14px}
   .main{padding:0 14px 60px}
   .exercise-card{padding:22px 18px}
-  .mode-tab{padding:9px 6px;font-size:13px}
   .actions{flex-direction:column}
   .btn{width:100%}
 }
@@ -259,11 +261,11 @@ footer a:hover{text-decoration:underline}
         <div class="preview-wrap" id="preview"><span class="ph">↓ live voorbeeld van wat je typt</span></div>
       </div>
 
-      <div class="feedback" id="feedback"></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
 
       <div class="actions">
         <button class="btn btn-primary" id="check-btn">Controleer</button>
-        <button class="btn btn-ghost" id="skip-btn" type="button">Overslaan →</button>
+        <button class="btn btn-ghost" id="skip-btn" type="button">Toon antwoord</button>
       </div>
     </div>
 
@@ -389,15 +391,19 @@ function parseAnswer(input){
 function roundToSigFigs(value, n){
   if(value === 0) return 0;
   const sign = value < 0 ? -1 : 1;
-  const abs = Math.abs(value);
-  const mag = Math.floor(Math.log10(abs));
+  // kleine opwaartse correctie zodat binaire representatiefouten een
+  // decimale ,5 niet nét onder de grens duwen (1,005 → 1,01, niet 1,00)
+  const abs = Math.abs(value) * (1 + 1e-12);
+  let mag = Math.floor(Math.log10(abs));
+  if(Math.pow(10, mag + 1) <= abs) mag += 1;
   const factor = Math.pow(10, n - 1 - mag);
   return sign * Math.round(abs * factor) / factor;
 }
 
 function roundToDecimals(value, d){
   const f = Math.pow(10, d);
-  return Math.round(value * f) / f;
+  const sign = value < 0 ? -1 : 1;
+  return sign * Math.round(Math.abs(value) * f * (1 + 1e-12)) / f;
 }
 
 /* Format expected answer for display */
@@ -415,11 +421,12 @@ function formatSigFigsLatex(value, sigFigs){
   const sign = value < 0 ? '-' : '';
   const abs = Math.abs(value);
   const mag = Math.floor(Math.log10(abs));
-  // Use scientific if integer form would be ambiguous (trailing zeros, no decimal),
-  // OR if number is very small.
   const decimalsNeeded = sigFigs - 1 - mag;
-  if(decimalsNeeded < 0 || mag <= -3){
-    // Scientific notation
+  // Wetenschappelijke notatie zodra de decimale vorm dubbelzinnig zou zijn:
+  // te weinig decimalen beschikbaar, óf een geheel getal dat op nul eindigt
+  // (zoals 10 bij 2 sig.cijfers), óf een erg klein getal.
+  const ambiguousInt = decimalsNeeded === 0 && /0$/.test(abs.toFixed(0));
+  if(decimalsNeeded < 0 || ambiguousInt || mag <= -3){
     const mantissa = abs / Math.pow(10, mag);
     const mantissaStr = mantissa.toFixed(sigFigs - 1).replace('.', '{,}');
     return `${sign}${mantissaStr} \\cdot 10^{${mag}}`;
@@ -479,6 +486,10 @@ function operandToLatex(op){
   return m;
 }
 
+function operandToHtml(op){
+  return op.scientific ? `${op.mantissaStr}·10<sup>${op.exponent}</sup>` : op.mantissaStr;
+}
+
 /* ====================================================================
    Generators — Mode A (count sig figs)
    ==================================================================== */
@@ -535,17 +546,14 @@ function genModeA(){
       mantissaStr = intP + ',' + decP;
     }
   } else if(v === 'scientific'){
-    // 3,4·10⁻³, 0,1250·10⁶
-    const intDigits = randInt(1,2);
+    // 3,4·10⁻³ of 1,250·10⁶ — genormaliseerd: mantisse tussen 1 en 10
     const decDigits = randInt(1,3);
-    let intP = randInt(0,1) === 0 ? String(randInt(1,9)) : '0';
-    if(intP === '0' && intDigits === 2) intP = '0' + String(randInt(0,9));
+    const intP = String(randInt(1,9));
     let decP = '';
-    for(let i=0;i<decDigits-1;i++) decP += String(randInt(0,9));
-    decP += String(randInt(0,9));  // last digit can be zero (it counts in decimals)
+    for(let i=0;i<decDigits;i++) decP += String(randInt(0,9)); // eindnul mag: die telt mee
     if(decP === '0'.repeat(decDigits)) decP = decP.slice(0,-1) + String(randInt(1,9));
     mantissaStr = intP + ',' + decP;
-    exponent = randInt(-12, 12);
+    exponent = randInt(-9, 9);
     if(exponent === 0) exponent = pick([-3,-2,2,3,6]);
     isSci = true;
   }
@@ -575,20 +583,19 @@ function genModeB(){
 
   if(v === 'big_int'){
     // 7892000000 → must use scientific in answer
-    const digits = randInt(4,7);
+    const digits = randInt(n + 1, 7); // altijd meer cijfers dan gevraagd
     let s = String(randInt(1,9));
     for(let i=1;i<digits;i++) s += String(randInt(0,9));
     // Pad with zeros
     const trailing = randInt(0,3);
     s += '0'.repeat(trailing);
     sourceValue = parseFloat(s);
-    sourceLatex = s.split('').reverse().reduce((a,c,i) => (i>0 && i%3===0 ? c+a : c+a), '').replace(/\B(?=(\d{3})+(?!\d))/g, '\\,'); // thousand separators
-    sourceLatex = s; // simpler: no thousand separators
     sourceText = s;
+    sourceLatex = s.replace(/\B(?=(\d{3})+(?!\d))/g, '\\,'); // dunne spatie per duizendtal
   } else if(v === 'small_decimal'){
     // 0,0588
     const leadZeros = randInt(1,3);
-    const sigDigits = randInt(3,5);
+    const sigDigits = randInt(n + 1, n + 3); // altijd meer sig.cijfers dan gevraagd
     let dec = '0'.repeat(leadZeros) + String(randInt(1,9));
     for(let i=1;i<sigDigits;i++) dec += String(randInt(0,9));
     sourceText = '0,' + dec;
@@ -597,7 +604,7 @@ function genModeB(){
   } else if(v === 'mid_decimal'){
     // 4,562 or 1,000009
     const intP = String(randInt(1,9));
-    const decDigits = randInt(3,6);
+    const decDigits = randInt(Math.max(3, n), 6); // altijd meer sig.cijfers dan gevraagd
     let dec = '';
     for(let i=0;i<decDigits;i++) dec += String(randInt(0,9));
     if(dec.replace(/0/g,'').length === 0) dec = dec.slice(0,-1) + String(randInt(1,9));
@@ -607,12 +614,12 @@ function genModeB(){
   } else {
     // Source already in scientific — e.g., 7,89216·10^4
     const intP = String(randInt(1,9));
-    const decDigits = randInt(3,5);
+    const decDigits = randInt(Math.max(3, n), 5); // altijd meer sig.cijfers dan gevraagd
     let dec = '';
     for(let i=0;i<decDigits;i++) dec += String(randInt(0,9));
     if(dec.replace(/0/g,'').length === 0) dec = dec.slice(0,-1) + String(randInt(1,9));
     const mant = intP + ',' + dec;
-    const exp = randInt(-10, 12);
+    const exp = randInt(-9, 9);
     if(exp === 0){
       sourceText = mant;
       sourceValue = parseFloat(mant.replace(',','.'));
@@ -667,9 +674,9 @@ function genOperandMultDiv(){
     const mant = randomMantissa(2,4);
     return makeOperandPlain(mant);
   }
-  // Scientific
+  // Scientific — schoolgebruikelijke exponenten
   const mant = randomMantissa(2,4);
-  const exp = pick([-12,-8,-6,-5,-3,-2,2,3,4,5,6,8,10,14]);
+  const exp = pick([-9,-6,-5,-4,-3,-2,2,3,4,5,6,8,9]);
   return makeOperandSci(mant, exp);
 }
 
@@ -691,11 +698,44 @@ function genOperandAddSub(){
 }
 
 function genModeC(filter){
-  // filter: 'mix' | 'mult' | 'add'
-  if(filter === 'mult') return genMultDivQuestion();
-  if(filter === 'add')  return genAddSubQuestion();
-  // mix: bias slightly toward mult/div (more common in physics)
-  return Math.random() < 0.6 ? genMultDivQuestion() : genAddSubQuestion();
+  // filter: 'mix' | 'mult' | 'add' — ±30% van de opgaven heeft een natuurkundige context
+  const type = filter === 'mult' ? 'mult'
+             : filter === 'add'  ? 'add'
+             : (Math.random() < 0.6 ? 'mult' : 'add');
+  if(Math.random() < 0.3) return genContextQuestion(type);
+  return type === 'mult' ? genMultDivQuestion() : genAddSubQuestion();
+}
+
+function buildMultDivQuestion(a, b, op, ctx){
+  const exact = op === '*' ? a.value * b.value : a.value / b.value;
+  const requiredSigFigs = Math.min(a.sigFigs, b.sigFigs);
+  const rounded = roundToSigFigs(exact, requiredSigFigs);
+  const bottleneck = a.sigFigs <= b.sigFigs ? a : b;
+  const richer = a.sigFigs > b.sigFigs ? a : b;
+
+  let latex;
+  if(op === '/'){
+    latex = `\\dfrac{${operandToLatex(a)}}{${operandToLatex(b)}}`;
+  } else {
+    latex = `${operandToLatex(a)} \\cdot ${operandToLatex(b)}`;
+  }
+  if(ctx && ctx.symbol) latex = `${ctx.symbol} = ${latex}`;
+
+  return {
+    mode: 'C',
+    type: 'mult',
+    operator: op,
+    a, b,
+    exactValue: exact,
+    rounded,
+    requiredSigFigs,
+    bottleneck,
+    richer,
+    latex,
+    expectedLatex: formatSigFigsLatex(rounded, requiredSigFigs),
+    contextHtml: ctx ? ctx.story : null,
+    unit: ctx ? ctx.unit : null
+  };
 }
 
 function genMultDivQuestion(){
@@ -714,34 +754,7 @@ function genMultDivQuestion(){
     }
   }
   if(op === '/' && Math.abs(b.value) < 1e-15) b = genOperandMultDiv();
-
-  const exact = op === '*' ? a.value * b.value : a.value / b.value;
-  const requiredSigFigs = Math.min(a.sigFigs, b.sigFigs);
-  const rounded = roundToSigFigs(exact, requiredSigFigs);
-  const bottleneck = a.sigFigs <= b.sigFigs ? a : b;
-  const richer = a.sigFigs > b.sigFigs ? a : b;
-
-  // Build LaTeX
-  let latex;
-  if(op === '/'){
-    latex = `\\dfrac{${operandToLatex(a)}}{${operandToLatex(b)}}`;
-  } else {
-    latex = `${operandToLatex(a)} \\cdot ${operandToLatex(b)}`;
-  }
-
-  return {
-    mode: 'C',
-    type: 'mult',
-    operator: op,
-    a, b,
-    exactValue: exact,
-    rounded,
-    requiredSigFigs,
-    bottleneck,
-    richer,
-    latex,
-    expectedLatex: formatSigFigsLatex(rounded, requiredSigFigs)
-  };
+  return buildMultDivQuestion(a, b, op, null);
 }
 
 /* Tricky case: engineer two operands whose sum/difference ends in a trailing zero,
@@ -784,6 +797,33 @@ function genTrickyAddSubOperands(op){
   }
 }
 
+function buildAddSubQuestion(a, b, op, ctx){
+  const exact = op === '+' ? a.value + b.value : a.value - b.value;
+  const requiredDecimals = Math.min(a.decimals, b.decimals);
+  const rounded = roundToDecimals(exact, requiredDecimals);
+  const bottleneck = a.decimals <= b.decimals ? a : b;
+  const richer = a.decimals > b.decimals ? a : b;
+
+  let latex = `${operandToLatex(a)} ${op === '+' ? '+' : '-'} ${operandToLatex(b)}`;
+  if(ctx && ctx.symbol) latex = `${ctx.symbol} = ${latex}`;
+
+  return {
+    mode: 'C',
+    type: 'add',
+    operator: op,
+    a, b,
+    exactValue: exact,
+    rounded,
+    requiredDecimals,
+    bottleneck,
+    richer,
+    latex,
+    expectedLatex: formatDecimalsLatex(rounded, requiredDecimals),
+    contextHtml: ctx ? ctx.story : null,
+    unit: ctx ? ctx.unit : null
+  };
+}
+
 function genAddSubQuestion(){
   const op = Math.random() < 0.5 ? '+' : '-';
   let a, b;
@@ -803,33 +843,95 @@ function genAddSubQuestion(){
     }
   }
   // Avoid result that's essentially zero or tiny
-  if(op === '-' && Math.abs(a.value - b.value) < 0.01){
-    // Re-roll b smaller
+  let guard = 0;
+  while(op === '-' && Math.abs(a.value - b.value) < 0.05 && guard < 6){
     b = genOperandAddSub();
+    guard++;
   }
-  const exact = op === '+' ? a.value + b.value : a.value - b.value;
-  const requiredDecimals = Math.min(a.decimals, b.decimals);
-  const rounded = roundToDecimals(exact, requiredDecimals);
-  const bottleneck = a.decimals <= b.decimals ? a : b;
-  const richer = a.decimals > b.decimals ? a : b;
+  return buildAddSubQuestion(a, b, op, null);
+}
 
-  const aL = operandToLatex(a);
-  const bL = operandToLatex(b);
-  const latex = `${aL} ${op === '+' ? '+' : '-'} ${bL}`;
+/* ====================================================================
+   Contextopgaven — dezelfde sommen, verpakt in een natuurkundige situatie
+   ==================================================================== */
 
-  return {
-    mode: 'C',
-    type: 'add',
-    operator: op,
-    a, b,
-    exactValue: exact,
-    rounded,
-    requiredDecimals,
-    bottleneck,
-    richer,
-    latex,
-    expectedLatex: formatDecimalsLatex(rounded, requiredDecimals)
-  };
+/* Plain operand met `sig` sig.cijfers, waarde in [lo, hi], ondubbelzinnig
+   genoteerd (dus nooit een geheel getal dat op nul eindigt). */
+function randOperandRange(lo, hi, sig){
+  for(let t=0;t<30;t++){
+    const r = roundToSigFigs(lo + Math.random() * (hi - lo), sig);
+    const mag = Math.floor(Math.log10(Math.abs(r)));
+    const dec = sig - 1 - mag;
+    if(dec < 0) continue;
+    const str = r.toFixed(dec).replace('.', ',');
+    if(dec === 0 && /0$/.test(str)) continue;
+    return makeOperandPlain(str);
+  }
+  return makeOperandPlain('3,5'); // fallback, praktisch onbereikbaar
+}
+
+/* Plain operand met precies `d` decimalen, waarde in [lo, hi]. */
+function randOperandDec(lo, hi, d){
+  const f = Math.pow(10, d);
+  const v = randInt(Math.ceil(lo * f), Math.floor(hi * f)) / f;
+  return makeOperandPlain(v.toFixed(d).replace('.', ','));
+}
+
+const CONTEXTS_MULT = [
+  () => {
+    const V = randOperandRange(2, 95, randInt(2,3));
+    const m = randOperandRange(V.value * 0.7, V.value * 12, randInt(3,4));
+    return { a:m, b:V, op:'/', symbol:'\\rho', unit:'g/cm³',
+      story:`Een blokje metaal heeft een massa van <strong>${m.mantissaStr} g</strong> en een volume van <strong>${V.mantissaStr} cm³</strong>. Bereken de dichtheid ρ = m / V in g/cm³.` };
+  },
+  () => {
+    const t = randOperandRange(4, 95, randInt(2,3));
+    const s = randOperandRange(t.value * 1.5, t.value * 30, randInt(3,4));
+    return { a:s, b:t, op:'/', symbol:'v', unit:'m/s',
+      story:`Een auto legt <strong>${s.mantissaStr} m</strong> af in <strong>${t.mantissaStr} s</strong>. Bereken de snelheid v = s / t in m/s.` };
+  },
+  () => {
+    const m = randOperandRange(0.5, 85, randInt(2,3));
+    const a = randOperandRange(1.2, 9.8, randInt(2,3));
+    return { a:m, b:a, op:'*', symbol:'F', unit:'N',
+      story:`Een kar van <strong>${m.mantissaStr} kg</strong> krijgt een versnelling van <strong>${a.mantissaStr} m/s²</strong>. Bereken de kracht F = m · a in newton.` };
+  },
+  () => {
+    const U = randOperandRange(3, 230, randInt(2,3));
+    const I = randOperandRange(0.10, 16, randInt(2,3));
+    return { a:U, b:I, op:'*', symbol:'P', unit:'W',
+      story:`Over een apparaat staat een spanning van <strong>${U.mantissaStr} V</strong> en er loopt een stroom van <strong>${I.mantissaStr} A</strong>. Bereken het vermogen P = U · I in watt.` };
+  }
+];
+
+const CONTEXTS_ADD = [
+  () => {
+    const m1 = randOperandDec(20, 600, pick([0,1]));
+    const m2 = randOperandDec(0.5, 60, pick([1,2]));
+    return { a:m1, b:m2, op:'+', symbol:'m', unit:'g',
+      story:`Je legt twee blokjes op een weegschaal: <strong>${m1.mantissaStr} g</strong> en <strong>${m2.mantissaStr} g</strong>. Bereken de totale massa in gram.` };
+  },
+  () => {
+    const T1 = randOperandDec(15, 25, pick([0,1]));
+    const T2 = randOperandDec(40, 95, pick([1,2]));
+    return { a:T2, b:T1, op:'-', symbol:'\\Delta T', unit:'°C',
+      story:`Water wordt verwarmd van <strong>${T1.mantissaStr} °C</strong> naar <strong>${T2.mantissaStr} °C</strong>. Bereken de temperatuurstijging ΔT in °C.` };
+  },
+  () => {
+    const l = randOperandDec(1.2, 4.8, pick([1,2]));
+    const stuk = randOperandDec(0.05, 0.9, pick([2,3]));
+    return { a:l, b:stuk, op:'-', symbol:'l', unit:'m',
+      story:`Van een plank van <strong>${l.mantissaStr} m</strong> zaag je een stuk van <strong>${stuk.mantissaStr} m</strong> af. Bereken hoeveel meter plank er overblijft.` };
+  }
+];
+
+function genContextQuestion(type){
+  if(type === 'mult'){
+    const c = pick(CONTEXTS_MULT)();
+    return buildMultDivQuestion(c.a, c.b, c.op, c);
+  }
+  const c = pick(CONTEXTS_ADD)();
+  return buildAddSubQuestion(c.a, c.b, c.op, c);
 }
 
 /* ====================================================================
@@ -847,8 +949,9 @@ function checkModeA(input, expected){
   }
   return {
     ok:false, reason:'wrong_count',
-    title:`Niet correct — antwoord is ${expected}`,
-    body:`Onthoud: <strong>voorloop-nullen tellen niet mee</strong>, maar nullen na een cijfer ongelijk aan nul (zoals in 0,80910) en tussen cijfers wél. Bij wetenschappelijke notatie tellen alleen de cijfers vóór ·10ⁿ.`
+    title:'Niet correct',
+    body:`Onthoud: <strong>voorloop-nullen tellen niet mee</strong>, maar nullen na een cijfer ongelijk aan nul (zoals in 0,80910) en tussen cijfers wél. Bij wetenschappelijke notatie tellen alleen de cijfers vóór ·10ⁿ.`,
+    revealHtml:`Dit getal heeft <strong>${expected}</strong> significante cijfers.`
   };
 }
 
@@ -862,7 +965,7 @@ function checkModeB(input, q){
     return {
       ok:false, reason:'ambiguous',
       title:'Dubbelzinnige precisie',
-      body:`Je schreef <code>${input}</code>. Dat is dubbelzinnig: het kan ${parsed.sigFigs===1?'1':'meerdere aantallen'} sig.cijfers betekenen. Gebruik wetenschappelijke notatie zodat ondubbelzinnig is dat het er ${q.n} zijn — bijvoorbeeld het verwachte antwoord:`,
+      body:`Je schreef <code>${input}</code>. Zonder komma of wetenschappelijke notatie is niet te zien of de eindnullen meetellen. Gebruik wetenschappelijke notatie, zodat ondubbelzinnig is dat het er ${q.n} zijn.`,
       formulaLatex: q.expectedLatex
     };
   }
@@ -870,16 +973,21 @@ function checkModeB(input, q){
     return {
       ok:false, reason:'wrong_sig_count',
       title:`Verkeerd aantal sig.cijfers — je gaf er ${parsed.sigFigs}, gevraagd ${q.n}`,
-      body:`Het gevraagde antwoord is:`,
+      body:`Tel opnieuw: alle cijfers vanaf het eerste cijfer ongelijk aan nul tellen mee, óók eindnullen na de komma.`,
       formulaLatex: q.expectedLatex
     };
   }
-  const tol = Math.max(Math.abs(q.expectedValue) * 1e-6, 1e-12);
-  if(Math.abs(parsed.value - q.expectedValue) > Math.abs(q.expectedValue) * 0.01){
+  // Eén eenheid fout in het laatste significante cijfer is de kleinst mogelijke
+  // afrondfout; alles ruim daarbinnen (kwart eenheid) telt als correct.
+  const ulpB = Math.pow(10, Math.floor(Math.log10(Math.abs(q.expectedValue))) - q.n + 1);
+  if(Math.abs(parsed.value - q.expectedValue) > ulpB * 0.25){
+    const rel = Math.abs(parsed.value - q.expectedValue) / Math.abs(q.expectedValue);
     return {
       ok:false, reason:'wrong_value',
-      title:'Verkeerde afronding',
-      body:`Je antwoord heeft wel ${q.n} sig.cijfers, maar de waarde klopt niet. Correct antwoord:`,
+      title: rel > 0.4 ? 'Waarde klopt niet' : 'Verkeerde afronding',
+      body: rel > 0.4
+        ? `Je antwoord heeft ${q.n} sig.cijfers, maar de waarde wijkt sterk af — controleer je macht van 10.`
+        : `Je antwoord heeft wel ${q.n} sig.cijfers, maar de afronding klopt niet. Kijk naar het eerste cijfer dat wegvalt: bij 5 of hoger rond je af naar boven.`,
       formulaLatex: q.expectedLatex
     };
   }
@@ -890,18 +998,18 @@ function checkModeC(input, q){
   const parsed = parseAnswer(input);
   if(!parsed.valid){
     return { ok:false, reason:'parse', title:'Notatie niet herkend',
-             body:`Bekijk de notatie-hulp (?) voor de geaccepteerde notaties.` };
+             body:`Typ alleen het getal, zonder eenheid. Bekijk de notatie-hulp (?) voor de geaccepteerde notaties.` };
   }
 
-  // Check mathematical value (against the EXACT, not rounded — within generous tolerance)
-  const exactTol = Math.max(Math.abs(q.exactValue) * 0.005, 1e-12);
-  const roundedTol = Math.max(Math.abs(q.rounded) * 1e-6, 1e-12);
-  // If the value is way off from the exact result → rekenfout
-  if(Math.abs(parsed.value - q.exactValue) > Math.abs(q.exactValue) * 0.1 + 0.001){
+  // If the value is way off from the exact result → rekenfout.
+  // Bij +/− mag correct afronden zelf al tot een halve eenheid van de laatste
+  // decimaal afwijken (7 − 5,61 = 1,39 → antwoord 1), dus tel die ruimte mee.
+  const roundSlack = q.type === 'add' ? Math.pow(10, -q.requiredDecimals) * 0.55 : 0;
+  if(Math.abs(parsed.value - q.exactValue) > Math.abs(q.exactValue) * 0.1 + 0.001 + roundSlack){
     return {
       ok:false, reason:'calc_error',
       title:'Rekenfout',
-      body:`De waarde van je antwoord klopt niet. Bereken eerst met de rekenmachine, en rond daarna af. Correct antwoord:`,
+      body:`De waarde van je antwoord klopt niet. Bereken eerst met de rekenmachine, en rond daarna pas af.`,
       formulaLatex: q.expectedLatex
     };
   }
@@ -911,7 +1019,7 @@ function checkModeC(input, q){
       return {
         ok:false, reason:'ambiguous',
         title:'Dubbelzinnige precisie',
-        body:`Je antwoord <code>${input}</code> is dubbelzinnig in aantal sig.cijfers. Bij <strong>×</strong> en <strong>÷</strong> geldt: kleinste aantal sig.cijfers van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft ${q.bottleneck.sigFigs} sig.cijfers, dus het antwoord ook. Verwacht:`,
+        body:`Je antwoord <code>${input}</code> is dubbelzinnig in aantal sig.cijfers. Bij <strong>×</strong> en <strong>÷</strong> geldt: kleinste aantal sig.cijfers van de gegevens. <strong>${operandToHtml(q.bottleneck)}</strong> heeft ${q.bottleneck.sigFigs} sig.cijfers, dus het antwoord ook. Gebruik wetenschappelijke notatie.`,
         formulaLatex: q.expectedLatex
       };
     }
@@ -919,23 +1027,25 @@ function checkModeC(input, q){
       return {
         ok:false, reason:'wrong_sig_count',
         title:`Verkeerd aantal sig.cijfers (je gaf er ${parsed.sigFigs}, moet ${q.requiredSigFigs})`,
-        body:`Bij <strong>×</strong> en <strong>÷</strong> noteer je het antwoord in het kleinste aantal sig.cijfers van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft er ${q.bottleneck.sigFigs}, <strong>${q.richer.mantissaStr}</strong> heeft er ${q.richer.sigFigs} → antwoord met ${q.requiredSigFigs}. Verwacht:`,
+        body:`Bij <strong>×</strong> en <strong>÷</strong> noteer je het antwoord in het kleinste aantal sig.cijfers van de gegevens. <strong>${operandToHtml(q.bottleneck)}</strong> heeft er ${q.bottleneck.sigFigs}, <strong>${operandToHtml(q.richer)}</strong> heeft er ${q.richer.sigFigs} → antwoord met ${q.requiredSigFigs}.`,
         formulaLatex: q.expectedLatex
       };
     }
-    // Value is right, precision is right
-    if(Math.abs(parsed.value - q.rounded) > Math.abs(q.rounded) * 0.01){
+    // Waarde en precisie kloppen — controleer de afronding zelf, op een
+    // kwart eenheid in het laatste significante cijfer nauwkeurig.
+    const ulpC = Math.pow(10, Math.floor(Math.log10(Math.abs(q.rounded))) - q.requiredSigFigs + 1);
+    if(Math.abs(parsed.value - q.rounded) > ulpC * 0.25){
       return {
         ok:false, reason:'rounding',
         title:'Afronding klopt niet',
-        body:`Je hebt het juiste aantal sig.cijfers, maar de afronding zelf klopt niet. Verwacht:`,
+        body:`Je hebt het juiste aantal sig.cijfers, maar de afronding zelf klopt niet. Kijk naar het eerste cijfer dat wegvalt: bij 5 of hoger rond je af naar boven.`,
         formulaLatex: q.expectedLatex
       };
     }
     return {
       ok:true,
       title:'Goed!',
-      body:`Bij ×/÷ telt het kleinste aantal sig.cijfers: <strong>${q.bottleneck.sigFigs}</strong> (van het getal ${q.bottleneck.mantissaStr}).`
+      body:`Bij ×/÷ telt het kleinste aantal sig.cijfers: <strong>${q.bottleneck.sigFigs}</strong> (van het getal ${operandToHtml(q.bottleneck)}).`
     };
   } else {
     // add/sub
@@ -943,7 +1053,7 @@ function checkModeC(input, q){
       return {
         ok:false, reason:'no_scientific_for_addsub',
         title:'Gebruik gewone decimale notatie',
-        body:`Bij <strong>+</strong> en <strong>−</strong> draait het om decimalen, niet om sig.cijfers. Schrijf je antwoord als gewone decimaal:`,
+        body:`Bij <strong>+</strong> en <strong>−</strong> draait het om decimalen, niet om sig.cijfers. Schrijf je antwoord als gewone decimaal.`,
         formulaLatex: q.expectedLatex
       };
     }
@@ -951,15 +1061,15 @@ function checkModeC(input, q){
       return {
         ok:false, reason:'wrong_decimals',
         title:`Verkeerd aantal decimalen (je gaf er ${parsed.decimalPlaces}, moet ${q.requiredDecimals})`,
-        body:`Bij <strong>+</strong> en <strong>−</strong> noteer je het antwoord in het kleinste aantal decimalen van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft ${q.bottleneck.decimals} decimalen, <strong>${q.richer.mantissaStr}</strong> heeft er ${q.richer.decimals} → antwoord met ${q.requiredDecimals}. Verwacht:`,
+        body:`Bij <strong>+</strong> en <strong>−</strong> noteer je het antwoord in het kleinste aantal decimalen van de gegevens. <strong>${q.bottleneck.mantissaStr}</strong> heeft ${q.bottleneck.decimals} decimalen, <strong>${q.richer.mantissaStr}</strong> heeft er ${q.richer.decimals} → antwoord met ${q.requiredDecimals}.`,
         formulaLatex: q.expectedLatex
       };
     }
-    if(Math.abs(parsed.value - q.rounded) > Math.pow(10, -q.requiredDecimals) * 0.6){
+    if(Math.abs(parsed.value - q.rounded) > Math.pow(10, -q.requiredDecimals) * 0.4){
       return {
         ok:false, reason:'rounding',
         title:'Afronding klopt niet',
-        body:`Je hebt het juiste aantal decimalen, maar de afronding zelf klopt niet. Verwacht:`,
+        body:`Je hebt het juiste aantal decimalen, maar de afronding zelf klopt niet. Kijk naar het eerste cijfer dat wegvalt: bij 5 of hoger rond je af naar boven.`,
         formulaLatex: q.expectedLatex
       };
     }
@@ -996,6 +1106,7 @@ const state = {
   mode: null,           // null on landing; one of MODES once a card is clicked
   current: null,
   awaiting: 'check',    // 'check' or 'next'
+  attempt: 0,           // 0 = eerste poging, 1 = herkansing
   streak: { A:0, B:0, 'C-mix':0, 'C-mult':0, 'C-add':0 },
   score:  { A:{right:0,total:0}, B:{right:0,total:0},
             'C-mix':{right:0,total:0}, 'C-mult':{right:0,total:0}, 'C-add':{right:0,total:0} }
@@ -1052,14 +1163,15 @@ function setActiveCard(mode){
 
 function newQuestion(){
   state.awaiting = 'check';
-  ui.feedback.classList.remove('show','ok','wrong');
+  state.attempt = 0;
+  ui.feedback.classList.remove('show','ok','wrong','info');
   ui.feedback.innerHTML = '';
   ui.input.classList.remove('correct','wrong');
   ui.input.value = '';
   ui.input.disabled = false;
   ui.checkBtn.textContent = 'Controleer';
   ui.checkBtn.disabled = false;
-  ui.skipBtn.textContent = 'Overslaan →';
+  ui.skipBtn.textContent = 'Toon antwoord';
 
   const desc = modeDescriptor(state.mode);
   ui.modeLabel.textContent = desc.label;
@@ -1088,12 +1200,15 @@ function newQuestion(){
     // C-mix, C-mult, C-add
     const filter = state.mode === 'C-mult' ? 'mult' : (state.mode === 'C-add' ? 'add' : 'mix');
     state.current = genModeC(filter);
+    const q = state.current;
     ui.input.classList.remove('small');
     ui.input.type = 'text';
     ui.input.placeholder = 'bv. 3,0·10^3';
     ui.input.removeAttribute('inputMode');
-    ui.question.innerHTML = `<div class="q-text">Bereken en rond significant af:</div><div id="q-render"></div>`;
-    renderKatex(document.getElementById('q-render'), state.current.latex + ' =');
+    if(q.unit) ui.inputLabel.textContent = `Jouw antwoord (in ${q.unit})`;
+    const qText = q.contextHtml || 'Bereken en rond significant af:';
+    ui.question.innerHTML = `<div class="q-text">${qText}</div><div id="q-render"></div>`;
+    renderKatex(document.getElementById('q-render'), q.latex + ' =');
     ui.preview.innerHTML = '<span class="ph">↓ live voorbeeld van wat je typt</span>';
   }
   ui.input.focus();
@@ -1149,17 +1264,32 @@ function refreshScoreDisplay(){
   ui.sessionScore.textContent = `${s.right} / ${s.total} deze sessie`;
 }
 
-function showFeedback(result){
-  ui.feedback.classList.remove('ok','wrong');
-  ui.feedback.classList.add('show', result.ok ? 'ok' : 'wrong');
-  let html = `<div class="feedback-title">${result.title}</div><div class="feedback-body">${result.body || ''}</div>`;
-  if(result.formulaLatex){
+function showFeedback(result, opts){
+  opts = opts || {};
+  const reveal = opts.reveal !== false;
+  ui.feedback.classList.remove('ok','wrong','info');
+  ui.feedback.classList.add('show', result.neutral ? 'info' : (result.ok ? 'ok' : 'wrong'));
+  let body = result.body || '';
+  if(opts.retry) body += ' <strong>Probeer het nog een keer!</strong>';
+  let html = `<div class="feedback-title">${result.title}</div><div class="feedback-body">${body}</div>`;
+  if(reveal && result.revealHtml){
+    html += `<div class="feedback-body" style="margin-top:6px">${result.revealHtml}</div>`;
+  }
+  if(reveal && result.formulaLatex){
+    if(!result.neutral) html += `<div class="feedback-answer-label">Het juiste antwoord:</div>`;
     html += `<div class="feedback-formula" id="fb-formula"></div>`;
   }
   ui.feedback.innerHTML = html;
-  if(result.formulaLatex){
+  if(reveal && result.formulaLatex){
     renderKatex(document.getElementById('fb-formula'), result.formulaLatex);
   }
+}
+
+function finishQuestion(){
+  state.awaiting = 'next';
+  ui.checkBtn.textContent = 'Volgende →';
+  ui.skipBtn.textContent = 'Nieuwe opgave';
+  ui.input.disabled = true;
 }
 
 function onCheck(){
@@ -1173,31 +1303,71 @@ function onCheck(){
   else if(state.mode === 'B') result = checkModeB(input, state.current);
   else result = checkModeC(input, state.current);
 
-  // Update score
-  state.score[state.mode].total += 1;
-  if(result.ok){
-    state.score[state.mode].right += 1;
-    setStreak(state.mode, state.streak[state.mode] + 1);
-    ui.input.classList.add('correct');
-  } else {
-    setStreak(state.mode, 0);
-    ui.input.classList.add('wrong');
+  // Onleesbare notatie: geen poging verbruikt, telt niet in de score
+  if(!result.ok && result.reason === 'parse'){
+    showFeedback(result, { reveal:false });
+    ui.input.focus();
+    return;
   }
-  refreshScoreDisplay();
-  showFeedback(result);
 
-  state.awaiting = 'next';
-  ui.checkBtn.textContent = 'Volgende →';
-  ui.skipBtn.textContent = 'Nieuwe opgave';
-  ui.input.disabled = true;
+  // Score en streak tellen alleen de eerste echte poging
+  if(state.attempt === 0){
+    state.score[state.mode].total += 1;
+    if(result.ok){
+      state.score[state.mode].right += 1;
+      setStreak(state.mode, state.streak[state.mode] + 1);
+    } else {
+      setStreak(state.mode, 0);
+    }
+    refreshScoreDisplay();
+  }
+
+  if(result.ok){
+    ui.input.classList.remove('wrong');
+    ui.input.classList.add('correct');
+    if(state.attempt > 0) result.title = 'Goed — in de herkansing!';
+    showFeedback(result);
+    finishQuestion();
+  } else if(state.attempt === 0){
+    // Eerste fout: hint tonen en laten herkansen, zonder het antwoord te verklappen
+    state.attempt = 1;
+    ui.input.classList.add('wrong');
+    showFeedback(result, { reveal:false, retry:true });
+    ui.input.focus();
+    ui.input.select();
+  } else {
+    ui.input.classList.add('wrong');
+    showFeedback(result);
+    finishQuestion();
+  }
 }
 
-function onSkip(){
-  if(state.awaiting === 'check'){
-    // Just skip without scoring
-    setStreak(state.mode, 0);
+function onShowAnswer(){
+  if(state.awaiting === 'next'){
+    newQuestion();
+    return;
   }
-  newQuestion();
+  setStreak(state.mode, 0);
+  const q = state.current;
+  let result;
+  if(state.mode === 'A'){
+    result = { neutral:true, title:'Het antwoord',
+      body:`Dit getal heeft <strong>${q.expectedSigFigs}</strong> significante cijfers. Voorloopnullen tellen niet mee; eindnullen na de komma en nullen tussen cijfers wél.` };
+  } else if(state.mode === 'B'){
+    result = { neutral:true, title:'Het antwoord',
+      body:`Afgerond op ${q.n} significante cijfers:`, formulaLatex:q.expectedLatex };
+  } else if(q.type === 'mult'){
+    result = { neutral:true, title:'Het antwoord',
+      body:`Bij <strong>×</strong> en <strong>÷</strong> geldt het kleinste aantal sig.cijfers van de gegevens: <strong>${operandToHtml(q.bottleneck)}</strong> heeft er ${q.bottleneck.sigFigs}, dus het antwoord ook.`,
+      formulaLatex:q.expectedLatex };
+  } else {
+    result = { neutral:true, title:'Het antwoord',
+      body:`Bij <strong>+</strong> en <strong>−</strong> geldt het kleinste aantal decimalen van de gegevens: <strong>${q.bottleneck.mantissaStr}</strong> heeft er ${q.bottleneck.decimals}, dus het antwoord ook.`,
+      formulaLatex:q.expectedLatex };
+  }
+  showFeedback(result);
+  ui.input.classList.remove('correct','wrong');
+  finishQuestion();
 }
 
 function switchMode(mode){
@@ -1219,13 +1389,27 @@ function switchMode(mode){
 /* Wire up */
 ui.subBtns.forEach(b => b.addEventListener('click', () => switchMode(b.dataset.mode)));
 ui.checkBtn.addEventListener('click', onCheck);
-ui.skipBtn.addEventListener('click', onSkip);
-ui.input.addEventListener('input', updatePreview);
+ui.skipBtn.addEventListener('click', onShowAnswer);
+ui.input.addEventListener('input', () => {
+  ui.input.classList.remove('wrong');
+  updatePreview();
+});
 ui.input.addEventListener('keydown', e => {
   if(e.key === 'Enter'){
     e.preventDefault();
     onCheck();
   }
+});
+// Enter gaat ook door naar de volgende opgave (het invoerveld is dan disabled,
+// dus dit vangt de toets op documentniveau af)
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Enter' || e.defaultPrevented) return;
+  if(state.awaiting !== 'next' || !state.mode) return;
+  if(document.getElementById('help-overlay').classList.contains('show')) return;
+  const t = e.target;
+  if(t && (t.tagName === 'BUTTON' || t.tagName === 'INPUT')) return;
+  e.preventDefault();
+  newQuestion();
 });
 
 // Help popup
