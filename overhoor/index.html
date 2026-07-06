@@ -526,10 +526,38 @@ function catHasVisibleRows(cat,level){
   return cat.rows.some(r=>lv.includes(r.lv));
 }
 
-// In de onderbouw heten de vakgebieden alledaags (Beweging, Licht, Warmte);
-// in de bovenbouw de formele naam (Mechanica, Optica, Thermodynamica).
-function catLabel(cat){
-  return currentLevel==='ob'&&cat.obLabel?cat.obLabel:cat.label;
+/* ── Categorie-schema per niveau ──
+   Onderbouw gebruikt thematische categorieën (OB_CATS, gegroepeerd op row.obCat);
+   bovenbouw gebruikt de formele domeinen (de CATS_DATA-categorieën zelf). */
+function isOB(){return currentLevel==='ob';}
+function allRows(){return cats.flatMap(c=>c.rows);}
+function obCatOf(r){return r.obCat||'overig';}
+
+// [{key,label}] voor het huidige niveau — alleen categorieën die rijen bevatten.
+function schemeCats(){
+  if(isOB()){
+    const present=new Set(allRows().filter(r=>r.lv==='ob').map(obCatOf));
+    const known=OB_CATS.filter(o=>present.has(o.key));
+    const extra=[...present].filter(k=>!OB_CATS.some(o=>o.key===k))
+                            .map(k=>({key:k,label:k==='overig'?'Overig':k}));
+    return [...known,...extra];
+  }
+  return cats.filter(c=>catHasVisibleRows(c,currentLevel)).map(c=>({key:c.key,label:c.label}));
+}
+
+// Rijen die bij een categorie-key horen, gefilterd op het huidige niveau.
+function rowsForCatKey(key){
+  if(isOB())return allRows().filter(r=>r.lv==='ob'&&obCatOf(r)===key);
+  const lv=levelsFor(currentLevel);
+  const cat=cats.find(c=>c.key===key);
+  return cat?cat.rows.filter(r=>lv.includes(r.lv)):[];
+}
+
+// Standaard aangevinkt: op onderbouw alles aan, op bovenbouw de def-categorieën.
+function catDefaultChecked(key){
+  if(isOB())return true;
+  const c=cats.find(c=>c.key===key);
+  return c?!!c.def:true;
 }
 
 function init(){
@@ -539,19 +567,22 @@ function init(){
 }
 
 function setLevel(lv){
+  const schemeChanged=isOB()!==(lv==='ob');
   currentLevel=lv;
   document.querySelectorAll('.lv-btn').forEach(b=>b.classList.toggle('active',b.dataset.lv===lv));
+  // Onder- en bovenbouw hebben andere categorie-keys: bij wisseling terug naar defaults.
+  if(schemeChanged)selectedCats=null;
   renderCatChecks();
   if(document.getElementById('panel-lijst').classList.contains('active'))renderList();
 }
 
 function renderCatChecks(){
   const div=document.getElementById('cat-checks');
-  div.innerHTML=cats.filter(c=>catHasVisibleRows(c,currentLevel)).map(c=>{
-    const checked=selectedCats?selectedCats.has(c.key):c.def;
+  div.innerHTML=schemeCats().map(c=>{
+    const checked=selectedCats?selectedCats.has(c.key):catDefaultChecked(c.key);
     return `
     <label class="check-row" style="margin-bottom:4px">
-      <input type="checkbox" class="cat-chk" value="${c.key}"${checked?' checked':''} onchange="updateSelectedCats()"> ${escHtml(catLabel(c))}
+      <input type="checkbox" class="cat-chk" value="${c.key}"${checked?' checked':''} onchange="updateSelectedCats()"> ${escHtml(c.label)}
     </label>`;}).join('');
 }
 
@@ -623,7 +654,13 @@ function restoreSettings(){
     currentLevel=s.level;
     document.querySelectorAll('.lv-btn').forEach(b=>b.classList.toggle('active',b.dataset.lv===s.level));
   }
-  if(Array.isArray(s.cats))selectedCats=new Set(s.cats);
+  // Alleen categorie-keys overnemen die in het huidige schema bestaan
+  // (onder-/bovenbouw gebruiken andere keys, en oude opslag kan verouderd zijn).
+  if(Array.isArray(s.cats)){
+    const valid=new Set(schemeCats().map(c=>c.key));
+    const kept=s.cats.filter(k=>valid.has(k));
+    selectedCats=kept.length?new Set(kept):null;
+  }
   if(Array.isArray(s.show)&&Array.isArray(s.ask)){
     FIELDS.forEach(f=>{
       document.getElementById('show-'+f).checked=s.show.includes(f);
@@ -642,13 +679,12 @@ function restoreSettings(){
 
 /* ── LIJST ── */
 function renderList(){
-  const lv=levelsFor(currentLevel);
-  document.getElementById('list-area').innerHTML=cats.map(c=>{
-    const rows=c.rows.filter(r=>lv.includes(r.lv));
+  document.getElementById('list-area').innerHTML=schemeCats().map(sc=>{
+    const rows=rowsForCatKey(sc.key);
     if(!rows.length)return'';
     return `<div class="list-cat">
-      <div class="list-cat-head"><h2>${escHtml(catLabel(c))}</h2>
-        <button class="cat-toggle-btn no-print" onclick="practiceCat('${c.key}')">Oefen deze categorie →</button></div>
+      <div class="list-cat-head"><h2>${escHtml(sc.label)}</h2>
+        <button class="cat-toggle-btn no-print" onclick="practiceCat('${sc.key}')">Oefen deze categorie →</button></div>
       <table class="list-table">
         <thead><tr><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th>Niveau</th></tr></thead>
         <tbody>${rows.map(r=>`<tr>
@@ -674,8 +710,7 @@ let Q={};let timerInt=null;let mcAnswers={};
 
 function activeRowsForQuiz(){
   const checked=Array.from(document.querySelectorAll('.cat-chk:checked')).map(c=>c.value);
-  const visLevels=levelsFor(currentLevel);
-  return checked.flatMap(k=>(cats.find(c=>c.key===k)?.rows||[]).filter(r=>visLevels.includes(r.lv)));
+  return checked.flatMap(k=>rowsForCatKey(k));
 }
 function allPoolRows(){return cats.flatMap(c=>c.rows);}
 function levelPoolRows(){const lv=levelsFor(currentLevel);return cats.flatMap(c=>c.rows.filter(r=>lv.includes(r.lv)));}

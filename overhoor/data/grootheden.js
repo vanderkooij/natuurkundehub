@@ -1,20 +1,29 @@
+/* Elke grootheid wordt één keer gedefinieerd, genest onder de BOVENBOUW-categorie
+   (Mechanica, Golven & geluid, …). Het veld `lv` (ob/hv/vw) bepaalt vanaf welk
+   niveau een grootheid in beeld komt (cumulatief).
+
+   ONDERBOUW gebruikt een eigen, thematische indeling. Voor elke grootheid met
+   lv:'ob' geeft `obCat` aan onder welk onderbouwthema hij daar valt:
+     beweging · energie · stoffen · geluid · elektriciteit · warmte
+   Rijen zonder obCat (bijv. later via de admin toegevoegd) belanden op onderbouw
+   in de categorie "Overig", zodat ze nooit onzichtbaar worden. */
 const CATS_DATA=[
-  {key:'mech',label:'Mechanica',obLabel:'Beweging',def:true,rows:[
-    {lv:'ob',naam:'massa',sym:'m',eenh:'kilogram',esym:'kg'},
-    {lv:'ob',naam:'afstand',sym:'s',eenh:'meter',esym:'m'},
-    {lv:'ob',naam:'tijd',sym:'t',eenh:'seconde',esym:'s'},
-    {lv:'ob',naam:'snelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
-    {lv:'ob',naam:'versnelling',sym:'a',eenh:'meter per secondekwadraat',esym:'m/s²'},
-    {lv:'ob',naam:'kracht',sym:'F',eenh:'newton',esym:'N'},
-    {lv:'ob',naam:'zwaartekracht',sym:'F_z; Fz',eenh:'newton',esym:'N'},
-    {lv:'ob',naam:'valversnelling; gravitatieversnelling',sym:'g',eenh:'meter per secondekwadraat',esym:'m/s²'},
-    {lv:'ob',naam:'druk',sym:'p',eenh:'pascal; newton per vierkante meter',esym:'Pa; N/m²; N m⁻²'},
-    {lv:'ob',naam:'dichtheid',sym:'ρ',eenh:'kilogram per kubieke meter',esym:'kg/m³; kg m⁻³'},
-    {lv:'ob',naam:'oppervlakte',sym:'A',eenh:'vierkante meter',esym:'m²'},
-    {lv:'ob',naam:'volume',sym:'V',eenh:'kubieke meter',esym:'m³'},
-    {lv:'ob',naam:'arbeid',sym:'W',eenh:'joule; kilowattuur',esym:'J; kWh'},
-    {lv:'ob',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
-    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW; J/s'},
+  {key:'mech',label:'Mechanica',def:true,rows:[
+    {lv:'ob',obCat:'beweging',naam:'massa',sym:'m',eenh:'kilogram',esym:'kg'},
+    {lv:'ob',obCat:'beweging',naam:'afstand',sym:'s',eenh:'meter',esym:'m'},
+    {lv:'ob',obCat:'beweging',naam:'tijd',sym:'t',eenh:'seconde',esym:'s'},
+    {lv:'ob',obCat:'beweging',naam:'snelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
+    {lv:'ob',obCat:'beweging',naam:'versnelling',sym:'a',eenh:'meter per secondekwadraat',esym:'m/s²'},
+    {lv:'ob',obCat:'beweging',naam:'kracht',sym:'F',eenh:'newton',esym:'N'},
+    {lv:'ob',obCat:'beweging',naam:'zwaartekracht',sym:'F_z; Fz',eenh:'newton',esym:'N'},
+    {lv:'ob',obCat:'beweging',naam:'valversnelling; gravitatieversnelling',sym:'g',eenh:'meter per secondekwadraat',esym:'m/s²'},
+    {lv:'ob',obCat:'stoffen',naam:'druk',sym:'p',eenh:'pascal; newton per vierkante meter',esym:'Pa; N/m²; N m⁻²'},
+    {lv:'ob',obCat:'stoffen',naam:'dichtheid',sym:'ρ',eenh:'kilogram per kubieke meter',esym:'kg/m³; kg m⁻³'},
+    {lv:'ob',obCat:'stoffen',naam:'oppervlakte',sym:'A',eenh:'vierkante meter',esym:'m²'},
+    {lv:'ob',obCat:'stoffen',naam:'volume',sym:'V',eenh:'kubieke meter',esym:'m³'},
+    {lv:'ob',obCat:'energie',naam:'arbeid',sym:'W',eenh:'joule; kilowattuur',esym:'J; kWh'},
+    {lv:'ob',obCat:'energie',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
+    {lv:'ob',obCat:'energie',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW; J/s'},
     {lv:'hv',naam:'plaats; positie',sym:'x',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'verplaatsing',sym:'Δx',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'impuls',sym:'p',eenh:'kilogram meter per seconde; newtonseconde',esym:'kg·m/s; kg m s⁻¹; N·s; Ns'},
@@ -27,9 +36,9 @@ const CATS_DATA=[
     {lv:'hv',naam:'veerconstante',sym:'C',eenh:'newton per meter',esym:'N/m; N m⁻¹'},
     {lv:'vw',naam:'elasticiteitsmodulus',sym:'E',eenh:'newton per vierkante meter',esym:'N/m²; N m⁻²; Pa'},
   ]},
-  {key:'golf',label:'Golven & geluid',obLabel:'Geluid',def:true,rows:[
-    {lv:'ob',naam:'frequentie',sym:'f',eenh:'hertz',esym:'Hz; s⁻¹'},
-    {lv:'ob',naam:'periode; trillingstijd',sym:'T',eenh:'seconde',esym:'s'},
+  {key:'golf',label:'Golven & geluid',def:true,rows:[
+    {lv:'ob',obCat:'geluid',naam:'frequentie',sym:'f',eenh:'hertz',esym:'Hz; s⁻¹'},
+    {lv:'ob',obCat:'geluid',naam:'periode; trillingstijd',sym:'T',eenh:'seconde',esym:'s'},
     {lv:'hv',naam:'golflengte',sym:'λ',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'amplitude',sym:'A',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'golfsnelheid',sym:'v',eenh:'meter per seconde',esym:'m/s'},
@@ -37,7 +46,7 @@ const CATS_DATA=[
     {lv:'hv',naam:'geluidsdruk- / intensiteitsniveau; geluidsniveau; geluidsdrukniveau',sym:'L',eenh:'decibel',esym:'dB'},
     {lv:'hv',naam:'voortplantingssnelheid van licht; lichtsnelheid',sym:'c',eenh:'meter per seconde',esym:'m/s'},
   ]},
-  {key:'optica',label:'Optica',obLabel:'Licht',def:false,rows:[
+  {key:'optica',label:'Optica',def:false,rows:[
     {lv:'hv',naam:'brekingsindex',sym:'n',eenh:'(geen eenheid); geen eenheid; geen; -',esym:'-; geen; (geen eenheid)'},
     {lv:'hv',naam:'voorwerpsafstand',sym:'v',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'beeldafstand',sym:'b',eenh:'meter',esym:'m'},
@@ -46,13 +55,13 @@ const CATS_DATA=[
     {lv:'hv',naam:'lenssterkte',sym:'S',eenh:'dioptrie',esym:'dpt; m⁻¹; 1/m'},
     {lv:'hv',naam:'grenshoek',sym:'g',eenh:'graad',esym:'°'},
   ]},
-  {key:'elek',label:'Elektriciteit & magnetisme',obLabel:'Elektriciteit',def:true,rows:[
-    {lv:'ob',naam:'elektrische spanning',sym:'U',eenh:'volt',esym:'V'},
-    {lv:'ob',naam:'elektrische stroomsterkte',sym:'I',eenh:'ampere',esym:'A'},
-    {lv:'ob',naam:'weerstand',sym:'R',eenh:'ohm',esym:'Ω; ohm'},
-    {lv:'ob',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW'},
-    {lv:'ob',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
-    {lv:'ob',naam:'elektrische lading',sym:'Q',eenh:'coulomb',esym:'C'},
+  {key:'elek',label:'Elektriciteit & magnetisme',def:true,rows:[
+    {lv:'ob',obCat:'elektriciteit',naam:'elektrische spanning',sym:'U',eenh:'volt',esym:'V'},
+    {lv:'ob',obCat:'elektriciteit',naam:'elektrische stroomsterkte',sym:'I',eenh:'ampere',esym:'A'},
+    {lv:'ob',obCat:'elektriciteit',naam:'weerstand',sym:'R',eenh:'ohm',esym:'Ω; ohm'},
+    {lv:'ob',obCat:'elektriciteit',naam:'vermogen',sym:'P',eenh:'watt; kilowatt',esym:'W; kW'},
+    {lv:'ob',obCat:'elektriciteit',naam:'energie',sym:'E',eenh:'joule; kilowattuur',esym:'J; kWh'},
+    {lv:'ob',obCat:'elektriciteit',naam:'elektrische lading',sym:'Q',eenh:'coulomb',esym:'C'},
     {lv:'hv',naam:'soortelijke weerstand',sym:'ρ',eenh:'ohm meter',esym:'Ω·m; Ω m; ohm·m; ohm m'},
     {lv:'vw',naam:'capaciteit condensator',sym:'C',eenh:'farad',esym:'F'},
     {lv:'vw',naam:'elektrische potentiaal',sym:'V',eenh:'volt',esym:'V'},
@@ -61,18 +70,18 @@ const CATS_DATA=[
     {lv:'vw',naam:'magnetische flux',sym:'Φ',eenh:'weber',esym:'Wb'},
     {lv:'vw',naam:'zelfinductie',sym:'L',eenh:'henry',esym:'H'},
   ]},
-  {key:'thermo',label:'Thermodynamica & warmte',obLabel:'Warmte',def:true,rows:[
-    {lv:'ob',naam:'temperatuur',sym:'T; θ',eenh:'kelvin; graden Celsius',esym:'K; °C'},
-    {lv:'ob',naam:'warmte',sym:'Q',eenh:'joule',esym:'J'},
-    {lv:'ob',naam:'soortelijke warmte',sym:'c',eenh:'joule per kilogram kelvin',esym:'J/(kg·K); J/kg/K; J kg⁻¹ K⁻¹'},
-    {lv:'ob',naam:'warmtecapaciteit',sym:'C',eenh:'joule per kelvin',esym:'J/K; J K⁻¹'},
+  {key:'thermo',label:'Thermodynamica & warmte',def:true,rows:[
+    {lv:'ob',obCat:'warmte',naam:'temperatuur',sym:'T; θ',eenh:'kelvin; graden Celsius',esym:'K; °C'},
+    {lv:'ob',obCat:'warmte',naam:'warmte',sym:'Q',eenh:'joule',esym:'J'},
+    {lv:'ob',obCat:'warmte',naam:'soortelijke warmte',sym:'c',eenh:'joule per kilogram kelvin',esym:'J/(kg·K); J/kg/K; J kg⁻¹ K⁻¹'},
+    {lv:'ob',obCat:'warmte',naam:'warmtecapaciteit',sym:'C',eenh:'joule per kelvin',esym:'J/K; J K⁻¹'},
     {lv:'hv',naam:'warmtestroom',sym:'P',eenh:'watt',esym:'W'},
     {lv:'hv',naam:'warmtegeleidingscoëfficiënt',sym:'λ',eenh:'watt per meter kelvin',esym:'W/(m·K); W/m/K; W m⁻¹ K⁻¹'},
     {lv:'hv',naam:'debiet / volumestroom',sym:'Q',eenh:'kubieke meter per seconde',esym:'m³/s; m³ s⁻¹'},
     {lv:'hv',naam:'hoeveelheid stof',sym:'n',eenh:'mol',esym:'mol'},
     {lv:'hv',naam:'concentratie',sym:'c',eenh:'mol per kubieke meter',esym:'mol/m³; mol m⁻³'},
   ]},
-  {key:'kern',label:'Kernfysica & straling',obLabel:'Straling',def:true,rows:[
+  {key:'kern',label:'Kernfysica & straling',def:true,rows:[
     {lv:'hv',naam:'activiteit',sym:'A',eenh:'becquerel',esym:'Bq; s⁻¹'},
     {lv:'hv',naam:'geabsorbeerde dosis',sym:'D',eenh:'gray',esym:'Gy'},
     {lv:'hv',naam:'dosisequivalent',sym:'H',eenh:'sievert',esym:'Sv'},
@@ -86,4 +95,15 @@ const CATS_DATA=[
   ]},
 ];
 
+/* Onderbouwthema's, in weergavevolgorde. Labels worden ook door de tool gebruikt. */
+const OB_CATS=[
+  {key:'beweging',      label:'Beweging'},
+  {key:'energie',       label:'Energie'},
+  {key:'stoffen',       label:'Stoffen & materialen'},
+  {key:'geluid',        label:'Geluid'},
+  {key:'elektriciteit', label:'Elektriciteit'},
+  {key:'warmte',        label:'Warmte'},
+];
+
 window.CATS_DATA = CATS_DATA;
+window.OB_CATS = OB_CATS;
