@@ -297,6 +297,53 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .retry-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border-solid)}
 .retry-label{font-size:13px;color:var(--text-muted);margin-bottom:12px}
 
+/* ── PRESETS ── */
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.preset-card{
+  background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:12px;
+  padding:14px 16px;cursor:pointer;text-align:left;font-family:var(--font);
+  color:var(--text);transition:all .15s;
+}
+.preset-card:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.preset-card.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.preset-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.preset-desc{font-size:12px;color:var(--text-muted);line-height:1.4}
+.custom-settings{margin-bottom:16px}
+.custom-settings summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);padding:6px 2px;user-select:none}
+.custom-settings summary:hover,.custom-settings[open] summary{color:var(--accent)}
+.custom-settings .settings-grid{margin-top:10px}
+
+/* Feedback hint (bv. nog geen MC-antwoord gekozen) */
+.feedback-bar.hint{background:var(--accent-amber-glow);color:var(--accent-amber);border-color:var(--accent-amber);display:block}
+
+/* ── LIJST ── */
+.list-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.list-cat{margin-bottom:28px}
+.list-cat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.list-cat-head h2{font-size:17px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
+.list-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;overflow:hidden}
+.list-table th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);text-align:left;padding:9px 12px;border-bottom:1px solid var(--border-solid)}
+.list-table td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.list-table tr:last-child td{border-bottom:none}
+.list-table td.mono{font-family:var(--mono);color:var(--accent);font-size:13px;white-space:nowrap}
+.lv-badge{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.lv-badge.lv-ob{background:var(--accent-dim);color:var(--accent)}
+.lv-badge.lv-hv{background:var(--accent-amber-glow);color:var(--accent-amber)}
+.lv-badge.lv-vw{background:rgba(139,92,246,0.12);color:#8b5cf6}
+
+@media print{
+  body{background:#fff;color:#000}
+  body::before,.ambient-glow,.app-header,footer,.no-print{display:none!important}
+  .panel{display:none!important}
+  #panel-lijst{display:block!important}
+  .tool-name{padding:0 0 12px;color:#000}
+  .list-table{background:#fff;border-color:#999}
+  .list-table th{color:#333;border-color:#999}
+  .list-table td{color:#000;border-color:#ccc}
+  .list-table td.mono{color:#000}
+  .lv-badge{border:1px solid #999;background:#fff!important;color:#000!important}
+}
+
 @media(max-width:560px){
   .settings-grid{grid-template-columns:1fr}
   .mc-options{grid-template-columns:1fr}
@@ -324,8 +371,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div style="display:flex;align-items:center;gap:8px">
     <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
     <div class="nav">
-      <button class="nav-btn active" onclick="showPanel('settings')">Instellingen</button>
-      <button class="nav-btn" onclick="showPanel('quiz')">Oefenen</button>
+      <button class="nav-btn active" data-panel="settings" onclick="showPanel('settings')">Instellingen</button>
+      <button class="nav-btn" data-panel="quiz" onclick="showPanel('quiz')">Oefenen</button>
+      <button class="nav-btn" data-panel="lijst" onclick="showPanel('lijst')">Lijst</button>
     </div>
   </div>
 </div>
@@ -338,27 +386,52 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="panel active" id="panel-settings">
   <div class="section-title amber">Kies je niveau</div>
   <div class="level-selector">
-    <button class="lv-btn active" onclick="setLevel('ob')">Onderbouw</button>
-    <button class="lv-btn" onclick="setLevel('hv')">Bovenbouw havo</button>
-    <button class="lv-btn" onclick="setLevel('vw')">Bovenbouw vwo</button>
+    <button class="lv-btn active" data-lv="ob" onclick="setLevel('ob')">Onderbouw</button>
+    <button class="lv-btn" data-lv="hv" onclick="setLevel('hv')">Bovenbouw havo</button>
+    <button class="lv-btn" data-lv="vw" onclick="setLevel('vw')">Bovenbouw vwo</button>
   </div>
 
-  <div class="section-title amber">Wat wil je oefenen?</div>
+  <div class="section-title amber">Hoe wil je oefenen?</div>
+  <div class="preset-grid">
+    <button class="preset-card" data-preset="sym" type="button" onclick="setPreset('sym')">
+      <div class="preset-name">Symbolen</div>
+      <div class="preset-desc">Je ziet de grootheid — typ het symbool</div>
+    </button>
+    <button class="preset-card" data-preset="eenh" type="button" onclick="setPreset('eenh')">
+      <div class="preset-name">Eenheden</div>
+      <div class="preset-desc">Je ziet de grootheid — typ het eenheidssymbool</div>
+    </button>
+    <button class="preset-card active" data-preset="compleet" type="button" onclick="setPreset('compleet')">
+      <div class="preset-name">Compleet</div>
+      <div class="preset-desc">Je ziet de grootheid — typ symbool én eenheidssymbool</div>
+    </button>
+    <button class="preset-card" data-preset="omgekeerd" type="button" onclick="setPreset('omgekeerd')">
+      <div class="preset-name">Omgekeerd</div>
+      <div class="preset-desc">Je ziet symbool en eenheid — welke grootheid is het?</div>
+    </button>
+  </div>
+
+  <details class="custom-settings" id="custom-settings">
+    <summary>Zelf samenstellen (gevorderd)</summary>
+    <div class="settings-grid">
+      <div class="setting-card">
+        <div class="setting-label">Wat krijg je te zien?</div>
+        <label class="check-row"><input type="checkbox" id="show-naam" checked onchange="syncCheck('show','naam')"> Grootheid</label>
+        <label class="check-row"><input type="checkbox" id="show-sym" onchange="syncCheck('show','sym')"> Symbool</label>
+        <label class="check-row"><input type="checkbox" id="show-eenh" onchange="syncCheck('show','eenh')"> Eenheid</label>
+        <label class="check-row"><input type="checkbox" id="show-esym" onchange="syncCheck('show','esym')"> Eenheidssymbool</label>
+      </div>
+      <div class="setting-card">
+        <div class="setting-label">Wat moet je invullen?</div>
+        <label class="check-row"><input type="checkbox" id="ask-naam" onchange="syncCheck('ask','naam')"> Grootheid</label>
+        <label class="check-row"><input type="checkbox" id="ask-sym" checked onchange="syncCheck('ask','sym')"> Symbool</label>
+        <label class="check-row"><input type="checkbox" id="ask-eenh" onchange="syncCheck('ask','eenh')"> Eenheid</label>
+        <label class="check-row"><input type="checkbox" id="ask-esym" checked onchange="syncCheck('ask','esym')"> Eenheidssymbool</label>
+      </div>
+    </div>
+  </details>
+
   <div class="settings-grid">
-    <div class="setting-card">
-      <div class="setting-label">Wat krijg je te zien?</div>
-      <label class="check-row"><input type="checkbox" id="show-naam" checked onchange="syncCheck('show','naam')"> Grootheid</label>
-      <label class="check-row"><input type="checkbox" id="show-sym" onchange="syncCheck('show','sym')"> Symbool</label>
-      <label class="check-row"><input type="checkbox" id="show-eenh" onchange="syncCheck('show','eenh')"> Eenheid</label>
-      <label class="check-row"><input type="checkbox" id="show-esym" onchange="syncCheck('show','esym')"> Eenheidssymbool</label>
-    </div>
-    <div class="setting-card">
-      <div class="setting-label">Wat moet je invullen?</div>
-      <label class="check-row"><input type="checkbox" id="ask-naam" onchange="syncCheck('ask','naam')"> Grootheid</label>
-      <label class="check-row"><input type="checkbox" id="ask-sym" checked onchange="syncCheck('ask','sym')"> Symbool</label>
-      <label class="check-row"><input type="checkbox" id="ask-eenh" onchange="syncCheck('ask','eenh')"> Eenheid</label>
-      <label class="check-row"><input type="checkbox" id="ask-esym" checked onchange="syncCheck('ask','esym')"> Eenheidssymbool</label>
-    </div>
     <div class="setting-card">
       <div class="setting-label">Vraagvorm</div>
       <label class="radio-row"><input type="radio" name="qmode" value="open" checked> Open antwoord</label>
@@ -392,6 +465,19 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div id="quiz-area"></div>
 </div>
 
+<!-- LIJST PANEL -->
+<div class="panel" id="panel-lijst">
+  <div class="list-toolbar no-print">
+    <div class="level-selector" style="margin-bottom:0">
+      <button class="lv-btn active" data-lv="ob" onclick="setLevel('ob')">Onderbouw</button>
+      <button class="lv-btn" data-lv="hv" onclick="setLevel('hv')">Bovenbouw havo</button>
+      <button class="lv-btn" data-lv="vw" onclick="setLevel('vw')">Bovenbouw vwo</button>
+    </div>
+    <button class="cat-toggle-btn" onclick="window.print()">🖨 Afdrukken</button>
+  </div>
+  <div id="list-area"></div>
+</div>
+
 </div>
 
 <script>
@@ -400,15 +486,28 @@ const LABELS={naam:'Grootheid',sym:'Symbool',eenh:'Eenheid',esym:'Eenheidssymboo
 const SYMBOLS=['Ω','°','µ','·','²','³','⁻¹','⁻²','Δ','λ','ρ','Φ','φ','η','α','β','γ','δ','θ','κ','τ','σ'];
 
 
+const PRESETS={
+  sym:      {show:['naam'],        ask:['sym']},
+  eenh:     {show:['naam'],        ask:['esym']},
+  compleet: {show:['naam'],        ask:['sym','esym']},
+  omgekeerd:{show:['sym','esym'],  ask:['naam']}
+};
+const LV_LABEL={ob:'OB',hv:'HAVO',vw:'VWO'};
+
 let cats=[];
 let currentLevel='ob';
+let currentPreset='compleet';
+let selectedCats=null; // null = gebruik categorie-defaults
 let activeInputId=null;
 
 function uid(){return Math.random().toString(36).slice(2,9)}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-function normalize(s){
-  let v=s.trim().toLowerCase().replace(/\s+/g,' ').replace(/[·.*x×]/g,'·').replace(/\s*·\s*/g,'·');
+function normalize(s,keepCase){
+  let v=s.trim().replace(/\s+/g,' ');
+  if(!keepCase)v=v.toLowerCase();
+  // Let op: 'x' hoort hier NIET bij — dat is ook een grootheidssymbool (plaats)
+  v=v.replace(/[·.*×]/g,'·').replace(/\s*·\s*/g,'·');
   // Handle fraction/subscript alternatives
   v=v.replace(/1\/2/g,'½');
   v=v.replace(/\^2/g,'²').replace(/\^3/g,'³').replace(/\^-1/g,'⁻¹').replace(/\^-2/g,'⁻²');
@@ -429,38 +528,138 @@ function catHasVisibleRows(cat,level){
 
 function init(){
   cats=CATS_DATA.map(c=>({...c,rows:c.rows.map(r=>({id:uid(),...r}))}));
+  restoreSettings();
   renderCatChecks();
 }
 
 function setLevel(lv){
   currentLevel=lv;
-  document.querySelectorAll('.lv-btn').forEach((b,i)=>b.classList.toggle('active',['ob','hv','vw'][i]===lv));
+  document.querySelectorAll('.lv-btn').forEach(b=>b.classList.toggle('active',b.dataset.lv===lv));
   renderCatChecks();
+  if(document.getElementById('panel-lijst').classList.contains('active'))renderList();
 }
 
 function renderCatChecks(){
   const div=document.getElementById('cat-checks');
-  div.innerHTML=cats.filter(c=>catHasVisibleRows(c,currentLevel)).map(c=>`
+  div.innerHTML=cats.filter(c=>catHasVisibleRows(c,currentLevel)).map(c=>{
+    const checked=selectedCats?selectedCats.has(c.key):c.def;
+    return `
     <label class="check-row" style="margin-bottom:4px">
-      <input type="checkbox" class="cat-chk" value="${c.key}"${c.def?' checked':''}> ${escHtml(c.label)}
-    </label>`).join('');
+      <input type="checkbox" class="cat-chk" value="${c.key}"${checked?' checked':''} onchange="updateSelectedCats()"> ${escHtml(c.label)}
+    </label>`;}).join('');
 }
 
-function selectVisibleCats(v){document.querySelectorAll('.cat-chk').forEach(c=>c.checked=v);}
+function updateSelectedCats(){
+  selectedCats=new Set(Array.from(document.querySelectorAll('.cat-chk:checked')).map(c=>c.value));
+}
+
+function selectVisibleCats(v){
+  document.querySelectorAll('.cat-chk').forEach(c=>c.checked=v);
+  updateSelectedCats();
+}
+
+function markPreset(name){
+  currentPreset=name;
+  document.querySelectorAll('.preset-card').forEach(c=>c.classList.toggle('active',c.dataset.preset===name));
+}
+
+function setPreset(name){
+  const p=PRESETS[name];if(!p)return;
+  FIELDS.forEach(f=>{
+    document.getElementById('show-'+f).checked=p.show.includes(f);
+    document.getElementById('ask-'+f).checked=p.ask.includes(f);
+  });
+  markPreset(name);
+}
 
 function syncCheck(source,field){
   const opposite=source==='show'?'ask':'show';
   const src=document.getElementById(source+'-'+field);
   const opp=document.getElementById(opposite+'-'+field);
   if(src.checked&&opp.checked) opp.checked=false;
+  markPreset('custom'); // eigen combinatie: geen preset-kaart meer actief
 }
 
 function showPanel(p){
-  ['settings','quiz'].forEach((n,i)=>{
+  ['settings','quiz','lijst'].forEach(n=>{
     document.getElementById('panel-'+n).classList.toggle('active',n===p);
-    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',n===p);
   });
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.panel===p));
   if(p==='settings')renderCatChecks();
+  if(p==='lijst')renderList();
+  if(p==='quiz'&&!Q.items){
+    document.getElementById('quiz-area').innerHTML=`<div class="end-screen">
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px">Nog geen oefening gestart</div>
+      <div class="end-sub">Kies eerst je instellingen en klik op “Starten met oefenen”.</div>
+      <div class="end-btns"><button class="qbtn primary" onclick="showPanel('settings')">Naar instellingen</button></div>
+    </div>`;
+  }
+}
+
+/* ── SETTINGS OPSLAAN ── */
+function saveSettings(){
+  const s={level:currentLevel,preset:currentPreset,
+    show:FIELDS.filter(f=>document.getElementById('show-'+f).checked),
+    ask:FIELDS.filter(f=>document.getElementById('ask-'+f).checked),
+    qmode:document.querySelector('input[name=qmode]:checked').value,
+    shuffle:document.getElementById('shuffle').checked,
+    useTimer:document.getElementById('use-timer').checked,
+    timerSec:document.getElementById('timer-sec').value,
+    cats:Array.from(document.querySelectorAll('.cat-chk:checked')).map(c=>c.value)};
+  try{localStorage.setItem('nh-overhoor-settings',JSON.stringify(s))}catch(e){}
+}
+
+function restoreSettings(){
+  let s=null;
+  try{s=JSON.parse(localStorage.getItem('nh-overhoor-settings')||'null')}catch(e){}
+  if(!s)return;
+  if(['ob','hv','vw'].includes(s.level)){
+    currentLevel=s.level;
+    document.querySelectorAll('.lv-btn').forEach(b=>b.classList.toggle('active',b.dataset.lv===s.level));
+  }
+  if(Array.isArray(s.cats))selectedCats=new Set(s.cats);
+  if(Array.isArray(s.show)&&Array.isArray(s.ask)){
+    FIELDS.forEach(f=>{
+      document.getElementById('show-'+f).checked=s.show.includes(f);
+      document.getElementById('ask-'+f).checked=s.ask.includes(f);
+    });
+  }
+  if(s.preset){
+    markPreset(s.preset);
+    if(s.preset==='custom')document.getElementById('custom-settings').open=true;
+  }
+  if(s.qmode){const r=document.querySelector(`input[name=qmode][value="${s.qmode}"]`);if(r)r.checked=true;}
+  if(typeof s.shuffle==='boolean')document.getElementById('shuffle').checked=s.shuffle;
+  if(typeof s.useTimer==='boolean')document.getElementById('use-timer').checked=s.useTimer;
+  if(s.timerSec)document.getElementById('timer-sec').value=s.timerSec;
+}
+
+/* ── LIJST ── */
+function renderList(){
+  const lv=levelsFor(currentLevel);
+  document.getElementById('list-area').innerHTML=cats.map(c=>{
+    const rows=c.rows.filter(r=>lv.includes(r.lv));
+    if(!rows.length)return'';
+    return `<div class="list-cat">
+      <div class="list-cat-head"><h2>${escHtml(c.label)}</h2>
+        <button class="cat-toggle-btn no-print" onclick="practiceCat('${c.key}')">Oefen deze categorie →</button></div>
+      <table class="list-table">
+        <thead><tr><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th>Niveau</th></tr></thead>
+        <tbody>${rows.map(r=>`<tr>
+          <td>${escHtml((r.naam||'').split(';')[0].trim())}</td>
+          <td class="mono">${escHtml(displayVal(r.sym))}</td>
+          <td>${escHtml(displayVal(r.eenh))}</td>
+          <td class="mono">${escHtml(displayVal(r.esym))}</td>
+          <td><span class="lv-badge lv-${r.lv}">${LV_LABEL[r.lv]}</span></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  }).join('');
+}
+
+function practiceCat(key){
+  selectedCats=new Set([key]);
+  renderCatChecks();
+  startQuiz();
 }
 
 // ── QUIZ LOGIC ──
@@ -473,6 +672,7 @@ function activeRowsForQuiz(){
   return checked.flatMap(k=>(cats.find(c=>c.key===k)?.rows||[]).filter(r=>visLevels.includes(r.lv)));
 }
 function allPoolRows(){return cats.flatMap(c=>c.rows);}
+function levelPoolRows(){const lv=levelsFor(currentLevel);return cats.flatMap(c=>c.rows.filter(r=>lv.includes(r.lv)));}
 
 function startQuiz(){
   const shown=FIELDS.filter(f=>document.getElementById('show-'+f).checked);
@@ -484,6 +684,7 @@ function startQuiz(){
   let rows=activeRowsForQuiz().filter(r=>shown.some(f=>r[f])&&asked.some(f=>r[f]));
   if(!rows.length){alert('Geen grootheden gevonden voor deze selectie. Pas je instellingen aan.');return}
   if(document.getElementById('shuffle').checked)rows=rows.sort(()=>Math.random()-.5);
+  saveSettings();
   Q={items:rows,idx:0,score:0,wrong:[],checked:false,shown,asked,mode,useTimer,timerSec,retrying:false};
   showPanel('quiz');renderCard();
 }
@@ -505,7 +706,7 @@ function insertSymbol(sym){
 function renderCard(){
   clearInterval(timerInt);
   const area=document.getElementById('quiz-area');
-  const list=Q.retrying?Q.wrong:Q.items;
+  const list=Q.items;
   if(Q.idx>=list.length){showEnd();return}
   const row=list[Q.idx];
   const pct=Math.round(Q.idx/list.length*100);
@@ -521,10 +722,11 @@ function renderCard(){
     }).join('');
   } else {
     askHTML=Q.asked.filter(f=>row[f]).map(f=>{
-      const variants=(row[f]||'').split(';').map(x=>x.trim()).filter(Boolean);
-      const primary=variants[0];
-      const pool=allPoolRows().map(r=>displayVal(r[f])).filter(v=>v&&!variants.map(normalize).includes(normalize(v)));
-      const opts=[primary,...[...new Set(pool)].sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+      const primary=displayVal(row[f]);
+      // Afleiders bij voorkeur uit het actieve niveau; vul aan uit de hele pool als dat te weinig oplevert
+      const lvPool=[...new Set(levelPoolRows().map(r=>displayVal(r[f])).filter(v=>v&&!checkValue(v,row[f],f)))];
+      const pool=lvPool.length>=3?lvPool:[...new Set(allPoolRows().map(r=>displayVal(r[f])).filter(v=>v&&!checkValue(v,row[f],f)))];
+      const opts=[primary,...pool.sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
       return `<div class="ask-item"><label class="ask-label">${LABELS[f]}</label><div class="mc-options" id="mc-${f}">${opts.map((o,i)=>`<button class="mc-btn" type="button" onclick="selectMC('${f}',${i})">${escHtml(o)}</button>`).join('')}</div></div>`;
     }).join('');
   }
@@ -555,9 +757,20 @@ function selectMC(field,idx){
   document.querySelectorAll(`#mc-${field} .mc-btn`).forEach((b,i)=>b.classList.toggle('selected',i===idx));
 }
 
-function checkValue(given,correctRaw){
-  const g=normalize(given);
-  return(correctRaw||'').split(';').map(x=>normalize(x.trim())).some(v=>v===g||v===g.replace(/·/g,' '));
+function checkValue(given,correctRaw,field){
+  // Symbolen zijn hoofdlettergevoelig (v ≠ V, pa ≠ Pa); namen en eenheidsnamen niet.
+  const cs=field==='sym'||field==='esym';
+  const canon=t=>{
+    let v=normalize(t,cs);
+    // Alleen bij eenheden mag een losse 'x' als maalteken gelden (kg x m/s)
+    if(field==='eenh'||field==='esym')v=v.replace(/(?<![a-zA-Z])[xX](?![a-zA-Z])/g,'·');
+    return v.replace(/·/g,' ').replace(/\s+/g,' ').trim();
+  };
+  const g=canon(given);
+  if(!g)return false;
+  let variants=(correctRaw||'').split(';');
+  if(field==='naam')variants=variants.flatMap(x=>x.split('/'));
+  return variants.map(x=>canon(x)).some(v=>v&&v===g);
 }
 
 function startTimer(){
@@ -582,30 +795,37 @@ function revealHTML(correctRaw){
 function checkAnswer(){
   clearInterval(timerInt);
   if(Q.checked){nextCard();return}
-  const list=Q.retrying?Q.wrong:Q.items;
-  const row=list[Q.idx];
+  const row=Q.items[Q.idx];if(!row)return;
   const fields=Q.asked.filter(f=>row[f]);
+  // MC: eerst overal een antwoord kiezen — voorkomt onbedoeld fout rekenen
+  if(Q.mode==='mc'&&fields.some(f=>mcAnswers[f]===undefined)){
+    const fb=document.getElementById('feedback');
+    fb.textContent='Kies eerst bij elke vraag een antwoord (of klik “Weet ik niet”).';
+    fb.className='feedback-bar hint';
+    if(Q.useTimer)startTimer();
+    return;
+  }
   let allOk=true;
   if(Q.mode==='open'){
     fields.forEach(f=>{
       const inp=document.getElementById('qi-'+f);if(!inp)return;
-      const ok=checkValue(inp.value,row[f]);
+      const ok=checkValue(inp.value,row[f],f);
       inp.classList.toggle('correct',ok);inp.classList.toggle('wrong',!ok);inp.readOnly=true;
       document.getElementById('sp-qi-'+f)?.remove();
       if(!ok){allOk=false;const d=document.createElement('div');d.className='answer-reveal';d.innerHTML=revealHTML(row[f]);inp.after(d);}
     });
   } else {
     fields.forEach(f=>{
-      const selIdx=mcAnswers[f];if(selIdx===undefined)allOk=false;
+      const selIdx=mcAnswers[f];
       document.querySelectorAll(`#mc-${f} .mc-btn`).forEach((b,i)=>{
-        const isCorrect=checkValue(b.textContent,row[f]);
+        const isCorrect=checkValue(b.textContent,row[f],f);
         b.disabled=true;
         if(isCorrect)b.classList.add('correct');
         else if(i===selIdx&&!isCorrect){b.classList.add('wrong');allOk=false;}
       });
     });
   }
-  if(allOk)Q.score++;else if(!Q.retrying)Q.wrong.push(row);
+  if(allOk)Q.score++;else Q.wrong.push(row);
   const fb=document.getElementById('feedback');
   fb.textContent=allOk?'Goed!':'Niet correct.';fb.className='feedback-bar '+(allOk?'ok':'nok');
   Q.checked=true;document.getElementById('btn-check').textContent='Volgende';document.getElementById('btn-skip').style.display='none';mcAnswers={};
@@ -613,29 +833,46 @@ function checkAnswer(){
 
 function skipCard(){
   clearInterval(timerInt);if(Q.checked){nextCard();return}
-  const list=Q.retrying?Q.wrong:Q.items;const row=list[Q.idx];
+  const row=Q.items[Q.idx];if(!row)return;
   Q.asked.filter(f=>row[f]).forEach(f=>{
     if(Q.mode==='open'){
       const inp=document.getElementById('qi-'+f);
       if(inp){inp.classList.add('wrong');inp.readOnly=true;document.getElementById('sp-qi-'+f)?.remove();const d=document.createElement('div');d.className='answer-reveal';d.innerHTML=revealHTML(row[f]);inp.after(d);}
     } else {
-      document.querySelectorAll(`#mc-${f} .mc-btn`).forEach(b=>{b.disabled=true;if(checkValue(b.textContent,row[f]))b.classList.add('correct');});
+      document.querySelectorAll(`#mc-${f} .mc-btn`).forEach(b=>{b.disabled=true;if(checkValue(b.textContent,row[f],f))b.classList.add('correct');});
     }
   });
-  if(!Q.retrying)Q.wrong.push(row);
+  Q.wrong.push(row);
   const fb=document.getElementById('feedback');fb.textContent='Overgeslagen.';fb.className='feedback-bar nok';
   Q.checked=true;document.getElementById('btn-check').textContent='Volgende';document.getElementById('btn-skip').style.display='none';mcAnswers={};
 }
 
 function nextCard(){Q.idx++;Q.checked=false;renderCard();}
 
+/* Toetsenbord: Enter = controleer/volgende, 1–4 = MC-optie kiezen */
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('panel-quiz').classList.contains('active'))return;
+  if(!Q.items||Q.idx>=Q.items.length)return;
+  const tag=e.target&&e.target.tagName;
+  if(e.key==='Enter'&&tag!=='INPUT'&&tag!=='BUTTON'){e.preventDefault();checkAnswer();return;}
+  if(Q.mode==='mc'&&!Q.checked&&/^[1-4]$/.test(e.key)&&tag!=='INPUT'){
+    const row=Q.items[Q.idx];
+    const fields=Q.asked.filter(f=>row[f]);
+    const f=fields.find(x=>mcAnswers[x]===undefined)||fields[fields.length-1];
+    const btns=document.querySelectorAll(`#mc-${f} .mc-btn`);
+    const i=parseInt(e.key,10)-1;
+    if(btns[i])selectMC(f,i);
+  }
+});
+
 function showEnd(){
   clearInterval(timerInt);
-  const total=Q.retrying?Q.wrong.length:Q.items.length;
+  const total=Q.items.length;
   const pct=Math.round(Q.score/total*100);
   const msg=pct>=90?'Uitstekend!':pct>=70?'Goed gedaan!':pct>=50?'Blijf oefenen!':'Nog veel te leren!';
   const wc=Q.wrong.length;
-  const retryHTML=(!Q.retrying&&wc>0)?`<div class="retry-section"><div class="retry-label">${wc} vraag${wc>1?'en':''} fout. Wil je die herhalen?</div><button class="qbtn primary" onclick="retryWrong()">Fouten herhalen (${wc})</button></div>`:'';
+  // Fouten blijven herhaalbaar totdat alles goed is
+  const retryHTML=wc>0?`<div class="retry-section"><div class="retry-label">${wc} vraag${wc>1?'en':''} fout. Wil je die herhalen?</div><button class="qbtn primary" onclick="retryWrong()">Fouten herhalen (${wc})</button></div>`:'';
   document.getElementById('quiz-area').innerHTML=`<div class="end-screen">
     <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:16px">${msg}</div>
     <div class="end-score">${Q.score}<span>/${total}</span></div>
@@ -646,8 +883,8 @@ function showEnd(){
 }
 
 function retryWrong(){
-  const wrong=[...Q.wrong];
-  Q={...Q,items:wrong,wrong:[],idx:0,score:0,checked:false,retrying:true};renderCard();
+  Q={...Q,items:[...Q.wrong].sort(()=>Math.random()-.5),wrong:[],idx:0,score:0,checked:false,retrying:true};
+  renderCard();
 }
 
 // ── THEME ──
