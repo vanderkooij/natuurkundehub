@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.js"></script>
+<script src="../js/verify.js"></script>
 <script src="../js/keyboard.js"></script>
 <script src="../js/katex-init.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -165,7 +167,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <!-- STAP 1 -->
   <div class="section-card">
     <div class="section-card-header">
-      <span class="section-num">STAP 1</span>
+      <span class="section-num">BASIS</span>
       <h2>Begrijp de structuur</h2>
     </div>
     <div class="section-card-body">
@@ -192,7 +194,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <!-- STAP 2 -->
   <div class="section-card">
     <div class="section-card-header">
-      <span class="section-num">STAP 2</span>
+      <span class="section-num">REGEL 1</span>
       <h2>Vermenigvuldigen en delen</h2>
     </div>
     <div class="section-card-body">
@@ -212,13 +214,21 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
         </div>
         <div class="formula-row" id="ex2-steps"></div>
       </div>
+
+      <div class="example-card">
+        <div class="example-label">De grootheid staat in de noemer</div>
+        <div class="step-desc" style="margin-bottom:10px">
+          Staat de grootheid onderin een breuk? Vermenigvuldig eerst beide kanten met de noemer, zodat hij bovenaan komt. Formule: <span id="ex2b-start"></span>, schrijf om naar <span id="ex2b-target" style="color:var(--accent-amber);font-weight:700"></span>
+        </div>
+        <div class="formula-row" id="ex2b-steps"></div>
+      </div>
     </div>
   </div>
 
   <!-- STAP 3 (NIEUW) -->
   <div class="section-card">
     <div class="section-card-header">
-      <span class="section-num">STAP 3</span>
+      <span class="section-num">REGEL 2</span>
       <h2>Optelling en aftrekking</h2>
     </div>
     <div class="section-card-body">
@@ -240,7 +250,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <!-- STAP 4 (NIEUW) -->
   <div class="section-card">
     <div class="section-card-header">
-      <span class="section-num">STAP 4</span>
+      <span class="section-num">REGEL 3</span>
       <h2>Formules met haakjes</h2>
     </div>
     <div class="section-card-body">
@@ -262,7 +272,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <!-- STAP 5 -->
   <div class="section-card">
     <div class="section-card-header">
-      <span class="section-num">STAP 5</span>
+      <span class="section-num">REGEL 4</span>
       <h2>Wortels en machten</h2>
     </div>
     <div class="section-card-body">
@@ -289,14 +299,16 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
           <span>Schrijf om naar:</span>
           <span class="practice-formula" id="prac-target" style="color:var(--accent-amber)"></span>
         </div>
-        <div class="practice-ask" style="margin-bottom:10px">Typ je antwoord als: <span style="font-family:var(--mono)">a = ...</span></div>
+        <div class="practice-ask" style="margin-bottom:10px">Typ je antwoord als: <span style="font-family:var(--mono)" id="prac-ask">a = ...</span></div>
         <div class="calc-bar">
           <div class="calc-groups" id="prac-calc-groups"></div>
         </div>
-        <div class="sub-indicator" id="prac-sub-indicator">subscript actief — typ letters, dan spatie of ↑ om te eindigen</div>
         <input class="practice-input" id="prac-input" type="text" placeholder="a = ..." autocomplete="off" spellcheck="false"
           onkeydown="pracHandleKey(event)">
-        <button class="practice-btn" onclick="checkPractice()">Controleer</button>
+        <div style="display:flex;gap:10px">
+          <button class="practice-btn" onclick="checkPractice()">Controleer</button>
+          <button class="practice-btn" style="background:transparent;border:1.5px solid var(--purple-border);color:var(--purple)" onclick="nextPractice()">Nieuwe opgave →</button>
+        </div>
         <div class="practice-result" id="prac-result"></div>
       </div>
 
@@ -305,8 +317,8 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
   <div class="nav-row">
     <a href="../" class="nav-btn nav-btn--ghost">← Terug naar overzicht</a>
-    <a href="../abstract/" class="nav-btn nav-btn--a">Abstract oefenen →</a>
-    <a href="../tabel35/" class="nav-btn nav-btn--b">Natuurkunde formules →</a>
+    <a href="../oefenen/" class="nav-btn nav-btn--a">Oefenen →</a>
+    <a href="../examenformules/" class="nav-btn nav-btn--b">Examenformules →</a>
   </div>
 
 </div>
@@ -337,17 +349,12 @@ function toggleTheme(){const c=document.documentElement.getAttribute('data-theme
 const PRAC_CALC_GROUPS=[
   {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('}]},
   {label:'Bewerkingen',btns:[{l:'×',v:'*'},{l:'÷',v:'/'},{l:'+',v:'+'},{l:'−',v:'-'}]},
-  {label:'Subscript',btns:[{l:'x_n',v:'_',id:'prac-btn-sub'},{l:'↑',v:null,id:'prac-btn-sub-end'}]},
 ];
 
 let pracKb;
 
 function pracHandleKey(e){
   if(e.key==='Enter')checkPractice();
-  if(pracKb&&pracKb.isSubMode()){
-    if(e.key===' '){e.preventDefault();pracKb.setSubMode(false);}
-    if(e.key==='ArrowUp'){e.preventDefault();pracKb.setSubMode(false);}
-  }
 }
 
 function makeStepRow(steps,container){
@@ -371,7 +378,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // STAP 2 — F = m·a → m
   renderKaTeX('m',document.getElementById('target-span-2'),false);
-  document.getElementById('formula-display-2').textContent='F = m · a';
+  renderKaTeX('F = m \\cdot a',document.getElementById('formula-display-2'),false);
 
   makeStepRow([
     {label:'Gegeven',     latex:'F = m \\cdot a'},
@@ -391,6 +398,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     {label:'√(·)',    latex:'v = \\sqrt{\\dfrac{2 E_k}{m}}'},
   ],document.getElementById('ex2-steps'));
 
+  // REGEL 1 — grootheid in de noemer: ρ = m/V → V
+  renderKaTeX('\\rho = \\dfrac{m}{V}',document.getElementById('ex2b-start'),false);
+  renderKaTeX('V',document.getElementById('ex2b-target'),false);
+
+  makeStepRow([
+    {label:'Gegeven', latex:'\\rho = \\dfrac{m}{V}'},
+    {label:'× V',     latex:'\\rho \\cdot V = m'},
+    {label:'÷ ρ',     latex:'V = \\dfrac{m}{\\rho}'},
+  ],document.getElementById('ex2b-steps'));
+
   // STAP 3 — v_gem = (v_b + v_e)/2 → v_b
   renderKaTeX('v_{gem} = \\dfrac{v_b + v_e}{2}',document.getElementById('ex3a-start'),false);
   renderKaTeX('v_b',document.getElementById('ex3a-target'),false);
@@ -408,7 +425,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   makeStepRow([
     {label:'Gegeven',  latex:'E = P \\cdot (t_2 - t_1)'},
     {label:'÷ P',      latex:'\\dfrac{E}{P} = t_2 - t_1'},
-    {label:'− t_2, omwisselen', latex:'t_1 = t_2 - \\dfrac{E}{P}'},
+    {label:'+ t_1',    latex:'\\dfrac{E}{P} + t_1 = t_2'},
+    {label:'− E/P',    latex:'t_1 = t_2 - \\dfrac{E}{P}'},
   ],document.getElementById('ex4a-steps'));
 
   // STAP 5 — wortel wegnemen: v = sqrt(2Ek/m) → Ek
@@ -426,30 +444,74 @@ document.addEventListener('DOMContentLoaded',()=>{
     {label:'√(·)',    latex:'a = \\sqrt{\\dfrac{x}{b}}'},
   ],document.getElementById('ex5b-steps'));
 
-  // Practice: x = a² · b → a
-  renderKaTeX('x = a^{2} \\cdot b',document.getElementById('prac-formula-display'),true);
-  renderKaTeX('a',document.getElementById('prac-target'),false);
+  // Mini-oefening: eerste opgave laden
+  loadPractice();
 });
 
-function checkPractice(){
-  const raw=document.getElementById('prac-input').value.trim().toLowerCase().replace(/\s/g,'');
+// ── MINI-OEFENING — gecontroleerd met verify.js (zelfde controle als de oefenpagina's) ──
+const PRACTICE_POOL=[
+  {formula:'x = a^{2} \\cdot b', target:'a', vars:['x','a','b'], canonical:'sqrt(x/b)',
+   hint:'Deel eerst beide kanten door b, neem daarna de wortel.'},
+  {formula:'x = \\dfrac{a}{b}', target:'b', vars:['x','a','b'], canonical:'a/x',
+   hint:'b staat in de noemer: vermenigvuldig beide kanten met b en deel daarna door x.'},
+  {formula:'v = \\sqrt{\\dfrac{a}{b}}', target:'a', vars:['v','a','b'], canonical:'v^2*b',
+   hint:'Kwadrateer eerst beide kanten om de wortel weg te werken.'},
+  {formula:'x = a + b \\cdot c', target:'b', vars:['x','a','b','c'], canonical:'(x-a)/c',
+   hint:'Trek eerst a van beide kanten af, deel daarna door c.'},
+  {formula:'E = \\tfrac{1}{2} m v^{2}', target:'v', vars:['E','m','v'], canonical:'sqrt(2*E/m)',
+   hint:'Vermenigvuldig met 2, deel door m, en neem als laatste de wortel.'},
+];
+let pracIndex=0, pracAttempts=0;
+
+function loadPractice(){
+  const ex=PRACTICE_POOL[pracIndex];
+  pracAttempts=0;
+  renderKaTeX(ex.formula,document.getElementById('prac-formula-display'),true);
+  renderKaTeX(ex.target,document.getElementById('prac-target'),false);
+  const inp=document.getElementById('prac-input');
+  inp.value='';
+  inp.placeholder=`${ex.target} = ...`;
+  document.getElementById('prac-ask').textContent=`${ex.target} = ...`;
   const result=document.getElementById('prac-result');
-  const ok=[
-    'a=sqrt(x/b)',
-    'a=sqrt(x*b^-1)',
-    'a=(x/b)^(1/2)',
-    'a=(x/b)^0.5',
-    'a=sqrt(x)/sqrt(b)',
-  ];
-  const clean=raw.replace(/\s/g,'');
-  if(ok.some(v=>clean===v.toLowerCase())||/^a=sqrt\(x\/?b\)$/.test(clean)){
-    result.textContent='Goed! ✓  a = √(x/b)';
-    result.className='practice-result ok';
-  } else if(clean===''){
-    result.style.display='none';
+  result.className='practice-result';
+  result.style.display='none';
+}
+
+function nextPractice(){
+  pracIndex=(pracIndex+1)%PRACTICE_POOL.length;
+  loadPractice();
+}
+
+function checkPractice(){
+  const ex=PRACTICE_POOL[pracIndex];
+  const raw=document.getElementById('prac-input').value;
+  const result=document.getElementById('prac-result');
+  result.style.display='';
+  if(!raw.trim()){result.style.display='none';return;}
+
+  if(lhsIsWrongVariable(raw,ex.target,ex.vars.filter(v=>v!==ex.target),false)){
+    result.textContent=`Let op: er wordt gevraagd om ${ex.target} vrij te maken — links van het =-teken staat nu een andere grootheid.`;
+    result.className='practice-result wrong';
     return;
+  }
+
+  let ok=false;
+  try{
+    ok=checkAnswer(raw,ex.canonical);
+  }catch(e){
+    result.textContent='Ik kan je invoer niet verwerken — controleer haakjes en symbolen.';
+    result.className='practice-result wrong';
+    return;
+  }
+
+  if(ok){
+    result.textContent='Goed! ✓';
+    result.className='practice-result ok';
   } else {
-    result.textContent='Niet helemaal. Denk aan: wortel trekken van beide kanten na het delen door b.';
+    pracAttempts++;
+    result.textContent=pracAttempts>=2
+      ? `Niet helemaal. Hint: ${ex.hint}`
+      : 'Niet helemaal, probeer het nog eens.';
     result.className='practice-result wrong';
   }
 }

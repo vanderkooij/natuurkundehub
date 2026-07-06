@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oefenen · Formules omschrijven · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.js"></script>
+<script src="../js/verify.js"></script>
+<script src="../js/keyboard.js"></script>
+<script src="../js/katex-init.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.1);
+  --orange:#d97706;--orange-dim:rgba(217,119,6,0.1);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --orange:#f59e0b;--orange-dim:rgba(245,158,11,0.1);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 20px;position:relative;z-index:1}
+.main{max-width:760px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
+.section-title{font-size:15px;font-weight:700;color:var(--accent);padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px}
+.section-title.amber{color:var(--accent-amber);border-left-color:var(--accent-amber)}
+.level-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.level-toggle{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:12px;cursor:pointer;transition:all .15s}
+.level-toggle:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.level-toggle.active{border-color:var(--accent);background:var(--accent-dim)}
+.level-toggle input{display:none}
+.level-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border-solid);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px}
+.level-toggle.active .level-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.level-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.level-desc{font-size:12px;color:var(--text-muted)}
+.start-btn{width:100%;padding:14px;background:var(--accent-amber);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;letter-spacing:-0.2px}
+.start-btn:hover:not(:disabled){background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.start-btn:disabled{opacity:0.4;cursor:default}
+.exercise-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.level-badge{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px}
+.ex-counter{font-size:13px;color:var(--text-muted);font-family:var(--mono)}
+.formula-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:32px 28px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.formula-display{text-align:center;padding:20px 0 24px;font-size:2.2rem;line-height:1.6;min-height:80px;overflow:visible}
+.question{font-size:16px;color:var(--text-secondary);margin-bottom:16px;padding-top:16px;border-top:1px solid var(--border-solid);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.question-label{color:var(--text-secondary)}
+.question-target{font-size:1.4rem;color:var(--accent-amber);display:inline-flex;align-items:center}
+.calc-bar{margin-bottom:10px}
+.calc-groups{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:10px}
+.calc-group{display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.calc-group-label{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-right:2px;flex-shrink:0}
+.calc-group-sep{width:1px;background:var(--border-solid);align-self:stretch;margin:0 4px;flex-shrink:0}
+.calc-btn{padding:5px 10px;border:1px solid var(--border-solid);border-radius:6px;font-size:13px;cursor:pointer;background:var(--bg-card);color:var(--text-secondary);font-family:var(--mono);line-height:1.4;transition:all .15s;flex-shrink:0;white-space:nowrap}
+.calc-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+.calc-btn.sub-active{background:rgba(212,146,58,0.15);border-color:rgba(212,146,58,0.4);color:var(--accent-amber)}
+.sub-indicator{font-size:11px;color:var(--accent-amber);font-family:var(--mono);margin-bottom:6px;display:none}
+.sub-indicator.visible{display:block}
+.input-hint{font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:var(--mono)}
+.formula-input{width:100%;border:2px solid var(--border-solid);border-radius:10px;padding:12px 14px;font-size:16px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);transition:all .15s}
+.formula-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.formula-input.correct{border-color:var(--green);background:var(--green-dim)}
+.formula-input.wrong{border-color:var(--red);background:var(--red-dim)}
+.preview-wrap{min-height:40px;padding:8px 0 4px;font-size:1.15rem;color:var(--text-secondary);overflow:visible}
+.feedback-bar{font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;margin-bottom:10px;border-left:4px solid;display:none}
+.feedback-bar.ok{background:var(--green-dim);color:var(--green);border-color:var(--green);display:block}
+.feedback-bar.retry{background:var(--orange-dim);color:var(--orange);border-color:var(--orange);display:block}
+.hint-bar{font-size:13px;color:var(--text-secondary);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:none}
+.hint-bar.visible{display:block}
+.solution-reveal{background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:12px 16px;margin-bottom:12px;display:none}
+.solution-reveal .reveal-btn{width:100%;padding:10px;border:1.5px solid var(--accent-border);border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.solution-reveal .reveal-btn:hover{background:var(--accent);color:#fff}
+.solution-content{display:none}
+.solution-content strong{color:var(--text);font-size:14px}
+.katex-sol{font-size:1.2rem;padding:10px 0;text-align:center;overflow:visible}
+.btn-row{display:flex;gap:10px}
+.qbtn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);font-family:var(--font);font-weight:600;transition:all .15s}
+.qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
+.qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qbtn.primary:hover{background:#0999aa}
+.qbtn:disabled{opacity:0.4;cursor:default}
+.loading-indicator{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease-out}
+@media(max-width:560px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .formula-card{padding:24px 16px}
+  .formula-display{font-size:1.6rem}
+  .calc-btn{padding:5px 8px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <a href="../" style="color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none">Formules omschrijven</a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Oefenen</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+<div class="main">
+<h1 class="tool-name">Oefenen</h1>
+<!-- SETTINGS -->
+<div class="panel active" id="panel-settings">
+  <div class="section-title amber">Oplopende reeks</div>
+  <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6">Begin bij level 1 en klim vanzelf omhoog: na drie goede antwoorden op rij ga je een level verder.</p>
+  <button class="start-btn" onclick="startClimb()" style="margin-bottom:32px">Start oplopende reeks →</button>
+
+  <div class="section-title amber">Of kies zelf je level(s)</div>
+  <div class="level-grid">
+    <label class="level-toggle" id="lbl-1">
+      <input type="checkbox" value="1" onchange="updateToggles()">
+      <div class="level-check" id="chk-1"></div>
+      <div><div class="level-label">Level 1</div><div class="level-desc">Alleen + en −</div></div>
+    </label>
+    <label class="level-toggle" id="lbl-2">
+      <input type="checkbox" value="2" onchange="updateToggles()">
+      <div class="level-check" id="chk-2"></div>
+      <div><div class="level-label">Level 2</div><div class="level-desc">3 variabelen, alleen × en ÷</div></div>
+    </label>
+    <label class="level-toggle" id="lbl-3">
+      <input type="checkbox" value="3" onchange="updateToggles()">
+      <div class="level-check" id="chk-3"></div>
+      <div><div class="level-label">Level 3</div><div class="level-desc">4–5 variabelen, alleen × en ÷</div></div>
+    </label>
+    <label class="level-toggle" id="lbl-4">
+      <input type="checkbox" value="4" onchange="updateToggles()">
+      <div class="level-check" id="chk-4"></div>
+      <div><div class="level-label">Level 4</div><div class="level-desc">Machten en wortels</div></div>
+    </label>
+    <label class="level-toggle" id="lbl-5">
+      <input type="checkbox" value="5" onchange="updateToggles()">
+      <div class="level-check" id="chk-5"></div>
+      <div><div class="level-label">Level 5</div><div class="level-desc">Combinaties: haakjes, breuken, machten en +/− door elkaar</div></div>
+    </label>
+  </div>
+  <button class="start-btn" id="start-btn" onclick="startExercise()" disabled>Kies een level om te starten</button>
+</div>
+<!-- EXERCISE -->
+<div class="panel" id="panel-exercise">
+  <div class="exercise-meta">
+    <span class="level-badge" id="ex-badge">LEVEL 1</span>
+    <span class="ex-counter" id="ex-counter">Opgave 1</span>
+  </div>
+  <div class="formula-card">
+    <div class="formula-display" id="formula-display"></div>
+    <div class="question" id="question-wrap">
+      <span class="question-label">Schrijf om naar:</span>
+      <span class="question-target" id="question-target"></span>
+    </div>
+    <div class="calc-bar">
+      <div class="calc-groups" id="calc-groups"></div>
+    </div>
+    <div class="sub-indicator" id="sub-indicator">subscript actief — typ letters, dan spatie of ↑ om te eindigen</div>
+    <div class="input-hint">Typ bijv. <span style="font-family:var(--mono)">a = sqrt(b/c)</span> of gebruik de knoppen hierboven</div>
+    <input class="formula-input" id="answer-input" type="text" autocomplete="off" spellcheck="false"
+      placeholder="a = ..." onkeydown="handleInputKey(event)" oninput="onInputChange()">
+    <div class="preview-wrap" id="preview-wrap"></div>
+  </div>
+  <div class="feedback-bar" id="feedback"></div>
+  <div class="hint-bar" id="hint-bar"></div>
+  <div class="solution-reveal" id="solution-reveal">
+    <button class="reveal-btn" id="btn-reveal" onclick="showSolution()">Bekijk correcte omschrijving</button>
+    <div class="solution-content" id="solution-content">
+      <strong>Uitwerking:</strong>
+      <div class="katex-sol" id="solution-katex"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="qbtn" id="btn-skip" onclick="skipExercise()">Sla over</button>
+    <button class="qbtn primary" id="btn-check" onclick="handleCheckBtn()">Controleer</button>
+  </div>
+</div>
+</div>
+<footer>
+  <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+<script>
+// ── THEME ──
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../assets/logo/JK_dark.svg';
+    if(fl)fl.src='../assets/logo/JK_white.svg';
+    if(fav)fav.href='../assets/logo/JK_dark.svg';
+    if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../assets/logo/JK_light.svg';
+    if(fl)fl.src='../assets/logo/JK_black.svg';
+    if(fav)fav.href='../assets/logo/JK_light.svg';
+    if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const c=document.documentElement.getAttribute('data-theme')||'light';
+  const n=c==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',n);applyTheme(n);
+}
+(function(){
+  const s=localStorage.getItem('nh-theme');
+  if(s)applyTheme(s);
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');
+  else applyTheme('light');
+})();
+
+// ── CALC BAR CONFIG ──
+const CALC_GROUPS=[
+  {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('}]},
+  {label:'Bewerkingen',btns:[{l:'×',v:'*'},{l:'÷',v:'/'},{l:'+',v:'+'},{l:'−',v:'-'}]},
+  {label:'Grieks',btns:[{l:'α',v:'α'},{l:'β',v:'β'},{l:'γ',v:'γ'},{l:'λ',v:'λ'},{l:'ρ',v:'ρ'},{l:'ω',v:'ω'},{l:'Δ',v:'Δ'},{l:'π',v:'π'}]},
+  {label:'Subscript',btns:[{l:'x_n',v:'_',id:'btn-sub'},{l:'↑',v:null,id:'btn-sub-end'}]},
+];
+
+// ── SETTINGS ──
+const ALL_LEVELS=[1,2,3,4,5];
+function updateToggles(){
+  ALL_LEVELS.forEach(n=>{
+    const inp=document.querySelector(`#lbl-${n} input`);
+    const lbl=document.getElementById(`lbl-${n}`);
+    const chk=document.getElementById(`chk-${n}`);
+    if(inp.checked){lbl.classList.add('active');chk.textContent='✓';}
+    else{lbl.classList.remove('active');chk.textContent='';}
+  });
+  const any=ALL_LEVELS.some(n=>document.querySelector(`#lbl-${n} input`).checked);
+  const btn=document.getElementById('start-btn');
+  btn.disabled=!any;
+  btn.textContent=any?'Start oefenen →':'Kies een level om te starten';
+}
+
+// ── HELPERS ──
+const VARS='abcdefghijkmnpqrstuvwxyz'.split('');
+function pickVars(n){return[...VARS].sort(()=>Math.random()-.5).slice(0,n);}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+// ── LEVEL 1 GENERATOR — alleen + en − ──
+function generateL1(){
+  const patterns=[
+    // x = a + b
+    ()=>{
+      const[x,a,b]=pickVars(3);
+      const t=pick([a,b]), other=t===a?b:a;
+      return{latexFormula:`${x} = ${a} + ${b}`, solveTarget:t, canonicalAnswer:`${x}-${other}`, vars:[x,a,b],
+        hint:`${t} is een term in een optelling. Trek ${other} van beide kanten af.`};
+    },
+    // x = a − b  (naar a)
+    ()=>{
+      const[x,a,b]=pickVars(3);
+      return{latexFormula:`${x} = ${a} - ${b}`, solveTarget:a, canonicalAnswer:`${x}+${b}`, vars:[x,a,b],
+        hint:`Er wordt ${b} afgetrokken. Tel ${b} bij beide kanten op.`};
+    },
+    // x = a − b  (naar b)
+    ()=>{
+      const[x,a,b]=pickVars(3);
+      return{latexFormula:`${x} = ${a} - ${b}`, solveTarget:b, canonicalAnswer:`${a}-${x}`, vars:[x,a,b],
+        hint:`${b} staat er negatief in. Tel ${b} bij beide kanten op en trek daarna ${x} er aan beide kanten af.`};
+    },
+    // x = a + b − c
+    ()=>{
+      const[x,a,b,c]=pickVars(4);
+      const t=pick([a,b,c]);
+      const ca = t===a ? `${x}-${b}+${c}` : t===b ? `${x}-${a}+${c}` : `${a}+${b}-${x}`;
+      return{latexFormula:`${x} = ${a} + ${b} - ${c}`, solveTarget:t, canonicalAnswer:ca, vars:[x,a,b,c],
+        hint:`Breng de termen die je niet nodig hebt één voor één naar de andere kant.`};
+    },
+  ];
+  return{level:1, ...pick(patterns)()};
+}
+
+// ── LEVEL 2 GENERATOR — × en ÷ met 3 variabelen ──
+function generateL2(){
+  const[x,a,b]=pickVars(3);
+  const op=pick(['*','/']);
+  let latexFormula, solveTarget, canonicalAnswer, hint;
+
+  if(op==='*'){
+    // x = a * b
+    latexFormula=`${x} = ${a} \\cdot ${b}`;
+    solveTarget=pick([a,b]);
+    const other=solveTarget===a?b:a;
+    canonicalAnswer=`${x}/${other}`;
+    hint=`${solveTarget} wordt vermenigvuldigd met ${other}. Deel beide kanten door ${other}.`;
+  } else {
+    // x = a / b
+    latexFormula=`${x} = \\dfrac{${a}}{${b}}`;
+    solveTarget=pick([a,b]);
+    if(solveTarget===a){
+      canonicalAnswer=`${x}*${b}`;
+      hint=`${a} staat in de teller. Werk de breuk weg door beide kanten met ${b} te vermenigvuldigen.`;
+    } else {
+      canonicalAnswer=`${a}/${x}`;
+      hint=`${b} staat in de noemer. Vermenigvuldig beide kanten met ${b} en deel daarna beide kanten door ${x}.`;
+    }
+  }
+
+  return{level:2, latexFormula, solveTarget, canonicalAnswer, vars:[x,a,b], hint};
+}
+
+// ── LEVEL 3 GENERATOR — × en ÷ met 4–5 variabelen ──
+function generateL3(){
+  const n=pick([4,5]);
+  const vars=pickVars(n);
+  const[x,...rest]=vars;
+
+  // Splits rest willekeurig in teller en noemer
+  // Zorg dat teller en noemer elk minstens 1 variabele hebben
+  const split=1+Math.floor(Math.random()*(rest.length-1));
+  const numVars=rest.slice(0,split);   // in teller
+  const denVars=rest.slice(split);     // in noemer
+
+  // LaTeX formule
+  let latexFormula;
+  if(denVars.length===0){
+    latexFormula=`${x} = ${numVars.join(' \\cdot ')}`;
+  } else if(numVars.length===1){
+    latexFormula=`${x} = \\dfrac{${numVars[0]}}{${denVars.join(' \\cdot ')}}`;
+  } else {
+    latexFormula=`${x} = \\dfrac{${numVars.join(' \\cdot ')}}{${denVars.join(' \\cdot ')}}`;
+  }
+
+  // Kies doelgrootheid
+  const solveTarget=pick(rest);
+  const inNum=numVars.includes(solveTarget);
+
+  // Bereken correct antwoord algebraïsch:
+  // x = (numVars) / (denVars)
+  // Als target in teller: target = x * denVars / (rest van numVars)
+  // Als target in noemer:  target = numVars / (x * rest van denVars)
+  let canonicalAnswer, hint;
+  if(denVars.length===0){
+    // x = a*b*c... → target = x / (rest van numVars)
+    const others=numVars.filter(v=>v!==solveTarget);
+    canonicalAnswer = others.length===0 ? x : `${x}/(${others.join('*')})`;
+    hint=`${solveTarget} zit in een product. Deel beide kanten door de andere factoren.`;
+  } else if(inNum){
+    // target is in teller: target = (x * denVars) / (rest van numVars)
+    const otherNum=numVars.filter(v=>v!==solveTarget);
+    const tellerParts=[x,...denVars];
+    const teller=tellerParts.length===1 ? tellerParts[0] : `(${tellerParts.join('*')})`;
+    if(otherNum.length===0){
+      canonicalAnswer=teller;
+    } else {
+      const noemer=otherNum.length===1 ? otherNum[0] : `(${otherNum.join('*')})`;
+      canonicalAnswer=`${teller}/${noemer}`;
+    }
+    hint=`${solveTarget} staat in de teller. Vermenigvuldig beide kanten met de noemer en deel daarna door de andere factoren in de teller.`;
+  } else {
+    // target is in noemer: target = numVars / (x * rest van denVars)
+    const otherDen=denVars.filter(v=>v!==solveTarget);
+    const teller=numVars.length===1 ? numVars[0] : `(${numVars.join('*')})`;
+    const noemerParts=[x,...otherDen];
+    const noemer=noemerParts.length===1 ? noemerParts[0] : `(${noemerParts.join('*')})`;
+    canonicalAnswer=`${teller}/${noemer}`;
+    hint=`${solveTarget} staat in de noemer. Vermenigvuldig beide kanten met de noemer; daarna staat ${solveTarget} boven en kun je verder delen.`;
+  }
+
+  return{level:3, latexFormula, solveTarget, canonicalAnswer, vars, hint};
+}
+
+// ── LEVEL 4 GENERATOR — machten en wortels ──
+function generateL4(){
+  const vars=pickVars(3);
+  const[x,a,b]=vars;
+
+  const patterns=[
+    // x = a^2 * b
+    ()=>{
+      const t=pick([a,b]);
+      const ca=t===a ? `sqrt(${x}/${b})` : `${x}/${a}^2`;
+      const hint=t===a
+        ? `Er staat een kwadraat op ${a}. Deel eerst beide kanten door ${b}, neem daarna de wortel.`
+        : `Deel beide kanten door ${a}².`;
+      return{latexFormula:`${x} = ${a}^{2} \\cdot ${b}`, solveTarget:t, canonicalAnswer:ca, hint};
+    },
+    // x = sqrt(a*b)
+    ()=>{
+      const t=pick([a,b]);
+      const other=t===a?b:a;
+      return{latexFormula:`${x} = \\sqrt{${a} \\cdot ${b}}`, solveTarget:t, canonicalAnswer:`${x}^2/${other}`,
+        hint:`${t} staat onder een wortel. Kwadrateer eerst beide kanten om de wortel weg te werken.`};
+    },
+    // x = a^2 / b
+    ()=>{
+      const t=pick([a,b]);
+      const ca=t===a ? `sqrt(${x}*${b})` : `${a}^2/${x}`;
+      const hint=t===a
+        ? `Er staat een kwadraat op ${a}. Vermenigvuldig eerst beide kanten met ${b}, neem daarna de wortel.`
+        : `${b} staat in de noemer. Vermenigvuldig beide kanten met ${b} en deel daarna door ${x}.`;
+      return{latexFormula:`${x} = \\dfrac{${a}^{2}}{${b}}`, solveTarget:t, canonicalAnswer:ca, hint};
+    },
+    // x = sqrt(a/b)
+    ()=>{
+      const t=pick([a,b]);
+      const ca=t===a ? `${x}^2*${b}` : `${a}/${x}^2`;
+      return{latexFormula:`${x} = \\sqrt{\\dfrac{${a}}{${b}}}`, solveTarget:t, canonicalAnswer:ca,
+        hint:`${t} staat onder een wortel. Kwadrateer eerst beide kanten om de wortel weg te werken.`};
+    },
+  ];
+
+  return{level:4, ...pick(patterns)(), vars};
+}
+
+// ── LEVEL 5 GENERATOR — combinaties van bewerkingen ──
+function generateL5(){
+  const vars=pickVars(4);
+  const[x,a,b,c]=vars;
+
+  const patterns=[
+    // x = a + b*c  (naar b of c)
+    ()=>{
+      const t=pick([b,c]);
+      const other=t===b?c:b;
+      return{latexFormula:`${x} = ${a} + ${b} \\cdot ${c}`, solveTarget:t, canonicalAnswer:`(${x}-${a})/${other}`,
+        hint:`Trek eerst ${a} van beide kanten af; deel daarna door ${other}.`};
+    },
+    // x = a + b*c  (naar a)
+    ()=>{
+      return{latexFormula:`${x} = ${a} + ${b} \\cdot ${c}`, solveTarget:a, canonicalAnswer:`${x}-${b}*${c}`,
+        hint:`Trek het product ${b}·${c} van beide kanten af.`};
+    },
+    // x = a*b^2 / c  (naar b of c)
+    ()=>{
+      const t=pick([b,c]);
+      const ca=t===b ? `sqrt(${x}*${c}/${a})` : `${a}*${b}^2/${x}`;
+      const hint=t===b
+        ? `Werk eerst de breuk weg (vermenigvuldig met ${c}), deel door ${a}, en neem als laatste de wortel.`
+        : `${c} staat in de noemer. Vermenigvuldig beide kanten met ${c} en deel daarna door ${x}.`;
+      return{latexFormula:`${x} = \\dfrac{${a} \\cdot ${b}^{2}}{${c}}`, solveTarget:t, canonicalAnswer:ca, hint};
+    },
+    // x = a*b^2 / c  (naar a)
+    ()=>{
+      return{latexFormula:`${x} = \\dfrac{${a} \\cdot ${b}^{2}}{${c}}`, solveTarget:a, canonicalAnswer:`${x}*${c}/${b}^2`,
+        hint:`Vermenigvuldig beide kanten met ${c} en deel daarna door ${b}².`};
+    },
+    // x = a*(b+c)  (naar b of c)
+    ()=>{
+      const t=pick([b,c]);
+      const other=t===b?c:b;
+      return{latexFormula:`${x} = ${a} \\cdot (${b} + ${c})`, solveTarget:t, canonicalAnswer:`${x}/${a}-${other}`,
+        hint:`Deel eerst beide kanten door de factor vóór de haakjes (${a}).`};
+    },
+    // x = a*(b+c)  (naar a)
+    ()=>{
+      return{latexFormula:`${x} = ${a} \\cdot (${b} + ${c})`, solveTarget:a, canonicalAnswer:`${x}/(${b}+${c})`,
+        hint:`Deel beide kanten door de hele haakjesterm (${b}+${c}).`};
+    },
+    // x = (a+b)/c  (naar a of b)
+    ()=>{
+      const t=pick([a,b]);
+      const other=t===a?b:a;
+      return{latexFormula:`${x} = \\dfrac{${a} + ${b}}{${c}}`, solveTarget:t, canonicalAnswer:`${x}*${c}-${other}`,
+        hint:`Vermenigvuldig eerst beide kanten met de noemer ${c}.`};
+    },
+    // x = (a+b)/c  (naar c)
+    ()=>{
+      return{latexFormula:`${x} = \\dfrac{${a} + ${b}}{${c}}`, solveTarget:c, canonicalAnswer:`(${a}+${b})/${x}`,
+        hint:`${c} staat in de noemer. Vermenigvuldig beide kanten met ${c} en deel daarna door ${x}.`};
+    },
+    // x = a/(b+c)  (naar b of c)
+    ()=>{
+      const t=pick([b,c]);
+      const other=t===b?c:b;
+      return{latexFormula:`${x} = \\dfrac{${a}}{${b} + ${c}}`, solveTarget:t, canonicalAnswer:`${a}/${x}-${other}`,
+        hint:`De haakjesterm staat in de noemer. Vermenigvuldig beide kanten met (${b}+${c}) en deel daarna door ${x}.`};
+    },
+    // x = a/(b+c)  (naar a)
+    ()=>{
+      return{latexFormula:`${x} = \\dfrac{${a}}{${b} + ${c}}`, solveTarget:a, canonicalAnswer:`${x}*(${b}+${c})`,
+        hint:`Vermenigvuldig beide kanten met de hele noemer (${b}+${c}).`};
+    },
+    // x = sqrt((a+b)/c)  (naar a of b)
+    ()=>{
+      const t=pick([a,b]);
+      const other=t===a?b:a;
+      return{latexFormula:`${x} = \\sqrt{\\dfrac{${a} + ${b}}{${c}}}`, solveTarget:t, canonicalAnswer:`${x}^2*${c}-${other}`,
+        hint:`Kwadrateer eerst beide kanten om de wortel weg te werken; werk daarna de breuk weg.`};
+    },
+    // x = sqrt((a+b)/c)  (naar c)
+    ()=>{
+      return{latexFormula:`${x} = \\sqrt{\\dfrac{${a} + ${b}}{${c}}}`, solveTarget:c, canonicalAnswer:`(${a}+${b})/${x}^2`,
+        hint:`Kwadrateer eerst beide kanten; daarna staat ${c} in de noemer van een gewone breuk.`};
+    },
+  ];
+
+  return{level:5, ...pick(patterns)(), vars};
+}
+
+function generateExercise(levels){
+  const l=pick(levels);
+  if(l===1)return generateL1();
+  if(l===2)return generateL2();
+  if(l===3)return generateL3();
+  if(l===4)return generateL4();
+  return generateL5();
+}
+
+// ── STATE ──
+const CLIMB_GOAL=3, MAX_LEVEL=5;
+let state={exercise:null,attempts:0,checked:false,counter:0,selectedLevels:[],mode:'custom',climbLevel:1,climbStreak:0};
+let currentCorrectAnswer=null;
+
+function startExercise(){
+  state.mode='custom';
+  state.selectedLevels=ALL_LEVELS.filter(n=>document.querySelector(`#lbl-${n} input`).checked);
+  state.counter=0;
+  showPanel('exercise');
+  nextExercise();
+}
+
+function startClimb(){
+  state.mode='climb';
+  state.climbLevel=1;
+  state.climbStreak=0;
+  state.counter=0;
+  showPanel('exercise');
+  nextExercise();
+}
+
+function updateMeta(){
+  const ex=state.exercise;
+  document.getElementById('ex-badge').textContent=
+    state.mode==='climb' ? `REEKS · LEVEL ${ex.level}` : `LEVEL ${ex.level}`;
+  document.getElementById('ex-counter').textContent=
+    state.mode==='climb'
+      ? `Opgave ${state.counter} · ${state.climbStreak}/${CLIMB_GOAL} goed`
+      : `Opgave ${state.counter}`;
+}
+
+function nextExercise(){
+  state.counter++;
+  state.attempts=0;
+  state.checked=false;
+  kb.setSubMode(false);
+
+  const levels=state.mode==='climb' ? [state.climbLevel] : state.selectedLevels;
+  const ex=generateExercise(levels);
+  state.exercise=ex;
+  currentCorrectAnswer=ex.canonicalAnswer||null;
+
+  updateMeta();
+
+  const displayEl=document.getElementById('formula-display');
+  displayEl.textContent='';
+  renderKaTeX(ex.latexFormula,displayEl,true);
+
+  const tEl=document.getElementById('question-target');
+  tEl.innerHTML='';
+  renderKaTeX(ex.solveTarget,tEl,false);
+
+  const inp=document.getElementById('answer-input');
+  inp.value='';
+  inp.className='formula-input';
+  inp.readOnly=false;
+  inp.placeholder=`${ex.solveTarget} = ...`;
+
+  document.getElementById('preview-wrap').innerHTML='';
+  document.getElementById('feedback').className='feedback-bar';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('hint-bar').className='hint-bar';
+  document.getElementById('hint-bar').textContent='';
+  document.getElementById('solution-reveal').style.display='none';
+  document.getElementById('solution-content').style.display='none';
+  document.getElementById('btn-reveal').style.display='';
+
+  const btnCheck=document.getElementById('btn-check');
+  btnCheck.textContent='Controleer';
+  btnCheck.className='qbtn primary';
+  btnCheck.disabled=false;
+  document.getElementById('btn-skip').style.display='';
+  inp.focus();
+}
+
+function skipExercise(){
+  if(state.checked){nextExercise();return;}
+  if(state.mode==='climb'){state.climbStreak=0;updateMeta();}
+  const fb=document.getElementById('feedback');
+  fb.textContent='Overgeslagen — bekijk hieronder het correcte antwoord.';
+  fb.className='feedback-bar retry';
+  document.getElementById('solution-reveal').style.display='block';
+  showSolution();
+  state.checked=true;
+  document.getElementById('btn-check').textContent='Volgende opgave';
+  document.getElementById('btn-check').className='qbtn primary';
+  document.getElementById('btn-skip').style.display='none';
+}
+
+// ── INPUT ──
+function handleInputKey(e){
+  if(e.key==='Enter'){handleCheckBtn();return;}
+  if(kb.isSubMode()){
+    if(e.key===' '){e.preventDefault();kb.setSubMode(false);return;}
+    if(e.key==='ArrowUp'){e.preventDefault();kb.setSubMode(false);return;}
+    if('+-*/()^='.includes(e.key))kb.setSubMode(false);
+  }
+}
+
+// ── PREVIEW ──
+function exprToLatex(expr){
+  if(!expr)return'';
+  let s=expr.trim();
+
+  // Griekse namen → LaTeX
+  const nameMap={'alpha':'\\alpha','beta':'\\beta','gamma':'\\gamma','delta':'\\delta',
+                 'eta':'\\eta','lambda':'\\lambda','rho':'\\rho','omega':'\\omega',
+                 'phi':'\\phi','pi':'\\pi'};
+  for(const[n,l]of Object.entries(nameMap))s=s.replace(new RegExp('\\b'+n+'\\b','g'),l);
+  const greekUni={'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta','η':'\\eta',
+                  'λ':'\\lambda','ρ':'\\rho','ω':'\\omega','φ':'\\phi','Δ':'\\Delta','π':'\\pi'};
+  for(const[u,l]of Object.entries(greekUni))s=s.split(u).join(l);
+
+  // Machten en subscripts
+  s=s.replace(/\^(-?\d+(?:\.\d+)?)/g,'^{$1}');
+  s=s.replace(/\^([a-zA-Z_][a-zA-Z0-9_]*)/g,'^{$1}');
+  s=s.replace(/_([a-zA-Z0-9]+)/g,'_{$1}');
+
+  // Groepeer teller: a*b/c → (a*b)/c
+  s=s.replace(/([a-zA-Z0-9_^()]+\*[a-zA-Z0-9_^()*]+)\/([a-zA-Z0-9_^()]+)/g,
+    (m,num,den)=>`(${num})/${den}`);
+  // Groepeer noemer: a/b*c → a/(b*c)
+  s=s.replace(/([a-zA-Z0-9_^()]+)\/([a-zA-Z0-9_^()]+(\*[a-zA-Z0-9_^()]+)+)/g,
+    (m,num,den)=>`${num}/(${den})`);
+
+  // sqrt — verwerk breuk BINNEN de wortel eerst
+  s=s.replace(/sqrt\(([^)]+)\)/g,(match,inner)=>{
+    let inn=inner;
+    // Groepeer teller/noemer binnen sqrt
+    inn=inn.replace(/([a-zA-Z0-9_^()]+\*[a-zA-Z0-9_^()*]+)\/([a-zA-Z0-9_^()]+)/g,
+      (m,num,den)=>`(${num})/${den}`);
+    inn=inn.replace(/([a-zA-Z0-9_^()]+)\/([a-zA-Z0-9_^()]+(\*[a-zA-Z0-9_^()]+)+)/g,
+      (m,num,den)=>`${num}/(${den})`);
+    // Breuk binnen sqrt → \dfrac
+    inn=inn.replace(/\(([^()]+)\)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/([a-zA-Z0-9_{}\\^]+)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/\(([^()]+)\)\/([a-zA-Z0-9_{}\\^]+)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/([a-zA-Z0-9_{}\\^]+)\/([a-zA-Z0-9_{}\\^]+)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/\*/g,'\\cdot ');
+    return `\\sqrt{${inn}}`;
+  });
+
+  // Breuken buiten sqrt
+  // Vervang \dfrac tijdelijk door placeholder zodat de loop het niet opnieuw aanpakt
+const dfracStore = [];
+for(let i=0;i<3;i++){
+  // Sla bestaande \dfrac op
+  s = s.replace(/\\dfrac\{[^{}]*\}\{[^{}]*\}/g, m => {
+    dfracStore.push(m); return `__DF${dfracStore.length-1}__`;
+  });
+  s=s.replace(/\(([^()]+)\)\s*\/\s*\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+  s=s.replace(/\(([^()]+)\)\s*\/\s*([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
+  s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\s*\/\s*\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+  s=s.replace(/([a-zA-Z0-9_^{}\\]+)\s*\/\s*([a-zA-Z0-9_^{}\\]+)/g,'\\dfrac{$1}{$2}');
+}
+// Zet placeholders terug
+dfracStore.forEach((v,i) => { s = s.replace(`__DF${i}__`, v); });
+
+  // Vermenigvuldiging
+  s=s.replace(/\*/g,'\\cdot ');
+  return s;
+}
+
+function onInputChange(){
+  if(kb.isSubMode()){
+    const inp=document.getElementById('answer-input');
+    const pos=inp.selectionStart,val=inp.value,lastChar=val[pos-1];
+    if(lastChar&&'+-*/()^= '.includes(lastChar))kb.setSubMode(false);
+  }
+  updatePreview();
+}
+
+function updatePreview(){
+  const raw=document.getElementById('answer-input').value;
+  const wrap=document.getElementById('preview-wrap');
+  if(!raw.trim()){wrap.innerHTML='';return;}
+  try{
+    const latex=exprToLatex(raw);
+    katex.render(latex,wrap,{throwOnError:true,displayMode:false});
+  }catch(e){
+    // Bij complexe breuken: toon nette vereenvoudigde versie
+    try{
+      const simple=raw.replace(/\*/g,'·').replace(/sqrt\(/g,'√(');
+      wrap.innerHTML=`<span style="font-size:1rem;color:var(--text-secondary)">${simple}</span>`;
+    }catch(e2){wrap.innerHTML='';}
+  }
+}
+
+// ── HINT ──
+// Elke generator levert een structurele hint mee bij de opgave
+function hintForExercise(ex){
+  return ex.hint||`Isoleer ${ex.solveTarget} stap voor stap: pas op beide kanten dezelfde omgekeerde bewerking toe.`;
+}
+
+// ── CHECK ──
+function handleCheckBtn(){if(state.checked){nextExercise();return;}doCheck();}
+
+function doCheck(){
+  const ex=state.exercise;
+  const raw=document.getElementById('answer-input').value;
+  if(!raw.trim())return;
+
+  const inp=document.getElementById('answer-input');
+  const fb=document.getElementById('feedback');
+  const hintBar=document.getElementById('hint-bar');
+  const btnCheck=document.getElementById('btn-check');
+
+  btnCheck.disabled=true;
+  btnCheck.innerHTML='<span class="loading-indicator"></span>Controleren…';
+
+  setTimeout(()=>{
+    let isCorrect=false,parseError=false;
+
+    if(!currentCorrectAnswer){
+      // Geen referentieantwoord beschikbaar
+      fb.textContent='Geen referentie-antwoord beschikbaar. Sla over of bekijk de uitwerking.';
+      fb.className='feedback-bar retry';
+      document.getElementById('solution-reveal').style.display='block';
+      state.checked=true;
+      btnCheck.disabled=false;
+      btnCheck.textContent='Volgende opgave';
+      btnCheck.className='qbtn primary';
+      document.getElementById('btn-skip').style.display='none';
+      return;
+    }
+
+    // Heeft de leerling een ándere grootheid vrijgemaakt dan gevraagd?
+    if(lhsIsWrongVariable(raw,ex.solveTarget,ex.vars.filter(v=>v!==ex.solveTarget),false)){
+      btnCheck.disabled=false;
+      btnCheck.innerHTML='Controleer';
+      fb.textContent=`Let op: er wordt gevraagd om ${ex.solveTarget} vrij te maken — links van het =-teken staat nu een andere grootheid.`;
+      fb.className='feedback-bar retry';
+      return;
+    }
+
+    try{
+      isCorrect=checkAnswer(raw,currentCorrectAnswer);
+    }catch(e){
+      parseError=true;
+    }
+
+    btnCheck.disabled=false;
+    btnCheck.innerHTML='Controleer';
+
+    if(parseError){
+      fb.textContent='Ik kan je invoer niet verwerken — controleer haakjes en symbolen.';
+      fb.className='feedback-bar retry';
+      return;
+    }
+
+    if(isCorrect){
+      fb.textContent='Goed! ✓';
+      if(state.mode==='climb'){
+        state.climbStreak++;
+        if(state.climbStreak>=CLIMB_GOAL){
+          if(state.climbLevel<MAX_LEVEL){
+            state.climbLevel++;
+            state.climbStreak=0;
+            fb.textContent=`Goed! ✓ Drie op rij — door naar level ${state.climbLevel}!`;
+          } else {
+            fb.textContent='Goed! ✓ Je beheerst het hoogste level!';
+            state.climbStreak=0;
+          }
+        }
+        updateMeta();
+      }
+      fb.className='feedback-bar ok';
+      hintBar.className='hint-bar';
+      inp.classList.add('correct');
+      state.checked=true;
+      btnCheck.textContent='Volgende opgave';
+      btnCheck.className='qbtn primary';
+      document.getElementById('btn-skip').style.display='none';
+    } else {
+      state.attempts++;
+      if(state.attempts===1){
+        // Eerste fout: alleen feedback, geen hint
+        fb.textContent='Niet correct, probeer het nog eens.';
+        fb.className='feedback-bar retry';
+        btnCheck.disabled=false;
+        btnCheck.textContent='Controleer';
+      } else if(state.attempts===2){
+        // Tweede fout: hint tonen en nog een keer laten proberen
+        fb.textContent='Niet correct. Gebruik de hint en probeer het nog eens.';
+        fb.className='feedback-bar retry';
+        hintBar.textContent=hintForExercise(ex);
+        hintBar.className='hint-bar visible';
+        btnCheck.disabled=false;
+        btnCheck.textContent='Controleer';
+      } else {
+        // Derde fout: uitwerking aanbieden
+        fb.textContent='Niet correct.';
+        fb.className='feedback-bar retry';
+        document.getElementById('solution-reveal').style.display='block';
+        document.getElementById('solution-content').style.display='none';
+        document.getElementById('btn-reveal').style.display='';
+        state.checked=true;
+        btnCheck.textContent='Volgende opgave';
+        btnCheck.className='qbtn primary';
+        document.getElementById('btn-skip').style.display='none';
+        inp.classList.add('wrong');
+        if(state.mode==='climb'){state.climbStreak=0;updateMeta();}
+      }
+    }
+  },50);
+}
+
+// ── SOLUTION ──
+function showSolution(){
+  const ex=state.exercise;
+  document.getElementById('btn-reveal').style.display='none';
+  const sc=document.getElementById('solution-content');
+  sc.style.display='block';
+  const solEl=document.getElementById('solution-katex');
+  if(currentCorrectAnswer){
+    const latex=toDisplayLatex(currentCorrectAnswer,ex.solveTarget);
+    renderKaTeX(latex,solEl,false);
+  } else {
+    solEl.textContent='Geen uitwerking beschikbaar.';
+  }
+}
+
+// ── PANELS ──
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// ── INIT KEYBOARD ──
+const kb=initKeyboard('answer-input',CALC_GROUPS);
+</script>
+</body>
+</html>

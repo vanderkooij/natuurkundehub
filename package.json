@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "bash build.sh",
+    "test:formules": "node --test formules-omschrijven/tests/verify.test.js",
     "serve": "npx netlify-cli dev --dir dist --port 8080",
     "preview": "npm run build && npm run serve",
     "dev": "cd circuitsketch && npm run dev"

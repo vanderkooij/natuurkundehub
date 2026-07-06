@@ -24,8 +24,8 @@ natuurkundehub/
 ├── formules-omschrijven/
 │   ├── index.html                    # Keuzemenu
 │   ├── uitleg/index.html             # Uitlegmodus
-│   ├── abstract/index.html           # Abstracte formules
-│   └── tabel35/index.html            # Tabel 35-formules
+│   ├── oefenen/index.html            # Letterformules (5 levels + oplopende reeks)
+│   └── examenformules/index.html     # Formules uit het examenprogramma
 ├── modelleren/
 │   └── index.html                    # Numerieke modelleeromgeving
 ├── significantie/
@@ -89,8 +89,8 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/modelleren/` | Modelleren |
 | `/formules-omschrijven/` | Kies een oefenmodus *(keuzepagina, hero)* |
 | `/formules-omschrijven/uitleg/` | Leren omschrijven |
-| `/formules-omschrijven/abstract/` | Oefenmodus |
-| `/formules-omschrijven/tabel35/` | Natuurkunde formules |
+| `/formules-omschrijven/oefenen/` | Oefenen |
+| `/formules-omschrijven/examenformules/` | Examenformules |
 | `/significantie/` | Significantie |
 | `/circuitsketch/` | CircuitSketch |
 | `/contact/` | Contact & Feedback |

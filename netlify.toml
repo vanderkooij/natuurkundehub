@@ -15,6 +15,17 @@
   to = "/circuitflow/index.html"
   status = 200
 
+# Oude namen van de Formules omschrijven-modi (hernoemd juli 2026)
+[[redirects]]
+  from = "/formules-omschrijven/abstract/*"
+  to = "/formules-omschrijven/oefenen/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/formules-omschrijven/tabel35/*"
+  to = "/formules-omschrijven/examenformules/:splat"
+  status = 301
+
 # Expliciete trailing-slash redirects per submap
 [[redirects]]
   from = "/formules-omschrijven"

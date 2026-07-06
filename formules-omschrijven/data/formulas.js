@@ -99,6 +99,39 @@ const FORMULAS = [
     answers: { m: '(Fmpz*r)/v^2', v: 'sqrt((Fmpz*r)/m)', r: '(m*v^2)/Fmpz' },
   },
   {
+    id: 'eenparig_versneld',
+    display: 's = \\tfrac{1}{2} a t^2',
+    variables: { s: 'afgelegde afstand', a: 'versnelling', t: 'tijd' },
+    solveFor: [
+      { key: 'a', display: 'a' },
+      { key: 't', display: 't' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { a: '(2*s)/t^2', t: 'sqrt((2*s)/a)' },
+  },
+  {
+    id: 'druk',
+    display: 'p = \\dfrac{F}{A}',
+    variables: { p: 'druk', F: 'kracht', A: 'oppervlakte' },
+    solveFor: [
+      { key: 'F', display: 'F' },
+      { key: 'A', display: 'A' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { F: 'p*A', A: 'F/p' },
+  },
+  {
+    id: 'impuls',
+    display: 'p = m \\cdot v',
+    variables: { p: 'impuls', m: 'massa', v: 'snelheid' },
+    solveFor: [
+      { key: 'm', display: 'm' },
+      { key: 'v', display: 'v' },
+    ],
+    niveau: 'vwo', thema: 'mechanica',
+    answers: { m: 'p/v', v: 'p/m' },
+  },
+  {
     id: 'arbeid',
     display: 'W = F \\cdot s',
     variables: { W: 'arbeid', F: 'kracht', s: 'verplaatsing' },
@@ -119,6 +152,17 @@ const FORMULAS = [
     ],
     niveau: 'beide', thema: 'mechanica',
     answers: { m: '(2*Ek)/v^2', v: 'sqrt((2*Ek)/m)' },
+  },
+  {
+    id: 'veerenergie',
+    display: 'E_v = \\tfrac{1}{2} C u^2',
+    variables: { 'E_v': 'veerenergie', C: 'veerconstante', u: 'uitrekking' },
+    solveFor: [
+      { key: 'C', display: 'C' },
+      { key: 'u', display: 'u' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { C: '(2*Ev)/u^2', u: 'sqrt((2*Ev)/C)' },
   },
   {
     id: 'ez',
@@ -201,6 +245,17 @@ const FORMULAS = [
     niveau: 'beide', thema: 'mechanica',
     answers: { m: '(C*T^2)/(4*pi^2)', C: '(4*pi^2*m)/T^2' },
   },
+  {
+    id: 'slinger',
+    display: 'T = 2\\pi\\sqrt{\\dfrac{l}{g}}',
+    variables: { T: 'slingertijd', l: 'slingerlengte', g: 'valversnelling' },
+    solveFor: [
+      { key: 'l', display: 'l' },
+      { key: 'g', display: 'g' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { l: '(g*T^2)/(4*pi^2)', g: '(4*pi^2*l)/T^2' },
+  },
 
   // ── B TRILLINGEN & GOLVEN ─────────────────────────────────────
 
@@ -253,7 +308,7 @@ const FORMULAS = [
   {
     id: 'debiet',
     display: 'Q = \\dfrac{\\Delta V}{\\Delta t}',
-    variables: { Q: 'debiet', '\\Delta V': 'volumestroom', '\\Delta t': 'tijdsduur' },
+    variables: { Q: 'debiet (volumestroom)', '\\Delta V': 'verplaatst volume', '\\Delta t': 'tijdsduur' },
     solveFor: [
       { key: 'dV', display: '\\Delta V' },
       { key: 'dt', display: '\\Delta t' },
@@ -346,6 +401,17 @@ const FORMULAS = [
     answers: { R: '(rho*l)/A', A: '(rho*l)/R', l: '(R*A)/rho' },
   },
   {
+    id: 'serie_r',
+    display: 'R_{tot} = R_1 + R_2',
+    variables: { 'R_{tot}': 'totale weerstand (serie)', 'R_1': 'weerstand 1', 'R_2': 'weerstand 2' },
+    solveFor: [
+      { key: 'R1', display: 'R_1' },
+      { key: 'R2', display: 'R_2' },
+    ],
+    niveau: 'beide', thema: 'elektriciteit',
+    answers: { R1: 'Rtot-R2', R2: 'Rtot-R1' },
+  },
+  {
     id: 'parallel_r',
     display: '\\dfrac{1}{R_{tot}} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2}',
     variables: { 'R_{tot}': 'totale weerstand', 'R_1': 'weerstand 1', 'R_2': 'weerstand 2' },
@@ -383,6 +449,17 @@ const FORMULAS = [
     answers: { h: 'E/f', f: 'E/h' },
   },
   {
+    id: 'foton_golflengte',
+    display: 'E = \\dfrac{h \\cdot c}{\\lambda}',
+    variables: { E: 'energie foton', h: 'constante van Planck', c: 'lichtsnelheid', '\\lambda': 'golflengte' },
+    solveFor: [
+      { key: 'lambda', display: '\\lambda' },
+      { key: 'h', display: 'h' },
+    ],
+    niveau: 'beide', thema: 'overige',
+    answers: { lambda: '(h*c)/E', h: '(E*lambda)/c' },
+  },
+  {
     id: 'lichtsnelheid',
     display: 'c = f \\cdot \\lambda',
     variables: { c: 'lichtsnelheid', f: 'frequentie', '\\lambda': 'golflengte' },
@@ -416,15 +493,24 @@ const FORMULAS = [
     answers: { E: 'D*m', m: 'E/D' },
   },
   {
-    id: 'halvering_n',
-    display: 'n = \\dfrac{\\log(N/N_0)}{\\log(0{,}5)}',
-    variables: { n: 'aantal halveringstijden', N: 'huidig aantal kernen', 'N_0': 'beginhoeveelheid' },
+    id: 'halvering',
+    display: 'N = N_0 \\cdot \\left(\\tfrac{1}{2}\\right)^{n}',
+    variables: { N: 'aantal kernen na n halveringstijden', 'N_0': 'beginhoeveelheid', n: 'aantal halveringstijden' },
     solveFor: [
-      { key: 'N', display: 'N' },
       { key: 'N0', display: 'N_0' },
     ],
+    niveau: 'beide', thema: 'overige',
+    answers: { N0: 'N/0.5^n' },
+  },
+  {
+    id: 'halvering_n',
+    display: 'N = N_0 \\cdot \\left(\\tfrac{1}{2}\\right)^{n}',
+    variables: { N: 'aantal kernen na n halveringstijden', 'N_0': 'beginhoeveelheid', n: 'aantal halveringstijden' },
+    solveFor: [
+      { key: 'n', display: 'n' },
+    ],
     niveau: 'vwo', thema: 'overige',
-    answers: { N: 'N0*0.5^n', N0: 'N/0.5^n' },
+    answers: { n: 'log(N/N0)/log(0.5)' },
   },
   {
     id: 'einstein',
@@ -462,6 +548,27 @@ const FORMULAS = [
     answers: { b: '(v*f)/(v-f)', v: '(b*f)/(b-f)', f: '(b*v)/(b+v)' },
   },
   {
+    id: 'vergroting',
+    display: 'N = \\dfrac{b}{v}',
+    variables: { N: 'lineaire vergroting', b: 'beeldafstand', v: 'voorwerpsafstand' },
+    solveFor: [
+      { key: 'b', display: 'b' },
+      { key: 'v', display: 'v' },
+    ],
+    niveau: 'beide', thema: 'optica',
+    answers: { b: 'N*v', v: 'b/N' },
+  },
+  {
+    id: 'lenssterkte',
+    display: 'S = \\dfrac{1}{f}',
+    variables: { S: 'lenssterkte', f: 'brandpuntsafstand' },
+    solveFor: [
+      { key: 'f', display: 'f' },
+    ],
+    niveau: 'beide', thema: 'optica',
+    answers: { f: '1/S' },
+  },
+  {
     id: 'brekingsindex',
     display: 'n_{1 \\to 2} = \\dfrac{n_2}{n_1} = \\dfrac{c_1}{c_2}',
     variables: { 'n_{1\\to2}': 'relatieve brekingsindex', 'n_1': 'brekingsindex medium 1', 'n_2': 'brekingsindex medium 2', 'c_1': 'lichtsnelheid in medium 1', 'c_2': 'lichtsnelheid in medium 2' },
@@ -484,3 +591,8 @@ const THEMAS = {
   overige:       { label: 'Overige onderwerpen',    letter: 'E', kleur: '#ec4899' },
   optica:        { label: 'Optica (optioneel)',      letter: 'F', kleur: '#14b8a6', optioneel: true },
 };
+
+// Node-export voor unit tests (genegeerd in de browser)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { FORMULAS, THEMAS };
+}
