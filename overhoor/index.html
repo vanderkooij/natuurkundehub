@@ -526,6 +526,12 @@ function catHasVisibleRows(cat,level){
   return cat.rows.some(r=>lv.includes(r.lv));
 }
 
+// In de onderbouw heten de vakgebieden alledaags (Beweging, Licht, Warmte);
+// in de bovenbouw de formele naam (Mechanica, Optica, Thermodynamica).
+function catLabel(cat){
+  return currentLevel==='ob'&&cat.obLabel?cat.obLabel:cat.label;
+}
+
 function init(){
   cats=CATS_DATA.map(c=>({...c,rows:c.rows.map(r=>({id:uid(),...r}))}));
   restoreSettings();
@@ -545,7 +551,7 @@ function renderCatChecks(){
     const checked=selectedCats?selectedCats.has(c.key):c.def;
     return `
     <label class="check-row" style="margin-bottom:4px">
-      <input type="checkbox" class="cat-chk" value="${c.key}"${checked?' checked':''} onchange="updateSelectedCats()"> ${escHtml(c.label)}
+      <input type="checkbox" class="cat-chk" value="${c.key}"${checked?' checked':''} onchange="updateSelectedCats()"> ${escHtml(catLabel(c))}
     </label>`;}).join('');
 }
 
@@ -641,7 +647,7 @@ function renderList(){
     const rows=c.rows.filter(r=>lv.includes(r.lv));
     if(!rows.length)return'';
     return `<div class="list-cat">
-      <div class="list-cat-head"><h2>${escHtml(c.label)}</h2>
+      <div class="list-cat-head"><h2>${escHtml(catLabel(c))}</h2>
         <button class="cat-toggle-btn no-print" onclick="practiceCat('${c.key}')">Oefen deze categorie →</button></div>
       <table class="list-table">
         <thead><tr><th>Grootheid</th><th>Symbool</th><th>Eenheid</th><th>Eenheidssymbool</th><th>Niveau</th></tr></thead>
@@ -872,7 +878,7 @@ function showEnd(){
   const msg=pct>=90?'Uitstekend!':pct>=70?'Goed gedaan!':pct>=50?'Blijf oefenen!':'Nog veel te leren!';
   const wc=Q.wrong.length;
   // Fouten blijven herhaalbaar totdat alles goed is
-  const retryHTML=wc>0?`<div class="retry-section"><div class="retry-label">${wc} vraag${wc>1?'en':''} fout. Wil je die herhalen?</div><button class="qbtn primary" onclick="retryWrong()">Fouten herhalen (${wc})</button></div>`:'';
+  const retryHTML=wc>0?`<div class="retry-section"><div class="retry-label">${wc} ${wc>1?'vragen':'vraag'} fout. Wil je die herhalen?</div><button class="qbtn primary" onclick="retryWrong()">Fouten herhalen (${wc})</button></div>`:'';
   document.getElementById('quiz-area').innerHTML=`<div class="end-screen">
     <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:16px">${msg}</div>
     <div class="end-score">${Q.score}<span>/${total}</span></div>

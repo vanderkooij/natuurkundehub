@@ -355,7 +355,8 @@ function addCat(){
 function catsToJS(){
   const data=`const CATS_DATA=[\n${cats.map(c=>{
     const rowsStr=c.rows.map(r=>`    {lv:'${r.lv}',naam:'${r.naam.replace(/'/g,"\\'")}',sym:'${r.sym.replace(/'/g,"\\'")}',eenh:'${r.eenh.replace(/'/g,"\\'")}',esym:'${r.esym.replace(/'/g,"\\'")}'},`).join('\n');
-    return `  {key:'${c.key}',label:'${c.label.replace(/'/g,"\\'")}',def:${c.def},rows:[\n${rowsStr}\n  ]},`;
+    const obl=c.obLabel?`,obLabel:'${c.obLabel.replace(/'/g,"\\'")}'`:'';
+    return `  {key:'${c.key}',label:'${c.label.replace(/'/g,"\\'")}'${obl},def:${c.def},rows:[\n${rowsStr}\n  ]},`;
   }).join('\n')}\n];\n\nwindow.CATS_DATA = CATS_DATA;\n`;
   return data;
 }

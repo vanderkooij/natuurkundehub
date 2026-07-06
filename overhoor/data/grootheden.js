@@ -1,5 +1,5 @@
 const CATS_DATA=[
-  {key:'mech',label:'Mechanica',def:true,rows:[
+  {key:'mech',label:'Mechanica',obLabel:'Beweging',def:true,rows:[
     {lv:'ob',naam:'massa',sym:'m',eenh:'kilogram',esym:'kg'},
     {lv:'ob',naam:'afstand',sym:'s',eenh:'meter',esym:'m'},
     {lv:'ob',naam:'tijd',sym:'t',eenh:'seconde',esym:'s'},
@@ -27,7 +27,7 @@ const CATS_DATA=[
     {lv:'hv',naam:'veerconstante',sym:'C',eenh:'newton per meter',esym:'N/m; N m⁻¹'},
     {lv:'vw',naam:'elasticiteitsmodulus',sym:'E',eenh:'newton per vierkante meter',esym:'N/m²; N m⁻²; Pa'},
   ]},
-  {key:'golf',label:'Golven & geluid',def:true,rows:[
+  {key:'golf',label:'Golven & geluid',obLabel:'Geluid',def:true,rows:[
     {lv:'ob',naam:'frequentie',sym:'f',eenh:'hertz',esym:'Hz; s⁻¹'},
     {lv:'ob',naam:'periode; trillingstijd',sym:'T',eenh:'seconde',esym:'s'},
     {lv:'hv',naam:'golflengte',sym:'λ',eenh:'meter',esym:'m'},
@@ -37,7 +37,7 @@ const CATS_DATA=[
     {lv:'hv',naam:'geluidsdruk- / intensiteitsniveau; geluidsniveau; geluidsdrukniveau',sym:'L',eenh:'decibel',esym:'dB'},
     {lv:'hv',naam:'voortplantingssnelheid van licht; lichtsnelheid',sym:'c',eenh:'meter per seconde',esym:'m/s'},
   ]},
-  {key:'optica',label:'Optica',def:false,rows:[
+  {key:'optica',label:'Optica',obLabel:'Licht',def:false,rows:[
     {lv:'hv',naam:'brekingsindex',sym:'n',eenh:'(geen eenheid); geen eenheid; geen; -',esym:'-; geen; (geen eenheid)'},
     {lv:'hv',naam:'voorwerpsafstand',sym:'v',eenh:'meter',esym:'m'},
     {lv:'hv',naam:'beeldafstand',sym:'b',eenh:'meter',esym:'m'},
@@ -46,7 +46,7 @@ const CATS_DATA=[
     {lv:'hv',naam:'lenssterkte',sym:'S',eenh:'dioptrie',esym:'dpt; m⁻¹; 1/m'},
     {lv:'hv',naam:'grenshoek',sym:'g',eenh:'graad',esym:'°'},
   ]},
-  {key:'elek',label:'Elektriciteit & magnetisme',def:true,rows:[
+  {key:'elek',label:'Elektriciteit & magnetisme',obLabel:'Elektriciteit',def:true,rows:[
     {lv:'ob',naam:'elektrische spanning',sym:'U',eenh:'volt',esym:'V'},
     {lv:'ob',naam:'elektrische stroomsterkte',sym:'I',eenh:'ampere',esym:'A'},
     {lv:'ob',naam:'weerstand',sym:'R',eenh:'ohm',esym:'Ω; ohm'},
@@ -61,7 +61,7 @@ const CATS_DATA=[
     {lv:'vw',naam:'magnetische flux',sym:'Φ',eenh:'weber',esym:'Wb'},
     {lv:'vw',naam:'zelfinductie',sym:'L',eenh:'henry',esym:'H'},
   ]},
-  {key:'thermo',label:'Thermodynamica & warmte',def:true,rows:[
+  {key:'thermo',label:'Thermodynamica & warmte',obLabel:'Warmte',def:true,rows:[
     {lv:'ob',naam:'temperatuur',sym:'T; θ',eenh:'kelvin; graden Celsius',esym:'K; °C'},
     {lv:'ob',naam:'warmte',sym:'Q',eenh:'joule',esym:'J'},
     {lv:'ob',naam:'soortelijke warmte',sym:'c',eenh:'joule per kilogram kelvin',esym:'J/(kg·K); J/kg/K; J kg⁻¹ K⁻¹'},
@@ -72,7 +72,7 @@ const CATS_DATA=[
     {lv:'hv',naam:'hoeveelheid stof',sym:'n',eenh:'mol',esym:'mol'},
     {lv:'hv',naam:'concentratie',sym:'c',eenh:'mol per kubieke meter',esym:'mol/m³; mol m⁻³'},
   ]},
-  {key:'kern',label:'Kernfysica & straling',def:true,rows:[
+  {key:'kern',label:'Kernfysica & straling',obLabel:'Straling',def:true,rows:[
     {lv:'hv',naam:'activiteit',sym:'A',eenh:'becquerel',esym:'Bq; s⁻¹'},
     {lv:'hv',naam:'geabsorbeerde dosis',sym:'D',eenh:'gray',esym:'Gy'},
     {lv:'hv',naam:'dosisequivalent',sym:'H',eenh:'sievert',esym:'Sv'},
