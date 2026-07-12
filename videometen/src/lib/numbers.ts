@@ -21,6 +21,19 @@ export function formatDecimal(n: number, decimals = 2): string {
 }
 
 /**
+ * Aantal decimalen voor positie-/afgeleide-waarden per lengte-eenheid, in
+ * tabel, CSV en meet-infobalk (één plek zodat ze consistent blijven). Bij "m"
+ * 3 decimalen: 2 zou 1 cm-resolutie zijn — grover dan de klik-precisie.
+ */
+export function decimalsForUnit(unit: "m" | "cm" | "mm"): number {
+  return unit === "m" ? 3 : unit === "cm" ? 2 : 1;
+}
+
+/** Aantal decimalen voor t-waarden: 3 — bij 60/120 fps zijn de tijdstappen
+ *  (0,017 / 0,008 s) anders niet meer te onderscheiden. */
+export const TIME_DECIMALS = 3;
+
+/**
  * Parse a number from a Dutch-friendly string. Accepts both "1,20" and "1.20",
  * trims whitespace. Returns NaN if not parseable.
  */

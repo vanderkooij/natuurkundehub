@@ -171,8 +171,19 @@ interface TrackingContextValue extends TrackingState {
   resetTracking: () => void;
   /** Laad alle tracking-state uit een project. Wist history. */
   loadFromProject: (points: TrackedPoint[], frameStep: number, trailColor: TrailColor) => void;
-  /** Verplaats het punt voor een specifiek frame van zijn huidige naar `to`. */
-  movePointAt: (frame: number, to: Pixel) => void;
+  /**
+   * Verplaats het punt voor een specifiek frame naar `to`, als ÉÉN undo-stap.
+   * `from` = de positie waar de undo naar teruggaat; geef bij een drag de
+   * positie op het moment van pointerdown mee (de live preview heeft de
+   * pixel-positie dan al gewijzigd via `previewMovePointAt`).
+   */
+  movePointAt: (frame: number, to: Pixel, from?: Pixel) => void;
+  /**
+   * Live-preview tijdens een drag: verplaatst het punt ZONDER history-entry.
+   * Sluit de drag af met één `movePointAt(frame, to, from)` op pointerup —
+   * anders vult elke pointermove de undo-stack met micro-stapjes.
+   */
+  previewMovePointAt: (frame: number, to: Pixel) => void;
   /** Update de frame-step. */
   setFrameStep: (next: number) => void;
   /** Toggle de zichtbaarheid van de trail-overlay. */
@@ -301,15 +312,23 @@ export function TrackingProvider({ children }: { children: ReactNode }) {
   );
 
   const movePointAt = useCallback(
-    (frame: number, to: Pixel) => {
+    (frame: number, to: Pixel, from?: Pixel) => {
       const existing = stateRef.current.points.find((p) => p.frame === frame);
       if (!existing) return;
+      const start = from ?? existing.pixel;
       // Skip when there's no actual movement (avoids history spam on tiny jitter).
-      if (existing.pixel.x === to.x && existing.pixel.y === to.y) return;
-      history.dispatch({ kind: "move-point", frame, from: existing.pixel, to });
+      if (start.x === to.x && start.y === to.y) return;
+      history.dispatch({ kind: "move-point", frame, from: start, to });
     },
     [history],
   );
+
+  // Buiten de history om — alleen voor live drag-preview (zie interface-doc).
+  const previewMovePointAt = useCallback((frame: number, to: Pixel) => {
+    const existing = stateRef.current.points.find((p) => p.frame === frame);
+    if (!existing) return;
+    dispatch({ type: "__APPLY", action: { kind: "move-point", frame, from: existing.pixel, to } });
+  }, []);
 
   const setFrameStep = useCallback(
     (next: number) => {
@@ -368,6 +387,7 @@ export function TrackingProvider({ children }: { children: ReactNode }) {
       resetTracking,
       loadFromProject,
       movePointAt,
+      previewMovePointAt,
       setFrameStep,
       setTrailVisible,
       setTrailColor,
@@ -384,6 +404,7 @@ export function TrackingProvider({ children }: { children: ReactNode }) {
       resetTracking,
       loadFromProject,
       movePointAt,
+      previewMovePointAt,
       setFrameStep,
       setTrailVisible,
       setTrailColor,

@@ -25,6 +25,7 @@ import { toast } from "@/_reusable/Toaster";
 import { useAppMode } from "@/features/app/AppMode";
 import { useCalibration } from "@/features/calibration/CalibrationState";
 import { buildRows } from "@/features/measurements/derive";
+import { withAccelerations } from "@/features/measurements/graph-types";
 import { useGraphsLayout } from "@/features/measurements/GraphsLayoutState";
 import {
   ProjectLoadError,
@@ -37,6 +38,7 @@ import {
 } from "@/features/project/projectSchema";
 import { useTracking } from "@/features/tracking/TrackingState";
 import { useVideo } from "@/features/video/VideoState";
+import { decimalsForUnit, TIME_DECIMALS } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
 
 const VIDEO_ACCEPT = "video/mp4,video/quicktime,video/webm,video/*";
@@ -73,9 +75,7 @@ async function saveJsonFile(json: string, suggestedName: string) {
     try {
       const handle = await picker({
         suggestedName,
-        types: [
-          { description: "Videometen project", accept: { "application/json": [".json"] } },
-        ],
+        types: [{ description: "Videometen project", accept: { "application/json": [".json"] } }],
       });
       const writable = await handle.createWritable();
       await writable.write(json);
@@ -320,9 +320,12 @@ export function ToolMenu() {
   const onCsvExport = () => {
     close();
     if (!video || !scale || points.length === 0) return;
-    const rows = buildRows(points, scale, axes, video.fps, /* trimStart = */ 0, /* trimEnd = */ Math.max(0, video.frameCount - 1));
+    // Zelfde t-referentie als tabel en grafieken (t = 0 op trim-start) —
+    // anders wijkt de CSV af van wat de leerling op het scherm ziet. Punten
+    // buiten de trim gaan wel mee (net als in de tabel), met negatieve t.
+    const rows = withAccelerations(buildRows(points, scale, axes, video.fps, trim.start, trim.end));
     const unit = scale.unit;
-    const dec = unit === "mm" ? 1 : 2;
+    const dec = decimalsForUnit(unit);
     const header = [
       "frame",
       "t (s)",
@@ -331,15 +334,21 @@ export function ToolMenu() {
       `vx (${unit}/s)`,
       `vy (${unit}/s)`,
       `|v| (${unit}/s)`,
+      `ax (${unit}/s²)`,
+      `ay (${unit}/s²)`,
+      `|a| (${unit}/s²)`,
     ];
     const dataRows = rows.map((row) => [
       formatCsvCell(row.frame),
-      formatCsvCell(row.t, 2),
+      formatCsvCell(row.t, TIME_DECIMALS),
       formatCsvCell(row.x, dec),
       formatCsvCell(row.y, dec),
       formatCsvCell(row.vx ?? null, dec),
       formatCsvCell(row.vy ?? null, dec),
       formatCsvCell(row.vMag ?? null, dec),
+      formatCsvCell(row.ax ?? null, dec),
+      formatCsvCell(row.ay ?? null, dec),
+      formatCsvCell(row.aMag ?? null, dec),
     ]);
     const csv = buildCsvNL([header, ...dataRows]);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -496,8 +505,8 @@ export function ToolMenu() {
             <DialogTitle>Alle metingen wissen?</DialogTitle>
             <DialogDescription>
               Alle <strong>{measurementCount}</strong>{" "}
-              {measurementCount === 1 ? "meting" : "metingen"} worden gewist. Je kunt dit met
-              Ctrl+Z meteen ongedaan maken.
+              {measurementCount === 1 ? "meting" : "metingen"} worden gewist. Je kunt dit met Ctrl+Z
+              meteen ongedaan maken.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -541,9 +550,9 @@ export function ToolMenu() {
             <DialogTitle>Andere video laden?</DialogTitle>
             <DialogDescription>
               Hiermee wis je de <strong>huidige video</strong>, kalibratie, trim en alle{" "}
-              <strong>{measurementCount}</strong>{" "}
-              {measurementCount === 1 ? "meting" : "metingen"}. Daarna kun je een nieuw
-              videobestand kiezen. Dit kun je <strong>niet</strong> ongedaan maken.
+              <strong>{measurementCount}</strong> {measurementCount === 1 ? "meting" : "metingen"}.
+              Daarna kun je een nieuw videobestand kiezen. Dit kun je <strong>niet</strong> ongedaan
+              maken.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -558,17 +567,14 @@ export function ToolMenu() {
       </Dialog>
 
       {/* Confirm: actieve sessie overschrijven bij project-load */}
-      <Dialog
-        open={!!confirmOverwriteFor}
-        onOpenChange={(o) => !o && setConfirmOverwriteFor(null)}
-      >
+      <Dialog open={!!confirmOverwriteFor} onOpenChange={(o) => !o && setConfirmOverwriteFor(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Huidige sessie overschrijven?</DialogTitle>
             <DialogDescription>
               Je hebt al een actieve video met <strong>{measurementCount}</strong>{" "}
-              {measurementCount === 1 ? "meting" : "metingen"}. Door dit project te openen
-              gaat die sessie verloren.
+              {measurementCount === 1 ? "meting" : "metingen"}. Door dit project te openen gaat die
+              sessie verloren.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -595,9 +601,9 @@ export function ToolMenu() {
           <DialogHeader>
             <DialogTitle>Selecteer het bijbehorende videobestand</DialogTitle>
             <DialogDescription>
-              Dit project verwijst naar <strong>{askVideoFor?.meta.videoFileName ?? "—"}</strong>
-              . Selecteer het bijbehorende videobestand op je computer. (De video zit niet
-              in het project-bestand — alleen een verwijzing.)
+              Dit project verwijst naar <strong>{askVideoFor?.meta.videoFileName ?? "—"}</strong>.
+              Selecteer het bijbehorende videobestand op je computer. (De video zit niet in het
+              project-bestand — alleen een verwijzing.)
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -612,18 +618,15 @@ export function ToolMenu() {
       </Dialog>
 
       {/* Korte-video-waarschuwing bij project-load */}
-      <Dialog
-        open={!!confirmShortVideo}
-        onOpenChange={(o) => !o && setConfirmShortVideo(null)}
-      >
+      <Dialog open={!!confirmShortVideo} onOpenChange={(o) => !o && setConfirmShortVideo(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Korte video</DialogTitle>
             <DialogDescription>
               De geladen video heeft slechts{" "}
-              <strong>{confirmShortVideo?.actualLastFrame ?? 0}</strong> frames, terwijl het
-              project <strong>{confirmShortVideo?.project.video.lastFrame ?? 0}</strong>{" "}
-              frames verwacht. Sommige metingen vallen mogelijk buiten bereik. Doorgaan?
+              <strong>{confirmShortVideo?.actualLastFrame ?? 0}</strong> frames, terwijl het project{" "}
+              <strong>{confirmShortVideo?.project.video.lastFrame ?? 0}</strong> frames verwacht.
+              Sommige metingen vallen mogelijk buiten bereik. Doorgaan?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -687,4 +690,3 @@ function MenuItem({ icon, label, hint, onClick, disabled, destructive }: MenuIte
     </button>
   );
 }
-

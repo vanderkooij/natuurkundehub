@@ -11,13 +11,8 @@ import { withAccelerations, type ExtendedRow } from "@/features/measurements/gra
 import { useMeasurementHover } from "@/features/measurements/MeasurementHoverState";
 import { useTracking } from "@/features/tracking/TrackingState";
 import { useVideo } from "@/features/video/VideoState";
-import { formatDecimal } from "@/lib/numbers";
+import { decimalsForUnit, formatDecimal, TIME_DECIMALS } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
-
-/** Aantal decimalen per length-unit voor positie- en afgeleide waarden. */
-function decimalsFor(unit: LengthUnit): number {
-  return unit === "mm" ? 1 : 2;
-}
 
 // 10: extra (optionele) kolommen — de zes afgeleide grootheden. frame/t/x/y
 // zijn essentieel en altijd zichtbaar (niet in het menu). De keuze is een
@@ -35,7 +30,12 @@ interface ColumnDef {
 const COLUMN_DEFS: ColumnDef[] = [
   { key: "vx", field: "vx", label: (u) => `vx (${u}/s)`, tip: "Snelheid in x-richting" },
   { key: "vy", field: "vy", label: (u) => `vy (${u}/s)`, tip: "Snelheid in y-richting" },
-  { key: "vmag", field: "vMag", label: (u) => `|v| (${u}/s)`, tip: "Absolute snelheid: √(vx² + vy²)" },
+  {
+    key: "vmag",
+    field: "vMag",
+    label: (u) => `|v| (${u}/s)`,
+    tip: "Absolute snelheid: √(vx² + vy²)",
+  },
   {
     key: "ax",
     field: "ax",
@@ -48,7 +48,12 @@ const COLUMN_DEFS: ColumnDef[] = [
     label: (u) => `ay (${u}/s²)`,
     tip: "Versnelling in y-richting (numerieke afgeleide, kan ruisig zijn)",
   },
-  { key: "amag", field: "aMag", label: (u) => `|a| (${u}/s²)`, tip: "Absolute versnelling: √(ax² + ay²)" },
+  {
+    key: "amag",
+    field: "aMag",
+    label: (u) => `|a| (${u}/s²)`,
+    tip: "Absolute versnelling: √(ax² + ay²)",
+  },
 ];
 
 interface NumCellProps {
@@ -59,7 +64,9 @@ interface NumCellProps {
 
 function NumCell({ value, decimals, className }: NumCellProps) {
   if (value === undefined || !Number.isFinite(value)) {
-    return <td className={cn("px-3 py-1.5 text-right font-mono text-(--text-muted)", className)}>—</td>;
+    return (
+      <td className={cn("px-3 py-1.5 text-right font-mono text-(--text-muted)", className)}>—</td>
+    );
   }
   return (
     <td className={cn("px-3 py-1.5 text-right font-mono tabular-nums", className)}>
@@ -118,7 +125,7 @@ function TableRow({
       >
         {row.frame}
       </td>
-      <NumCell value={row.t} decimals={2} />
+      <NumCell value={row.t} decimals={TIME_DECIMALS} />
       <NumCell value={row.x} decimals={decimals} />
       <NumCell value={row.y} decimals={decimals} />
       {activeCols.map((c) => (
@@ -187,9 +194,12 @@ export function MeasurementTable() {
   const extRows = useMemo<ExtendedRow[]>(() => withAccelerations(rows), [rows]);
 
   const unit: LengthUnit = scale?.unit ?? "m";
-  const decimals = decimalsFor(unit);
+  const decimals = decimalsForUnit(unit);
 
-  const activeCols = useMemo(() => COLUMN_DEFS.filter((c) => extraColumns.has(c.key)), [extraColumns]);
+  const activeCols = useMemo(
+    () => COLUMN_DEFS.filter((c) => extraColumns.has(c.key)),
+    [extraColumns],
+  );
 
   // Header-actions: kolommen-menu (checkboxes voor de 6 afgeleide grootheden).
   const headerActions = (

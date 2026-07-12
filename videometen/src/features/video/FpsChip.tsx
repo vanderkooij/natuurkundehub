@@ -32,6 +32,7 @@ export function FpsChip() {
   const { video, setFps, fpsAtFirstMeasurement } = useVideo();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   if (!video) return null;
 
@@ -39,7 +40,12 @@ export function FpsChip() {
 
   const apply = (raw: string) => {
     const num = Number(raw.replace(",", "."));
-    if (!Number.isFinite(num) || num <= 0 || num > 1000) return;
+    if (!Number.isFinite(num) || num <= 0 || num > 1000) {
+      // Niet stil negeren — vertel wat er mis is (was: popover bleef zwijgend open).
+      setError("Vul een getal tussen 0 en 1000 in (bv. 29,97).");
+      return;
+    }
+    setError(null);
     setFps(num, "user");
     setOpen(false);
   };
@@ -69,9 +75,8 @@ export function FpsChip() {
           </span>
         </TooltipTrigger>
         <TooltipContent className="max-w-[36ch] leading-snug">
-          <strong>Fps is vergrendeld</strong> sinds je eerste meting. Om te
-          wijzigen: gebruik <em>Begin opnieuw</em> of{" "}
-          <em>Alle metingen wissen</em> via het menu rechtsboven.
+          <strong>Fps is vergrendeld</strong> sinds je eerste meting. Om te wijzigen: gebruik{" "}
+          <em>Begin opnieuw</em> of <em>Alle metingen wissen</em> via het menu rechtsboven.
         </TooltipContent>
       </Tooltip>
     );
@@ -83,7 +88,10 @@ export function FpsChip() {
       open={open}
       onOpenChange={(o) => {
         setOpen(o);
-        if (o) setDraft(formatFps(video.fps));
+        if (o) {
+          setDraft(formatFps(video.fps));
+          setError(null);
+        }
       }}
     >
       {/* 11b: shadcn Tooltip rond de popover-trigger i.p.v. native title=,
@@ -151,6 +159,7 @@ export function FpsChip() {
             OK
           </Button>
         </form>
+        {error ? <p className="font-mono text-[11px] text-(--color-destructive)">{error}</p> : null}
         <p className="text-[10.5px] leading-snug text-(--text-muted)">
           Zodra je het eerste meetpunt zet wordt deze waarde vergrendeld.
         </p>

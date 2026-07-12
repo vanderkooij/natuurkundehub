@@ -27,7 +27,8 @@ const CLICK_DRAG_THRESHOLD_PX = 4;
  */
 export function TrailOverlay() {
   const { video, currentFrame, trim, setFrame } = useVideo();
-  const { points, trailVisible, setPointAt, movePointAt, frameStep } = useTracking();
+  const { points, trailVisible, setPointAt, movePointAt, previewMovePointAt, frameStep, pointFor } =
+    useTracking();
   const { mode: appMode } = useAppMode();
   const { hoveredFrame, setHoveredFrame } = useMeasurementHover();
 
@@ -65,7 +66,11 @@ export function TrailOverlay() {
     if (next > trim.end) {
       setFrame(trim.end);
       if (!completedRef.current) {
-        const total = points.filter((pt) => pt.frame !== currentFrame).length + 1;
+        // Alleen punten binnen de trim tellen — daarbuiten doen ze niet mee.
+        const total =
+          points.filter(
+            (pt) => pt.frame >= trim.start && pt.frame <= trim.end && pt.frame !== currentFrame,
+          ).length + 1;
         toast(`Klaar met tracken! Je hebt ${total} punten gezet.`);
         completedRef.current = true;
       }
@@ -84,6 +89,11 @@ export function TrailOverlay() {
     if (!svg) return;
     const startX = e.clientX;
     const startY = e.clientY;
+    // Startpositie vastleggen: de drag wordt op pointerup als ÉÉN undo-stap
+    // (from = startPixel) gecommit; tijdens de drag alleen preview-moves
+    // zodat de undo-stack niet volloopt met micro-stapjes.
+    const startPixel = pointFor(frame)?.pixel;
+    let lastPixel: Pixel | null = null;
     let moved = false;
     const prevBodyCursor = document.body.style.cursor;
 
@@ -98,7 +108,8 @@ export function TrailOverlay() {
       if (!moved) return;
       const p = toPixel(svg, ev.clientX, ev.clientY);
       if (!p) return;
-      movePointAt(frame, p);
+      lastPixel = p;
+      previewMovePointAt(frame, p);
     };
     const onUp = (ev: PointerEvent) => {
       window.removeEventListener("pointermove", onMove);
@@ -107,7 +118,13 @@ export function TrailOverlay() {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
       const isClick = Math.hypot(dx, dy) <= CLICK_DRAG_THRESHOLD_PX;
-      if (isClick) setFrame(frame);
+      if (isClick) {
+        setFrame(frame);
+        return;
+      }
+      // Eén history-entry voor de hele drag; Ctrl+Z zet het punt in één keer
+      // terug op de positie van vóór de drag.
+      if (moved && startPixel && lastPixel) movePointAt(frame, lastPixel, startPixel);
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
@@ -217,12 +234,7 @@ export function TrailOverlay() {
               onPointerLeave={isTracking ? undefined : () => setHoveredFrame(null)}
             />
             {/* Zichtbare dot — maat en kleur via CSS-vars. */}
-            <circle
-              cx={pt.pixel.x}
-              cy={pt.pixel.y}
-              opacity={opacity}
-              style={dotStyle(isActive)}
-            />
+            <circle cx={pt.pixel.x} cy={pt.pixel.y} opacity={opacity} style={dotStyle(isActive)} />
             {isActive && !dim ? (
               <circle cx={pt.pixel.x} cy={pt.pixel.y} fill="none" style={ringStyle} />
             ) : null}

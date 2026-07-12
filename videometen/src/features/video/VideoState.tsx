@@ -333,15 +333,37 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     probe.muted = true;
     probe.src = url;
     probe.onloadedmetadata = () => {
-      const duration = Number.isFinite(probe.duration) ? probe.duration : 0;
-      const fps = 30; // default, refined later by useFpsDetection
-      const frameCount = Math.max(1, Math.round(duration * fps));
-      const width = probe.videoWidth || 1280;
-      const height = probe.videoHeight || 720;
-      dispatch({
-        type: "LOAD_VIDEO",
-        video: { file, url, fps, fpsSource: "default", duration, frameCount, width, height },
-      });
+      const finish = (duration: number) => {
+        const fps = 30; // default, refined later by useFpsDetection
+        const frameCount = Math.max(1, Math.round(duration * fps));
+        const width = probe.videoWidth || 1280;
+        const height = probe.videoHeight || 720;
+        dispatch({
+          type: "LOAD_VIDEO",
+          video: { file, url, fps, fpsSource: "default", duration, frameCount, width, height },
+        });
+      };
+      if (Number.isFinite(probe.duration)) {
+        finish(probe.duration);
+        return;
+      }
+      // Webm van MediaRecorder/schermrecorders rapporteert vaak
+      // duration=Infinity. Workaround: voorbij het einde seeken dwingt de
+      // browser de echte duur te bepalen (durationchange). Zonder dit laadde
+      // de video stil met frameCount 1 — niets te stappen of trimmen.
+      let settled = false;
+      const settle = () => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(durationTimeout);
+        probe.ondurationchange = null;
+        finish(Number.isFinite(probe.duration) ? probe.duration : 0);
+      };
+      const durationTimeout = window.setTimeout(settle, 2000);
+      probe.ondurationchange = () => {
+        if (Number.isFinite(probe.duration)) settle();
+      };
+      probe.currentTime = Number.MAX_SAFE_INTEGER;
     };
     probe.onerror = () => {
       dispatch({

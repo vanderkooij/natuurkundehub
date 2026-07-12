@@ -69,7 +69,7 @@ import {
   dateStampYMDHM,
   sanitizeFilename,
 } from "@/features/project/projectSchema";
-import { formatDecimal } from "@/lib/numbers";
+import { decimalsForUnit, formatDecimal } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
 
 export interface PaneState {
@@ -1044,7 +1044,7 @@ export function GraphPane(props: GraphPaneProps) {
                 x2={state.measureX2}
                 y1={measureInfo.y1}
                 y2={measureInfo.y2}
-                unitDecimals={unit === "mm" ? 1 : 2}
+                unitDecimals={decimalsForUnit(unit)}
               />
             ) : null}
             {state.showFit && relevantFitActive && isDerivativePane && fitAvailable ? (
@@ -1059,6 +1059,7 @@ export function GraphPane(props: GraphPaneProps) {
                 fitNeed={fitNeed}
                 fits={fits}
                 fitFailed={fitFailed}
+                unit={unit}
               />
             ) : null}
           </>
@@ -1092,6 +1093,8 @@ interface FitInfoBarProps {
    * tonen we een nette uitleg in plaats van een formule.
    */
   fitFailed: boolean;
+  /** Lengte-eenheid van de schaal — voor de eenheden in coëfficiënt-tooltips. */
+  unit: LengthUnit;
 }
 
 /**
@@ -1154,7 +1157,7 @@ interface FormulaSet {
   rYSource: number | null;
 }
 
-function buildFormulaSet(paneType: GraphTypeKey, fits: FitsResult): FormulaSet {
+function buildFormulaSet(paneType: GraphTypeKey, fits: FitsResult, unit: LengthUnit): FormulaSet {
   const fx = fits.x;
   const fy = fits.y;
   const lines: FormulaLine[] = [];
@@ -1164,13 +1167,13 @@ function buildFormulaSet(paneType: GraphTypeKey, fits: FitsResult): FormulaSet {
   const pushX = (varName: string, deriv: FitDerivative) => {
     if (!fx) return;
     const axis: FormulaAxis = "x";
-    lines.push({ tokens: formatFitFormulaTokens(fx, deriv, varName, axis) });
+    lines.push({ tokens: formatFitFormulaTokens(fx, deriv, varName, axis, unit) });
     rXSource = fx.rSquared;
   };
   const pushY = (varName: string, deriv: FitDerivative) => {
     if (!fy) return;
     const axis: FormulaAxis = "y";
-    lines.push({ tokens: formatFitFormulaTokens(fy, deriv, varName, axis) });
+    lines.push({ tokens: formatFitFormulaTokens(fy, deriv, varName, axis, unit) });
     rYSource = fy.rSquared;
   };
 
@@ -1228,7 +1231,7 @@ function buildFormulaSet(paneType: GraphTypeKey, fits: FitsResult): FormulaSet {
  * Bij `fitFailed`: nette waarschuwing met hint om type of fit-range
  * aan te passen.
  */
-function FitInfoBar({ paneType, fitNeed, fits, fitFailed }: FitInfoBarProps) {
+function FitInfoBar({ paneType, fitNeed, fits, fitFailed, unit }: FitInfoBarProps) {
   if (fitFailed) {
     const which = fitNeed === "x" ? "x-fit" : fitNeed === "y" ? "y-fit" : "fit";
     return (
@@ -1243,7 +1246,7 @@ function FitInfoBar({ paneType, fitNeed, fits, fitFailed }: FitInfoBarProps) {
       </div>
     );
   }
-  const set = buildFormulaSet(paneType, fits);
+  const set = buildFormulaSet(paneType, fits, unit);
   if (set.lines.length === 0) return null;
 
   // Voor enkel-fit-panes (x-t / y-t / vx-t / vy-t / ax-t / ay-t) staat R²

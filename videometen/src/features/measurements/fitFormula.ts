@@ -12,7 +12,17 @@
  *    (bv. lineaire fit-derivative 2 → `y''(t) = 0` blijft expliciet)
  */
 import { type Fit1D } from "@/_reusable/fit";
-import { formatDecimal } from "@/lib/numbers";
+import { type LengthUnit } from "@/features/calibration/CalibrationState";
+import { formatSigFigs } from "@/lib/numbers";
+
+/**
+ * Coëfficiënt-weergave: 3 significante cijfers i.p.v. 2 vaste decimalen —
+ * kleine coëfficiënten (bv. 0,004 bij cm-schalen of trage bewegingen) werden
+ * anders "0,00".
+ */
+function fmtCoef(vAbs: number): string {
+  return formatSigFigs(vAbs, 3);
+}
 
 export type FitDerivative = 0 | 1 | 2;
 
@@ -38,11 +48,7 @@ export type FormulaAxis = "x" | "y";
  * `derivative` bepaalt of we de positie-functie, eerste of tweede afgeleide
  * van `fit` tonen.
  */
-export function formatFitFormula(
-  fit: Fit1D,
-  derivative: FitDerivative,
-  varName: string,
-): string {
+export function formatFitFormula(fit: Fit1D, derivative: FitDerivative, varName: string): string {
   switch (fit.type) {
     case "linear":
       return formatLinear(fit.coefficients, derivative, varName);
@@ -59,19 +65,19 @@ export function formatFitFormula(
 
 /** `−1,23` of `1,23` met U+2212. */
 function head(v: number): string {
-  const s = formatDecimal(Math.abs(v), 2);
+  const s = fmtCoef(Math.abs(v));
   return v < 0 ? `−${s}` : s;
 }
 
 /** ` + 1,23` of ` − 1,23` voor tussen-termen. */
 function tail(v: number): string {
-  const s = formatDecimal(Math.abs(v), 2);
+  const s = fmtCoef(Math.abs(v));
   return v < 0 ? ` − ${s}` : ` + ${s}`;
 }
 
 /** Binnen `sin(...)` of `e^(...)`: extra tussenterm zonder grote spatie. */
 function innerTail(v: number): string {
-  const s = formatDecimal(Math.abs(v), 2);
+  const s = fmtCoef(Math.abs(v));
   return v < 0 ? ` − ${s}` : ` + ${s}`;
 }
 
@@ -130,7 +136,7 @@ function formatSine(c: readonly number[], d: FitDerivative, v: string): string {
 const txt = (t: string): FormulaToken => ({ kind: "text", text: t });
 const coef = (value: number, tooltip: string, isHead = false): FormulaToken => ({
   kind: "coef",
-  text: isHead && value < 0 ? `−${formatDecimal(Math.abs(value), 2)}` : formatDecimal(Math.abs(value), 2),
+  text: isHead && value < 0 ? `−${fmtCoef(Math.abs(value))}` : fmtCoef(Math.abs(value)),
   tooltip,
 });
 
@@ -139,7 +145,7 @@ function midTerm(value: number, tooltip: string, suffix?: string): FormulaToken[
   const sep = value < 0 ? " − " : " + ";
   const valueToken: FormulaToken = {
     kind: "coef",
-    text: formatDecimal(Math.abs(value), 2),
+    text: fmtCoef(Math.abs(value)),
     tooltip,
   };
   if (suffix) return [txt(sep), valueToken, txt(suffix)];
@@ -160,14 +166,15 @@ export function formatFitFormulaTokens(
   derivative: FitDerivative,
   varName: string,
   axis: FormulaAxis,
+  unit: LengthUnit,
 ): FormulaToken[] {
   switch (fit.type) {
     case "linear":
-      return tokensLinear(fit.coefficients, derivative, varName, axis);
+      return tokensLinear(fit.coefficients, derivative, varName, axis, unit);
     case "quadratic":
-      return tokensQuadratic(fit.coefficients, derivative, varName, axis);
+      return tokensQuadratic(fit.coefficients, derivative, varName, axis, unit);
     case "sine":
-      return tokensSine(fit.coefficients, derivative, varName, axis);
+      return tokensSine(fit.coefficients, derivative, varName, axis, unit);
   }
 }
 
@@ -178,25 +185,34 @@ function tokensLinear(
   d: FitDerivative,
   v: string,
   axis: FormulaAxis,
+  unit: LengthUnit,
 ): FormulaToken[] {
   const [a, b] = c;
   const axisLabel = axis === "y" ? "y-richting" : "x-richting";
   if (d === 0) {
     return [
       txt(`${v}(t) = `),
-      coef(a, `Snelheid in ${axisLabel} (m/s). Constante snelheid betekent eenparige beweging.`, true),
+      coef(
+        a,
+        `Snelheid in ${axisLabel} (${unit}/s). Constante snelheid betekent eenparige beweging.`,
+        true,
+      ),
       txt(" · t"),
-      ...midTerm(b, `Startwaarde — ${axis} op t = 0 (m).`),
+      ...midTerm(b, `Startwaarde — ${axis} op t = 0 (${unit}).`),
     ];
   }
   if (d === 1) {
-    return [
-      txt(`${v}(t) = `),
-      coef(a, `Constante snelheid in ${axisLabel} (m/s).`, true),
-    ];
+    return [txt(`${v}(t) = `), coef(a, `Constante snelheid in ${axisLabel} (${unit}/s).`, true)];
   }
   // d === 2: lineaire fit heeft geen versnelling.
-  return [txt(`${v}(t) = `), { kind: "coef", text: "0", tooltip: "Een lineair model heeft geen versnelling (tweede afgeleide = 0)." }];
+  return [
+    txt(`${v}(t) = `),
+    {
+      kind: "coef",
+      text: "0",
+      tooltip: "Een lineair model heeft geen versnelling (tweede afgeleide = 0).",
+    },
+  ];
 }
 
 // ---- Quadratic  y = a·t² + b·t + c ----------------------------------------
@@ -207,9 +223,9 @@ function tokensLinear(
  * moet zelf interpreteren. In 07f komen scenario-presets (vrije val,
  * horizontale worp, …) die conditioneel wél de g-vergelijking activeren.
  */
-function accelHint(twoA: number, axis: FormulaAxis): string {
+function accelHint(twoA: number, axis: FormulaAxis, unit: LengthUnit): string {
   const axisLabel = axis === "y" ? "y-richting" : "x-richting";
-  return `Versnelling in ${axisLabel}: 2·a = ${formatDecimal(twoA, 2)} m/s².`;
+  return `Versnelling in ${axisLabel}: 2·a = ${formatSigFigs(twoA, 3)} ${unit}/s².`;
 }
 
 function tokensQuadratic(
@@ -217,36 +233,33 @@ function tokensQuadratic(
   d: FitDerivative,
   v: string,
   axis: FormulaAxis,
+  unit: LengthUnit,
 ): FormulaToken[] {
   const [a, b, k] = c;
   const axisLabel = axis === "y" ? "y-richting" : "x-richting";
   if (d === 0) {
     // y(t) = a·t² + b·t + c
-    const aTip =
-      `Halve versnelling in ${axisLabel}: 2·a = ${formatDecimal(2 * a, 2)} m/s².`;
+    const aTip = `Halve versnelling in ${axisLabel}: 2·a = ${formatSigFigs(2 * a, 3)} ${unit}/s².`;
     return [
       txt(`${v}(t) = `),
       coef(a, aTip, true),
       txt(" · t²"),
-      ...midTerm(b, `Startsnelheid in ${axisLabel} (m/s) — de afgeleide op t = 0.`),
+      ...midTerm(b, `Startsnelheid in ${axisLabel} (${unit}/s) — de afgeleide op t = 0.`),
       txt(" · t"),
-      ...midTerm(k, `Beginpositie ${axis}₀ — ${axis} op t = 0 (m).`),
+      ...midTerm(k, `Beginpositie ${axis}₀ — ${axis} op t = 0 (${unit}).`),
     ];
   }
   if (d === 1) {
     // vy(t) = 2a·t + b
     return [
       txt(`${v}(t) = `),
-      coef(2 * a, accelHint(2 * a, axis), true),
+      coef(2 * a, accelHint(2 * a, axis, unit), true),
       txt(" · t"),
-      ...midTerm(b, `Startsnelheid in ${axisLabel} op t = 0 (m/s).`),
+      ...midTerm(b, `Startsnelheid in ${axisLabel} op t = 0 (${unit}/s).`),
     ];
   }
   // ay(t) = 2a (constant)
-  return [
-    txt(`${v}(t) = `),
-    coef(2 * a, accelHint(2 * a, axis), true),
-  ];
+  return [txt(`${v}(t) = `), coef(2 * a, accelHint(2 * a, axis, unit), true)];
 }
 
 // ---- Sine  y = A·sin(ω·t + φ) + C -----------------------------------------
@@ -257,8 +270,8 @@ function periodFreqHint(omega: number): string {
   const T = (2 * Math.PI) / omAbs;
   const f = omAbs / (2 * Math.PI);
   return (
-    `Hoekfrequentie (rad/s). Periode T = 2π/ω = ${formatDecimal(T, 2)} s, ` +
-    `frequentie f = ω/2π = ${formatDecimal(f, 2)} Hz.`
+    `Hoekfrequentie (rad/s). Periode T = 2π/ω = ${formatSigFigs(T, 3)} s, ` +
+    `frequentie f = ω/2π = ${formatSigFigs(f, 3)} Hz.`
   );
 }
 
@@ -267,6 +280,7 @@ function tokensSine(
   d: FitDerivative,
   v: string,
   axis: FormulaAxis,
+  unit: LengthUnit,
 ): FormulaToken[] {
   const [A, omega, phi, C] = c;
   const phiTip = "Faseverschuiving (rad) — bepaalt waar in de cyclus t = 0 valt.";
@@ -274,21 +288,20 @@ function tokensSine(
   if (d === 0) {
     return [
       txt(`${v}(t) = `),
-      coef(A, "Amplitude — maximale uitwijking vanaf het midden (m).", true),
+      coef(A, `Amplitude — maximale uitwijking vanaf het midden (${unit}).`, true),
       txt(" · sin("),
       coef(omega, omegaTip, true),
       txt(" · t"),
       ...midTerm(phi, phiTip),
       txt(")"),
-      ...midTerm(C, "Middelwaarde — het centrum waar de oscillatie omheen schommelt (m)."),
+      ...midTerm(C, `Middelwaarde — het centrum waar de oscillatie omheen schommelt (${unit}).`),
     ];
   }
   if (d === 1) {
     // y'(t) = A·ω·cos(ω·t + φ)
     const amp = A * omega;
     const axisLbl = axis === "y" ? "y-richting" : "x-richting";
-    const ampTip =
-      `Maximale snelheid in ${axisLbl} (Aω = ${formatDecimal(Math.abs(amp), 2)} m/s).`;
+    const ampTip = `Maximale snelheid in ${axisLbl} (Aω = ${formatSigFigs(Math.abs(amp), 3)} ${unit}/s).`;
     return [
       txt(`${v}(t) = `),
       coef(amp, ampTip, true),
@@ -302,7 +315,7 @@ function tokensSine(
   // y''(t) = −A·ω²·sin(ω·t + φ)
   const accAmp = -A * omega * omega;
   const accTip =
-    `Maximale versnelling = Aω² = ${formatDecimal(Math.abs(accAmp), 2)} m/s² ` +
+    `Maximale versnelling = Aω² = ${formatSigFigs(Math.abs(accAmp), 3)} ${unit}/s² ` +
     `(teken volgt uit de sinus).`;
   return [
     txt(`${v}(t) = `),
@@ -314,4 +327,3 @@ function tokensSine(
     txt(")"),
   ];
 }
-

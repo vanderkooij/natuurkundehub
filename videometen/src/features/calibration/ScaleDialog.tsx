@@ -43,7 +43,10 @@ export function ScaleDialog() {
   useEffect(() => {
     if (!open) return;
     if (scale) {
-      setLengthDraft(formatDecimal(scale.length, 2));
+      // Volle precisie prefillen — een afgeronde prefill (2 decimalen) zou de
+      // kalibratie stilletjes wijzigen als de gebruiker direct op Bevestigen
+      // klikt (0,125 m werd zo 0,13 m).
+      setLengthDraft(String(scale.length).replace(".", ","));
       setUnit(scale.unit);
     } else {
       setLengthDraft("");

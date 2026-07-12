@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useVideo } from "@/features/video/VideoState";
 
@@ -53,6 +53,12 @@ export function useFpsDetection() {
   const { video, setFps } = useVideo();
   const videoUrl = video?.url;
   const fpsSource = video?.fpsSource;
+  // Actuele bron in een ref: de detectie rondt pas ~100-800 ms ná video-load
+  // af. Als de gebruiker (of een project-load) intussen de fps al heeft gezet
+  // (`fpsSource` niet meer 'default'), mag het detectie-resultaat die keuze
+  // niet meer overschrijven — de dep-array is bewust alleen [videoUrl].
+  const fpsSourceRef = useRef(fpsSource);
+  fpsSourceRef.current = fpsSource;
 
   useEffect(() => {
     if (!videoUrl) return;
@@ -90,6 +96,11 @@ export function useFpsDetection() {
     // volgende video-load).
     const finalize = (fps: number) => {
       if (cancelled) return;
+      // Intussen handmatig / via project gezet? Dan wint die keuze.
+      if (fpsSourceRef.current !== "default") {
+        teardownProbe();
+        return;
+      }
       setFps(fps, "detection");
       teardownProbe();
     };
@@ -153,10 +164,16 @@ export function useFpsDetection() {
     }
 
     timeoutId = window.setTimeout(() => {
-      // Te weinig samples binnen de tijd → houd default 30; ruim de probe
-      // sowieso op. (Bij 0 samples finaliseert dit ook expliciet op 30.)
-      if (samples.length === 0) finalize(30);
-      else teardownProbe();
+      // Timeout vóór MIN_SAMPLES: gebruik wat we wél hebben. Vanaf 3 samples
+      // is de mediaan al bruikbaar (met snap naar gangbare fps); minder →
+      // default 30. Voorheen werden 1-7 samples stil weggegooid.
+      if (samples.length >= 3) {
+        samples.sort((a, b) => a - b);
+        const median = samples[Math.floor(samples.length / 2)];
+        finalize(snapToCommonFps(1 / median));
+      } else {
+        finalize(30);
+      }
     }, DETECTION_TIMEOUT_MS);
 
     return () => {

@@ -69,8 +69,10 @@ export function fitLinear(points: Sample[]): Fit1DLinear | null {
   }
   if (n < 2) return null;
   // Variantie van t — bij 0 zijn alle t's identiek, geen unieke lijn.
+  // RELATIEVE drempel: een absolute (1e-12) keurde geldige data af zodra de
+  // t-waardes klein zijn (bv. 3 metingen binnen enkele ms bij 120 fps).
   const denom = n * sumTT - sumT * sumT;
-  if (Math.abs(denom) < 1e-12) return null;
+  if (Math.abs(denom) < 1e-12 * Math.max(n * sumTT, 1e-300)) return null;
   const a = (n * sumTY - sumT * sumY) / denom;
   const b = (sumY - a * sumT) / n;
   const fit: Fit1DLinear = {
@@ -122,27 +124,27 @@ export function fitQuadratic(points: Sample[]): Fit1DQuadratic | null {
   //   [sT4 sT3 sT2] [a]   [sY2]
   //   [sT3 sT2 sT1] [b] = [sY1]
   //   [sT2 sT1 sT0] [c]   [sY0]
-  const m11 = sT4, m12 = sT3, m13 = sT2;
-  const m21 = sT3, m22 = sT2, m23 = sT1;
-  const m31 = sT2, m32 = sT1, m33 = sT0;
+  const m11 = sT4,
+    m12 = sT3,
+    m13 = sT2;
+  const m21 = sT3,
+    m22 = sT2,
+    m23 = sT1;
+  const m31 = sT2,
+    m32 = sT1,
+    m33 = sT0;
   const det =
-    m11 * (m22 * m33 - m23 * m32) -
-    m12 * (m21 * m33 - m23 * m31) +
-    m13 * (m21 * m32 - m22 * m31);
-  if (Math.abs(det) < 1e-12) return null;
+    m11 * (m22 * m33 - m23 * m32) - m12 * (m21 * m33 - m23 * m31) + m13 * (m21 * m32 - m22 * m31);
+  // Relatieve drempel t.o.v. de schaal van de Gram-matrix — een absolute
+  // (1e-12) keurde geldige, dicht opeen liggende t's (hoge fps) onterecht af.
+  if (Math.abs(det) < 1e-12 * Math.max(sT4 * sT2 * sT0, 1e-300)) return null;
 
   const detA =
-    sY2 * (m22 * m33 - m23 * m32) -
-    m12 * (sY1 * m33 - m23 * sY0) +
-    m13 * (sY1 * m32 - m22 * sY0);
+    sY2 * (m22 * m33 - m23 * m32) - m12 * (sY1 * m33 - m23 * sY0) + m13 * (sY1 * m32 - m22 * sY0);
   const detB =
-    m11 * (sY1 * m33 - m23 * sY0) -
-    sY2 * (m21 * m33 - m23 * m31) +
-    m13 * (m21 * sY0 - sY1 * m31);
+    m11 * (sY1 * m33 - m23 * sY0) - sY2 * (m21 * m33 - m23 * m31) + m13 * (m21 * sY0 - sY1 * m31);
   const detC =
-    m11 * (m22 * sY0 - sY1 * m32) -
-    m12 * (m21 * sY0 - sY1 * m31) +
-    sY2 * (m21 * m32 - m22 * m31);
+    m11 * (m22 * sY0 - sY1 * m32) - m12 * (m21 * sY0 - sY1 * m31) + sY2 * (m21 * m32 - m22 * m31);
 
   const a = detA / det;
   const b = detB / det;
@@ -261,10 +263,15 @@ function linearSineCoef(
   samples: Sample[],
   omega: number,
 ): { A: number; B: number; C: number; ss: number } | null {
-  let sSS = 0, sSC = 0, sS = 0;
-  let sCC = 0, sC = 0;
+  let sSS = 0,
+    sSC = 0,
+    sS = 0;
+  let sCC = 0,
+    sC = 0;
   let sN = 0;
-  let sYS = 0, sYC = 0, sY = 0;
+  let sYS = 0,
+    sYC = 0,
+    sY = 0;
   for (const p of samples) {
     const s = Math.sin(omega * p.t);
     const c = Math.cos(omega * p.t);
@@ -282,26 +289,24 @@ function linearSineCoef(
   //   [sSS sSC sS] [A]   [sYS]
   //   [sSC sCC sC] [B] = [sYC]
   //   [sS  sC  sN] [C]   [sY ]
-  const m11 = sSS, m12 = sSC, m13 = sS;
-  const m21 = sSC, m22 = sCC, m23 = sC;
-  const m31 = sS,  m32 = sC,  m33 = sN;
+  const m11 = sSS,
+    m12 = sSC,
+    m13 = sS;
+  const m21 = sSC,
+    m22 = sCC,
+    m23 = sC;
+  const m31 = sS,
+    m32 = sC,
+    m33 = sN;
   const det =
-    m11 * (m22 * m33 - m23 * m32) -
-    m12 * (m21 * m33 - m23 * m31) +
-    m13 * (m21 * m32 - m22 * m31);
+    m11 * (m22 * m33 - m23 * m32) - m12 * (m21 * m33 - m23 * m31) + m13 * (m21 * m32 - m22 * m31);
   if (Math.abs(det) < 1e-12) return null;
   const detA =
-    sYS * (m22 * m33 - m23 * m32) -
-    m12 * (sYC * m33 - m23 * sY) +
-    m13 * (sYC * m32 - m22 * sY);
+    sYS * (m22 * m33 - m23 * m32) - m12 * (sYC * m33 - m23 * sY) + m13 * (sYC * m32 - m22 * sY);
   const detB =
-    m11 * (sYC * m33 - m23 * sY) -
-    sYS * (m21 * m33 - m23 * m31) +
-    m13 * (m21 * sY - sYC * m31);
+    m11 * (sYC * m33 - m23 * sY) - sYS * (m21 * m33 - m23 * m31) + m13 * (m21 * sY - sYC * m31);
   const detC =
-    m11 * (m22 * sY - sYC * m32) -
-    m12 * (m21 * sY - sYC * m31) +
-    sYS * (m21 * m32 - m22 * m31);
+    m11 * (m22 * sY - sYC * m32) - m12 * (m21 * sY - sYC * m31) + sYS * (m21 * m32 - m22 * m31);
   const A = detA / det;
   const B = detB / det;
   const C = detC / det;

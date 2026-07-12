@@ -51,11 +51,18 @@ export function VideoPlayer({ children }: { children?: ReactNode }) {
   }, [video]);
 
   // When state seeks, push to the element (but don't fight active playback).
+  //
+  // MID-FRAME SEEK: we zoeken naar (frame + 0,5)/fps, niet frame/fps. Frame N
+  // beslaat het interval [N/fps, (N+1)/fps) in de mediatijdlijn; exact op de
+  // grens zoeken laat browsers structureel het VORIGE frame zien (floating-
+  // point landt net vóór de grens). Empirisch geverifieerd: boundary-seek
+  // toont frame N−1, mid-frame-seek toont frame N. Zonder deze offset hoort
+  // elke klik van de leerling bij het verkeerde frame (±1/fps op alle t's).
   useEffect(() => {
     const el = localRef.current;
     if (!el || !video) return;
     if (el.paused === false) return;
-    const target = currentFrame / video.fps;
+    const target = (currentFrame + 0.5) / video.fps;
     if (Math.abs(el.currentTime - target) > 1 / (video.fps * 2)) {
       try {
         el.currentTime = target;
@@ -72,8 +79,10 @@ export function VideoPlayer({ children }: { children?: ReactNode }) {
     if (!el) return;
     // Tijdens playback skipSnap zodat de video soepel doorloopt; bij `pause`
     // (onPause-handler) snappen we currentFrame alsnog naar het dichtstbij
-    // meetpunt.
-    setFrame(Math.round(el.currentTime * video.fps), { skipSnap: true });
+    // meetpunt. floor (niet round): frame N loopt van N/fps tot (N+1)/fps,
+    // dus floor geeft het frame dat op dít moment gepresenteerd wordt — en
+    // mapt de mid-frame-seek (N + 0,5)/fps exact terug naar N.
+    setFrame(Math.floor(el.currentTime * video.fps), { skipSnap: true });
   };
 
   return (
