@@ -10,10 +10,7 @@ import {
 } from "react";
 
 import { type FitType } from "@/_reusable/fit";
-import {
-  GRAPH_TYPE_ORDER,
-  type GraphTypeKey,
-} from "@/features/measurements/graph-types";
+import { GRAPH_TYPE_ORDER, type GraphTypeKey } from "@/features/measurements/graph-types";
 import { type PaneState } from "@/features/measurements/GraphPane";
 import { useVideo } from "@/features/video/VideoState";
 
@@ -112,10 +109,7 @@ interface GraphsLayoutValue {
   /** Harde reset: terug naar default twee panes + fit none. */
   resetLayout: () => void;
   /** Laad pane-config + fitConfig uit een project. */
-  loadFromProject: (
-    panes: Array<Omit<PaneState, "id">>,
-    fitConfig?: FitConfig,
-  ) => void;
+  loadFromProject: (panes: Array<Omit<PaneState, "id">>, fitConfig?: FitConfig) => void;
 }
 
 const GraphsLayoutContext = createContext<GraphsLayoutValue | null>(null);
@@ -171,20 +165,17 @@ export function GraphsLayoutProvider({ children }: { children: ReactNode }) {
 
   const setFitConfig = useCallback((next: FitConfig) => setFitConfigState(next), []);
 
-  const loadFromProject = useCallback(
-    (newPanes: Array<Omit<PaneState, "id">>, fit?: FitConfig) => {
-      // Hernieuw pane-ids om collisions met bestaande react-resizable-panels
-      // group-ids te voorkomen — react ziet ze als nieuwe componenten.
-      setPanes(
-        newPanes.map((p) => ({
-          ...p,
-          id: `pane-${Math.random().toString(36).slice(2, 9)}`,
-        })),
-      );
-      setFitConfigState(fit ?? DEFAULT_FIT_CONFIG);
-    },
-    [],
-  );
+  const loadFromProject = useCallback((newPanes: Array<Omit<PaneState, "id">>, fit?: FitConfig) => {
+    // Hernieuw pane-ids om collisions met bestaande react-resizable-panels
+    // group-ids te voorkomen — react ziet ze als nieuwe componenten.
+    setPanes(
+      newPanes.map((p) => ({
+        ...p,
+        id: `pane-${Math.random().toString(36).slice(2, 9)}`,
+      })),
+    );
+    setFitConfigState(fit ?? DEFAULT_FIT_CONFIG);
+  }, []);
 
   const value = useMemo<GraphsLayoutValue>(
     () => ({

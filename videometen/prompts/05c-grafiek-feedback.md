@@ -11,6 +11,7 @@ Patch-prompt na 05b. Vijf verfijningen op basis van eerste-gebruik feedback:
 5. **Klik op een grafiek-punt** springt niet meer naar het bijbehorende frame (regressie t.o.v. 05)
 
 Voor context:
+
 - `videometen/prompts/05-grafieken-reusable.md` en `05b-analyse-tweaks.md`
 - `videometen/src/_reusable/InteractiveChart.tsx`
 - `videometen/src/features/measurements/Graphs.tsx`, `GraphPane.tsx`, `graph-types.ts`
@@ -52,7 +53,7 @@ In de Analyseren-modus wordt de left-column verticaal gestapeld in plaats van ho
 
 #### State bij modus-switch
 
-`GraphsLayoutState` blijft zoals 'ie is. Voor de nieuwe Analyseren-layout: pane-sizes mogen tijdens de sessie in geheugen worden onthouden (React-state), maar niet in localStorage (komt straks in 06 bij save/load). Bij switch Verken → Analyseren en terug: layout-percentages mogen resetten naar de defaults — focus is dat *grafiek-pane-state* (types, zoom, raaklijn) overleeft, niet dat de pane-sizes 100% identiek zijn.
+`GraphsLayoutState` blijft zoals 'ie is. Voor de nieuwe Analyseren-layout: pane-sizes mogen tijdens de sessie in geheugen worden onthouden (React-state), maar niet in localStorage (komt straks in 06 bij save/load). Bij switch Verken → Analyseren en terug: layout-percentages mogen resetten naar de defaults — focus is dat _grafiek-pane-state_ (types, zoom, raaklijn) overleeft, niet dat de pane-sizes 100% identiek zijn.
 
 #### Verken-modus
 
@@ -88,16 +89,16 @@ Lijn-styling onveranderd: 3 px dashed, `#D4923A` (amber, consistent met modeller
 
 Werk de labels in `graph-types.ts` bij van de huidige scheidings-stijl naar natuurlijk Nederlands:
 
-| Huidige label | Nieuwe label |
-|---|---|
-| `x — t` | `x tegen t` |
-| `y — t` | `y tegen t` |
-| `vx — t` | `vx tegen t` |
-| `vy — t` | `vy tegen t` |
-| `|v| — t` | `|v| tegen t` |
-| `ax — t` | `ax tegen t` |
-| `ay — t` | `ay tegen t` |
-| `|a| — t` | `|a| tegen t` |
+| Huidige label  | Nieuwe label       |
+| -------------- | ------------------ | ---- | --- | --- | -------- |
+| `x — t`        | `x tegen t`        |
+| `y — t`        | `y tegen t`        |
+| `vx — t`       | `vx tegen t`       |
+| `vy — t`       | `vy tegen t`       |
+| `              | v                  | — t` | `   | v   | tegen t` |
+| `ax — t`       | `ax tegen t`       |
+| `ay — t`       | `ay tegen t`       |
+| `              | a                  | — t` | `   | a   | tegen t` |
 | `y — x` (baan) | `y tegen x` (baan) |
 
 De optionele `(baan)`-suffix voor `y-x` mag blijven of weggehaald worden — kies wat consistent voelt. Mijn voorkeur: laat 'm staan, want dat onderscheidt 'm visueel van de tijd-grafieken.
@@ -112,7 +113,7 @@ In 05 was de afspraak: klik op een datapunt → `onPointClick(seriesIdx, pointId
 
 Vermoedelijk gebroken door één van deze in 05b:
 
-1. **AxisOverlays** (tweak 3 uit 05b) — transparante divs over de as-areas. Zijn die buiten de as-banden uitgelopen en absorberen ze klik-events op het chart-canvas? Check de absolute positioning + `pointer-events`. As-overlays mogen alleen pointer-events vangen *binnen* hun as-band.
+1. **AxisOverlays** (tweak 3 uit 05b) — transparante divs over de as-areas. Zijn die buiten de as-banden uitgelopen en absorberen ze klik-events op het chart-canvas? Check de absolute positioning + `pointer-events`. As-overlays mogen alleen pointer-events vangen _binnen_ hun as-band.
 2. **Selectie afgeleid uit currentFrame** (tweak 4 uit 05b) — als de afleiding render-state is geworden maar de klik-handler nog naar oude per-pane state schrijft, valt de update weg. Check of de klik-handler `setCurrentFrame` aanroept en niet een lokale `setSelectedIdx`.
 3. **Pane-mouse-zone overlay** (tweak 2 uit 05b) — `data-mouse-zone="graph-pane"` op de pane-wrapper. Als die wrapper z-index of pointer-events anders heeft dan verwacht, kunnen klik-events op het canvas wegvallen.
 

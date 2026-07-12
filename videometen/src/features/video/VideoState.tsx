@@ -176,11 +176,7 @@ function reducer(state: VideoState, action: Action): VideoState {
       // `reset` mappen op `user` — geladen of gereset = niet-detectie en
       // niet-default.
       const legacySource: LoadedVideo["fpsSource"] =
-        action.source === "detection"
-          ? "detected"
-          : action.source === "user"
-            ? "user"
-            : "user";
+        action.source === "detection" ? "detected" : action.source === "user" ? "user" : "user";
       return {
         ...state,
         video: {

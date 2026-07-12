@@ -65,10 +65,7 @@ import {
   interpolateY,
 } from "@/features/measurements/graph-types";
 import { type FitConfig } from "@/features/measurements/GraphsLayoutState";
-import {
-  dateStampYMDHM,
-  sanitizeFilename,
-} from "@/features/project/projectSchema";
+import { dateStampYMDHM, sanitizeFilename } from "@/features/project/projectSchema";
 import { decimalsForUnit, formatDecimal } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
 
@@ -119,7 +116,11 @@ export interface GraphPaneProps {
 }
 
 /** t-bereik van de volledige trim, in seconden vanaf trimStart. */
-function trimTSpan(trimStart: number, trimEnd: number, fps: number): {
+function trimTSpan(
+  trimStart: number,
+  trimEnd: number,
+  fps: number,
+): {
   tMin: number;
   tMax: number;
 } {
@@ -249,8 +250,7 @@ export function GraphPane(props: GraphPaneProps) {
   // flex-gap rond de (in de meet-tweeling weggelaten) spacer + sub-pixel-
   // afronding, zodat knoppen niet tot tegen de rand geperst worden. `null`
   // (nog niet gemeten) ⇒ breed renderen, geen flits.
-  const compactToolbar =
-    naturalInlineWidth != null && paneWidth < naturalInlineWidth + 24;
+  const compactToolbar = naturalInlineWidth != null && paneWidth < naturalInlineWidth + 24;
 
   // Imperatieve referentie naar de Chart.js-instance, gevuld door
   // InteractiveChart's `onChartReady`. Gebruikt voor PNG-export.
@@ -288,10 +288,7 @@ export function GraphPane(props: GraphPaneProps) {
 
   // Trim-tijdbereik (in seconden vanaf trimStart) — fallback voor de
   // sample-range als er geen zoom-state is.
-  const trimSpan = useMemo(
-    () => trimTSpan(trimStart, trimEnd, fps),
-    [trimStart, trimEnd, fps],
-  );
+  const trimSpan = useMemo(() => trimTSpan(trimStart, trimEnd, fps), [trimStart, trimEnd, fps]);
 
   // 07e: sample-range voor de fit-curve = de zichtbare x-range. Bij
   // expliciete zoom-state gebruiken we die (zodat de fit netjes doorloopt
@@ -373,13 +370,9 @@ export function GraphPane(props: GraphPaneProps) {
     const fy = fits.y;
     switch (state.type) {
       case "x-t":
-        return fx
-          ? { x: t, y: evalFit(fx, t), slope: evalFitDerivative(fx, t) }
-          : null;
+        return fx ? { x: t, y: evalFit(fx, t), slope: evalFitDerivative(fx, t) } : null;
       case "y-t":
-        return fy
-          ? { x: t, y: evalFit(fy, t), slope: evalFitDerivative(fy, t) }
-          : null;
+        return fy ? { x: t, y: evalFit(fy, t), slope: evalFitDerivative(fy, t) } : null;
       case "vx-t":
         // Toon dx/dt; helling = d²x/dt².
         return fx
@@ -504,9 +497,7 @@ export function GraphPane(props: GraphPaneProps) {
   // `excludeFromAutozoom` zodat alleen scatter + fit-binnen-databereik
   // de as-schaling bepalen.
   const chartSeries = useMemo<ChartSeries[]>(() => {
-    const series: ChartSeries[] = [
-      { label: "Ruwe meting", points, showLine: state.showLine },
-    ];
+    const series: ChartSeries[] = [{ label: "Ruwe meting", points, showLine: state.showLine }];
     if (!fitCurveSplit) return series;
     // 07f: alle drie zones krijgen label "Fit" (geen variaties). Het
     // onderscheid komt door styling: zone A solid + vol, B solid + lichter,
@@ -617,9 +608,7 @@ export function GraphPane(props: GraphPaneProps) {
     ctx.fillRect(0, 0, out.width, out.height);
     ctx.drawImage(canvas, 0, 0);
     const dataUrl = out.toDataURL("image/png", 1);
-    const filename = sanitizeFilename(
-      `videometen-grafiek-${state.type}-${dateStampYMDHM()}.png`,
-    );
+    const filename = sanitizeFilename(`videometen-grafiek-${state.type}-${dateStampYMDHM()}.png`);
     const a = document.createElement("a");
     a.href = dataUrl;
     a.download = filename;
@@ -964,7 +953,9 @@ export function GraphPane(props: GraphPaneProps) {
 
         <Tooltip>
           <TooltipTrigger asChild>{renderCloseButton()}</TooltipTrigger>
-          <TooltipContent>{canClose ? "Sluit grafiek" : "Laatste grafiek — sluiten uit"}</TooltipContent>
+          <TooltipContent>
+            {canClose ? "Sluit grafiek" : "Laatste grafiek — sluiten uit"}
+          </TooltipContent>
         </Tooltip>
 
         {/* 09b: verborgen meet-tweeling — rendert de VOLLEDIGE inline-knoppenset
@@ -1048,10 +1039,7 @@ export function GraphPane(props: GraphPaneProps) {
               />
             ) : null}
             {state.showFit && relevantFitActive && isDerivativePane && fitAvailable ? (
-              <DatasetLegend
-                scatterColor={themeColors.accent}
-                fitColor={themeColors.fit}
-              />
+              <DatasetLegend scatterColor={themeColors.accent} fitColor={themeColors.fit} />
             ) : null}
             {state.showFit && relevantFitActive ? (
               <FitInfoBar
@@ -1240,8 +1228,7 @@ function FitInfoBar({ paneType, fitNeed, fits, fitFailed, unit }: FitInfoBarProp
         style={{ borderColor: "var(--border)" }}
       >
         <span>
-          ⚠ {which} kon niet convergeren — probeer een ander type of pas de
-          fit-range aan.
+          ⚠ {which} kon niet convergeren — probeer een ander type of pas de fit-range aan.
         </span>
       </div>
     );
@@ -1252,8 +1239,7 @@ function FitInfoBar({ paneType, fitNeed, fits, fitFailed, unit }: FitInfoBarProp
   // Voor enkel-fit-panes (x-t / y-t / vx-t / vy-t / ax-t / ay-t) staat R²
   // op dezelfde regel als de formule. Voor combi-panes (|v|, |a|, y-x)
   // staan beide R²-waardes apart op de symbolische / laatste regel.
-  const isCombiPane =
-    paneType === "vmag-t" || paneType === "amag-t" || paneType === "y-x";
+  const isCombiPane = paneType === "vmag-t" || paneType === "amag-t" || paneType === "y-x";
 
   return (
     <div
@@ -1276,12 +1262,8 @@ function FitInfoBar({ paneType, fitNeed, fits, fitFailed, unit }: FitInfoBarProp
             {isCombiPane && isLast ? (
               // Combi-pane: x- en y-R² op de slot-regel.
               <span className="flex items-center gap-x-3">
-                {set.rXSource != null ? (
-                  <RSquaredCell value={set.rXSource} subscript="x" />
-                ) : null}
-                {set.rYSource != null ? (
-                  <RSquaredCell value={set.rYSource} subscript="y" />
-                ) : null}
+                {set.rXSource != null ? <RSquaredCell value={set.rXSource} subscript="x" /> : null}
+                {set.rYSource != null ? <RSquaredCell value={set.rYSource} subscript="y" /> : null}
               </span>
             ) : null}
           </span>
@@ -1310,9 +1292,7 @@ function FormulaTokenRow({ tokens }: { tokens: FormulaToken[] }) {
                 {tok.text}
               </span>
             </TooltipTrigger>
-            <TooltipContent className="max-w-[36ch] leading-snug">
-              {tok.tooltip}
-            </TooltipContent>
+            <TooltipContent className="max-w-[36ch] leading-snug">{tok.tooltip}</TooltipContent>
           </Tooltip>
         );
       })}
@@ -1327,13 +1307,7 @@ function FormulaTokenRow({ tokens }: { tokens: FormulaToken[] }) {
  * een lijn-met-dots een lijn-met-dots. Met een korte tagline erbij die de
  * pedagogische boodschap subtiel binnenbrengt.
  */
-function DatasetLegend({
-  scatterColor,
-  fitColor,
-}: {
-  scatterColor: string;
-  fitColor: string;
-}) {
+function DatasetLegend({ scatterColor, fitColor }: { scatterColor: string; fitColor: string }) {
   return (
     <div
       className="flex flex-wrap items-center gap-x-4 gap-y-0.5 border-t bg-(--bg-secondary) px-3 py-1 text-[11px] text-(--text-muted)"
@@ -1348,11 +1322,7 @@ function DatasetLegend({
         <span>Ruwe afgeleide (uit meetpunten — gevoelig voor ruis)</span>
       </span>
       <span className="flex items-center gap-1.5">
-        <span
-          aria-hidden
-          className="inline-block h-[2px] w-4"
-          style={{ background: fitColor }}
-        />
+        <span aria-hidden className="inline-block h-[2px] w-4" style={{ background: fitColor }} />
         <span>Fit-afgeleide (uit wiskundig model — glad)</span>
       </span>
     </div>
@@ -1382,8 +1352,12 @@ function MeasureInfoBar({ xLabel, yLabel, x1, x2, y1, y2, unitDecimals }: Measur
         </span>
         &emsp;{yVar}₂={fmt(y2)}
       </span>
-      <span>Δ{xVar}={fmt(dx)}</span>
-      <span>Δ{yVar}={fmt(dy)}</span>
+      <span>
+        Δ{xVar}={fmt(dx)}
+      </span>
+      <span>
+        Δ{yVar}={fmt(dy)}
+      </span>
     </div>
   );
 }

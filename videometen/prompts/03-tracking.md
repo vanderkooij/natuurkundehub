@@ -36,20 +36,20 @@ Nieuwe feature-map `src/features/tracking/` met state-provider en helpers.
 
 ```ts
 type TrackedPoint = {
-  frame: number   // absoluut frame-nummer (niet relatief aan trim)
-  pixel: Pixel    // klik-positie in native videocoördinaten
-}
+  frame: number; // absoluut frame-nummer (niet relatief aan trim)
+  pixel: Pixel; // klik-positie in native videocoördinaten
+};
 
 type TrackingState = {
-  points: TrackedPoint[]      // gesorteerd op frame, geen duplicaten op zelfde frame
-  frameStep: number           // default 5, alleen positieve gehele waarden
-}
+  points: TrackedPoint[]; // gesorteerd op frame, geen duplicaten op zelfde frame
+  frameStep: number; // default 5, alleen positieve gehele waarden
+};
 
 type TrackingAction =
-  | { kind: 'set-point';    point: TrackedPoint;  previous?: TrackedPoint /* voor undo */ }
-  | { kind: 'remove-point'; point: TrackedPoint /* gehele entry voor undo-redo */ }
-  | { kind: 'move-point';   frame: number; from: Pixel; to: Pixel }
-  | { kind: 'set-step';     from: number; to: number }
+  | { kind: "set-point"; point: TrackedPoint; previous?: TrackedPoint /* voor undo */ }
+  | { kind: "remove-point"; point: TrackedPoint /* gehele entry voor undo-redo */ }
+  | { kind: "move-point"; frame: number; from: Pixel; to: Pixel }
+  | { kind: "set-step"; from: number; to: number };
 ```
 
 State leeft in een React-context (`TrackingProvider`) of dezelfde store als kalibratie — kies wat consistent is met de keuze die je in prompt 02 hebt gemaakt. Serialiseerbaar voor save/load in prompt 05.
@@ -62,12 +62,12 @@ Generieke history-stack als hook in `src/_reusable/useUndoRedo.ts` (markeer als 
 
 ```ts
 type UndoRedoApi<TAction> = {
-  dispatch: (action: TAction) => void   // pusht actie + voert 'm uit
-  undo: () => void                      // ongedaan maken via inverse
-  redo: () => void
-  canUndo: boolean
-  canRedo: boolean
-}
+  dispatch: (action: TAction) => void; // pusht actie + voert 'm uit
+  undo: () => void; // ongedaan maken via inverse
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+};
 ```
 
 De hook accepteert een `apply(action)` en `invert(action)` functie zodat hij domein-agnostisch is.
@@ -185,12 +185,12 @@ Wanneer Start tracking enabled is, de oude tooltip "Volgende stap wordt mogelijk
 
 ## Hergebruik-markering
 
-| Kandidaat | Categorie | Beslissing |
-|---|---|---|
-| `useUndoRedo` | data | **Wel markeren.** Generiek (action + apply + invert), bruikbaar in elke tool met edit-historie. |
-| `useGlobalShortcut` (als je 'm extraheert uit `useEscapeMode`-patroon) | ui | **Wel markeren** als de hook generiek genoeg blijft (key + handler + input-blocking). |
-| `TrailOverlay` | — | **Niet markeren.** Tool-specifiek (tracking-data + trail-stijl). |
-| `TrackingState` | — | **Niet markeren.** Tool-specifiek. |
+| Kandidaat                                                              | Categorie | Beslissing                                                                                      |
+| ---------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| `useUndoRedo`                                                          | data      | **Wel markeren.** Generiek (action + apply + invert), bruikbaar in elke tool met edit-historie. |
+| `useGlobalShortcut` (als je 'm extraheert uit `useEscapeMode`-patroon) | ui        | **Wel markeren** als de hook generiek genoeg blijft (key + handler + input-blocking).           |
+| `TrailOverlay`                                                         | —         | **Niet markeren.** Tool-specifiek (tracking-data + trail-stijl).                                |
+| `TrackingState`                                                        | —         | **Niet markeren.** Tool-specifiek.                                                              |
 
 Voeg toevoegingen aan `SHARED.md`.
 

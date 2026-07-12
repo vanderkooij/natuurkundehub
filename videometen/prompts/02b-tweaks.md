@@ -29,6 +29,7 @@ In `features/trim/` (of waar de trim-knoppen ook leven):
 - **"Trim hier uit"** → **"Trim eind"**
 
 Tooltip-tekst eventueel aanpassen naar:
+
 - "Stel huidige frame in als begin van de trim-range"
 - "Stel huidige frame in als einde van de trim-range"
 
@@ -42,12 +43,12 @@ Doel: scale-streep gedraagt zich consistent met de assen — alleen zichtbaar in
 
 #### Zichtbaarheid
 
-| Modus | Scale-streep zichtbaar? | Handles zichtbaar? |
-|---|---|---|
-| `idle` (kalibratie klaar, niet aan het bewerken) | ❌ nee | ❌ nee |
-| `scale-edit` (chip aangeklikt of eerste keer plaatsen) | ✅ ja | ✅ ja |
-| `axis-edit` | ❌ nee | ❌ nee |
-| Tracking-modus | ❌ nee | ❌ nee |
+| Modus                                                  | Scale-streep zichtbaar? | Handles zichtbaar? |
+| ------------------------------------------------------ | ----------------------- | ------------------ |
+| `idle` (kalibratie klaar, niet aan het bewerken)       | ❌ nee                  | ❌ nee             |
+| `scale-edit` (chip aangeklikt of eerste keer plaatsen) | ✅ ja                   | ✅ ja              |
+| `axis-edit`                                            | ❌ nee                  | ❌ nee             |
+| Tracking-modus                                         | ❌ nee                  | ❌ nee             |
 
 De chip in de video-pane-header blijft altijd zichtbaar (toont `0,15 m` of `— niet ingesteld`). Klikken op de chip schakelt `scale-edit` aan/uit.
 

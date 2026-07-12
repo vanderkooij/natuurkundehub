@@ -9,6 +9,7 @@ Drie UX-fixes in één prompt:
 3. **Tabel-kolommen rigide** — er is alleen een "Toon snelheden"-toggle. Geen controle per kolom, en versnellingen helemaal niet beschikbaar in de tabel. Beter: dropdown-menu met checkboxes voor alle 6 afgeleide grootheden (vx, vy, |v|, ax, ay, |a|).
 
 Voor context:
+
 - `videometen/src/features/app/ToolMenu.tsx` — Project opslaan-flow
 - `videometen/src/features/layout/WorkflowBar.tsx` — workflow-stappen + voorbereiding-grouping
 - `videometen/src/features/measurements/Table.tsx` — tabel met "Toon snelheden"-toggle
@@ -27,31 +28,36 @@ Browser File System Access API:
 
 ```ts
 async function saveProject(project: ProjectJSON) {
-  const defaultName = generateFilename(project)  // huidige logica
+  const defaultName = generateFilename(project); // huidige logica
 
   // Check ondersteuning
-  if ('showSaveFilePicker' in window) {
+  if ("showSaveFilePicker" in window) {
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName: defaultName,
-        types: [{
-          description: 'Videometen project',
-          accept: { 'application/json': ['.json'] }
-        }]
-      })
-      const writable = await handle.createWritable()
-      await writable.write(JSON.stringify(project, null, 2))
-      await writable.close()
-      return
+        types: [
+          {
+            description: "Videometen project",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(JSON.stringify(project, null, 2));
+      await writable.close();
+      return;
     } catch (err) {
-      if ((err as Error).name === 'AbortError') return  // gebruiker annuleerde
+      if ((err as Error).name === "AbortError") return; // gebruiker annuleerde
       // Andere errors: fallback naar download
-      console.warn('Save-dialog failed, falling back to download:', err)
+      console.warn("Save-dialog failed, falling back to download:", err);
     }
   }
 
   // Fallback: huidige download-aanpak
-  downloadBlob(new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' }), defaultName)
+  downloadBlob(
+    new Blob([JSON.stringify(project, null, 2)], { type: "application/json" }),
+    defaultName,
+  );
 }
 ```
 
@@ -85,6 +91,7 @@ Voorbereiding:  [1 Video] > [2 fps] > [3 Trim] > [4 Schaal] > [5 Assen]    [▶ 
 ```
 
 Label-styling:
+
 - Tekst-kleur: `--text-muted` of gedimmed
 - Font-size: kleiner dan stap-labels
 - Geen actie (informatief)
@@ -121,8 +128,8 @@ Frame, t, x, y zijn **altijd** zichtbaar — niet in het menu (essentiële kolom
 In `Table.tsx` of een lichte UI-state:
 
 ```ts
-type ColumnKey = 'vx' | 'vy' | 'vmag' | 'ax' | 'ay' | 'amag'
-extraColumns: Set<ColumnKey>  // default: leeg (alleen frame, t, x, y zichtbaar)
+type ColumnKey = "vx" | "vy" | "vmag" | "ax" | "ay" | "amag";
+extraColumns: Set<ColumnKey>; // default: leeg (alleen frame, t, x, y zichtbaar)
 ```
 
 Reset bij nieuwe video / Begin opnieuw / Alle metingen wissen / Andere video laden.
@@ -150,6 +157,7 @@ Bij `points.length < 3`: ax/ay/aMag undefined (geen lege cellen, gewoon leeg). B
 #### Hover-tooltips bij checkboxes
 
 Optioneel — bij hover op een checkbox een korte uitleg:
+
 - "Snelheid in x-richting"
 - "Snelheid in y-richting"
 - "Absolute snelheid: √(vx² + vy²)"
@@ -164,6 +172,7 @@ Vermelding "kan ruisig zijn" bij versnellingen is consistent met de help-tekst o
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Bekijk of de bestaande `withAccelerations`-helper te hergebruiken is, of dat een duplicaat ontstaat
 - Check of er "Toon snelheden"-referenties elders zijn (help-paneel, andere tests)
 - Documenteer in rapport

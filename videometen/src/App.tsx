@@ -147,11 +147,7 @@ function AnalyserenLayout({ hasMeasurements }: { hasMeasurements: boolean }) {
           minSize={graphsFocusMode ? 0 : 22}
           className={cn(graphsFocusMode && "hidden")}
         >
-          <Group
-            orientation="vertical"
-            id="analyseren-left-stack"
-            className="h-full w-full gap-2"
-          >
+          <Group orientation="vertical" id="analyseren-left-stack" className="h-full w-full gap-2">
             <Panel defaultSize={45} minSize={25}>
               <VideoPaneWithZone />
             </Panel>
@@ -334,11 +330,7 @@ function AppShell() {
         extraActions={<ToolMenu />}
         onHelpClick={() => setHelpOpen((v) => !v)}
       />
-      <HelpPanel
-        isOpen={helpOpen}
-        onClose={() => setHelpOpen(false)}
-        toolVersion="1.0.0"
-      />
+      <HelpPanel isOpen={helpOpen} onClose={() => setHelpOpen(false)} toolVersion="1.0.0" />
       {appMode === "tracken" ? (
         <>
           <TrackingBar />

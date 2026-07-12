@@ -5,7 +5,7 @@
 De diagnostische logs uit 07h hebben de root cause aangetoond. Eén regel zegt 't:
 
 ```
-[VM/SYNC] prop-sync useEffect 
+[VM/SYNC] prop-sync useEffect
 Object { incoming: null, previous: null, zoomChangedSincePrev: false, branch: "PIN-on-chart" }
 [VM/SYNC] PIN: keeping chart scales as-is
 ```
@@ -19,6 +19,7 @@ Object { incoming: null, previous: null, zoomChangedSincePrev: false, branch: "P
 Verklaart drie symptomen tegelijk: Auto zoom-knop doet niets, afgeleide-panes leeg bij initial-load, en zone-classificatie inconsistent (omdat `viewTRange` van stale chart-bounds afgeleid wordt).
 
 Voor context:
+
 - `videometen/prompts/07f-bugs-en-kleur.md` — introductie PIN-branch + `prevZoomStateRef`
 - `videometen/prompts/07h-zoom-diagnose.md` — diagnose-logs
 - `videometen/src/_reusable/InteractiveChart.tsx` — prop-sync useEffect
@@ -34,7 +35,7 @@ In `InteractiveChart.tsx`, de prop-sync useEffect:
 #### Huidige logica (fout)
 
 ```ts
-const zoomChangedSincePrev = !isEqualZoomState(incoming, previous)
+const zoomChangedSincePrev = !isEqualZoomState(incoming, previous);
 if (zoomChangedSincePrev) {
   // USE-cfg: apply incoming
 } else {
@@ -47,11 +48,11 @@ Probleem: bij `incoming === null && previous === null` is `zoomChangedSincePrev 
 #### Nieuwe logica
 
 ```ts
-const zoomChangedSincePrev = !isEqualZoomState(incoming, previous)
-// PIN-branch alleen voor wheel-race-bescherming: 
+const zoomChangedSincePrev = !isEqualZoomState(incoming, previous);
+// PIN-branch alleen voor wheel-race-bescherming:
 // echte zoom-state in props, identiek aan vorige render
 // (= wheel emitte deze waarde net en parent re-rendert ermee)
-const shouldPin = !zoomChangedSincePrev && incoming !== null
+const shouldPin = !zoomChangedSincePrev && incoming !== null;
 
 if (shouldPin) {
   // PIN: keep chart as-is (wheel-race-bescherming)
@@ -69,7 +70,7 @@ Vervang/voeg toe:
 ```ts
 // Prop-sync regel:
 // - incoming === null → altijd USE-cfg branch (autozoom toepassen).
-//   PIN bij null + null zou de chart op stale bounds laten staan terwijl 
+//   PIN bij null + null zou de chart op stale bounds laten staan terwijl
 //   gebruiker juist reset wilde (Auto zoom-knop) of initial-render afmaakt.
 // - incoming !== null en gelijk aan previous → PIN (wheel-race-bescherming:
 //   chart heeft zelf al ge-update via onZoom, prop-update mag dat niet overschrijven).
@@ -82,18 +83,22 @@ Vervang/voeg toe:
 Verwijder **alle zeven** log-punten uit 07h met hun comment-markers:
 
 In `InteractiveChart.tsx`:
+
 - Log 2 (`[VM/SYNC] prop-sync useEffect`)
 - Log 3 (`[VM/AUTOZOOM/BOUNDS] x-bounds` + `y-bounds`)
 - Log 7 (`[VM/SYNC] after chart.update` + `prevZoomStateRef updated`)
 
 In `GraphPane.tsx`:
+
 - Log 1 (`[VM/AUTOZOOM] button clicked` + `updatePane called`)
 - Log 4 (`[VM/PANE/SCATTER]`)
 
 In `fits.ts`:
+
 - Log 5 (`[VM/FIT/BUILD] starting` + `zones built`)
 
 In `GraphsLayoutState.tsx`:
+
 - Log 6 (`[VM/STATE] updatePane`)
 
 Alle `// DIAGNOSTIEK 07h — verwijderen na 07i.`-comments mee verwijderd. Een `grep` op `VM/CHART|VM/SYNC|VM/AUTOZOOM|VM/PANE|VM/FIT|VM/STATE|DIAGNOSTIEK 07h` moet niets meer opleveren in de codebase.

@@ -1,718 +1,984 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Videometen — Mockup (analyse-modus) · NatuurkundeHub</title>
-<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_light.svg" id="favicon">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-primary: #f8f9fa;
-  --bg-secondary: #eef6f7;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f0fafb;
-  --accent: #0BB5C8;
-  --accent-glow: rgba(11, 181, 200, 0.2);
-  --accent-amber: #D4923A;
-  --accent-amber-glow: rgba(212, 146, 58, 0.2);
-  --text-primary: #1A1A2E;
-  --text-secondary: #2d2d4a;
-  --text-muted: #64748b;
-  --border: rgba(11, 181, 200, 0.12);
-  --border-hover: rgba(11, 181, 200, 0.45);
-  --border-solid: #d4e8ec;
-  --radius: 14px;
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-}
-[data-theme="dark"] {
-  --bg-primary: #0f1117;
-  --bg-secondary: #161b26;
-  --bg-card: #1c2333;
-  --bg-card-hover: #222b3d;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border: rgba(11, 181, 200, 0.08);
-  --border-hover: rgba(11, 181, 200, 0.45);
-  --border-solid: #1e2d44;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: var(--font-display);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: background .3s, color .3s;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Videometen — Mockup (analyse-modus) · NatuurkundeHub</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_light.svg" id="favicon" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #f8f9fa;
+        --bg-secondary: #eef6f7;
+        --bg-card: #ffffff;
+        --bg-card-hover: #f0fafb;
+        --accent: #0bb5c8;
+        --accent-glow: rgba(11, 181, 200, 0.2);
+        --accent-amber: #d4923a;
+        --accent-amber-glow: rgba(212, 146, 58, 0.2);
+        --text-primary: #1a1a2e;
+        --text-secondary: #2d2d4a;
+        --text-muted: #64748b;
+        --border: rgba(11, 181, 200, 0.12);
+        --border-hover: rgba(11, 181, 200, 0.45);
+        --border-solid: #d4e8ec;
+        --radius: 14px;
+        --font-display: "Space Grotesk", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+      }
+      [data-theme="dark"] {
+        --bg-primary: #0f1117;
+        --bg-secondary: #161b26;
+        --bg-card: #1c2333;
+        --bg-card-hover: #222b3d;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border: rgba(11, 181, 200, 0.08);
+        --border-hover: rgba(11, 181, 200, 0.45);
+        --border-solid: #1e2d44;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: var(--font-display);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
 
-/* HEADER */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  min-height: 56px;
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.6);
-  flex-shrink: 0;
-  position: relative;
-}
-[data-theme="dark"] .app-header { background: rgba(15,17,23,0.6); }
-.header-left, .header-right { display: flex; align-items: center; gap: 16px; }
-.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
-.logo-text { font-weight: 700; font-size: 16px; letter-spacing: -0.3px; }
-.logo-text span { color: var(--accent); }
-.breadcrumb { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
-.breadcrumb a { color: var(--text-muted); text-decoration: none; }
-.breadcrumb a:hover { color: var(--accent); }
-.tool-name {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: -0.2px;
-}
-.header-btn {
-  background: transparent;
-  border: 1px solid var(--border-solid);
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-muted);
-  transition: all .2s;
-  line-height: 1;
-  font-family: var(--font-display);
-}
-.header-btn:hover { border-color: var(--border-hover); color: var(--accent); }
+      /* HEADER */
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        min-height: 56px;
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+        background: rgba(255, 255, 255, 0.6);
+        flex-shrink: 0;
+        position: relative;
+      }
+      [data-theme="dark"] .app-header {
+        background: rgba(15, 17, 23, 0.6);
+      }
+      .header-left,
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text-primary);
+      }
+      .logo-text {
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: -0.3px;
+      }
+      .logo-text span {
+        color: var(--accent);
+      }
+      .breadcrumb {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .breadcrumb a {
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+      .breadcrumb a:hover {
+        color: var(--accent);
+      }
+      .tool-name {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: -0.2px;
+      }
+      .header-btn {
+        background: transparent;
+        border: 1px solid var(--border-solid);
+        border-radius: 8px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        line-height: 1;
+        font-family: var(--font-display);
+      }
+      .header-btn:hover {
+        border-color: var(--border-hover);
+        color: var(--accent);
+      }
 
-/* WORKFLOW TOOLBAR */
-.workflow-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  overflow-x: auto;
-}
-.workflow-step {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border: 1px solid var(--border-solid);
-  border-radius: 8px;
-  background: var(--bg-card);
-  font-size: 13px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all .2s;
-  font-family: var(--font-display);
-}
-.workflow-step:hover { border-color: var(--accent); }
-.workflow-step.done {
-  color: var(--accent);
-  background: rgba(11,181,200,0.06);
-  border-color: rgba(11,181,200,0.3);
-}
-.workflow-step.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-.workflow-step-num { font-family: var(--font-mono); font-size: 11px; opacity: 0.7; }
-.workflow-arrow { color: var(--text-muted); font-size: 12px; }
-.workflow-spacer { flex: 1; }
-.start-tracking-btn {
-  padding: 8px 18px;
-  background: var(--accent-amber);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s;
-  box-shadow: 0 2px 8px var(--accent-amber-glow);
-  font-family: var(--font-display);
-  white-space: nowrap;
-}
-.start-tracking-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--accent-amber-glow);
-}
+      /* WORKFLOW TOOLBAR */
+      .workflow-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+        overflow-x: auto;
+      }
+      .workflow-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border: 1px solid var(--border-solid);
+        border-radius: 8px;
+        background: var(--bg-card);
+        font-size: 13px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+        font-family: var(--font-display);
+      }
+      .workflow-step:hover {
+        border-color: var(--accent);
+      }
+      .workflow-step.done {
+        color: var(--accent);
+        background: rgba(11, 181, 200, 0.06);
+        border-color: rgba(11, 181, 200, 0.3);
+      }
+      .workflow-step.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+      .workflow-step-num {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        opacity: 0.7;
+      }
+      .workflow-arrow {
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+      .workflow-spacer {
+        flex: 1;
+      }
+      .start-tracking-btn {
+        padding: 8px 18px;
+        background: var(--accent-amber);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px var(--accent-amber-glow);
+        font-family: var(--font-display);
+        white-space: nowrap;
+      }
+      .start-tracking-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px var(--accent-amber-glow);
+      }
 
-/* MAIN 3-PANE LAYOUT */
-.main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 8px;
-  padding: 8px;
-  overflow: hidden;
-}
-.pane {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(11,181,200,0.04);
-}
-.pane-video { grid-column: 1; grid-row: 1 / span 2; }
-.pane-table { grid-column: 2; grid-row: 1; }
-.pane-graphs { grid-column: 2; grid-row: 2; }
-.pane-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
-  flex-shrink: 0;
-}
-.pane-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
-.pane-body { flex: 1; overflow: auto; }
-.pane-actions { display: flex; gap: 6px; }
-.pane-action-btn {
-  background: transparent;
-  border: 1px solid var(--border-solid);
-  border-radius: 6px;
-  padding: 4px 10px;
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-muted);
-  transition: all .2s;
-  font-family: var(--font-mono);
-}
-.pane-action-btn:hover { color: var(--accent); border-color: var(--accent); }
+      /* MAIN 3-PANE LAYOUT */
+      .main {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 8px;
+        padding: 8px;
+        overflow: hidden;
+      }
+      .pane {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(11, 181, 200, 0.04);
+      }
+      .pane-video {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+      }
+      .pane-table {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      .pane-graphs {
+        grid-column: 2;
+        grid-row: 2;
+      }
+      .pane-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-secondary);
+        flex-shrink: 0;
+      }
+      .pane-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+      }
+      .pane-body {
+        flex: 1;
+        overflow: auto;
+      }
+      .pane-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .pane-action-btn {
+        background: transparent;
+        border: 1px solid var(--border-solid);
+        border-radius: 6px;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-size: 11px;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        font-family: var(--font-mono);
+      }
+      .pane-action-btn:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
 
-/* VIDEO PANE */
-.video-chips { display: flex; gap: 6px; font-family: var(--font-mono); font-size: 11px; }
-.chip {
-  padding: 3px 8px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-solid);
-  border-radius: 6px;
-  color: var(--text-secondary);
-}
-.chip-label { color: var(--text-muted); margin-right: 4px; }
-.video-stage {
-  flex: 1;
-  background: #1a1f2e;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.video-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #2d3142, #1a1f2e);
-  position: relative;
-}
-.video-bg-pattern {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-.video-svg-overlay { position: absolute; inset: 0; pointer-events: none; }
-.video-controls {
-  padding: 10px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--bg-secondary);
-  flex-shrink: 0;
-}
-.vc-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border-solid);
-  border-radius: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
-  min-width: 32px;
-}
-.vc-btn:hover { border-color: var(--accent); color: var(--accent); }
-.vc-scrubber {
-  flex: 1;
-  height: 6px;
-  background: var(--border-solid);
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-}
-.vc-scrubber-trim {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: rgba(11,181,200,0.3);
-  border-radius: 4px;
-}
-.vc-scrubber-thumb {
-  position: absolute;
-  top: -3px;
-  width: 12px;
-  height: 12px;
-  background: var(--accent);
-  border-radius: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-.vc-frame-indicator {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
+      /* VIDEO PANE */
+      .video-chips {
+        display: flex;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .chip {
+        padding: 3px 8px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-solid);
+        border-radius: 6px;
+        color: var(--text-secondary);
+      }
+      .chip-label {
+        color: var(--text-muted);
+        margin-right: 4px;
+      }
+      .video-stage {
+        flex: 1;
+        background: #1a1f2e;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .video-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #2d3142, #1a1f2e);
+        position: relative;
+      }
+      .video-bg-pattern {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .video-svg-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .video-controls {
+        padding: 10px 16px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--bg-secondary);
+        flex-shrink: 0;
+      }
+      .vc-btn {
+        background: var(--bg-card);
+        border: 1px solid var(--border-solid);
+        border-radius: 6px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        min-width: 32px;
+      }
+      .vc-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .vc-scrubber {
+        flex: 1;
+        height: 6px;
+        background: var(--border-solid);
+        border-radius: 4px;
+        position: relative;
+        cursor: pointer;
+      }
+      .vc-scrubber-trim {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background: rgba(11, 181, 200, 0.3);
+        border-radius: 4px;
+      }
+      .vc-scrubber-thumb {
+        position: absolute;
+        top: -3px;
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+      .vc-frame-indicator {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-secondary);
+        white-space: nowrap;
+      }
 
-/* TABLE PANE */
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead { position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
-th, td {
-  padding: 8px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  font-family: var(--font-mono);
-}
-th {
-  font-weight: 600;
-  font-family: var(--font-display);
-  color: var(--text-secondary);
-  font-size: 12px;
-  letter-spacing: 0.3px;
-}
-tbody tr { transition: background .15s; cursor: pointer; }
-tbody tr:hover { background: var(--bg-card-hover); }
-tbody tr.active { background: rgba(11,181,200,0.1); }
-tbody tr.active td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
-td.num { text-align: right; }
-.table-footer {
-  padding: 8px 14px;
-  border-top: 1px solid var(--border);
-  background: var(--bg-secondary);
-  font-size: 12px;
-  color: var(--text-muted);
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  flex-shrink: 0;
-}
+      /* TABLE PANE */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      thead {
+        position: sticky;
+        top: 0;
+        background: var(--bg-card);
+        z-index: 1;
+      }
+      th,
+      td {
+        padding: 8px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+      }
+      th {
+        font-weight: 600;
+        font-family: var(--font-display);
+        color: var(--text-secondary);
+        font-size: 12px;
+        letter-spacing: 0.3px;
+      }
+      tbody tr {
+        transition: background 0.15s;
+        cursor: pointer;
+      }
+      tbody tr:hover {
+        background: var(--bg-card-hover);
+      }
+      tbody tr.active {
+        background: rgba(11, 181, 200, 0.1);
+      }
+      tbody tr.active td:first-child {
+        box-shadow: inset 3px 0 0 var(--accent);
+      }
+      td.num {
+        text-align: right;
+      }
+      .table-footer {
+        padding: 8px 14px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-secondary);
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--font-mono);
+        flex-shrink: 0;
+      }
 
-/* GRAPHS PANE — splitsbare sub-panes */
-.graphs-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: var(--bg-card);
-  overflow: hidden;
-}
-.graph-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-left: 1px solid var(--border);
-  min-width: 0;
-}
-.graph-card:first-child { border-left: none; }
-.graph-sub-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.graph-type-select {
-  background: var(--bg-card);
-  border: 1px solid var(--border-solid);
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  outline: none;
-}
-.graph-type-select:hover { border-color: var(--accent); }
-.graph-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0 6px;
-  line-height: 1;
-  border-radius: 4px;
-}
-.graph-close:hover { color: #dc2626; background: rgba(220,38,38,0.08); }
-.graph-svg-area {
-  flex: 1;
-  padding: 10px 12px;
-  overflow: hidden;
-}
-.add-pane-zone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  background: var(--bg-card);
-  border-top: 1px dashed var(--border);
-  flex-shrink: 0;
-}
-.add-pane-btn {
-  background: transparent;
-  border: 1px dashed var(--border-solid);
-  border-radius: 6px;
-  padding: 5px 14px;
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  transition: all .2s;
-}
-.add-pane-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  border-style: solid;
-}
+      /* GRAPHS PANE — splitsbare sub-panes */
+      .graphs-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: var(--bg-card);
+        overflow: hidden;
+      }
+      .graph-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-left: 1px solid var(--border);
+        min-width: 0;
+      }
+      .graph-card:first-child {
+        border-left: none;
+      }
+      .graph-sub-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .graph-type-select {
+        background: var(--bg-card);
+        border: 1px solid var(--border-solid);
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-weight: 600;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        outline: none;
+      }
+      .graph-type-select:hover {
+        border-color: var(--accent);
+      }
+      .graph-close {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 0 6px;
+        line-height: 1;
+        border-radius: 4px;
+      }
+      .graph-close:hover {
+        color: #dc2626;
+        background: rgba(220, 38, 38, 0.08);
+      }
+      .graph-svg-area {
+        flex: 1;
+        padding: 10px 12px;
+        overflow: hidden;
+      }
+      .add-pane-zone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        background: var(--bg-card);
+        border-top: 1px dashed var(--border);
+        flex-shrink: 0;
+      }
+      .add-pane-btn {
+        background: transparent;
+        border: 1px dashed var(--border-solid);
+        border-radius: 6px;
+        padding: 5px 14px;
+        cursor: pointer;
+        font-size: 11px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        transition: all 0.2s;
+      }
+      .add-pane-btn:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        border-style: solid;
+      }
 
-/* footer note */
-.mockup-note {
-  position: fixed;
-  bottom: 8px;
-  right: 12px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  padding: 3px 8px;
-  border-radius: 6px;
-  opacity: 0.8;
-  pointer-events: none;
-}
-</style>
-</head>
-<body>
-
-<header class="app-header">
-  <div class="header-left">
-    <a href="/" class="logo">
-      <img src="../assets/logo/JK_light.svg" alt="JK logo" id="nav-logo" style="height: 26px;">
-      <div class="logo-text">Natuurkunde<span>Hub</span></div>
-    </a>
-    <div class="breadcrumb">
-      <a href="/">home</a> / <a href="/videometen">videometen</a>
-    </div>
-  </div>
-  <div class="tool-name">Videometen</div>
-  <div class="header-right">
-    <button class="header-btn" title="Help">?</button>
-    <button class="header-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-  </div>
-</header>
-
-<nav class="workflow-bar">
-  <div class="workflow-step done"><span class="workflow-step-num">1</span> Video</div>
-  <span class="workflow-arrow">›</span>
-  <div class="workflow-step done"><span class="workflow-step-num">2</span> fps</div>
-  <span class="workflow-arrow">›</span>
-  <div class="workflow-step done"><span class="workflow-step-num">3</span> Trim</div>
-  <span class="workflow-arrow">›</span>
-  <div class="workflow-step done"><span class="workflow-step-num">4</span> Schaal</div>
-  <span class="workflow-arrow">›</span>
-  <div class="workflow-step done"><span class="workflow-step-num">5</span> Assen</div>
-  <span class="workflow-arrow">›</span>
-  <div class="workflow-step active"><span class="workflow-step-num">6</span> Analyse</div>
-  <div class="workflow-spacer"></div>
-  <button class="start-tracking-btn">▶ Start tracking</button>
-</nav>
-
-<main class="main">
-
-  <!-- VIDEO PANE -->
-  <section class="pane pane-video">
-    <div class="pane-header">
-      <div class="pane-title">Video</div>
-      <div class="video-chips">
-        <div class="chip"><span class="chip-label">fps</span>30</div>
-        <div class="chip"><span class="chip-label">schaal</span>1,20 m</div>
-        <div class="chip"><span class="chip-label">stap</span>5</div>
+      /* footer note */
+      .mockup-note {
+        position: fixed;
+        bottom: 8px;
+        right: 12px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-muted);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 3px 8px;
+        border-radius: 6px;
+        opacity: 0.8;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-left">
+        <a href="/" class="logo">
+          <img src="../assets/logo/JK_light.svg" alt="JK logo" id="nav-logo" style="height: 26px" />
+          <div class="logo-text">Natuurkunde<span>Hub</span></div>
+        </a>
+        <div class="breadcrumb"><a href="/">home</a> / <a href="/videometen">videometen</a></div>
       </div>
-    </div>
-    <div class="video-stage">
-      <div class="video-placeholder">
-        <div class="video-bg-pattern"></div>
-        <svg class="video-svg-overlay" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-          <!-- Schaal-streep -->
-          <g stroke="#D4923A" stroke-width="2" fill="none">
-            <line x1="60" y1="36" x2="180" y2="36"/>
-            <line x1="60" y1="28" x2="60" y2="44"/>
-            <line x1="180" y1="28" x2="180" y2="44"/>
-          </g>
-          <text x="120" y="22" fill="#D4923A" font-size="11" text-anchor="middle" font-family="JetBrains Mono">1,20 m</text>
-
-          <!-- Assenstelsel -->
-          <g stroke="#0BB5C8" stroke-width="2" fill="none">
-            <line x1="80" y1="300" x2="280" y2="300"/>
-            <polygon points="280,300 268,294 268,306" fill="#0BB5C8" stroke="none"/>
-            <line x1="80" y1="300" x2="80" y2="120"/>
-            <polygon points="80,120 74,132 86,132" fill="#0BB5C8" stroke="none"/>
-          </g>
-          <text x="288" y="304" fill="#0BB5C8" font-size="11" font-family="JetBrains Mono">+x</text>
-          <text x="80" y="112" fill="#0BB5C8" font-size="11" text-anchor="middle" font-family="JetBrains Mono">+y</text>
-          <circle cx="80" cy="300" r="4" fill="#0BB5C8"/>
-          <text x="68" y="318" fill="#0BB5C8" font-size="10" font-family="JetBrains Mono">O</text>
-
-          <!-- Trail (parabolic arc, 10 frames) -->
-          <path d="M110,280 Q245,140 380,280" stroke="#0BB5C8" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="2,3"/>
-          <g fill="#0BB5C8" opacity="0.9">
-            <circle cx="110" cy="280" r="4"/>
-            <circle cx="140" cy="245" r="4"/>
-            <circle cx="170" cy="215" r="4"/>
-            <circle cx="200" cy="195" r="4"/>
-            <circle cx="230" cy="185" r="4"/>
-            <circle cx="290" cy="195" r="4"/>
-            <circle cx="320" cy="215" r="4"/>
-            <circle cx="350" cy="245" r="4"/>
-            <circle cx="380" cy="280" r="4"/>
-          </g>
-          <!-- Actieve frame: groter + witte rand -->
-          <circle cx="260" cy="185" r="6" fill="#0BB5C8" stroke="white" stroke-width="2.5"/>
-        </svg>
+      <div class="tool-name">Videometen</div>
+      <div class="header-right">
+        <button class="header-btn" title="Help">?</button>
+        <button class="header-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       </div>
-    </div>
-    <div class="video-controls">
-      <button class="vc-btn" title="vorige frame">‹</button>
-      <button class="vc-btn" title="afspelen">▶</button>
-      <button class="vc-btn" title="volgende frame">›</button>
-      <div class="vc-scrubber">
-        <div class="vc-scrubber-trim" style="left: 10%; right: 60%;"></div>
-        <div class="vc-scrubber-thumb" style="left: 26%;"></div>
-      </div>
-      <div class="vc-frame-indicator">frame 40 / 150 · 1,33 s</div>
-    </div>
-  </section>
+    </header>
 
-  <!-- TABLE PANE -->
-  <section class="pane pane-table">
-    <div class="pane-header">
-      <div class="pane-title">Tabel · 10 metingen</div>
-      <div class="pane-actions">
-        <button class="pane-action-btn">CSV ↓</button>
-      </div>
-    </div>
-    <div class="pane-body">
-      <table>
-        <thead>
-          <tr>
-            <th>frame</th>
-            <th>t (s)</th>
-            <th>x (m)</th>
-            <th>y (m)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="num">15</td><td class="num">0,50</td><td class="num">0,15</td><td class="num">0,12</td></tr>
-          <tr><td class="num">20</td><td class="num">0,67</td><td class="num">0,28</td><td class="num">0,32</td></tr>
-          <tr><td class="num">25</td><td class="num">0,83</td><td class="num">0,42</td><td class="num">0,48</td></tr>
-          <tr><td class="num">30</td><td class="num">1,00</td><td class="num">0,55</td><td class="num">0,58</td></tr>
-          <tr><td class="num">35</td><td class="num">1,17</td><td class="num">0,68</td><td class="num">0,62</td></tr>
-          <tr class="active"><td class="num">40</td><td class="num">1,33</td><td class="num">0,82</td><td class="num">0,62</td></tr>
-          <tr><td class="num">45</td><td class="num">1,50</td><td class="num">0,95</td><td class="num">0,58</td></tr>
-          <tr><td class="num">50</td><td class="num">1,67</td><td class="num">1,08</td><td class="num">0,48</td></tr>
-          <tr><td class="num">55</td><td class="num">1,83</td><td class="num">1,22</td><td class="num">0,32</td></tr>
-          <tr><td class="num">60</td><td class="num">2,00</td><td class="num">1,35</td><td class="num">0,12</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="table-footer">
-      <span>klik rij → spring naar dat frame</span>
-      <span>dubbelklik cel → bewerken</span>
-    </div>
-  </section>
+    <nav class="workflow-bar">
+      <div class="workflow-step done"><span class="workflow-step-num">1</span> Video</div>
+      <span class="workflow-arrow">›</span>
+      <div class="workflow-step done"><span class="workflow-step-num">2</span> fps</div>
+      <span class="workflow-arrow">›</span>
+      <div class="workflow-step done"><span class="workflow-step-num">3</span> Trim</div>
+      <span class="workflow-arrow">›</span>
+      <div class="workflow-step done"><span class="workflow-step-num">4</span> Schaal</div>
+      <span class="workflow-arrow">›</span>
+      <div class="workflow-step done"><span class="workflow-step-num">5</span> Assen</div>
+      <span class="workflow-arrow">›</span>
+      <div class="workflow-step active"><span class="workflow-step-num">6</span> Analyse</div>
+      <div class="workflow-spacer"></div>
+      <button class="start-tracking-btn">▶ Start tracking</button>
+    </nav>
 
-  <!-- GRAPHS PANE — splitsbare sub-panes -->
-  <section class="pane pane-graphs">
-    <div class="pane-header">
-      <div class="pane-title">Grafieken · 2 panes</div>
-      <div class="pane-actions">
-        <button class="pane-action-btn">layout ⇆</button>
-        <button class="pane-action-btn">PNG ↓</button>
-      </div>
-    </div>
-
-    <div class="graphs-grid">
-
-      <!-- Sub-pane 1: x-t -->
-      <div class="graph-card">
-        <div class="graph-sub-header">
-          <select class="graph-type-select">
-            <option selected>x-t</option>
-            <option>y-t</option>
-            <option>y-x (baan)</option>
-            <option disabled>── v2 ──</option>
-            <option disabled>vx-t</option>
-            <option disabled>vy-t</option>
-            <option disabled>|v|-t</option>
-            <option disabled>ax-t</option>
-            <option disabled>ay-t</option>
-          </select>
-          <button class="graph-close" title="sluit pane">×</button>
+    <main class="main">
+      <!-- VIDEO PANE -->
+      <section class="pane pane-video">
+        <div class="pane-header">
+          <div class="pane-title">Video</div>
+          <div class="video-chips">
+            <div class="chip"><span class="chip-label">fps</span>30</div>
+            <div class="chip"><span class="chip-label">schaal</span>1,20 m</div>
+            <div class="chip"><span class="chip-label">stap</span>5</div>
+          </div>
         </div>
-        <div class="graph-svg-area">
-          <svg viewBox="0 0 500 200" style="width:100%; height:100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <g stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="2,3">
-              <line x1="40" y1="135" x2="480" y2="135"/>
-              <line x1="40" y1="100" x2="480" y2="100"/>
-              <line x1="40" y1="65" x2="480" y2="65"/>
-              <line x1="40" y1="30" x2="480" y2="30"/>
-              <line x1="128" y1="20" x2="128" y2="170"/>
-              <line x1="216" y1="20" x2="216" y2="170"/>
-              <line x1="304" y1="20" x2="304" y2="170"/>
-              <line x1="392" y1="20" x2="392" y2="170"/>
-            </g>
-            <g stroke="#94a3b8" stroke-width="1.2" fill="none">
-              <line x1="40" y1="20" x2="40" y2="170"/>
-              <line x1="40" y1="170" x2="480" y2="170"/>
-            </g>
-            <text x="34" y="25" font-size="10" fill="#64748b" text-anchor="end" font-family="JetBrains Mono">x (m)</text>
-            <text x="478" y="186" font-size="10" fill="#64748b" text-anchor="end" font-family="JetBrains Mono">t (s)</text>
-            <polyline points="60,155 100,143 140,131 180,119 220,107 260,95 300,83 340,71 380,59 420,47" stroke="#0BB5C8" stroke-width="2" fill="none"/>
-            <g fill="#0BB5C8">
-              <circle cx="60" cy="155" r="3"/>
-              <circle cx="100" cy="143" r="3"/>
-              <circle cx="140" cy="131" r="3"/>
-              <circle cx="180" cy="119" r="3"/>
-              <circle cx="220" cy="107" r="3"/>
-              <circle cx="300" cy="83" r="3"/>
-              <circle cx="340" cy="71" r="3"/>
-              <circle cx="380" cy="59" r="3"/>
-              <circle cx="420" cy="47" r="3"/>
-            </g>
-            <circle cx="260" cy="95" r="5" fill="#0BB5C8" stroke="white" stroke-width="2"/>
-          </svg>
+        <div class="video-stage">
+          <div class="video-placeholder">
+            <div class="video-bg-pattern"></div>
+            <svg
+              class="video-svg-overlay"
+              viewBox="0 0 600 360"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <!-- Schaal-streep -->
+              <g stroke="#D4923A" stroke-width="2" fill="none">
+                <line x1="60" y1="36" x2="180" y2="36" />
+                <line x1="60" y1="28" x2="60" y2="44" />
+                <line x1="180" y1="28" x2="180" y2="44" />
+              </g>
+              <text
+                x="120"
+                y="22"
+                fill="#D4923A"
+                font-size="11"
+                text-anchor="middle"
+                font-family="JetBrains Mono"
+              >
+                1,20 m
+              </text>
+
+              <!-- Assenstelsel -->
+              <g stroke="#0BB5C8" stroke-width="2" fill="none">
+                <line x1="80" y1="300" x2="280" y2="300" />
+                <polygon points="280,300 268,294 268,306" fill="#0BB5C8" stroke="none" />
+                <line x1="80" y1="300" x2="80" y2="120" />
+                <polygon points="80,120 74,132 86,132" fill="#0BB5C8" stroke="none" />
+              </g>
+              <text x="288" y="304" fill="#0BB5C8" font-size="11" font-family="JetBrains Mono">
+                +x
+              </text>
+              <text
+                x="80"
+                y="112"
+                fill="#0BB5C8"
+                font-size="11"
+                text-anchor="middle"
+                font-family="JetBrains Mono"
+              >
+                +y
+              </text>
+              <circle cx="80" cy="300" r="4" fill="#0BB5C8" />
+              <text x="68" y="318" fill="#0BB5C8" font-size="10" font-family="JetBrains Mono">
+                O
+              </text>
+
+              <!-- Trail (parabolic arc, 10 frames) -->
+              <path
+                d="M110,280 Q245,140 380,280"
+                stroke="#0BB5C8"
+                stroke-width="1"
+                fill="none"
+                opacity="0.4"
+                stroke-dasharray="2,3"
+              />
+              <g fill="#0BB5C8" opacity="0.9">
+                <circle cx="110" cy="280" r="4" />
+                <circle cx="140" cy="245" r="4" />
+                <circle cx="170" cy="215" r="4" />
+                <circle cx="200" cy="195" r="4" />
+                <circle cx="230" cy="185" r="4" />
+                <circle cx="290" cy="195" r="4" />
+                <circle cx="320" cy="215" r="4" />
+                <circle cx="350" cy="245" r="4" />
+                <circle cx="380" cy="280" r="4" />
+              </g>
+              <!-- Actieve frame: groter + witte rand -->
+              <circle cx="260" cy="185" r="6" fill="#0BB5C8" stroke="white" stroke-width="2.5" />
+            </svg>
+          </div>
         </div>
-      </div>
-
-      <!-- Sub-pane 2: vx-t (illustratie van v2 — toont waarom split inzichtelijk is) -->
-      <div class="graph-card">
-        <div class="graph-sub-header">
-          <select class="graph-type-select">
-            <option>x-t</option>
-            <option>y-t</option>
-            <option>y-x (baan)</option>
-            <option disabled>── v2 ──</option>
-            <option selected>vx-t</option>
-            <option>vy-t</option>
-            <option>|v|-t</option>
-            <option>ax-t</option>
-            <option>ay-t</option>
-          </select>
-          <button class="graph-close" title="sluit pane">×</button>
+        <div class="video-controls">
+          <button class="vc-btn" title="vorige frame">‹</button>
+          <button class="vc-btn" title="afspelen">▶</button>
+          <button class="vc-btn" title="volgende frame">›</button>
+          <div class="vc-scrubber">
+            <div class="vc-scrubber-trim" style="left: 10%; right: 60%"></div>
+            <div class="vc-scrubber-thumb" style="left: 26%"></div>
+          </div>
+          <div class="vc-frame-indicator">frame 40 / 150 · 1,33 s</div>
         </div>
-        <div class="graph-svg-area">
-          <svg viewBox="0 0 500 200" style="width:100%; height:100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <g stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="2,3">
-              <line x1="40" y1="135" x2="480" y2="135"/>
-              <line x1="40" y1="100" x2="480" y2="100"/>
-              <line x1="40" y1="65" x2="480" y2="65"/>
-              <line x1="40" y1="30" x2="480" y2="30"/>
-              <line x1="128" y1="20" x2="128" y2="170"/>
-              <line x1="216" y1="20" x2="216" y2="170"/>
-              <line x1="304" y1="20" x2="304" y2="170"/>
-              <line x1="392" y1="20" x2="392" y2="170"/>
-            </g>
-            <g stroke="#94a3b8" stroke-width="1.2" fill="none">
-              <line x1="40" y1="20" x2="40" y2="170"/>
-              <line x1="40" y1="170" x2="480" y2="170"/>
-            </g>
-            <text x="34" y="25" font-size="10" fill="#64748b" text-anchor="end" font-family="JetBrains Mono">vx (m/s)</text>
-            <text x="478" y="186" font-size="10" fill="#64748b" text-anchor="end" font-family="JetBrains Mono">t (s)</text>
-            <!-- Constante-trendlijn op vx ≈ 0,80 m/s -->
-            <line x1="40" y1="50" x2="480" y2="50" stroke="#D4923A" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>
-            <text x="475" y="44" font-size="9" fill="#D4923A" text-anchor="end" font-family="JetBrains Mono">≈ 0,80 m/s</text>
-            <!-- vx data: licht ruisig rond 0,80 -->
-            <polyline points="79,53 120,44 161,53 199,53 240,44 281,53 319,53 360,44 401,53" stroke="#0BB5C8" stroke-width="2" fill="none"/>
-            <g fill="#0BB5C8">
-              <circle cx="79" cy="53" r="3"/>
-              <circle cx="120" cy="44" r="3"/>
-              <circle cx="161" cy="53" r="3"/>
-              <circle cx="199" cy="53" r="3"/>
-              <circle cx="240" cy="44" r="3"/>
-              <circle cx="281" cy="53" r="3"/>
-              <circle cx="319" cy="53" r="3"/>
-              <circle cx="360" cy="44" r="3"/>
-              <circle cx="401" cy="53" r="3"/>
-            </g>
-          </svg>
+      </section>
+
+      <!-- TABLE PANE -->
+      <section class="pane pane-table">
+        <div class="pane-header">
+          <div class="pane-title">Tabel · 10 metingen</div>
+          <div class="pane-actions">
+            <button class="pane-action-btn">CSV ↓</button>
+          </div>
         </div>
-      </div>
+        <div class="pane-body">
+          <table>
+            <thead>
+              <tr>
+                <th>frame</th>
+                <th>t (s)</th>
+                <th>x (m)</th>
+                <th>y (m)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">15</td>
+                <td class="num">0,50</td>
+                <td class="num">0,15</td>
+                <td class="num">0,12</td>
+              </tr>
+              <tr>
+                <td class="num">20</td>
+                <td class="num">0,67</td>
+                <td class="num">0,28</td>
+                <td class="num">0,32</td>
+              </tr>
+              <tr>
+                <td class="num">25</td>
+                <td class="num">0,83</td>
+                <td class="num">0,42</td>
+                <td class="num">0,48</td>
+              </tr>
+              <tr>
+                <td class="num">30</td>
+                <td class="num">1,00</td>
+                <td class="num">0,55</td>
+                <td class="num">0,58</td>
+              </tr>
+              <tr>
+                <td class="num">35</td>
+                <td class="num">1,17</td>
+                <td class="num">0,68</td>
+                <td class="num">0,62</td>
+              </tr>
+              <tr class="active">
+                <td class="num">40</td>
+                <td class="num">1,33</td>
+                <td class="num">0,82</td>
+                <td class="num">0,62</td>
+              </tr>
+              <tr>
+                <td class="num">45</td>
+                <td class="num">1,50</td>
+                <td class="num">0,95</td>
+                <td class="num">0,58</td>
+              </tr>
+              <tr>
+                <td class="num">50</td>
+                <td class="num">1,67</td>
+                <td class="num">1,08</td>
+                <td class="num">0,48</td>
+              </tr>
+              <tr>
+                <td class="num">55</td>
+                <td class="num">1,83</td>
+                <td class="num">1,22</td>
+                <td class="num">0,32</td>
+              </tr>
+              <tr>
+                <td class="num">60</td>
+                <td class="num">2,00</td>
+                <td class="num">1,35</td>
+                <td class="num">0,12</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span>klik rij → spring naar dat frame</span>
+          <span>dubbelklik cel → bewerken</span>
+        </div>
+      </section>
 
-    </div>
+      <!-- GRAPHS PANE — splitsbare sub-panes -->
+      <section class="pane pane-graphs">
+        <div class="pane-header">
+          <div class="pane-title">Grafieken · 2 panes</div>
+          <div class="pane-actions">
+            <button class="pane-action-btn">layout ⇆</button>
+            <button class="pane-action-btn">PNG ↓</button>
+          </div>
+        </div>
 
-    <div class="add-pane-zone">
-      <button class="add-pane-btn">+ grafiek toevoegen (max 4)</button>
-    </div>
-  </section>
+        <div class="graphs-grid">
+          <!-- Sub-pane 1: x-t -->
+          <div class="graph-card">
+            <div class="graph-sub-header">
+              <select class="graph-type-select">
+                <option selected>x-t</option>
+                <option>y-t</option>
+                <option>y-x (baan)</option>
+                <option disabled>── v2 ──</option>
+                <option disabled>vx-t</option>
+                <option disabled>vy-t</option>
+                <option disabled>|v|-t</option>
+                <option disabled>ax-t</option>
+                <option disabled>ay-t</option>
+              </select>
+              <button class="graph-close" title="sluit pane">×</button>
+            </div>
+            <div class="graph-svg-area">
+              <svg
+                viewBox="0 0 500 200"
+                style="width: 100%; height: 100%"
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+              >
+                <g stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="2,3">
+                  <line x1="40" y1="135" x2="480" y2="135" />
+                  <line x1="40" y1="100" x2="480" y2="100" />
+                  <line x1="40" y1="65" x2="480" y2="65" />
+                  <line x1="40" y1="30" x2="480" y2="30" />
+                  <line x1="128" y1="20" x2="128" y2="170" />
+                  <line x1="216" y1="20" x2="216" y2="170" />
+                  <line x1="304" y1="20" x2="304" y2="170" />
+                  <line x1="392" y1="20" x2="392" y2="170" />
+                </g>
+                <g stroke="#94a3b8" stroke-width="1.2" fill="none">
+                  <line x1="40" y1="20" x2="40" y2="170" />
+                  <line x1="40" y1="170" x2="480" y2="170" />
+                </g>
+                <text
+                  x="34"
+                  y="25"
+                  font-size="10"
+                  fill="#64748b"
+                  text-anchor="end"
+                  font-family="JetBrains Mono"
+                >
+                  x (m)
+                </text>
+                <text
+                  x="478"
+                  y="186"
+                  font-size="10"
+                  fill="#64748b"
+                  text-anchor="end"
+                  font-family="JetBrains Mono"
+                >
+                  t (s)
+                </text>
+                <polyline
+                  points="60,155 100,143 140,131 180,119 220,107 260,95 300,83 340,71 380,59 420,47"
+                  stroke="#0BB5C8"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <g fill="#0BB5C8">
+                  <circle cx="60" cy="155" r="3" />
+                  <circle cx="100" cy="143" r="3" />
+                  <circle cx="140" cy="131" r="3" />
+                  <circle cx="180" cy="119" r="3" />
+                  <circle cx="220" cy="107" r="3" />
+                  <circle cx="300" cy="83" r="3" />
+                  <circle cx="340" cy="71" r="3" />
+                  <circle cx="380" cy="59" r="3" />
+                  <circle cx="420" cy="47" r="3" />
+                </g>
+                <circle cx="260" cy="95" r="5" fill="#0BB5C8" stroke="white" stroke-width="2" />
+              </svg>
+            </div>
+          </div>
 
-</main>
+          <!-- Sub-pane 2: vx-t (illustratie van v2 — toont waarom split inzichtelijk is) -->
+          <div class="graph-card">
+            <div class="graph-sub-header">
+              <select class="graph-type-select">
+                <option>x-t</option>
+                <option>y-t</option>
+                <option>y-x (baan)</option>
+                <option disabled>── v2 ──</option>
+                <option selected>vx-t</option>
+                <option>vy-t</option>
+                <option>|v|-t</option>
+                <option>ax-t</option>
+                <option>ay-t</option>
+              </select>
+              <button class="graph-close" title="sluit pane">×</button>
+            </div>
+            <div class="graph-svg-area">
+              <svg
+                viewBox="0 0 500 200"
+                style="width: 100%; height: 100%"
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+              >
+                <g stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="2,3">
+                  <line x1="40" y1="135" x2="480" y2="135" />
+                  <line x1="40" y1="100" x2="480" y2="100" />
+                  <line x1="40" y1="65" x2="480" y2="65" />
+                  <line x1="40" y1="30" x2="480" y2="30" />
+                  <line x1="128" y1="20" x2="128" y2="170" />
+                  <line x1="216" y1="20" x2="216" y2="170" />
+                  <line x1="304" y1="20" x2="304" y2="170" />
+                  <line x1="392" y1="20" x2="392" y2="170" />
+                </g>
+                <g stroke="#94a3b8" stroke-width="1.2" fill="none">
+                  <line x1="40" y1="20" x2="40" y2="170" />
+                  <line x1="40" y1="170" x2="480" y2="170" />
+                </g>
+                <text
+                  x="34"
+                  y="25"
+                  font-size="10"
+                  fill="#64748b"
+                  text-anchor="end"
+                  font-family="JetBrains Mono"
+                >
+                  vx (m/s)
+                </text>
+                <text
+                  x="478"
+                  y="186"
+                  font-size="10"
+                  fill="#64748b"
+                  text-anchor="end"
+                  font-family="JetBrains Mono"
+                >
+                  t (s)
+                </text>
+                <!-- Constante-trendlijn op vx ≈ 0,80 m/s -->
+                <line
+                  x1="40"
+                  y1="50"
+                  x2="480"
+                  y2="50"
+                  stroke="#D4923A"
+                  stroke-width="1"
+                  stroke-dasharray="3,3"
+                  opacity="0.7"
+                />
+                <text
+                  x="475"
+                  y="44"
+                  font-size="9"
+                  fill="#D4923A"
+                  text-anchor="end"
+                  font-family="JetBrains Mono"
+                >
+                  ≈ 0,80 m/s
+                </text>
+                <!-- vx data: licht ruisig rond 0,80 -->
+                <polyline
+                  points="79,53 120,44 161,53 199,53 240,44 281,53 319,53 360,44 401,53"
+                  stroke="#0BB5C8"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <g fill="#0BB5C8">
+                  <circle cx="79" cy="53" r="3" />
+                  <circle cx="120" cy="44" r="3" />
+                  <circle cx="161" cy="53" r="3" />
+                  <circle cx="199" cy="53" r="3" />
+                  <circle cx="240" cy="44" r="3" />
+                  <circle cx="281" cy="53" r="3" />
+                  <circle cx="319" cy="53" r="3" />
+                  <circle cx="360" cy="44" r="3" />
+                  <circle cx="401" cy="53" r="3" />
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
 
-<div class="mockup-note">mockup · niet functioneel</div>
+        <div class="add-pane-zone">
+          <button class="add-pane-btn">+ grafiek toevoegen (max 4)</button>
+        </div>
+      </section>
+    </main>
 
-<script>
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  const navLogo = document.getElementById('nav-logo');
-  const favicon = document.getElementById('favicon');
-  const btn = document.getElementById('theme-btn');
-  if (theme === 'dark') {
-    if (navLogo) navLogo.src = '../assets/logo/JK_dark.svg';
-    if (favicon) favicon.href = '../assets/logo/JK_dark.svg';
-    if (btn) btn.textContent = '☀️';
-  } else {
-    if (navLogo) navLogo.src = '../assets/logo/JK_light.svg';
-    if (favicon) favicon.href = '../assets/logo/JK_light.svg';
-    if (btn) btn.textContent = '🌙';
-  }
-}
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('nh-theme', next);
-  applyTheme(next);
-}
-(function() {
-  const saved = localStorage.getItem('nh-theme');
-  if (saved) applyTheme(saved);
-  else if (window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
-  else applyTheme('light');
-})();
-</script>
+    <div class="mockup-note">mockup · niet functioneel</div>
 
-</body>
+    <script>
+      function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        const navLogo = document.getElementById("nav-logo");
+        const favicon = document.getElementById("favicon");
+        const btn = document.getElementById("theme-btn");
+        if (theme === "dark") {
+          if (navLogo) navLogo.src = "../assets/logo/JK_dark.svg";
+          if (favicon) favicon.href = "../assets/logo/JK_dark.svg";
+          if (btn) btn.textContent = "☀️";
+        } else {
+          if (navLogo) navLogo.src = "../assets/logo/JK_light.svg";
+          if (favicon) favicon.href = "../assets/logo/JK_light.svg";
+          if (btn) btn.textContent = "🌙";
+        }
+      }
+      function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        localStorage.setItem("nh-theme", next);
+        applyTheme(next);
+      }
+      (function () {
+        const saved = localStorage.getItem("nh-theme");
+        if (saved) applyTheme(saved);
+        else if (window.matchMedia("(prefers-color-scheme: dark)").matches) applyTheme("dark");
+        else applyTheme("light");
+      })();
+    </script>
+  </body>
 </html>

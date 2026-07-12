@@ -11,6 +11,7 @@ Na 07f's prop-sync herstructurering en 07g's `excludeFromAutozoom`-fix zijn drie
 **Belangrijke instructie: niet proberen te fixen.** Drie eerdere pogingen (07e/07f/07g) hebben deze bugs niet weggekregen of ze gecreëerd. Tijd om eerst écht te meten waar de event-keten breekt of waar de logica afwijkt van wat we verwachten. Fix komt in 07i op basis van Jop's console-output.
 
 Voor context:
+
 - `videometen/prompts/07f-bugs-en-kleur.md` — prop-sync herstructurering met `prevZoomStateRef`
 - `videometen/prompts/07g-extrapolatie-bugs-en-exp-weg.md` — `excludeFromAutozoom` flag, drie-zones aanpassing
 - `videometen/src/_reusable/InteractiveChart.tsx` — prop-sync useEffect, autozoom logica
@@ -45,39 +46,44 @@ onClick={() => {
 In de useEffect die `zoomState`-prop synct met de chart-options:
 
 ```ts
-useEffect(() => {
-  const chart = chartRef.current
-  if (!chart) return
+useEffect(
+  () => {
+    const chart = chartRef.current;
+    if (!chart) return;
 
-  const zs = propsRef.current.zoomState
-  const prev = prevZoomStateRef.current
-  const isEqual = isEqualZoomState(zs, prev)
+    const zs = propsRef.current.zoomState;
+    const prev = prevZoomStateRef.current;
+    const isEqual = isEqualZoomState(zs, prev);
 
-  console.log('[VM/SYNC] prop-sync useEffect', {
-    incoming: zs,
-    previous: prev,
-    isEqual,
-    branch: isEqual ? 'PIN-on-chart' : 'USE-cfg-values',
-    chartScales: {
-      x: { min: chart.scales.x.min, max: chart.scales.x.max },
-      y: { min: chart.scales.y.min, max: chart.scales.y.max },
-    },
-  })
+    console.log("[VM/SYNC] prop-sync useEffect", {
+      incoming: zs,
+      previous: prev,
+      isEqual,
+      branch: isEqual ? "PIN-on-chart" : "USE-cfg-values",
+      chartScales: {
+        x: { min: chart.scales.x.min, max: chart.scales.x.max },
+        y: { min: chart.scales.y.min, max: chart.scales.y.max },
+      },
+    });
 
-  // ... bestaande logica
-  if (isEqual) {
-    // PIN branch
-    console.log('[VM/SYNC] PIN: keeping chart scales as-is')
-    // ... pin logica
-  } else {
-    // USE-cfg branch
-    console.log('[VM/SYNC] USE-cfg: applying', zs ?? 'autozoom (null)')
-    // ... cfg logica
-  }
+    // ... bestaande logica
+    if (isEqual) {
+      // PIN branch
+      console.log("[VM/SYNC] PIN: keeping chart scales as-is");
+      // ... pin logica
+    } else {
+      // USE-cfg branch
+      console.log("[VM/SYNC] USE-cfg: applying", zs ?? "autozoom (null)");
+      // ... cfg logica
+    }
 
-  prevZoomStateRef.current = zs
-  console.log('[VM/SYNC] prevZoomStateRef updated to', zs)
-}, [/* deps */])
+    prevZoomStateRef.current = zs;
+    console.log("[VM/SYNC] prevZoomStateRef updated to", zs);
+  },
+  [
+    /* deps */
+  ],
+);
 ```
 
 ### Log 3 — Autozoom-bounds berekening in `InteractiveChart.tsx`
@@ -85,23 +91,23 @@ useEffect(() => {
 Op de plek waar `niceAxis` of vergelijkbare bounds-berekening wordt aangeroepen voor x en y:
 
 ```ts
-const xBounds = niceAxis(/* x-data */)
-console.log('[VM/AUTOZOOM/BOUNDS] x-bounds', {
+const xBounds = niceAxis(/* x-data */);
+console.log("[VM/AUTOZOOM/BOUNDS] x-bounds", {
   inputDataLength: xData.length,
   inputMin: Math.min(...xData),
   inputMax: Math.max(...xData),
   output: xBounds,
-})
+});
 
-const yBounds = niceAxis(/* y-data */)
-console.log('[VM/AUTOZOOM/BOUNDS] y-bounds', {
+const yBounds = niceAxis(/* y-data */);
+console.log("[VM/AUTOZOOM/BOUNDS] y-bounds", {
   inputDataLength: yData.length,
   inputMin: Math.min(...yData),
   inputMax: Math.max(...yData),
   output: yBounds,
-  excludedSeries: series.filter(s => s.excludeFromAutozoom).map(s => s.label),
-  includedSeries: series.filter(s => !s.excludeFromAutozoom).map(s => s.label),
-})
+  excludedSeries: series.filter((s) => s.excludeFromAutozoom).map((s) => s.label),
+  includedSeries: series.filter((s) => !s.excludeFromAutozoom).map((s) => s.label),
+});
 ```
 
 ### Log 4 — Scatter-data in afgeleide-panes
@@ -110,16 +116,17 @@ In `GraphPane.tsx`, waar de scatter-series wordt opgebouwd voor afgeleide-types:
 
 ```ts
 // Voor vx-t / vy-t / |v|-t / ax-t / ay-t / |a|-t
-const scatterPoints = /* bestaande build */
-console.log('[VM/PANE/SCATTER]', {
-  paneId: state.id,
-  paneType: state.type,
-  rowsCount: rows.length,
-  scatterPointsCount: scatterPoints.length,
-  firstPoint: scatterPoints[0],
-  lastPoint: scatterPoints[scatterPoints.length - 1],
-  excludeFromAutozoom: false, // of wat het ook is
-})
+const scatterPoints =
+  /* bestaande build */
+  console.log("[VM/PANE/SCATTER]", {
+    paneId: state.id,
+    paneType: state.type,
+    rowsCount: rows.length,
+    scatterPointsCount: scatterPoints.length,
+    firstPoint: scatterPoints[0],
+    lastPoint: scatterPoints[scatterPoints.length - 1],
+    excludeFromAutozoom: false, // of wat het ook is
+  });
 ```
 
 ### Log 5 — `buildFitCurve` zone-classificatie
@@ -156,11 +163,13 @@ Op de plek waar `updatePane` wordt aangeroepen om state te wijzigen:
 
 ```ts
 function updatePane(id, next) {
-  console.log('[VM/STATE] updatePane', {
+  console.log("[VM/STATE] updatePane", {
     id,
     nextZoomState: next.zoomState,
-    nextFitConfig: { /* if relevant */ },
-  })
+    nextFitConfig: {
+      /* if relevant */
+    },
+  });
   // ... bestaande logica
 }
 ```
@@ -170,13 +179,13 @@ function updatePane(id, next) {
 In `InteractiveChart.tsx`, direct na `chart.update('none')` in de prop-sync useEffect:
 
 ```ts
-chart.update('none')
-console.log('[VM/SYNC] after chart.update', {
+chart.update("none");
+console.log("[VM/SYNC] after chart.update", {
   scalesAfterUpdate: {
     x: { min: chart.scales.x.min, max: chart.scales.x.max },
     y: { min: chart.scales.y.min, max: chart.scales.y.max },
   },
-})
+});
 ```
 
 Dit vertelt of de chart na onze sync ook daadwerkelijk de juiste waardes heeft, of dat 'r tussen sync en render iets misgaat.

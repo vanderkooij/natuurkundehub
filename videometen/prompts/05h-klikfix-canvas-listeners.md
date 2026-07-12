@@ -9,6 +9,7 @@ Patch-prompt na 05g. De diagnostische logs uit 05g hebben de root cause aangewez
 **Strategie: omzeilen.** In plaats van verder graven in Chart.js' interne event-systeem (waarvan we niet weten waarom 't faalt — gewijzigde `events`-array, gestale closure, plugin-conflict?), vervangen we de `options.onClick`/`onHover` door **directe `canvas.addEventListener`-luisteraars**. Dat geeft volledige controle en is robuuster voor toekomstig onderhoud.
 
 Voor context:
+
 - `videometen/prompts/05f-klikbug-en-video-laden.md` — vorige fix-poging met `findNearestSeriesHit`
 - `videometen/prompts/05g-tracking-start-en-klikdiagnose.md` — diagnostiek
 - `videometen/src/_reusable/InteractiveChart.tsx` — chart-event handlers + propsRef + findNearestSeriesHit
@@ -38,65 +39,70 @@ Behoud wel `options.plugins.tooltip` (Chart.js' eigen tooltip-engine blijft werk
 Na de chart-creatie (binnen het bestaande `useEffect` waarin de chart wordt aangemaakt, of een nieuwe `useEffect` met afhankelijkheid op de chart-instance):
 
 ```ts
-useEffect(() => {
-  const chart = chartRef.current
-  if (!chart) return
-  const canvas = chart.canvas as HTMLCanvasElement
-  if (!canvas) return
+useEffect(
+  () => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    const canvas = chart.canvas as HTMLCanvasElement;
+    if (!canvas) return;
 
-  const handleClick = (e: PointerEvent) => {
-    const { x: cx, y: cy } = cursorPx(e, chart)
-    const seriesCount = propsRef.current.series.length
-    const hit = findNearestSeriesHit(chart, cx, cy, seriesCount)
+    const handleClick = (e: PointerEvent) => {
+      const { x: cx, y: cy } = cursorPx(e, chart);
+      const seriesCount = propsRef.current.series.length;
+      const hit = findNearestSeriesHit(chart, cx, cy, seriesCount);
 
-    if (hit && propsRef.current.onPointClick) {
-      const point = propsRef.current.series[hit.seriesIdx].points[hit.pointIdx]
-      propsRef.current.onPointClick(hit.seriesIdx, hit.pointIdx, point)
-      return
-    }
-
-    // Fallback: leeg gebied → onAreaClick met geinterpoleerde x
-    if (propsRef.current.onAreaClick && chart.scales.x) {
-      const xValue = chart.scales.x.getValueForPixel(cx)
-      if (xValue !== undefined) {
-        propsRef.current.onAreaClick(xValue)
+      if (hit && propsRef.current.onPointClick) {
+        const point = propsRef.current.series[hit.seriesIdx].points[hit.pointIdx];
+        propsRef.current.onPointClick(hit.seriesIdx, hit.pointIdx, point);
+        return;
       }
-    }
-  }
 
-  const handleMove = (e: PointerEvent) => {
-    const { x: cx, y: cy } = cursorPx(e, chart)
-    const seriesCount = propsRef.current.series.length
-    const hit = findNearestSeriesHit(chart, cx, cy, seriesCount)
-
-    if (propsRef.current.onPointHover) {
-      if (hit) {
-        const point = propsRef.current.series[hit.seriesIdx].points[hit.pointIdx]
-        propsRef.current.onPointHover({
-          seriesIdx: hit.seriesIdx,
-          pointIdx: hit.pointIdx,
-          point,
-        })
-      } else {
-        propsRef.current.onPointHover(null)
+      // Fallback: leeg gebied → onAreaClick met geinterpoleerde x
+      if (propsRef.current.onAreaClick && chart.scales.x) {
+        const xValue = chart.scales.x.getValueForPixel(cx);
+        if (xValue !== undefined) {
+          propsRef.current.onAreaClick(xValue);
+        }
       }
-    }
-  }
+    };
 
-  const handleLeave = () => {
-    propsRef.current.onPointHover?.(null)
-  }
+    const handleMove = (e: PointerEvent) => {
+      const { x: cx, y: cy } = cursorPx(e, chart);
+      const seriesCount = propsRef.current.series.length;
+      const hit = findNearestSeriesHit(chart, cx, cy, seriesCount);
 
-  canvas.addEventListener('click', handleClick)
-  canvas.addEventListener('pointermove', handleMove)
-  canvas.addEventListener('pointerleave', handleLeave)
+      if (propsRef.current.onPointHover) {
+        if (hit) {
+          const point = propsRef.current.series[hit.seriesIdx].points[hit.pointIdx];
+          propsRef.current.onPointHover({
+            seriesIdx: hit.seriesIdx,
+            pointIdx: hit.pointIdx,
+            point,
+          });
+        } else {
+          propsRef.current.onPointHover(null);
+        }
+      }
+    };
 
-  return () => {
-    canvas.removeEventListener('click', handleClick)
-    canvas.removeEventListener('pointermove', handleMove)
-    canvas.removeEventListener('pointerleave', handleLeave)
-  }
-}, [/* dependency op chartRef.current of de chart-instance-creatie */])
+    const handleLeave = () => {
+      propsRef.current.onPointHover?.(null);
+    };
+
+    canvas.addEventListener("click", handleClick);
+    canvas.addEventListener("pointermove", handleMove);
+    canvas.addEventListener("pointerleave", handleLeave);
+
+    return () => {
+      canvas.removeEventListener("click", handleClick);
+      canvas.removeEventListener("pointermove", handleMove);
+      canvas.removeEventListener("pointerleave", handleLeave);
+    };
+  },
+  [
+    /* dependency op chartRef.current of de chart-instance-creatie */
+  ],
+);
 ```
 
 **Belangrijke notes:**

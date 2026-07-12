@@ -13,6 +13,7 @@ Vervolg na 07d. Vijf kleine maar belangrijke verfijningen rond zoom/sync UX en p
 Plus help-sectie korte uitleg over trim-range vs fit-range.
 
 Voor context:
+
 - `videometen/prompts/07b-fit-range-extra-types-scatter-fix.md` — extrapolatie-styling
 - `videometen/prompts/07d-zoom-en-pedagogisch.md` — coefficient-tooltips, dataset-legend
 - `videometen/src/features/measurements/Graphs.tsx` — container met sync-toggle
@@ -81,14 +82,14 @@ function propagateXSync(sourceZs: ZoomState, peer: PaneState): PaneState {
         xMax: sourceZs.xMax,
         yMin: peer.chart?.scales.y.min ?? -Infinity,
         yMax: peer.chart?.scales.y.max ?? Infinity,
-      }
-    }
+      },
+    };
   }
   // Behoud peer's y-bounds, overschrijf alleen x
   return {
     ...peer,
-    zoomState: { ...peer.zoomState, xMin: sourceZs.xMin, xMax: sourceZs.xMax }
-  }
+    zoomState: { ...peer.zoomState, xMin: sourceZs.xMin, xMax: sourceZs.xMax },
+  };
 }
 ```
 
@@ -106,9 +107,11 @@ In `fitFormula.ts`:
 #### Voor kwadratische y-fit (derivative 0), de `a`-coefficient
 
 **Oud**:
+
 > "**Halve versnelling** — als dit een y(t)-fit van een vallend voorwerp is, dan is je gemeten zwaartekracht **g = {abs(2a)} m/s²** (theoretisch 9,81 m/s²)"
 
 **Nieuw**:
+
 > "**Halve versnelling in y-richting**: 2·a = {2a} m/s²"
 
 Geen "als dit vrije val is" meer, geen `g`-claim, geen theoretische vergelijking. Alleen het feit: de coefficient `a` correspondeert met halve versnelling.
@@ -145,11 +148,11 @@ De fit-curve loopt nu **alleen binnen de fit-range** — buiten die range wordt 
 
 Sampleer de fit-curve over de **volledige zichtbare x-range** (van `chart.scales.x.min` tot `chart.scales.x.max`), N=200 punten. Splits in drie segmenten op basis van waar elke x valt:
 
-| Zone | Definitie | Styling |
-|---|---|---|
-| **A. In fit-range** | `t ∈ [fitStart_t, fitEnd_t]` | Solid lijn, volle kleur (amber), full opacity |
-| **B. Buiten fit-range, binnen meetbereik** | `t ∈ [eerste_meting_t, laatste_meting_t]` maar NIET in fit-range | Solid lijn, opacity ~0,7 (lichter) |
-| **C. Voorbij meetbereik (echte extrapolatie)** | `t` voor eerste meetpunt of na laatste meetpunt | Dashed lijn, opacity ~0,5 (gedimd) |
+| Zone                                           | Definitie                                                        | Styling                                       |
+| ---------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------- |
+| **A. In fit-range**                            | `t ∈ [fitStart_t, fitEnd_t]`                                     | Solid lijn, volle kleur (amber), full opacity |
+| **B. Buiten fit-range, binnen meetbereik**     | `t ∈ [eerste_meting_t, laatste_meting_t]` maar NIET in fit-range | Solid lijn, opacity ~0,7 (lichter)            |
+| **C. Voorbij meetbereik (echte extrapolatie)** | `t` voor eerste meetpunt of na laatste meetpunt                  | Dashed lijn, opacity ~0,5 (gedimd)            |
 
 Bij `fit-range = trim-range` (default): zone B verdwijnt (fit-range = data-range), je hebt alleen A en C.
 
@@ -166,6 +169,7 @@ Bij sampling: voor elk van de 200 punten bepaal de zone (A/B/C) en push 'm naar 
 #### Tooltip-labels
 
 Bij hover op een segment toont Chart.js het dataset-label:
+
 - Zone A: `Uit fit-model · t = … · y = …`
 - Zone B: `Uit fit-model (buiten fit-bereik) · t = … · y = …`
 - Zone C: `Uit fit-model (extrapolatie) · t = … · y = …`
@@ -184,11 +188,12 @@ In `HelpPanel.tsx`, nieuwe of uitgebreide sectie:
 
 > Twee verschillende selecties die makkelijk te verwarren zijn:
 >
-> **Trim-range** is welk deel van de video je *in zijn geheel* meeneemt voor analyse. Stel je in via stap 3 in de werkbalk. Buiten de trim worden punten gedimd weergegeven en tellen niet mee in tabel en grafieken.
+> **Trim-range** is welk deel van de video je _in zijn geheel_ meeneemt voor analyse. Stel je in via stap 3 in de werkbalk. Buiten de trim worden punten gedimd weergegeven en tellen niet mee in tabel en grafieken.
 >
 > **Fit-range** is welk deel van je meetpunten je gebruikt om een **fit-curve** door te trekken. Stel je in via de Fit-knop bovenaan de grafieken. Standaard gebruikt 'ie je hele trim, maar je kunt 'm strikter zetten — bijvoorbeeld bij een stuiterende bal: trim alle metingen, maar fit alleen op de eerste vrije-val fase.
 >
 > **Drie zones op de fit-curve**: de wiskundige vergelijking loopt door over de hele zichtbare tijd-as, maar wordt visueel onderscheiden:
+>
 > - **Binnen je fit-range** (volle lijn): hier is de fit op gebaseerd.
 > - **Buiten fit-range, binnen je meetbereik** (lichter): hier heb je wel metingen, maar je hebt 'm bewust niet meegenomen in de fit. Bijvoorbeeld bij een stuiterende bal: het opwaartse stuk na de stuiter is meting, maar valt buiten je vrije-val-fit.
 > - **Voorbij je meetbereik** (stippellijn): pure extrapolatie. Dit is wat het wiskundig model voorspelt voor tijden waarop je niets gemeten hebt. Handig om "wat zou er zijn gebeurd als…?" te visualiseren, maar niet onderbouwd door data.

@@ -10,6 +10,7 @@ Twee kleine aanpassingen op de bestaande tracking-flow (na 03 + 03b):
 Geen wijzigingen aan andere systemen.
 
 Voor context:
+
 - `videometen/prompts/03-tracking.md` — undo/redo en tracking-flow
 - `videometen/prompts/01-fundament.md` — drop-zone
 
@@ -23,13 +24,13 @@ De `useUndoRedo`-hook (of de tracking-reducer die 'm gebruikt) moet voor trackin
 
 #### Gewenst gedrag per actie
 
-| Actie | Bij undo: spring naar… | Bij redo: spring naar… |
-|---|---|---|
-| `set-point` (nieuw punt geplaatst) | frame van het verwijderde punt | frame van het opnieuw geplaatste punt |
+| Actie                                     | Bij undo: spring naar…                      | Bij redo: spring naar…                         |
+| ----------------------------------------- | ------------------------------------------- | ---------------------------------------------- |
+| `set-point` (nieuw punt geplaatst)        | frame van het verwijderde punt              | frame van het opnieuw geplaatste punt          |
 | `set-point` met `previous` (overschreven) | frame waar de oude positie weer hersteld is | frame waar de nieuwe positie weer geplaatst is |
-| `remove-point` | frame van het herstelde punt | frame van het opnieuw verwijderde punt |
-| `move-point` | frame van het punt (zowel undo als redo) | frame van het punt |
-| `set-step` (frame-stap gewijzigd) | **geen frame-verandering** | geen frame-verandering |
+| `remove-point`                            | frame van het herstelde punt                | frame van het opnieuw verwijderde punt         |
+| `move-point`                              | frame van het punt (zowel undo als redo)    | frame van het punt                             |
+| `set-step` (frame-stap gewijzigd)         | **geen frame-verandering**                  | geen frame-verandering                         |
 
 Kortom: elke actie die over een specifiek punt gaat, brengt de gebruiker terug naar dat frame. `set-step` is een config-actie en raakt de positie niet aan.
 
@@ -38,10 +39,12 @@ Kortom: elke actie die over een specifiek punt gaat, brengt de gebruiker terug n
 Voorkeurs-aanpak (kies wat past bij de gekozen architectuur uit prompt 03):
 
 **Optie A** — `apply` en `invert` callbacks geven optioneel een `focusFrame` terug:
+
 ```ts
-type ApplyResult = { focusFrame?: number }
-type Apply<TAction> = (action: TAction) => ApplyResult | void
+type ApplyResult = { focusFrame?: number };
+type Apply<TAction> = (action: TAction) => ApplyResult | void;
 ```
+
 `useUndoRedo` roept dan na elke undo/redo de meegegeven `onFocus(frame)` callback aan. Hook blijft daarmee generiek.
 
 **Optie B** — tracking-reducer schrijft direct in de `VideoState` (currentFrame) na elke actie. Houdt de hook puur generiek maar koppelt twee features. Acceptabel als de tracking-feature toch al aan VideoState hangt.

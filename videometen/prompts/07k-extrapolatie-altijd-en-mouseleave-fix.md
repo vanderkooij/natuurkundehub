@@ -11,6 +11,7 @@ Twee dingen na 07j:
 Vermoedelijke oorzaak voor #2: bij mouseleave triggert een hover-state-cleanup (`setHoveredIdx(null)` of vergelijkbaar) een React re-render. Tijdens die re-render bouwt `buildConfig` een nieuwe `cfg.options` met **niceAxis-autozoom-bounds** in `scales.x/y.min/max`. De prop-sync useEffect doet daarna PIN — maar tegen die tijd is `cfg.options` met autozoom-bounds mogelijk al toegepast op de chart. PIN heeft dan niets meer te pinnen.
 
 Voor context:
+
 - `videometen/prompts/07j-wheel-race-en-extrapolatie.md` — `chartOwnsZoomRef`
 - `videometen/prompts/07i-zoom-pin-fix.md` — null-guard PIN
 - `videometen/src/_reusable/InteractiveChart.tsx` — `buildConfig`, prop-sync, mouseleave handler
@@ -36,11 +37,11 @@ Voor context:
 #### Schema-migratie v5 → v6
 
 ```ts
-PROJECT_SCHEMA_VERSION = 6
+PROJECT_SCHEMA_VERSION = 6;
 
 function migrateV5toV6(v5: ProjectV5JSON): ProjectV6JSON {
   // Verwijder showExtrapolation; alles anders ongewijzigd
-  const { showExtrapolation, ...fitConfigZonderField } = v5.ui.fitConfig
+  const { showExtrapolation, ...fitConfigZonderField } = v5.ui.fitConfig;
   return {
     ...v5,
     schemaVersion: 6,
@@ -48,7 +49,7 @@ function migrateV5toV6(v5: ProjectV5JSON): ProjectV6JSON {
       ...v5.ui,
       fitConfig: fitConfigZonderField,
     },
-  }
+  };
 }
 ```
 

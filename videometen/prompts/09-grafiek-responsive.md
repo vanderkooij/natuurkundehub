@@ -12,6 +12,7 @@ Vier wijzigingen:
 4. **Focus-modus voor grafieken** op smalle schermen: optionele toggle die tabel + video compacter maakt zodat grafieken meer ruimte krijgen.
 
 Voor context:
+
 - `videometen/src/features/measurements/GraphPane.tsx` — pane-header met knoppen
 - `videometen/src/features/measurements/Graphs.tsx` — container met layout-logica
 - `videometen/src/features/measurements/GraphsLayoutState.tsx` — pane-state
@@ -55,6 +56,7 @@ De drempel 480 px is een **richtwaarde** — gebruik wat visueel werkt op test (
 #### In overflow bij smal
 
 Verhuizen naar overflow:
+
 - Raaklijn
 - Meten
 - Lijn
@@ -87,12 +89,12 @@ Als 't pragmatisch werkt: bij medium breedte mag een subset al naar overflow (bv
 
 Op basis van **schermbreedte** (window-resize-listener of CSS-media-queries):
 
-| Panes | Brede scherm (≥ 1024 px) | Medium (640-1024 px) | Smal (< 640 px) |
-|---|---|---|---|
-| 1 | full width | full width | full width |
-| 2 | naast elkaar (1×2) | naast elkaar (1×2) | onder elkaar (2×1) |
-| 3 | naast elkaar (1×3) | 2-naast + 1-onder | onder elkaar (3×1) |
-| 4 | 2×2 grid | 2×2 grid | onder elkaar (4×1) |
+| Panes | Brede scherm (≥ 1024 px) | Medium (640-1024 px) | Smal (< 640 px)    |
+| ----- | ------------------------ | -------------------- | ------------------ |
+| 1     | full width               | full width           | full width         |
+| 2     | naast elkaar (1×2)       | naast elkaar (1×2)   | onder elkaar (2×1) |
+| 3     | naast elkaar (1×3)       | 2-naast + 1-onder    | onder elkaar (3×1) |
+| 4     | 2×2 grid                 | 2×2 grid             | onder elkaar (4×1) |
 
 Drempelwaardes zijn richtwaardes — laat Claude Code valideren op gebruikelijke device-breedtes (1366 px laptop, 1280 px iPad landscape, etc.) en eventueel finetunen.
 

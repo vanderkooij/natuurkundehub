@@ -12,6 +12,7 @@ Patch-prompt na 05d. Zes verbeteringen op basis van gebruik:
 6. **Raaklijn-formule-positie** zweeft soms te ver van de lijn — strenger op de raaklijn plakken
 
 Voor context:
+
 - `videometen/prompts/05-grafieken-reusable.md`, `05b`, `05c`, `05d`
 - `videometen/src/_reusable/InteractiveChart.tsx`
 - `videometen/src/_reusable/chart-plugins/tangent.ts`, `measureLines.ts`
@@ -37,6 +38,7 @@ Het menu kan in een latere prompt uitgebreid worden met andere top-level acties 
 #### Gedrag
 
 **Alle metingen wissen:**
+
 - Vraagt confirm via een lichte dialog: "Weet je het zeker? Alle {N} metingen worden gewist." met "Annuleren" en "Wissen"-knoppen
 - Actie: `TrackingState.points = []`
 - **Undoable**: voeg de bulk-remove als één action toe aan de undo-stack (`{ kind: 'bulk-remove', points: [...alle] }`), zodat één Ctrl+Z alles terugbrengt
@@ -45,6 +47,7 @@ Het menu kan in een latere prompt uitgebreid worden met andere top-level acties 
 - Kalibratie, trim, fps blijven onaangetast
 
 **Begin opnieuw met deze video:**
+
 - Vraagt confirm via een sterker dialog: "Weet je zeker dat je opnieuw wil beginnen? Je verliest je kalibratie, trim én alle metingen. De video blijft geladen." met "Annuleren" (default) en "Reset" (rood/destructive)
 - Actie: reset `CalibrationState` (scale=null, axes terug naar default), `TrimState` (full range), `TrackingState` (points=[]), `GraphsLayoutState` (terug naar default twee panes), `TrackingState.frameStep` (terug naar 5)
 - **Niet undoable** — te grote reset, dialog dekt confirmation

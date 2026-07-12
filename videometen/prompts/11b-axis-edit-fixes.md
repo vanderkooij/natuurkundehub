@@ -9,6 +9,7 @@ Drie fixes na 11:
 3. **Tooltip-kleur in dark mode niet overal consistent** — sommige tooltips hebben de gefixte (donkere) achtergrond, andere niet. Vermoedelijk een mix van shadcn `TooltipContent` en custom/native tooltips.
 
 Voor context:
+
 - `videometen/src/features/calibration/InstructionOverlay.tsx` — hint-balk (uit 11)
 - `videometen/src/features/calibration/AxisDirectionControls.tsx` — swap-knoppen (uit 11)
 - `videometen/src/features/calibration/CalibrationState.tsx` — mode-state + axis-edit transities
@@ -54,11 +55,11 @@ In `AxesOverlay.tsx`, bij de drag-handlers voor `origin-handle` en `rotation-han
 
 ```ts
 const handlePointerDown = (e: PointerEvent) => {
-  if (calibrationMode !== 'axis-edit-by-angle' && calibrationMode !== 'origin-edit') {
-    enterAxisEditMode()  // dispatch SET_MODE actie
+  if (calibrationMode !== "axis-edit-by-angle" && calibrationMode !== "origin-edit") {
+    enterAxisEditMode(); // dispatch SET_MODE actie
   }
   // ... bestaande drag-logica
-}
+};
 ```
 
 Effect: zodra leerling de origin of rotation-handle aanraakt → mode wordt `axis-edit-by-angle` → `InstructionOverlay` + `AxisDirectionControls` verschijnen automatisch.
@@ -72,11 +73,11 @@ In `WorkflowBar.tsx`, of waar de stap-klik wordt afgehandeld:
 ```ts
 const handleStepClick = (stepIndex: number) => {
   // Exit axis-edit als de gebruiker naar een andere stap navigeert
-  if (calibrationMode === 'axis-edit-by-angle' || calibrationMode === 'origin-edit') {
-    exitAxisEditMode()  // dispatch SET_MODE -> 'idle'
+  if (calibrationMode === "axis-edit-by-angle" || calibrationMode === "origin-edit") {
+    exitAxisEditMode(); // dispatch SET_MODE -> 'idle'
   }
   // ... bestaande stap-navigatie-logica
-}
+};
 ```
 
 Bij klik op stap 4 (Schaal) zou de scale-edit modus dan worden geactiveerd via de bestaande logica.
@@ -102,6 +103,7 @@ Klik op stap 5 (Assen) zou nog steeds axis-edit-modus aanzetten (huidig gedrag).
 #### Fix
 
 Identificeer welke tooltips de "verkeerde" kleur tonen en breng ze in lijn met de shadcn TooltipContent (uit 11):
+
 - Native `title=""` → vervangen door shadcn `<Tooltip>` waar nuttig
 - Custom inline → vervangen door shadcn variant
 - Overrides die de fix breken → weghalen
@@ -115,6 +117,7 @@ Bonus-check: HelpPanel zit in `ModalPanel` (niet `Tooltip`) — niet meenemen.
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Documenteer welke calibration-modes bestaan (`idle`, `axis-edit-by-angle`, `origin-edit`, `scale-edit`?) en hoe ze in elkaar overgaan
 - Bekijk of de `exitAxisEditMode`-route ook bij andere triggers nodig is (project-load, etc.)
 - Lijst gevonden tooltips + welke type ze hadden

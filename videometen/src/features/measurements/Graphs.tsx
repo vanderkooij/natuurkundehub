@@ -390,9 +390,7 @@ function ScrollableGrid({
             // 3 panes in 2 kolommen → derde pane over de volle breedte (2+1),
             // consistent met de medium auto-layout.
             style={
-              panes.length === 3 && cols === 2 && i === 2
-                ? { gridColumn: "1 / -1" }
-                : undefined
+              panes.length === 3 && cols === 2 && i === 2 ? { gridColumn: "1 / -1" } : undefined
             }
           >
             {renderPane(p)}

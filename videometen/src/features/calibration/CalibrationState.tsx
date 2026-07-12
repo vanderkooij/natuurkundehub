@@ -146,8 +146,7 @@ function reducer(state: CalibrationState, action: Action): CalibrationState {
       // 08: het BETREDEN van een assen-edit-modus telt als bewuste aanraking
       // van stap 5 (`axesTouched`). Zo wordt stap 5 "done" zodra de leerling
       // de assen-fase opent, en gaat Start tracking pas open na die fase.
-      const touchedAxes =
-        action.mode === "axis-edit-by-angle" || action.mode === "origin-edit";
+      const touchedAxes = action.mode === "axis-edit-by-angle" || action.mode === "origin-edit";
       return {
         ...state,
         mode: action.mode,
@@ -346,12 +345,9 @@ export function CalibrationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "RESET_FOR_VIDEO", width: w, height: h });
   }, [video]);
 
-  const loadFromProject = useCallback(
-    (scale: ScaleCalibration | null, axes: AxisCalibration) => {
-      dispatch({ type: "LOAD_FROM_PROJECT", scale, axes });
-    },
-    [],
-  );
+  const loadFromProject = useCallback((scale: ScaleCalibration | null, axes: AxisCalibration) => {
+    dispatch({ type: "LOAD_FROM_PROJECT", scale, axes });
+  }, []);
 
   const value = useMemo<CalibrationContextValue>(
     () => ({

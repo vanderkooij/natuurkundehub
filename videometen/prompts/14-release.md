@@ -14,6 +14,7 @@ Vier stappen:
 Plus een korte QA-checklist voor finale verificatie vóór commit.
 
 Voor context (huidige bestanden bekeken):
+
 - `.gitignore`: `videometen/` staat onder "Tools waar nog aan gewerkt wordt"
 - `build.sh`: heeft pattern voor CircuitSketch (Vite-app via npm build + kopie naar dist)
 - `index.html`: tools-grid heeft 5 tools (Overhoor / CircuitSketch / Modelleren / Formules omschrijven / Significantie) en een "Binnenkort meer..."-placeholder
@@ -61,15 +62,27 @@ In de `tools-grid`-sectie, voeg een nieuwe `<a class="tool-card">` toe **na Sign
 ```html
 <a href="/videometen" class="tool-card">
   <div class="tool-icon tool-icon--purple">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="6" width="20" height="14" rx="2"/>
-      <polygon points="10 10 16 13 10 16 10 10" fill="#8b5cf6" stroke="none"/>
-      <line x1="2" y1="9" x2="22" y2="9"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#8b5cf6"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <rect x="2" y="6" width="20" height="14" rx="2" />
+      <polygon points="10 10 16 13 10 16 10 10" fill="#8b5cf6" stroke="none" />
+      <line x1="2" y1="9" x2="22" y2="9" />
     </svg>
   </div>
   <span class="tool-arrow">→</span>
   <h3>Videometen</h3>
-  <p>Analyseer bewegingen in video's. Track, kalibreer, plot grafieken en fit modellen — drempelloos in je browser.</p>
+  <p>
+    Analyseer bewegingen in video's. Track, kalibreer, plot grafieken en fit modellen — drempelloos
+    in je browser.
+  </p>
   <span class="tool-tag">meten</span>
 </a>
 ```
@@ -133,6 +146,7 @@ Vóór `git add . && git commit && git push`: doorloop deze checklist één keer
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Check of `videometen/vite.config.ts` correct base-path heeft (`/videometen/`)
 - Bekijk of er nog development-only code is (debug-flags, commented-out console.logs uit eerdere prompts)
 - Documenteer in rapport

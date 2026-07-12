@@ -10,6 +10,7 @@ Twee specifieke bugs in de video-laden flow die uit gebruik naar voren komen:
 **Aanpak**: code-trace door de hele video-laden flow vóór er ook maar een fix wordt toegepast. Geen gokken meer — eerst meten waar het breekt, dan gerichte fix. Bij twijfel: tijdelijke logs + Jop's output.
 
 Voor context:
+
 - `videometen/prompts/01-fundament.md` — video-upload + fps-detectie spec
 - `videometen/src/features/video/VideoUpload.tsx` (of vergelijkbaar) — file-picker → URL.createObjectURL
 - `videometen/src/features/video/VideoPane.tsx` — `<video>`-element + overlay

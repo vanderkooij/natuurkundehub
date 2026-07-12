@@ -13,6 +13,7 @@ Vervolg na 07f. Vijf dingen, in lijn met de hygiëne-afspraak (minder is meer �
 Hygiëne-afspraak blijft van kracht: actief checken of we naar clean code toewerken. Tijdens uitvoer kort rondkijken naar dood-code of stale state na de exp-verwijdering.
 
 Voor context:
+
 - `videometen/prompts/07f-bugs-en-kleur.md` — laatste opruim-ronde
 - `videometen/src/features/fit/fit.ts` — `FitType`, fit-functies
 - `videometen/src/features/fit/exponentialFit.ts` (of waar `fitExponential` zit) — wordt verwijderd
@@ -39,11 +40,11 @@ In `FitConfig`:
 
 ```ts
 type FitConfig = {
-  xFit: FitType
-  yFit: FitType
-  range: FitRange
-  showExtrapolation: boolean  // NIEUW, default false
-}
+  xFit: FitType;
+  yFit: FitType;
+  range: FitRange;
+  showExtrapolation: boolean; // NIEUW, default false
+};
 ```
 
 Reset bij nieuwe video. Persisteert in project-JSON (zie tweak 4: schema bump).
@@ -59,6 +60,7 @@ Onderaan de popover, na de fit-range sectie:
 ```
 
 Checkbox met korte uitleg eronder (gedimd, kleinere tekst):
+
 > "Laat de fit-curve doorlopen voorbij je laatste meetpunt. Handig om voorspellingen te visualiseren."
 
 #### Effect
@@ -105,6 +107,7 @@ Check in `niceAxis` en in de y-bounds-bepaling van `InteractiveChart` of `GraphP
 #### Fix
 
 Autozoom van een afgeleide-pane moet de bounds bepalen op basis van:
+
 - Alle scatter-punten (ruwe central-difference waardes)
 - Plus eventueel de fit-curve binnen de **data**-range (niet binnen extrapolatie — anders rekt 'ie de y-as kapot)
 
@@ -115,6 +118,7 @@ Geen fit-extrapolatie meenemen in autozoom. Dat blijft een toggle, niet een drij
 #### Code-verwijdering
 
 Verwijder uit `fit.ts` (of waar 't woont):
+
 - `Fit1DExponential` type
 - `fitExponential` functie
 - `evalExpFit`, `evalExpDerivative`, `evalExpSecondDerivative`
@@ -132,6 +136,7 @@ In de fit-popover (`Graphs.tsx`): radio-optie "exponentieel" weg uit beide kolom
 `PROJECT_SCHEMA_VERSION = 5` in `projectSchema.ts`.
 
 `migrateV4toV5`:
+
 - Als `ui.fitConfig.xFit === 'exponential'`: vervang door `'none'`
 - Als `ui.fitConfig.yFit === 'exponential'`: vervang door `'none'`
 - Voeg `ui.fitConfig.showExtrapolation: false` toe (default, van tweak 1)

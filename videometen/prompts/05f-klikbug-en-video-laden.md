@@ -8,6 +8,7 @@ Patch-prompt na 05e. Twee dingen:
 2. **"Andere video laden" zonder browser-refresh** ontbreekt — gebruiker moet nu F5 om opnieuw te beginnen met een andere video.
 
 Voor context:
+
 - `videometen/prompts/05c-grafiek-feedback.md` (eerste fix-poging — `activeEls` met `intersect: false`)
 - `videometen/prompts/05e-reset-en-bugfixes.md` (tweede fix-poging — `pointHitRadius: 12`, manuele fallback in `onClick`)
 - `videometen/src/_reusable/InteractiveChart.tsx`
@@ -30,28 +31,28 @@ Plaats tijdelijke `console.log`-statements op deze zes meetpunten in `Interactiv
 ```ts
 // 1. In InteractiveChart.tsx, binnen de chart-options onClick handler:
 onClick: (event, activeEls, chart) => {
-  console.log('[CHART CLICK] activeEls:', activeEls, 'native:', event.native)
+  console.log("[CHART CLICK] activeEls:", activeEls, "native:", event.native);
   // ... bestaande logica
-}
+};
 
 // 2. Direct voor de activeEls-filter:
-console.log('[CHART CLICK] series-hits na filter:', seriesHits)
+console.log("[CHART CLICK] series-hits na filter:", seriesHits);
 
 // 3. Direct na de manuele fallback (uit 05e):
-console.log('[CHART CLICK] fallback-nearest:', fallbackHit)
+console.log("[CHART CLICK] fallback-nearest:", fallbackHit);
 
 // 4. Direct voor onPointClick-aanroep:
-console.log('[CHART CLICK] calling onPointClick:', seriesIdx, pointIdx, point)
+console.log("[CHART CLICK] calling onPointClick:", seriesIdx, pointIdx, point);
 
 // 5. In GraphPane.tsx, in de onPointClick-handler die InteractiveChart aanroept:
 const handlePointClick = (seriesIdx, pointIdx, point) => {
-  console.log('[PANE CLICK] received:', { seriesIdx, pointIdx, point, meta: point.meta })
+  console.log("[PANE CLICK] received:", { seriesIdx, pointIdx, point, meta: point.meta });
   // ... bestaande logica die setFrame aanroept
-}
+};
 
 // 6. In de setFrame-aanroep:
-console.log('[PANE CLICK] calling setFrame:', point.meta.frame)
-setFrame(point.meta.frame)
+console.log("[PANE CLICK] calling setFrame:", point.meta.frame);
+setFrame(point.meta.frame);
 ```
 
 Bouw, open de app, klik op een grafiek-dot, en bekijk de console-output. Dit vertelt **waar** de event-keten breekt:
@@ -81,6 +82,7 @@ De fallback-loop in `onClick` ("scan alle series-datasets op pixel-afstand"). Mo
 **Pas één gerichte fix toe op basis van wat de logs aantonen.** Documenteer de root cause in een comment boven de relevante code. Verwijder de tijdelijke console.logs als de fix werkt.
 
 **Verifieer expliciet:**
+
 - Klik op binnen-trim dot in Verken-modus
 - Klik op binnen-trim dot in Analyseren-modus
 - Klik op gedimde (buiten-trim) dot

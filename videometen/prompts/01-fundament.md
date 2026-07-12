@@ -66,15 +66,15 @@ In deze fase zijn stappen 1, 2 en 3 functioneel. Stappen 4, 5 en 6 zijn placehol
 
 Uiterst rechts: oranje knop **"▶ Start tracking"** — in deze fase disabled (komt in latere prompt).
 
-De stappen geven met visuele state aan: *te doen*, *bezig*, *afgerond*. In deze fase staan ze allemaal als "te doen" / standaard, omdat we het workflow-traject zelf nog niet sturen.
+De stappen geven met visuele state aan: _te doen_, _bezig_, _afgerond_. In deze fase staan ze allemaal als "te doen" / standaard, omdat we het workflow-traject zelf nog niet sturen.
 
 ### 5. Drie-paneel-layout
 
 Met `react-resizable-panels`:
 
 - **Links**: video-paneel (alle inhoud uit punten 6-9 hieronder)
-- **Rechtsboven**: tabel-paneel — voor nu een placeholder met dimmed tekst *"Tabel verschijnt zodra je een punt hebt getrackt"*
-- **Rechtsonder**: grafieken-paneel — placeholder *"Grafieken verschijnen zodra je metingen hebt"*
+- **Rechtsboven**: tabel-paneel — voor nu een placeholder met dimmed tekst _"Tabel verschijnt zodra je een punt hebt getrackt"_
+- **Rechtsonder**: grafieken-paneel — placeholder _"Grafieken verschijnen zodra je metingen hebt"_
 
 Verhoudingen: video ~55%, tabel ~22%, grafieken ~22% (overige 1% gap). Gebruiker kan ze met de handles aanpassen.
 
@@ -148,11 +148,11 @@ Conform `videometen/PLAN.md` (sectie Hergebruik-markering): componenten met univ
 
 Kandidaten in deze fase:
 
-| Component | Categorie | Beschrijving |
-|---|---|---|
-| `AppHeader` | layout | NatuurkundeHub-header met logo, breadcrumb, tool-naam slot, theme-toggle |
-| `useNhTheme` | ui | hook + provider voor `nh-theme` localStorage (light/dark) |
-| `ThreePaneLayout` | layout | 3-paneel-grid met react-resizable-panels + standaard pane-styling |
+| Component         | Categorie | Beschrijving                                                             |
+| ----------------- | --------- | ------------------------------------------------------------------------ |
+| `AppHeader`       | layout    | NatuurkundeHub-header met logo, breadcrumb, tool-naam slot, theme-toggle |
+| `useNhTheme`      | ui        | hook + provider voor `nh-theme` localStorage (light/dark)                |
+| `ThreePaneLayout` | layout    | 3-paneel-grid met react-resizable-panels + standaard pane-styling        |
 
 Maak ook een `videometen/SHARED.md` aan met een tabel waarin deze componenten staan, plus kolommen voor "kandidaat-tools" en "extractie-status". Voor nu zijn alle entries `kandidaat — wacht op tweede gebruiker`.
 

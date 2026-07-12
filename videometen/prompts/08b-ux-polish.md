@@ -12,6 +12,7 @@ Vier kleine UX-fixes na 08, op basis van feedback uit gebruik:
 Echte assen-stap herontwerp (sleep-oorsprong-hint, richting-beweging-toggle, hoek-input weg) komt in **10** — uitgebreid met richting-keuze in zowel horizontale **als** verticale richting.
 
 Voor context:
+
 - `videometen/prompts/08-werkbalk-en-startlayout.md` — vorige polish-ronde
 - `videometen/src/_reusable/AppHeader.tsx` — header-buttons groep-card
 - `videometen/src/features/app/ThreePaneLayout.tsx` / `App.tsx` Analyseren-layout — `react-resizable-panels` met `PanelResizeHandle`
@@ -57,6 +58,7 @@ Op het midden van elke verdeler: een visuele indicator van **stippeltjes** of ee
 - Of: een groep van 6 dots in een 2×3-patroon (klassieke "grip" handle)
 
 Stijl:
+
 - Dot-kleur: gedimd grijs (`var(--text-muted)` of vergelijkbaar)
 - Bij hover op de verdeler: dots worden iets donkerder + de verdeler-strepen lichten op met accent-kleur
 - Dot-grootte: ~3px met 2px gap
@@ -85,11 +87,11 @@ In `App.tsx` of een toast-coordinator-effect:
 
 ```ts
 useEffect(() => {
-  if (points.length >= 2 && mode === 'verken' && !analyseHintShown) {
-    showToast('Klaar met meten? Klik op **Analyseren** om je grafiek te zien.')
-    setAnalyseHintShown(true)
+  if (points.length >= 2 && mode === "verken" && !analyseHintShown) {
+    showToast("Klaar met meten? Klik op **Analyseren** om je grafiek te zien.");
+    setAnalyseHintShown(true);
   }
-}, [points.length, mode, analyseHintShown])
+}, [points.length, mode, analyseHintShown]);
 ```
 
 ### Tweak 4 — "Assen kantelen" → "Assenstelsel instellen"

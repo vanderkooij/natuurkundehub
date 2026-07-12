@@ -11,6 +11,7 @@ Korte patch-prompt na 03 (tracking) op basis van eerste-gebruik feedback. Drie v
 Geen nieuwe features buiten dit, geen wijzigingen aan kalibratie of tabel/grafieken.
 
 Voor context:
+
 - `videometen/prompts/03-tracking.md` — basis-implementatie
 - `videometen/PLAN.md` — algemene spec
 
@@ -73,22 +74,34 @@ Doel: dezelfde trail leesbaar op donkere én lichte videoachtergronden, snel te 
 
 Vier presets:
 
-| Naam | Dot-fill | Actieve-ring | Stippellijn |
-|---|---|---|---|
-| `teal` (default) | `#0d9488` | `#ffffff` | `#0d9488` (opacity 0.6) |
-| `amber` | `#f59e0b` | `#ffffff` | `#f59e0b` (opacity 0.6) |
-| `magenta` | `#d946ef` | `#ffffff` | `#d946ef` (opacity 0.6) |
-| `white` | `#ffffff` | `#0f1117` | `#ffffff` (opacity 0.7) |
+| Naam             | Dot-fill  | Actieve-ring | Stippellijn             |
+| ---------------- | --------- | ------------ | ----------------------- |
+| `teal` (default) | `#0d9488` | `#ffffff`    | `#0d9488` (opacity 0.6) |
+| `amber`          | `#f59e0b` | `#ffffff`    | `#f59e0b` (opacity 0.6) |
+| `magenta`        | `#d946ef` | `#ffffff`    | `#d946ef` (opacity 0.6) |
+| `white`          | `#ffffff` | `#0f1117`    | `#ffffff` (opacity 0.7) |
 
 De actieve-ring is bewust contrast-kleur (donker bij `white`, anders wit) zodat de actieve dot altijd herkenbaar blijft.
 
 Gebruik CSS-variabelen aangestuurd via een `data-trail-color="teal|amber|magenta|white"` op `<html>` of de tracking-overlay-container, zodat één plek de kleuren bepaalt:
 
 ```css
-[data-trail-color="teal"]   { --trail-dot: #0d9488; --trail-ring: #fff; }
-[data-trail-color="amber"]  { --trail-dot: #f59e0b; --trail-ring: #fff; }
-[data-trail-color="magenta"]{ --trail-dot: #d946ef; --trail-ring: #fff; }
-[data-trail-color="white"]  { --trail-dot: #fff;    --trail-ring: #0f1117; }
+[data-trail-color="teal"] {
+  --trail-dot: #0d9488;
+  --trail-ring: #fff;
+}
+[data-trail-color="amber"] {
+  --trail-dot: #f59e0b;
+  --trail-ring: #fff;
+}
+[data-trail-color="magenta"] {
+  --trail-dot: #d946ef;
+  --trail-ring: #fff;
+}
+[data-trail-color="white"] {
+  --trail-dot: #fff;
+  --trail-ring: #0f1117;
+}
 ```
 
 #### Cycle-knop

@@ -5,6 +5,7 @@
 Vervolg na de 05-reeks. De tool is functioneel compleet voor analyse — nu komen de "afmaak"-features: project opslaan en laden, data exporteren naar CSV/PNG voor verder gebruik, en een help-paneel dat leerlingen wegwijs maakt. Plus drie defensies tegen de fps-shift-bug die tijdens gebruik opdook (oorzaak niet reproduceerbaar — defensief oplossen).
 
 Voor context:
+
 - `videometen/PLAN.md` — algemene spec
 - Bestaande tools `circuitsketch/` en `modelleren/` voor stijl van help-paneel (accordion-stijl)
 - `videometen/src/_reusable/ToolMenu.tsx` — bestaande overflow-menu uit 05e/05f
@@ -41,56 +42,57 @@ Voor context:
 Nieuw bestand `src/features/project/projectSchema.ts`:
 
 ```ts
-export const PROJECT_SCHEMA_VERSION = 1
+export const PROJECT_SCHEMA_VERSION = 1;
 
 export type ProjectJSON = {
-  schemaVersion: 1
+  schemaVersion: 1;
   meta: {
-    toolName: 'videometen'
-    toolVersion: string  // uit package.json
-    savedAt: string      // ISO timestamp
-    videoFileName: string | null  // referentie, niet de video zelf
-  }
+    toolName: "videometen";
+    toolVersion: string; // uit package.json
+    savedAt: string; // ISO timestamp
+    videoFileName: string | null; // referentie, niet de video zelf
+  };
   video: {
-    fps: number
-    lastFrame: number
-    trim: { start: number; end: number }
-  }
+    fps: number;
+    lastFrame: number;
+    trim: { start: number; end: number };
+  };
   calibration: {
-    scale: { p1: Pixel; p2: Pixel; length: number; unit: 'm' | 'cm' | 'mm' } | null
-    axes: { origin: Pixel; angle: number }
-  }
+    scale: { p1: Pixel; p2: Pixel; length: number; unit: "m" | "cm" | "mm" } | null;
+    axes: { origin: Pixel; angle: number };
+  };
   tracking: {
-    points: TrackedPoint[]   // alle pixel-data
-    frameStep: number
-  }
+    points: TrackedPoint[]; // alle pixel-data
+    frameStep: number;
+  };
   ui: {
-    mode: 'verken' | 'analyseren'  // tracken niet — exit naar verken bij save
-    trailColor: 'teal' | 'amber' | 'magenta' | 'white'
+    mode: "verken" | "analyseren"; // tracken niet — exit naar verken bij save
+    trailColor: "teal" | "amber" | "magenta" | "white";
     graphs: {
       panes: Array<{
-        type: GraphTypeKey
-        showLine: boolean
-        zoom: { xMin: number; xMax: number; yMin: number; yMax: number } | null
-        tangentActive: boolean
-        measureActive: boolean
-        measureX1: number | null
-        measureX2: number | null
-      }>
-      syncXZoom: boolean
-    }
-  }
-}
+        type: GraphTypeKey;
+        showLine: boolean;
+        zoom: { xMin: number; xMax: number; yMin: number; yMax: number } | null;
+        tangentActive: boolean;
+        measureActive: boolean;
+        measureX1: number | null;
+        measureX2: number | null;
+      }>;
+      syncXZoom: boolean;
+    };
+  };
+};
 ```
 
 Helper-functies:
 
 ```ts
-export function serializeProject(state: AllAppState): ProjectJSON
-export function deserializeProject(json: unknown): ProjectJSON  // throws op invalid
+export function serializeProject(state: AllAppState): ProjectJSON;
+export function deserializeProject(json: unknown): ProjectJSON; // throws op invalid
 ```
 
 `deserializeProject` valideert:
+
 - `schemaVersion === 1` (anders error met duidelijke melding "Onbekende projectversie X. Update de tool.")
 - Bestaan van alle required fields
 - Type-checks waar mogelijk
@@ -183,7 +185,7 @@ Zeven secties, in deze volgorde:
 
 4. **Analyseren** — Tabel, grafieken, raaklijn, meten-lijnen, zoom, modi (Verken vs Analyseren). Hoe je tussen meetpunten navigeert met pijltjes (over grafiek of video).
 
-5. **Sync-problemen?** — *Belangrijk: nieuw t.b.v. fps-bug.* Uitleg: "De fps (frames per seconde) is het ankerpunt tussen tijd en video. Als de fps niet klopt, lopen je metingen uit de pas met de video. Als het object niet bij je meetpunten lijkt te staan: check de fps-chip rechtsboven in de video. Klik erop om te corrigeren. Bij twijfel: probeer 30 of 60 — de meest voorkomende waardes."
+5. **Sync-problemen?** — _Belangrijk: nieuw t.b.v. fps-bug._ Uitleg: "De fps (frames per seconde) is het ankerpunt tussen tijd en video. Als de fps niet klopt, lopen je metingen uit de pas met de video. Als het object niet bij je meetpunten lijkt te staan: check de fps-chip rechtsboven in de video. Klik erop om te corrigeren. Bij twijfel: probeer 30 of 60 — de meest voorkomende waardes."
 
 6. **Frames vs meetpunten** — Concept-uitleg met voorbeeld: "Een video van 10 seconden bij 30 fps heeft 300 frames. Met frame-step 5 zet je tijdens tracking dus 60 meetpunten — niet 300. De rest van de video zit ertussen maar zonder meting."
 
@@ -238,6 +240,7 @@ Andere video laden...
 ```
 
 Disabled-state per item:
+
 - Save / CSV / Wissen / Begin opnieuw / Andere video: bij geen video
 - CSV / Wissen: ook bij 0 metingen
 - Open: nooit disabled (kan vanuit lege state)
@@ -246,11 +249,11 @@ Disabled-state per item:
 
 ## Hergebruik-markering
 
-| Kandidaat | Categorie | Beslissing |
-|---|---|---|
-| `serializeProject` / `deserializeProject` | data | **Niet markeren** — schema is tool-specifiek |
-| `HelpPanel` (modal-overlay-structuur) | ui | **Wel markeren** als `ModalPanel` met slot-content. Generiek bruikbaar in andere NH-tools die een help/info-modal willen. |
-| CSV-helpers (escape, format) | data | **Wel markeren** als `formatCsvNL` of `csvNL.ts` — Excel-NL formatting is generiek |
+| Kandidaat                                 | Categorie | Beslissing                                                                                                                |
+| ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `serializeProject` / `deserializeProject` | data      | **Niet markeren** — schema is tool-specifiek                                                                              |
+| `HelpPanel` (modal-overlay-structuur)     | ui        | **Wel markeren** als `ModalPanel` met slot-content. Generiek bruikbaar in andere NH-tools die een help/info-modal willen. |
+| CSV-helpers (escape, format)              | data      | **Wel markeren** als `formatCsvNL` of `csvNL.ts` — Excel-NL formatting is generiek                                        |
 
 `HelpPanel` zelf is tool-specifiek (zeven sectie-teksten), maar de **modal-structuur** abstraheren naar `_reusable/ModalPanel.tsx` met props `{ title, isOpen, onClose, children }`. `HelpPanel` wordt dan een dunne wrapper die de inhoud aanlevert.
 

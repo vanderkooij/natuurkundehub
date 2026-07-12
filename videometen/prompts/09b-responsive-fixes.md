@@ -9,6 +9,7 @@ Drie verfijningen na 09:
 3. **Confirmation-dialog onzichtbaar op smal scherm.** Bij mobiele weergave / sterk versmald viewport: dialog wordt afgesneden of overlapt verkeerd. Zichtbaarheid fixen via viewport-aware sizing.
 
 Voor context:
+
 - `videometen/prompts/09-grafiek-responsive.md` — basis-implementatie
 - `videometen/src/features/measurements/GraphPane.tsx` — `ResizeObserver` + `compactToolbar` drempel
 - `videometen/src/features/measurements/Graphs.tsx` — focus-mode toggle + container
@@ -29,14 +30,14 @@ Twee opties — kies wat het meest robuust werkt:
 In `GraphPane.tsx`:
 
 ```ts
-const inlineToolbarRef = useRef<HTMLDivElement | null>(null)
-const [naturalInlineWidth, setNaturalInlineWidth] = useState<number | null>(null)
+const inlineToolbarRef = useRef<HTMLDivElement | null>(null);
+const [naturalInlineWidth, setNaturalInlineWidth] = useState<number | null>(null);
 
 // Bij eerste render meten: render de toolbar tijdelijk in volledige inline-modus,
 // meet de scrollWidth, sla op als drempel.
 // useEffect met empty deps + tijdelijke render via useState.
 
-const compactToolbar = naturalInlineWidth !== null && paneWidth < naturalInlineWidth + 24
+const compactToolbar = naturalInlineWidth !== null && paneWidth < naturalInlineWidth + 24;
 //                                                                    ^ kleine buffer voor padding/marges
 ```
 
@@ -47,7 +48,7 @@ Edge-case: de "natuurlijke" breedte meten vraagt om een renderpass waar de toolb
 #### Optie B (eenvoudig): hogere statische drempel
 
 ```ts
-const compactToolbar = paneWidth < 600  // was 480
+const compactToolbar = paneWidth < 600; // was 480
 ```
 
 Werkt voor de huidige knop-set. Bij toevoegen/verwijderen knoppen moet de drempel later bijgesteld worden.
@@ -71,7 +72,7 @@ In de Graphs-container-header:
 
 - Label **"Verberg"** in plaats van "Vergroten"
 - Icoon: bijvoorbeeld `EyeOff` (Lucide) bij `graphsFocusMode === false`, `Eye` of `Maximize2` bij `graphsFocusMode === true`
-- Tooltip: 
+- Tooltip:
   - Wanneer uit: "Verberg tabel en video om grafieken volledig in beeld te krijgen"
   - Wanneer aan: "Toon tabel en video weer"
 
@@ -112,6 +113,7 @@ We bouwen geen mobile-versie van de tool. Dit is alleen dialog-fix zodat 'm op s
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Bekijk of er andere modalen / dialogs zijn met hetzelfde z-index of overflow-probleem (Fit-popover, axis-edit-modal als die nog bestaat, etc.)
 - Documenteer in rapport welke modalen gevonden + gefixt
 

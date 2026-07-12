@@ -10,11 +10,13 @@ Vier dingen in één prompt:
 4. **`+y` richting-toggle** — swap-knop voor de positieve y-richting (omhoog ↔ omlaag). Default omhoog.
 
 Akkoord van Jop:
+
 - Plaatsing toggles: in de video-pane bij de assen, alleen zichtbaar wanneer assen-stap actief
 - Defaults: `+x` rechts, `+y` omhoog
 - Effect op bestaande metingen: x/y in tabel + grafieken herberekenen via `pixelToWorld` zonder pixel-data aan te raken
 
 Voor context:
+
 - `videometen/src/_reusable/Tooltip.tsx` of `videometen/src/components/ui/tooltip.tsx` — shadcn tooltip styling
 - `videometen/src/features/calibration/CalibrationState.tsx` — axes-state
 - `videometen/src/features/calibration/overlays/AxesOverlay.tsx` — visuele assen-weergave
@@ -55,11 +57,11 @@ In `CalibrationState`, uitbreiding van `axes`:
 
 ```ts
 type Axes = {
-  origin: Pixel
-  angle: number
-  xPositiveDirection: 'right' | 'left'  // NIEUW, default 'right'
-  yPositiveDirection: 'up' | 'down'     // NIEUW, default 'up'
-}
+  origin: Pixel;
+  angle: number;
+  xPositiveDirection: "right" | "left"; // NIEUW, default 'right'
+  yPositiveDirection: "up" | "down"; // NIEUW, default 'up'
+};
 ```
 
 Reset bij: nieuwe video / Begin opnieuw / Andere video laden (richtingen terug naar defaults). Project-load forceert opgeslagen waardes.
@@ -69,12 +71,14 @@ Reset bij: nieuwe video / Begin opnieuw / Andere video laden (richtingen terug n
 Wanneer assen-stap actief (= `axesTouched === false` OF `mode === 'axis-edit-by-angle'`): twee knoppen verschijnen in de video-pane overlay, dichtbij de assen-overlay (bv. rechtsboven of net buiten de chart-area):
 
 **Knop A (+x richting)**:
+
 - Toont **"+x →"** wanneer `xPositiveDirection === 'right'`
 - Toont **"+x ←"** wanneer `xPositiveDirection === 'left'`
 - Klik flipt de waarde
 - Hover-tooltip: "Klik om de positieve x-richting te wisselen"
 
 **Knop B (+y richting)**:
+
 - Toont **"+y ↑"** wanneer `yPositiveDirection === 'up'`
 - Toont **"+y ↓"** wanneer `yPositiveDirection === 'down'`
 - Klik flipt de waarde
@@ -89,11 +93,11 @@ In `coords.ts`:
 ```ts
 function pixelToWorld(p: Pixel, cal: CalibrationState): WorldPoint {
   // ... bestaande logica (translate, flip-y, rotate, scale)
-  
+
   // NIEUW: pas richting-signs toe
-  const signX = cal.axes.xPositiveDirection === 'right' ? +1 : -1
-  const signY = cal.axes.yPositiveDirection === 'up' ? +1 : -1
-  return { x: worldX * signX, y: worldY * signY }
+  const signX = cal.axes.xPositiveDirection === "right" ? +1 : -1;
+  const signY = cal.axes.yPositiveDirection === "up" ? +1 : -1;
+  return { x: worldX * signX, y: worldY * signY };
 }
 ```
 
@@ -113,7 +117,7 @@ Visualisatie blijft consistent met de bestaande grid + rotation-handle gedrag.
 ### Tweak 6 — Schema v7 → v8
 
 ```ts
-PROJECT_SCHEMA_VERSION = 8
+PROJECT_SCHEMA_VERSION = 8;
 
 function migrateV7toV8(v7: ProjectV7JSON): ProjectV8JSON {
   return {
@@ -123,11 +127,11 @@ function migrateV7toV8(v7: ProjectV7JSON): ProjectV8JSON {
       ...v7.calibration,
       axes: {
         ...v7.calibration.axes,
-        xPositiveDirection: v7.calibration.axes.xPositiveDirection ?? 'right',
-        yPositiveDirection: v7.calibration.axes.yPositiveDirection ?? 'up',
+        xPositiveDirection: v7.calibration.axes.xPositiveDirection ?? "right",
+        yPositiveDirection: v7.calibration.axes.yPositiveDirection ?? "up",
       },
     },
-  }
+  };
 }
 ```
 
@@ -138,6 +142,7 @@ Dispatcher-keten v1 → ... → v8. Save schrijft v8.
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Bekijk of er op andere plekken een `pixelToWorld`-achtige transformatie zit die ook update moet
 - Check of de tooltip-fix andere tooltips raakt (HelpPanel, fps-chip, etc.)
 - Documenteer in rapport

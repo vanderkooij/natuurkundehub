@@ -61,10 +61,7 @@ export function PaneDivider({
         hidden && "hidden",
       )}
     >
-      <span
-        className={cn("flex gap-[2px]", isVertical ? "flex-col" : "flex-row")}
-        aria-hidden
-      >
+      <span className={cn("flex gap-[2px]", isVertical ? "flex-col" : "flex-row")} aria-hidden>
         {[0, 1, 2, 3].map((i) => (
           <span
             key={i}

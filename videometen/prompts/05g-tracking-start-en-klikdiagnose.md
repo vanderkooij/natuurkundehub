@@ -8,6 +8,7 @@ Patch-prompt na 05f. Twee dingen:
 2. **Klik-bug op grafiek-punt** — drie fix-pogingen (05c, 05e, 05f) hebben 'm niet weggekregen. Tijd om te stoppen met gokken en met live console-output te meten waar de event-keten breekt. **Deze prompt voegt alleen logging toe, geen fix.** Daarna runt Jop het en deelt de console-output; op basis daarvan komt er een definitieve fix in 05h.
 
 Voor context:
+
 - `videometen/prompts/05f-klikbug-en-video-laden.md` — laatste fix-poging met `findNearestSeriesHit`
 - `videometen/src/_reusable/InteractiveChart.tsx` — chart-event handlers
 - `videometen/src/features/measurements/GraphPane.tsx` — `handlePointClick` die `setFrame` aanroept
@@ -22,17 +23,17 @@ Voor context:
 Huidige logica (uit 03):
 
 ```ts
-if (mode === 'analyse' && currentFrame < trimStart) {
-  setFrame(trimStart, { skipSnap: true })
+if (mode === "analyse" && currentFrame < trimStart) {
+  setFrame(trimStart, { skipSnap: true });
 }
-setMode('tracking')
+setMode("tracking");
 ```
 
 Vervang door:
 
 ```ts
-setFrame(trimStart, { skipSnap: true })  // altijd, ongeacht currentFrame
-setMode('tracking')
+setFrame(trimStart, { skipSnap: true }); // altijd, ongeacht currentFrame
+setMode("tracking");
 ```
 
 Reden: tracking is een nieuwe sessie waarin de leerling chronologisch door zijn meet-bereik wil. Vanaf welk frame ze in analyse-modus zaten te kijken is irrelevant.
@@ -50,47 +51,47 @@ Op zes plekken in `onChartEvent` (of waar de chart-event-handlers leven):
 ```ts
 // Direct in onClick:
 onClick: (event, _activeEls, chart) => {
-  const native = event.native as PointerEvent | undefined
-  console.log('[VM/CHART] onClick fired', {
+  const native = event.native as PointerEvent | undefined;
+  console.log("[VM/CHART] onClick fired", {
     hasNative: !!native,
     cursorPx: native ? cursorPx(native, chart) : null,
     seriesCount,
     datasetCount: chart.data.datasets.length,
-  })
+  });
   // ... bestaande logica
-}
+};
 
 // Direct na de findNearestSeriesHit aanroep in onClick:
-const hit = findNearestSeriesHit(chart, cx, cy, seriesCount)
-console.log('[VM/CHART] findNearestSeriesHit result', {
+const hit = findNearestSeriesHit(chart, cx, cy, seriesCount);
+console.log("[VM/CHART] findNearestSeriesHit result", {
   hit,
   hitRadiusPx: POINT_HIT_RADIUS_PX,
-  metaDataCounts: chart.data.datasets.slice(0, seriesCount).map(d =>
-    chart.getDatasetMeta(chart.data.datasets.indexOf(d)).data.length
-  ),
-})
+  metaDataCounts: chart.data.datasets
+    .slice(0, seriesCount)
+    .map((d) => chart.getDatasetMeta(chart.data.datasets.indexOf(d)).data.length),
+});
 
 // Direct vóór onPointClick wordt aangeroepen:
 if (hit && propsRef.current.onPointClick) {
-  const point = propsRef.current.series[hit.seriesIdx].points[hit.pointIdx]
-  console.log('[VM/CHART] calling onPointClick', {
+  const point = propsRef.current.series[hit.seriesIdx].points[hit.pointIdx];
+  console.log("[VM/CHART] calling onPointClick", {
     seriesIdx: hit.seriesIdx,
     pointIdx: hit.pointIdx,
     point,
     meta: point.meta,
-  })
-  propsRef.current.onPointClick(hit.seriesIdx, hit.pointIdx, point)
+  });
+  propsRef.current.onPointClick(hit.seriesIdx, hit.pointIdx, point);
 }
 
 // Idem voor onHover (parallel pad), zodat we het verschil tussen klik en hover kunnen vergelijken:
 onHover: (event, _activeEls, chart) => {
-  const native = event.native as PointerEvent | undefined
-  if (!native) return
-  const { x: cx, y: cy } = cursorPx(native, chart)
-  const hit = findNearestSeriesHit(chart, cx, cy, seriesCount)
-  console.log('[VM/CHART] onHover', { hit })
+  const native = event.native as PointerEvent | undefined;
+  if (!native) return;
+  const { x: cx, y: cy } = cursorPx(native, chart);
+  const hit = findNearestSeriesHit(chart, cx, cy, seriesCount);
+  console.log("[VM/CHART] onHover", { hit });
   // ... bestaande logica
-}
+};
 ```
 
 #### Logs in `GraphPane.tsx`
@@ -99,19 +100,19 @@ In de `handlePointClick`-functie (of hoe 'ie ook heet) die `setFrame` aanroept:
 
 ```ts
 const handlePointClick = (seriesIdx, pointIdx, point) => {
-  console.log('[VM/PANE] handlePointClick received', {
+  console.log("[VM/PANE] handlePointClick received", {
     paneId,
     type,
     seriesIdx,
     pointIdx,
     point,
     metaFrame: point.meta?.frame,
-  })
+  });
   if (point.meta?.frame !== undefined) {
-    console.log('[VM/PANE] calling setFrame', { frame: point.meta.frame })
-    setFrame(point.meta.frame)
+    console.log("[VM/PANE] calling setFrame", { frame: point.meta.frame });
+    setFrame(point.meta.frame);
   }
-}
+};
 ```
 
 #### Logs in `VideoState.tsx` (in de reducer)
@@ -160,6 +161,7 @@ Wanneer 05g succesvol gebouwd is:
 8. Kopieer de logs van die klik (selecteer met muis → rechtermuisknop → "Copy" of `Ctrl+C`) en plak ze in een bericht naar Claude
 
 Wat we verwachten te zien als alles werkt:
+
 - `[VM/CHART] onClick fired` (event komt door)
 - `[VM/CHART] findNearestSeriesHit result` met een `hit`-object (detectie werkt)
 - `[VM/CHART] calling onPointClick` (handler-call gebeurt)

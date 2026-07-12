@@ -11,6 +11,7 @@ Patch-prompt na 05. De grafieken-stack staat, maar drie observaties uit gebruik 
 Daarnaast: selectie-sync werkt nog niet over panes. Eén geselecteerd punt komt overeen met één tijdsframe — dus zou overal hetzelfde moeten zijn.
 
 Voor context:
+
 - `videometen/prompts/05-grafieken-reusable.md` — basis-implementatie
 - `videometen/src/_reusable/InteractiveChart.tsx` — wrapper rond Chart.js
 - `videometen/src/features/measurements/Graphs.tsx` — sub-pane container
@@ -23,16 +24,16 @@ Voor context:
 
 Naast de bestaande workflow-bar komt een **modus-toggle** in de app-header (rechts naast tool-naam, of in de workflow-bar uiterst links — kies wat visueel rustig blijft):
 
-| Modus | Status | Layout |
-|---|---|---|
-| **Verken** (default) | nieuw label voor huidige 3-pane | video links groot, tabel rechtsboven, grafieken rechtsonder — zoals nu |
-| **Analyseren** | nieuw | video klein (~200 px breed) in linkerbovenhoek of als compacte balk, tabel + grafieken nemen de rest van de content-zone |
-| **Tracken** | bestaand | fullscreen video, geen panels — onveranderd, schakelt via "▶ Start tracking" |
+| Modus                | Status                          | Layout                                                                                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Verken** (default) | nieuw label voor huidige 3-pane | video links groot, tabel rechtsboven, grafieken rechtsonder — zoals nu                                                   |
+| **Analyseren**       | nieuw                           | video klein (~200 px breed) in linkerbovenhoek of als compacte balk, tabel + grafieken nemen de rest van de content-zone |
+| **Tracken**          | bestaand                        | fullscreen video, geen panels — onveranderd, schakelt via "▶ Start tracking"                                             |
 
 #### Analyseren-modus details
 
 - Video-tile blijft klein maar volledig functioneel: scrubber, frame-indicator, play/pause, trail-overlay, kalibratie-overlay (oorsprong + assen, niet de scale-streep — consistent met bestaande regels)
-- Frame-stappen / play / scrub blijven werken — dit is *kijken naar de meting* op een specifiek moment, niet *opnieuw meten*
+- Frame-stappen / play / scrub blijven werken — dit is _kijken naar de meting_ op een specifiek moment, niet _opnieuw meten_
 - Tabel + grafieken delen de rest van de breedte via `react-resizable-panels` (default 40% tabel / 60% grafieken; sleepbaar)
 - Workflow-bar blijft zichtbaar
 - Switchen tussen Verken ↔ Analyseren behoudt:
@@ -52,17 +53,17 @@ State leeft in app-level `mode: 'verken' | 'analyseren' | 'tracken'`. Default `'
 
 Vervang de huidige globale frame-step pijltjes-handler door een **context-aware versie** die kijkt waar de muis zich bevindt op het moment van de key-press:
 
-| Cursor over... | ←/→ doet... | Shift+←/→ |
-|---|---|---|
-| een grafiek-pane | navigeert naar vorig/volgend datapunt in die pane (sync `currentFrame`, zie tweak 4) | 10 punten terug/vooruit |
-| de video-tile | frame-step (huidige gedrag) | 10 frames terug/vooruit |
-| tabel of elders (geen specifieke zone) | frame-step (default) | 10 frames terug/vooruit |
+| Cursor over...                         | ←/→ doet...                                                                          | Shift+←/→               |
+| -------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------- |
+| een grafiek-pane                       | navigeert naar vorig/volgend datapunt in die pane (sync `currentFrame`, zie tweak 4) | 10 punten terug/vooruit |
+| de video-tile                          | frame-step (huidige gedrag)                                                          | 10 frames terug/vooruit |
+| tabel of elders (geen specifieke zone) | frame-step (default)                                                                 | 10 frames terug/vooruit |
 
 #### Implementatie
 
 - Global `mousemove`-listener op de app-root die de huidige `MouseZone` bijhoudt: `'graph-pane' | 'video' | null`
 - Bij `mouseleave` van de window: zone wordt `null` (= default-gedrag)
-- Pane-elementen krijgen een `data-mouse-zone="graph-pane"` attribuut met `data-pane-id="…"` zodat de zone-detectie weet *welke* grafiek-pane onder de cursor zit
+- Pane-elementen krijgen een `data-mouse-zone="graph-pane"` attribuut met `data-pane-id="…"` zodat de zone-detectie weet _welke_ grafiek-pane onder de cursor zit
 - Video-container krijgt `data-mouse-zone="video"`
 - Pijltjes-handler leest de huidige zone + pane-id en dispatcht passend
 - Inputs/selects blokkeren de pijltjes nog steeds (bestaande regel uit 01)

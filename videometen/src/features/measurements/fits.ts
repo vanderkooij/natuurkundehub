@@ -71,9 +71,7 @@ export function computeFits(
 ): FitsResult {
   const range = effectiveFitRange(config, trimStart, trimEnd);
   const inTrim = rows.filter((r) => r.withinTrim);
-  const inFitRange = inTrim.filter(
-    (r) => r.frame >= range.start && r.frame <= range.end,
-  );
+  const inFitRange = inTrim.filter((r) => r.frame >= range.start && r.frame <= range.end);
   // tMin/tMax voor de fit-range zelf (in seconden, relatief aan trimStart),
   // óók als er geen meetpunten in zitten (UI gebruikt 't voor de visuele
   // arcering).

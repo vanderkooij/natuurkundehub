@@ -9,6 +9,7 @@ Na vijf pogingen (07f → 07g → 07i → 07j → 07k) op de zoom-state-sync via
 Met Jop is een **eisen-inventarisatie** van 18 punten opgesteld die in stand moeten blijven na de refactor. Acceptatie verifieert ze allemaal.
 
 Voor context:
+
 - `videometen/prompts/07k-extrapolatie-altijd-en-mouseleave-fix.md` — laatste poging
 - `videometen/src/_reusable/InteractiveChart.tsx` — alle prop-sync logica hier
 - `videometen/src/features/measurements/GraphPane.tsx` — Auto zoom-knop, pane-state
@@ -55,20 +56,22 @@ In `buildConfig`: gebruik `initialZoomState` om `cfg.options.scales.x/y.min/max`
 
 ```ts
 function buildConfig(props, initialZs) {
-  const cfg = { /* basis */ }
+  const cfg = {
+    /* basis */
+  };
   if (initialZs) {
-    cfg.options.scales.x.min = initialZs.xMin
-    cfg.options.scales.x.max = initialZs.xMax
-    cfg.options.scales.y.min = initialZs.yMin
-    cfg.options.scales.y.max = initialZs.yMax
+    cfg.options.scales.x.min = initialZs.xMin;
+    cfg.options.scales.x.max = initialZs.xMax;
+    cfg.options.scales.y.min = initialZs.yMin;
+    cfg.options.scales.y.max = initialZs.yMax;
   } else {
     // niceAxis-autozoom op data-bounds
-    cfg.options.scales.x.min = xBounds.min
-    cfg.options.scales.x.max = xBounds.max
-    cfg.options.scales.y.min = yBounds.min
-    cfg.options.scales.y.max = yBounds.max
+    cfg.options.scales.x.min = xBounds.min;
+    cfg.options.scales.x.max = xBounds.max;
+    cfg.options.scales.y.min = yBounds.min;
+    cfg.options.scales.y.max = yBounds.max;
   }
-  return cfg
+  return cfg;
 }
 ```
 
@@ -86,10 +89,10 @@ Dit is het cruciale punt: geen continue sync van props naar chart-scales meer. N
 
 ```ts
 function emitZoom() {
-  const chart = chartRef.current
-  if (!chart) return
-  const zs = extractZoomState(chart)  // {xMin, xMax, yMin, yMax}
-  propsRef.current.onZoomChange?.(zs)
+  const chart = chartRef.current;
+  if (!chart) return;
+  const zs = extractZoomState(chart); // {xMin, xMax, yMin, yMax}
+  propsRef.current.onZoomChange?.(zs);
   // GEEN sync terug. Chart heeft 't al gewijzigd.
 }
 ```
@@ -102,13 +105,13 @@ Nieuwe useEffect die alleen op `resetTrigger`-wijzigingen luistert:
 
 ```ts
 useEffect(() => {
-  if (resetTrigger === undefined) return  // initial-mount: niet triggeren
-  const chart = chartRef.current
-  if (!chart) return
+  if (resetTrigger === undefined) return; // initial-mount: niet triggeren
+  const chart = chartRef.current;
+  if (!chart) return;
 
-  chart.resetZoom('none')  // chartjs-plugin-zoom API
-  propsRef.current.onZoomChange?.(null)  // emit reset naar parent voor opslag
-}, [resetTrigger])
+  chart.resetZoom("none"); // chartjs-plugin-zoom API
+  propsRef.current.onZoomChange?.(null); // emit reset naar parent voor opslag
+}, [resetTrigger]);
 ```
 
 ### 6. Data-wijziging detection voor eis 10
@@ -118,20 +121,25 @@ Bij data-wijziging (nieuwe meetpunten toegevoegd, of fit-config wijziging): wil 
 Nieuwe useEffect:
 
 ```ts
-useEffect(() => {
-  const chart = chartRef.current
-  if (!chart) return
+useEffect(
+  () => {
+    const chart = chartRef.current;
+    if (!chart) return;
 
-  // Bij data-update: chart.update om datasets te tonen
-  chart.data = newCfg.data
-  chart.update('none')
+    // Bij data-update: chart.update om datasets te tonen
+    chart.data = newCfg.data;
+    chart.update("none");
 
-  // Refit-check: als gebruiker niet gezoomd heeft, autozoom-refit
-  const userHasZoomed = isUserZoomed(chart)
-  if (!userHasZoomed) {
-    chart.resetZoom('none')  // herberekent scales op nieuwe data
-  }
-}, [/* data-deps zoals series content */])
+    // Refit-check: als gebruiker niet gezoomd heeft, autozoom-refit
+    const userHasZoomed = isUserZoomed(chart);
+    if (!userHasZoomed) {
+      chart.resetZoom("none"); // herberekent scales op nieuwe data
+    }
+  },
+  [
+    /* data-deps zoals series content */
+  ],
+);
 ```
 
 #### `isUserZoomed(chart)` helper
@@ -139,12 +147,12 @@ useEffect(() => {
 ```ts
 function isUserZoomed(chart: Chart): boolean {
   // Primaire: chartjs-plugin-zoom API
-  const fn = (chart as any).isZoomedOrPanned
-  if (typeof fn === 'function') {
-    return fn.call(chart)
+  const fn = (chart as any).isZoomedOrPanned;
+  if (typeof fn === "function") {
+    return fn.call(chart);
   }
   // Fallback: gebruik een ref die bij emit getrackt wordt
-  return userZoomedRef.current
+  return userZoomedRef.current;
 }
 ```
 
@@ -181,6 +189,7 @@ return (
 ### 8. Verwijder dode code
 
 Na de refactor moeten verdwijnen:
+
 - Prop-sync useEffect (alle branches)
 - `prevZoomStateRef`
 - `lastSyncedZoomStateRef`
@@ -195,6 +204,7 @@ Tijdens uitvoer rondkijken op stale code, comments die niet meer kloppen, ongebr
 ### 9. `chartApiRef` voor toekomst
 
 Optioneel: expose een `chartApiRef` via een `forwardRef` of `imperativeHandle` met methodes:
+
 - `resetZoom()`
 - `setZoom(zs)` (voor project-load in toekomst)
 

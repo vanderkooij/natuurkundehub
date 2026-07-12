@@ -15,6 +15,7 @@ Vijf concrete dingen die uit gebruik door Jop naar voren kwamen:
 Hygiëne-afspraak blijft van kracht (less is more).
 
 Voor context:
+
 - `videometen/src/features/layout/WorkflowBar.tsx` (of waar de stappen zitten) en `AppHeader.tsx`
 - `videometen/src/features/calibration/CalibrationState.tsx` — axes-state + bewuste-aanraking-tracking
 - `videometen/src/features/app/ToolMenu.tsx` + help-knop + theme-toggle in header
@@ -39,14 +40,14 @@ Geen wijziging aan toggle-functionaliteit zelf — alleen positie.
 
 Nieuwe done/todo logica voor de zes workflow-stappen:
 
-| Stap | Done wanneer |
-|---|---|
-| 1. Video | Video is geladen (huidige gedrag) |
-| 2. fps | Video is geladen (huidige gedrag — fps wordt automatisch gedetecteerd) |
-| 3. Trim | Video is geladen (huidige gedrag — default = volledige range) |
-| 4. Schaal | `scale !== null` (huidige gedrag) |
-| 5. Assen | **NIEUW**: gebruiker heeft minstens één keer de assen-edit-modus aangeraakt |
-| 6. Analyse | `points.length >= 2` (huidige gedrag) |
+| Stap       | Done wanneer                                                                |
+| ---------- | --------------------------------------------------------------------------- |
+| 1. Video   | Video is geladen (huidige gedrag)                                           |
+| 2. fps     | Video is geladen (huidige gedrag — fps wordt automatisch gedetecteerd)      |
+| 3. Trim    | Video is geladen (huidige gedrag — default = volledige range)               |
+| 4. Schaal  | `scale !== null` (huidige gedrag)                                           |
+| 5. Assen   | **NIEUW**: gebruiker heeft minstens één keer de assen-edit-modus aangeraakt |
+| 6. Analyse | `points.length >= 2` (huidige gedrag)                                       |
 
 #### Implementatie voor stap 5 (Assen)
 
@@ -54,7 +55,7 @@ In `CalibrationState`:
 
 ```ts
 // Nieuw veld:
-axesTouched: boolean  // default false
+axesTouched: boolean; // default false
 
 // Wanneer true zetten:
 // - bij entry in axis-edit-modus (origin-handle of rotation-handle drag), of
@@ -66,6 +67,7 @@ axesTouched: boolean  // default false
 ```
 
 Reset bij:
+
 - Video-load (`LOAD_VIDEO`)
 - "Begin opnieuw met deze video"
 - "Andere video laden"
@@ -82,8 +84,8 @@ Drie states blijven: `todo` (grijs), `doing` (huidige stap, blauw), `done` (✓ 
 In de "▶ Start tracking"-knop:
 
 ```ts
-const canTrack = scale !== null && axesTouched
-disabled = !canTrack
+const canTrack = scale !== null && axesTouched;
+disabled = !canTrack;
 
 // Tooltip bij disabled:
 // - Geen schaal: "Stel eerst de schaal in (stap 4)"

@@ -16,6 +16,7 @@ Plus twee kleine UX-fixes:
 7. **Raaklijn en fit-kleur onderscheiden** — beide amber nu, visueel niet uit elkaar te halen.
 
 Voor context:
+
 - `videometen/prompts/07d-zoom-en-pedagogisch.md` — zoom race-fix
 - `videometen/prompts/07e-zoom-sync-en-tooltip-polish.md` — tijd-sync + drie zones
 - `videometen/src/_reusable/InteractiveChart.tsx` — chart-options + tooltip + onZoom
@@ -83,6 +84,7 @@ Mogelijke gerichte fix: als `viewTRange` niet als input bereikt of als de classi
 #### Verificatie scenario
 
 Set fit-range expliciet kleiner dan trim-range (bv. fit op frame 100-150 terwijl trim 0-200 is). Met scrollwiel uitzoomen voorbij trim. Dan moeten zichtbaar zijn:
+
 - Zone A (solid amber) tussen frame 100-150
 - Zone B (lichter solid) op frame 0-100 en 150-200
 - Zone C (dashed) voorbij frame 0 of 200
@@ -162,6 +164,7 @@ Beide gebruiken nu amber (`#D4923A`). Voor visueel onderscheid:
 - **Fit**: nieuwe kleur — **paars/magenta** `#A855F7` (Tailwind purple-500). Sterk visueel onderscheid van zowel scatter (teal) als raaklijn (amber). Werkt in beide thema's (light en dark).
 
 Toegepast op:
+
 - Fit-curve (alle drie zones — alleen opacity/dash varieert per zone)
 - `dy/dx`-label van de raaklijn: blijft amber (kleur-koppeling met de raaklijn-lijn)
 - Eventuele fit-formule-tekst in FitInfoBar: blijft default tekst-kleur

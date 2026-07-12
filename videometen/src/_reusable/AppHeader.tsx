@@ -104,7 +104,11 @@ export function AppHeader({
                 theme === "dark" ? "Schakel naar lichte modus" : "Schakel naar donkere modus"
               }
             >
-              {theme === "dark" ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
+              {theme === "dark" ? (
+                <Sun className="size-[18px]" />
+              ) : (
+                <Moon className="size-[18px]" />
+              )}
             </Button>
           </TooltipTrigger>
           <TooltipContent>{theme === "dark" ? "Licht thema" : "Donker thema"}</TooltipContent>

@@ -9,6 +9,7 @@ Pedagogische cleanup van de modus-structuur:
 3. **Hoek-input dialog "Assenstelsel instellen"** vraagt om graden — niet wat de leerling wil (sleep is wat ze doen).
 
 Resultaat na 08c:
+
 - Modi heten **Meten** | **Analyseren** (+ tracken bij Start tracking)
 - Meten-modus = alleen video op volle breedte (= "geen metingen layout" uit 08, ook bij metingen)
 - Analyseren-modus = huidige (video klein + tabel + grafieken)
@@ -18,6 +19,7 @@ Resultaat na 08c:
 Het uitgebreide assen-herontwerp (richting +x/+y, sleep-tooltip) blijft **10**.
 
 Voor context:
+
 - `videometen/prompts/08-werkbalk-en-startlayout.md` — VideoOnlyLayout, points.length-conditionele rendering
 - `videometen/prompts/08b-ux-polish.md` — toast, hernoeming dialog
 - `videometen/src/features/app/AppMode.tsx` — `mode: 'verken' | 'analyseren' | 'tracken'`
@@ -49,10 +51,10 @@ In `AppMode.tsx`:
 
 ```ts
 // Was:
-type WorkMode = 'verken' | 'analyseren' | 'tracken'
+type WorkMode = "verken" | "analyseren" | "tracken";
 
 // Wordt:
-type WorkMode = 'meten' | 'analyseren' | 'tracken'
+type WorkMode = "meten" | "analyseren" | "tracken";
 ```
 
 Alle references in code naar `'verken'` worden `'meten'`.
@@ -87,15 +89,11 @@ Logica:
 ```ts
 // In AppMode of een lichte coordinator-effect:
 useEffect(() => {
-  if (
-    points.length === 2 &&
-    mode === 'meten' &&
-    !autoSwitchUsed
-  ) {
-    setMode('analyseren')
-    setAutoSwitchUsed(true)
+  if (points.length === 2 && mode === "meten" && !autoSwitchUsed) {
+    setMode("analyseren");
+    setAutoSwitchUsed(true);
   }
-}, [points.length, mode, autoSwitchUsed])
+}, [points.length, mode, autoSwitchUsed]);
 ```
 
 #### State
@@ -122,7 +120,7 @@ De `analyseHintShown`-toast uit 08b is overbodig geworden door de auto-switch:
 #### Schema-bump
 
 ```ts
-PROJECT_SCHEMA_VERSION = 7
+PROJECT_SCHEMA_VERSION = 7;
 
 function migrateV6toV7(v6: ProjectV6JSON): ProjectV7JSON {
   return {
@@ -130,9 +128,9 @@ function migrateV6toV7(v6: ProjectV6JSON): ProjectV7JSON {
     schemaVersion: 7,
     ui: {
       ...v6.ui,
-      mode: v6.ui.mode === 'verken' ? 'meten' : v6.ui.mode,
+      mode: v6.ui.mode === "verken" ? "meten" : v6.ui.mode,
     },
-  }
+  };
 }
 ```
 
@@ -145,6 +143,7 @@ Geen andere wijzigingen in de schema-shape.
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Grep op `'verken'` (string), `Verken` (label), `VerkenLayout` — alles moet weg of vervangen
 - Stale CSS van VerkenLayout
 - Eventuele oude help-tekst die naar "Verken" verwijst (in HelpPanel) — opzoeken en hernoemen

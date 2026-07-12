@@ -42,28 +42,29 @@ Daarnaast: workflow-bar-stappen 4 (Schaal) en 5 (Assen) worden klikbaar en funct
 Kalibratie-state als nieuwe feature-map `src/features/calibration/`, exporteert hooks/components. Vorm:
 
 ```ts
-type Pixel = { x: number; y: number }  // pixel-coords in video native resolution
+type Pixel = { x: number; y: number }; // pixel-coords in video native resolution
 
 type ScaleCalibration = {
-  p1: Pixel
-  p2: Pixel
-  length: number     // reëele lengte
-  unit: 'm' | 'cm' | 'mm'
+  p1: Pixel;
+  p2: Pixel;
+  length: number; // reëele lengte
+  unit: "m" | "cm" | "mm";
   // derived: metersPerPixel = (length × unitToMeters) / pixelDistance(p1,p2)
-}
+};
 
 type AxisCalibration = {
-  origin: Pixel
-  angle: number      // rad; 0 = x naar rechts, y omhoog (rechtsdraaiend stelsel)
-}
+  origin: Pixel;
+  angle: number; // rad; 0 = x naar rechts, y omhoog (rechtsdraaiend stelsel)
+};
 
 type CalibrationState = {
-  scale: ScaleCalibration | null
-  axes: AxisCalibration   // altijd aanwezig, met defaults
-}
+  scale: ScaleCalibration | null;
+  axes: AxisCalibration; // altijd aanwezig, met defaults
+};
 ```
 
 Default `axes` bij nieuwe video:
+
 - `origin = { x: 0.08 × videoWidth, y: 0.92 × videoHeight }` (linksonder met wat marge)
 - `angle = 0`
 
@@ -108,7 +109,7 @@ Stappen in `scale-edit`:
 2. Klik 1 → punt p1 plaatsen, visueel als amber dot, instruction wordt "Klik tweede punt"
 3. Klik 2 → punt p2 plaatsen + amber lijn tussen beide
 4. Dialog opent met:
-   - Voorbeeldweergave van de pixel-afstand: "*Afstand: 247 px*"
+   - Voorbeeldweergave van de pixel-afstand: "_Afstand: 247 px_"
    - Input: lengte (number, decimaal — Nederlandse komma toegestaan in input maar opslaan als JS number)
    - Select: eenheid (`m`, `cm`, `mm`)
    - Knoppen: "Bevestigen" / "Annuleren"
@@ -187,12 +188,12 @@ Update de bestaande chips-strook in de video-pane-header (zie mockup, rechts in 
 
 Nieuwe reusables die je mogelijk in deze fase tegenkomt:
 
-| Kandidaat | Categorie | Wanneer markeren |
-|---|---|---|
-| `OverlaySvg` (een herbruikbaar SVG-overlay-frame dat meeschaalt met een onderliggend media-element) | layout | als het generiek genoeg is om in andere tools een rol te spelen |
-| `ToolModeContext` (mode-flow voor edit/view modes) | ui | alleen als het generiek genoeg blijft (waarschijnlijk niet — laat het in `features/`) |
+| Kandidaat                                                                                           | Categorie | Wanneer markeren                                                                      |
+| --------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------- |
+| `OverlaySvg` (een herbruikbaar SVG-overlay-frame dat meeschaalt met een onderliggend media-element) | layout    | als het generiek genoeg is om in andere tools een rol te spelen                       |
+| `ToolModeContext` (mode-flow voor edit/view modes)                                                  | ui        | alleen als het generiek genoeg blijft (waarschijnlijk niet — laat het in `features/`) |
 
-De *kalibratie-state* zelf hoort **niet** in `_reusable/` — die is tool-specifiek.
+De _kalibratie-state_ zelf hoort **niet** in `_reusable/` — die is tool-specifiek.
 
 Voeg toevoegingen aan `SHARED.md` toe.
 

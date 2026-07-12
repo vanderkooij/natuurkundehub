@@ -7,6 +7,7 @@ Vervolg op prompt 04 (data + tabel). De `MeasurementRow[]` is nu beschikbaar via
 **Achtergrond:** in de bestaande tool `modelleren/` (vanille HTML, single-file) staat al een rijk grafiek-systeem: raaklijn met `dy/dx`-label, twee sleepbare meet-lijnen met interpolerende y-aflezing, wheel/pinch zoom + pan, cross-chart x-as-sync, klik-selectie van datapunten, pijltjes-navigatie. Die feature-set willen we nu hergebruikbaar maken voor alle React-gebaseerde NH-tools (te beginnen met videometen, later eventueel een gemigreerde modelleren).
 
 Voor context:
+
 - `videometen/PLAN.md` — sub-pane systeem, grafiek-types
 - `videometen/mockup-analyse.html` — visuele referentie voor sub-pane lay-out
 - `modelleren/index.html` regels 666–1060 — bestaande Chart.js implementatie met `tangentLabelPlugin`, `measureLinesPlugin`, `chartjs-plugin-zoom` setup, `syncCursor`, `niceAxis`, `interpolateMeasureY`. **Bestudeer dit als referentie**, maar zonder de plain-JS code letterlijk te kopiëren — we bouwen 'm opnieuw in TypeScript + React.
@@ -48,84 +49,84 @@ In `src/_reusable/InteractiveChart.tsx` met `@reusable @category data` JSDoc-hea
 
 ```ts
 export type ChartPoint = {
-  x: number
-  y: number
+  x: number;
+  y: number;
   /** Optioneel: door consumer mee te geven metadata. InteractiveChart raakt 'm niet aan,
    *  maar geeft 'm terug in onPointClick/onHover events. */
-  meta?: unknown
+  meta?: unknown;
   /** Als true: punt wordt gedimd weergegeven (opacity ~0.35), geen verbindingslijn naar/van */
-  dimmed?: boolean
-}
+  dimmed?: boolean;
+};
 
 export type ChartSeries = {
-  label: string
-  points: ChartPoint[]
+  label: string;
+  points: ChartPoint[];
   /** Default: huidige theme-accent. */
-  color?: string
+  color?: string;
   /** Default true. Bij false: alleen scatter dots zonder verbindingslijn. */
-  showLine?: boolean
+  showLine?: boolean;
   /** Default false. */
-  dashed?: boolean
-}
+  dashed?: boolean;
+};
 
 export type TangentConfig = {
-  active: boolean
+  active: boolean;
   /** Index in series[0].points waar de raaklijn berekend wordt.
    *  Default: het laatst geselecteerde / gehoverde punt. */
-  atIdx?: number | null
-}
+  atIdx?: number | null;
+};
 
 export type MeasureLinesConfig = {
-  x1: number | null
-  x2: number | null
+  x1: number | null;
+  x2: number | null;
   /** Roept consumer aan bij sleep van handles. */
-  onChange?: (next: { x1: number | null; x2: number | null }) => void
-}
+  onChange?: (next: { x1: number | null; x2: number | null }) => void;
+};
 
 export type ZoomState = {
-  xMin: number
-  xMax: number
-  yMin: number
-  yMax: number
-}
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+};
 
 export type InteractiveChartProps = {
   /** Meestal 1 serie; >1 voorzien voor latere overlay-types (zie 07). */
-  series: ChartSeries[]
-  xLabel: string  // bv. "t (s)"
-  yLabel: string  // bv. "x (m)"
+  series: ChartSeries[];
+  xLabel: string; // bv. "t (s)"
+  yLabel: string; // bv. "x (m)"
 
   /** Verticale stippellijn op deze x-waarde. Null = geen playhead. */
-  playheadX?: number | null
+  playheadX?: number | null;
   /** Welke punt in series[0] is 'geselecteerd' (grotere dot met ring). */
-  selectedIdx?: number | null
+  selectedIdx?: number | null;
   /** Welke punt in series[0] is gehoverd (subtiele ring). */
-  hoveredIdx?: number | null
+  hoveredIdx?: number | null;
 
-  tangent?: TangentConfig
-  measureLines?: MeasureLinesConfig
+  tangent?: TangentConfig;
+  measureLines?: MeasureLinesConfig;
 
   /** Reset zoom op nieuwe data — als false (default), behoudt 'ie zoom-state. */
-  resetZoomOnDataChange?: boolean
+  resetZoomOnDataChange?: boolean;
   /** Externe zoom-control (voor cross-pane sync). Als gezet: chart respecteert deze bounds. */
-  zoomState?: ZoomState | null
-  onZoomChange?: (z: ZoomState) => void
+  zoomState?: ZoomState | null;
+  onZoomChange?: (z: ZoomState) => void;
 
   /** Klik op een datapunt (binnen ~hit-radius). */
-  onPointClick?: (seriesIdx: number, pointIdx: number, point: ChartPoint) => void
+  onPointClick?: (seriesIdx: number, pointIdx: number, point: ChartPoint) => void;
   /** Klik in lege grafiek-area (niet op een punt). Levert geïnterpoleerde x-waarde. */
-  onAreaClick?: (x: number) => void
+  onAreaClick?: (x: number) => void;
   /** Hover over een punt (of null bij mouseleave). */
-  onPointHover?: (info: { seriesIdx: number; pointIdx: number; point: ChartPoint } | null) => void
+  onPointHover?: (info: { seriesIdx: number; pointIdx: number; point: ChartPoint } | null) => void;
 
   /** Default volgt document `[data-theme]`. Override per chart mogelijk. */
-  themeMode?: 'light' | 'dark'
+  themeMode?: "light" | "dark";
 
   /** Default 100%. */
-  height?: number | string
+  height?: number | string;
   /** Default false. */
-  showLegend?: boolean
-}
+  showLegend?: boolean;
+};
 ```
 
 #### Custom plugins
@@ -170,9 +171,9 @@ Kleuren komen uit CSS-variabelen via `getComputedStyle(document.documentElement)
 
 Voeg toe als nieuwe rij:
 
-| Component | Categorie | Kandidaat-tools | Extractie-status |
-|---|---|---|---|
-| `InteractiveChart` | data | modelleren (na React-migratie), toekomstige grafische tools | actief — eerste klant videometen |
+| Component          | Categorie | Kandidaat-tools                                             | Extractie-status                 |
+| ------------------ | --------- | ----------------------------------------------------------- | -------------------------------- |
+| `InteractiveChart` | data      | modelleren (na React-migratie), toekomstige grafische tools | actief — eerste klant videometen |
 
 ### 3. Tool-integratie: `Graphs` + `GraphPane`
 
@@ -182,17 +183,17 @@ In `src/features/measurements/Graphs.tsx` en `GraphPane.tsx`. Tool-specifiek, **
 
 Een mapping `GRAPH_TYPES` definieert per type-key hoe `MeasurementRow[]` → `ChartSeries` + labels:
 
-| key | label | x-bron | y-bron | xLabel | yLabel | line-default |
-|---|---|---|---|---|---|---|
-| `x-t` | x tegen tijd | `row.t` | `row.x` | `t (s)` | `x ({unit})` | aan |
-| `y-t` | y tegen tijd | `row.t` | `row.y` | `t (s)` | `y ({unit})` | aan |
-| `vx-t` | vx tegen tijd | `row.t` | `row.vx` | `t (s)` | `vx ({unit}/s)` | aan |
-| `vy-t` | vy tegen tijd | `row.t` | `row.vy` | `t (s)` | `vy ({unit}/s)` | aan |
-| `vmag-t` | \|v\| tegen tijd | `row.t` | `row.vMag` | `t (s)` | `\|v\| ({unit}/s)` | aan |
-| `ax-t` | ax tegen tijd | `row.t` | central-diff van `vx` | `t (s)` | `ax ({unit}/s²)` | uit |
-| `ay-t` | ay tegen tijd | `row.t` | central-diff van `vy` | `t (s)` | `ay ({unit}/s²)` | uit |
-| `amag-t` | \|a\| tegen tijd | `row.t` | √(ax²+ay²) | `t (s)` | `\|a\| ({unit}/s²)` | uit |
-| `y-x` | baan (y tegen x) | `row.x` | `row.y` | `x ({unit})` | `y ({unit})` | aan |
+| key      | label            | x-bron  | y-bron                | xLabel       | yLabel              | line-default |
+| -------- | ---------------- | ------- | --------------------- | ------------ | ------------------- | ------------ |
+| `x-t`    | x tegen tijd     | `row.t` | `row.x`               | `t (s)`      | `x ({unit})`        | aan          |
+| `y-t`    | y tegen tijd     | `row.t` | `row.y`               | `t (s)`      | `y ({unit})`        | aan          |
+| `vx-t`   | vx tegen tijd    | `row.t` | `row.vx`              | `t (s)`      | `vx ({unit}/s)`     | aan          |
+| `vy-t`   | vy tegen tijd    | `row.t` | `row.vy`              | `t (s)`      | `vy ({unit}/s)`     | aan          |
+| `vmag-t` | \|v\| tegen tijd | `row.t` | `row.vMag`            | `t (s)`      | `\|v\| ({unit}/s)`  | aan          |
+| `ax-t`   | ax tegen tijd    | `row.t` | central-diff van `vx` | `t (s)`      | `ax ({unit}/s²)`    | uit          |
+| `ay-t`   | ay tegen tijd    | `row.t` | central-diff van `vy` | `t (s)`      | `ay ({unit}/s²)`    | uit          |
+| `amag-t` | \|a\| tegen tijd | `row.t` | √(ax²+ay²)            | `t (s)`      | `\|a\| ({unit}/s²)` | uit          |
+| `y-x`    | baan (y tegen x) | `row.x` | `row.y`               | `x ({unit})` | `y ({unit})`        | aan          |
 
 `unit` komt uit `scale.unit`. Versnellingen worden **lokaal in `Graphs.tsx`** berekend (niet in `derive.ts` — daar staat bewust alleen positie + snelheid uit 04).
 
@@ -224,6 +225,7 @@ Per pane bovenaan een compacte balk:
 `<InteractiveChart>` met props uit de pane's state + de globaal-doorgegeven `playheadX`, `selectedIdx`, `hoveredIdx`.
 
 Klik-handlers:
+
 - `onPointClick(_, idx, point)`: lees `point.meta.frame` (door `Graphs` als `meta` meegegeven bij het bouwen van series), call `setCurrentFrame(frame)`
 - `onAreaClick(x)`: voor t-grafieken: bereken `frame = Math.round(x * fps) + trimStart`, clamp op `[trimStart, trimEnd]`, `setCurrentFrame(frame)`. Voor `y-x`: doe niets (geen tijd-as)
 - `onPointHover`: lees frame uit meta → `setHovered(frame)` via `MeasurementHoverProvider`
@@ -273,13 +275,13 @@ Tijdens de sessie: layout (welke panes, welk type per pane, splits, zoom-state) 
 
 ## Hergebruik-markering
 
-| Kandidaat | Categorie | Beslissing |
-|---|---|---|
-| `InteractiveChart` | data | **Wel markeren** — generieke interactieve grafiek-component, eerste klant videometen |
-| `playheadPlugin`, `tangentPlugin`, `measureLinesPlugin` | data | **Wel markeren** als losse exporten — anderen kunnen Chart.js direct gebruiken en alleen onze plugins importeren |
-| `niceAxis` | data | **Wel markeren** als utility — handig bij elke as-handmatige rendering |
-| `useThemeColors` | ui | **Wel markeren** — generieke hook voor theme-aware CSS-var-lezing |
-| `Graphs` / `GraphPane` | — | **Niet markeren** — tool-specifiek (kent `MeasurementRow`, video-frame-mapping, scale-unit) |
+| Kandidaat                                               | Categorie | Beslissing                                                                                                       |
+| ------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| `InteractiveChart`                                      | data      | **Wel markeren** — generieke interactieve grafiek-component, eerste klant videometen                             |
+| `playheadPlugin`, `tangentPlugin`, `measureLinesPlugin` | data      | **Wel markeren** als losse exporten — anderen kunnen Chart.js direct gebruiken en alleen onze plugins importeren |
+| `niceAxis`                                              | data      | **Wel markeren** als utility — handig bij elke as-handmatige rendering                                           |
+| `useThemeColors`                                        | ui        | **Wel markeren** — generieke hook voor theme-aware CSS-var-lezing                                                |
+| `Graphs` / `GraphPane`                                  | —         | **Niet markeren** — tool-specifiek (kent `MeasurementRow`, video-frame-mapping, scale-unit)                      |
 
 Voeg toe aan `SHARED.md`. Update kolom "kandidaat-tools" met `modelleren (na React-migratie)`.
 

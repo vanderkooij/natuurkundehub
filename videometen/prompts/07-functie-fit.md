@@ -11,6 +11,7 @@ Vervolg na 06. De volledige meet-analyse-export pipeline staat. Nu komt de pedag
 Dat laatste lost het probleem op uit gebruik: ruwe `ax-t` voor een vallend voorwerp toonde een patroon rond −9,8 m/s² met enorme uitschieters. Met een kwadratische fit van y(t) wordt de tweede afgeleide een nette horizontale lijn op −9,8 m/s². Krachtige demo van waarom modellen bestaan.
 
 Voor context:
+
 - Alle prior prompts, in het bijzonder 04 (`buildRows`), 05 (Graphs-architectuur), 06 (project-JSON schema v1)
 - `videometen/src/_reusable/InteractiveChart.tsx` — gebruikt straks fit-curve als extra series
 - `videometen/src/features/measurements/Graphs.tsx`, `GraphPane.tsx`, `graph-types.ts`
@@ -45,39 +46,39 @@ Voor context:
 Nieuw bestand `src/features/fit/fit.ts`:
 
 ```ts
-export type FitType = 'none' | 'linear' | 'quadratic'
+export type FitType = "none" | "linear" | "quadratic";
 
 export type Fit1D = {
-  type: Exclude<FitType, 'none'>
+  type: Exclude<FitType, "none">;
   /** Coefficients in volgorde van hoogste graad eerst, zoals polyfit.
    *  Linear: [a, b] voor y = a·t + b
    *  Quadratic: [a, b, c] voor y = a·t² + b·t + c */
-  coefficients: number[]
+  coefficients: number[];
   /** Determinatiecoëfficiënt, 0..1. Hoger = beter. */
-  rSquared: number
+  rSquared: number;
   /** Welke t-waardes zijn gebruikt (handig voor sampling-range). */
-  tMin: number
-  tMax: number
-}
+  tMin: number;
+  tMax: number;
+};
 
 /** Linear least-squares fit van y = a·t + b. Pure functie. */
-export function fitLinear(points: { t: number; y: number }[]): Fit1D | null
+export function fitLinear(points: { t: number; y: number }[]): Fit1D | null;
 
 /** Kwadratische fit y = a·t² + b·t + c via Vandermonde matrix + normal equations.
  *  Pure functie. Numeriek stabiel voor de aantallen meetpunten in onze use case. */
-export function fitQuadratic(points: { t: number; y: number }[]): Fit1D | null
+export function fitQuadratic(points: { t: number; y: number }[]): Fit1D | null;
 
 /** Evalueert fit op een t-waarde. */
-export function evalFit(fit: Fit1D, t: number): number
+export function evalFit(fit: Fit1D, t: number): number;
 
 /** Eerste afgeleide. */
-export function evalFitDerivative(fit: Fit1D, t: number): number
+export function evalFitDerivative(fit: Fit1D, t: number): number;
 
 /** Tweede afgeleide. */
-export function evalFitSecondDerivative(fit: Fit1D, t: number): number
+export function evalFitSecondDerivative(fit: Fit1D, t: number): number;
 
 /** R² berekenen gegeven fit en originele data. */
-function computeRSquared(points: { t: number; y: number }[], fit: Fit1D): number
+function computeRSquared(points: { t: number; y: number }[], fit: Fit1D): number;
 ```
 
 #### Implementatie-notes
@@ -98,9 +99,9 @@ Nieuwe state in `GraphsLayoutState` (of een nieuwe `FitState` provider — kies 
 
 ```ts
 type FitConfig = {
-  xFit: FitType  // welk fit-type voor x(t)
-  yFit: FitType  // welk fit-type voor y(t)
-}
+  xFit: FitType; // welk fit-type voor x(t)
+  yFit: FitType; // welk fit-type voor y(t)
+};
 ```
 
 Default `{ xFit: 'none', yFit: 'none' }`. Reset bij nieuwe video. Persisteert in project-JSON (zie §8).
@@ -111,11 +112,11 @@ Een helper die de huidige fits berekent op basis van `buildRows` en `fitConfig`:
 
 ```ts
 type FitsResult = {
-  x: Fit1D | null  // geactiveerd of null
-  y: Fit1D | null
-}
+  x: Fit1D | null; // geactiveerd of null
+  y: Fit1D | null;
+};
 
-function computeFits(rows: MeasurementRow[], config: FitConfig): FitsResult
+function computeFits(rows: MeasurementRow[], config: FitConfig): FitsResult;
 ```
 
 `useMemo` op `(rows-binnen-trim, fitConfig)`.
@@ -157,7 +158,7 @@ Naast de bestaande knoppen (`Raaklijn`, `Meten`, `Lijn`, `↺`, `⬇ PNG`, `×`)
 In `PaneState`:
 
 ```ts
-showFit: boolean  // default false
+showFit: boolean; // default false
 ```
 
 #### Gedrag
@@ -293,16 +294,16 @@ function migrateV1toV2(v1: ProjectV1JSON): ProjectV2JSON {
     schemaVersion: 2,
     ui: {
       ...v1.ui,
-      fitConfig: { xFit: 'none', yFit: 'none' },  // defaults
+      fitConfig: { xFit: "none", yFit: "none" }, // defaults
       graphs: {
         ...v1.ui.graphs,
-        panes: v1.ui.graphs.panes.map(p => ({
+        panes: v1.ui.graphs.panes.map((p) => ({
           ...p,
-          showFit: false,  // default
+          showFit: false, // default
         })),
       },
     },
-  }
+  };
 }
 ```
 
@@ -318,12 +319,12 @@ Save schrijft altijd versie 2.
 
 ## Hergebruik-markering
 
-| Kandidaat | Categorie | Beslissing |
-|---|---|---|
-| `fit.ts` (`fitLinear`, `fitQuadratic`, `evalFit*`) | data | **Wel markeren** (`@reusable @category data`) — generieke 1D fit-helpers, bruikbaar in modelleren of elke toekomstige tool met regressie |
-| `Fit1D`, `FitType` types | data | Mee-exporteren uit reusable bestand |
-| `FitConfig` + popover-UI | — | **Niet markeren** — tool-specifiek (videometen-coördinaten) |
-| Fit-parameters info-balk styling | — | **Niet markeren** — heel specifiek aan deze UX |
+| Kandidaat                                          | Categorie | Beslissing                                                                                                                               |
+| -------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `fit.ts` (`fitLinear`, `fitQuadratic`, `evalFit*`) | data      | **Wel markeren** (`@reusable @category data`) — generieke 1D fit-helpers, bruikbaar in modelleren of elke toekomstige tool met regressie |
+| `Fit1D`, `FitType` types                           | data      | Mee-exporteren uit reusable bestand                                                                                                      |
+| `FitConfig` + popover-UI                           | —         | **Niet markeren** — tool-specifiek (videometen-coördinaten)                                                                              |
+| Fit-parameters info-balk styling                   | —         | **Niet markeren** — heel specifiek aan deze UX                                                                                           |
 
 Voeg `fit.ts` toe aan `SHARED.md`.
 

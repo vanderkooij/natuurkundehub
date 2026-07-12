@@ -15,6 +15,7 @@ Vervolg na 07. Vier dingen samen:
 Plus JSON-schema bump naar v3.
 
 Voor context:
+
 - `videometen/prompts/07-functie-fit.md` — basis fit-implementatie (lineair, kwadratisch, closed-form)
 - `videometen/src/features/fit/fit.ts` — `fitLinear`, `fitQuadratic`, `evalFit*`
 - `videometen/src/features/measurements/Graphs.tsx` — Graphs-container met fit-config-popover
@@ -55,15 +56,15 @@ In `FitConfig` (uit 07):
 
 ```ts
 type FitRange = {
-  start: number  // frame-nummer
-  end: number    // frame-nummer
-} | null  // null = gebruik volledige trim-range (default)
+  start: number; // frame-nummer
+  end: number; // frame-nummer
+} | null; // null = gebruik volledige trim-range (default)
 
 type FitConfig = {
-  xFit: FitType
-  yFit: FitType
-  range: FitRange  // NIEUW — gedeeld voor beide fits
-}
+  xFit: FitType;
+  yFit: FitType;
+  range: FitRange; // NIEUW — gedeeld voor beide fits
+};
 ```
 
 Reden voor één gedeelde range: x(t) en y(t) beschrijven hetzelfde tijdsegment van de beweging. Verschillende ranges per coördinaat is fysisch verwarrend.
@@ -73,15 +74,22 @@ Default: `range: null` (gebruik trim). Reset bij nieuwe video.
 #### Helper
 
 ```ts
-function effectiveFitRange(config: FitConfig, trimStart: number, trimEnd: number): { start: number; end: number } {
-  if (config.range === null) return { start: trimStart, end: trimEnd }
+function effectiveFitRange(
+  config: FitConfig,
+  trimStart: number,
+  trimEnd: number,
+): { start: number; end: number } {
+  if (config.range === null) return { start: trimStart, end: trimEnd };
   return {
     start: Math.max(config.range.start, trimStart),
     end: Math.min(config.range.end, trimEnd),
-  }
+  };
 }
 
-function filterPointsForFit(rows: MeasurementRow[], range: { start: number; end: number }): { t: number; y: number }[]
+function filterPointsForFit(
+  rows: MeasurementRow[],
+  range: { start: number; end: number },
+): { t: number; y: number }[];
 ```
 
 Fits gebruiken nu `effectiveFitRange` om de te-fitten punten te selecteren.
@@ -136,15 +144,15 @@ Implementeer in `fit.ts`. Geen externe library — eigen 50-100 regels code is v
 
 ```ts
 type Fit1DSine = {
-  type: 'sine'
-  coefficients: [number, number, number, number]  // [A, omega, phi, C]
-  rSquared: number
-  tMin: number
-  tMax: number
-}
+  type: "sine";
+  coefficients: [number, number, number, number]; // [A, omega, phi, C]
+  rSquared: number;
+  tMin: number;
+  tMax: number;
+};
 
 // Updaten van Fit1D union:
-type Fit1D = Fit1DLinear | Fit1DQuadratic | Fit1DSine | Fit1DExponential
+type Fit1D = Fit1DLinear | Fit1DQuadratic | Fit1DSine | Fit1DExponential;
 ```
 
 #### Eval-helpers
@@ -152,20 +160,20 @@ type Fit1D = Fit1DLinear | Fit1DQuadratic | Fit1DSine | Fit1DExponential
 ```ts
 // y(t) = A·sin(ω·t + φ) + C
 function evalSineFit(fit: Fit1DSine, t: number): number {
-  const [A, omega, phi, C] = fit.coefficients
-  return A * Math.sin(omega * t + phi) + C
+  const [A, omega, phi, C] = fit.coefficients;
+  return A * Math.sin(omega * t + phi) + C;
 }
 
 // y'(t) = A·ω·cos(ω·t + φ)
 function evalSineDerivative(fit: Fit1DSine, t: number): number {
-  const [A, omega, phi, _C] = fit.coefficients
-  return A * omega * Math.cos(omega * t + phi)
+  const [A, omega, phi, _C] = fit.coefficients;
+  return A * omega * Math.cos(omega * t + phi);
 }
 
 // y''(t) = -A·ω²·sin(ω·t + φ)
 function evalSineSecondDerivative(fit: Fit1DSine, t: number): number {
-  const [A, omega, phi, _C] = fit.coefficients
-  return -A * omega * omega * Math.sin(omega * t + phi)
+  const [A, omega, phi, _C] = fit.coefficients;
+  return -A * omega * omega * Math.sin(omega * t + phi);
 }
 ```
 
@@ -196,12 +204,12 @@ Beide werkbaar. Aanpak A is eenvoudiger en robuuster voor klassikaal gebruik.
 
 ```ts
 type Fit1DExponential = {
-  type: 'exponential'
-  coefficients: [number, number, number]  // [A, k, C]
-  rSquared: number
-  tMin: number
-  tMax: number
-}
+  type: "exponential";
+  coefficients: [number, number, number]; // [A, k, C]
+  rSquared: number;
+  tMin: number;
+  tMax: number;
+};
 ```
 
 #### Eval-helpers
@@ -209,22 +217,22 @@ type Fit1DExponential = {
 ```ts
 // y(t) = A·e^(k·t) + C
 function evalExpFit(fit: Fit1DExponential, t: number): number {
-  const [A, k, C] = fit.coefficients
-  return A * Math.exp(k * t) + C
+  const [A, k, C] = fit.coefficients;
+  return A * Math.exp(k * t) + C;
 }
 
 // y'(t) = A·k·e^(k·t)
 function evalExpDerivative(fit: Fit1DExponential, t: number): number {
-  const [A, k, _C] = fit.coefficients
-  return A * k * Math.exp(k * fit.tMin /* nee, gebruik gewoon t */)
+  const [A, k, _C] = fit.coefficients;
+  return A * k * Math.exp(k * fit.tMin /* nee, gebruik gewoon t */);
   // Correct:
   // return A * k * Math.exp(k * t)
 }
 
 // y''(t) = A·k²·e^(k·t)
 function evalExpSecondDerivative(fit: Fit1DExponential, t: number): number {
-  const [A, k, _C] = fit.coefficients
-  return A * k * k * Math.exp(k * t)
+  const [A, k, _C] = fit.coefficients;
+  return A * k * k * Math.exp(k * t);
 }
 ```
 
@@ -264,8 +272,8 @@ Update zoals beschreven in §2 (fit-range sectie) en met uitgebreide type-lijst:
 
 Pas formule-formattering aan per type:
 
-- Lineair: `y(t) = 2,50 · t + 1,20`  (zoals nu)
-- Kwadratisch: `y(t) = −4,90 · t² + 5,00 · t + 1,20`  (zoals nu)
+- Lineair: `y(t) = 2,50 · t + 1,20` (zoals nu)
+- Kwadratisch: `y(t) = −4,90 · t² + 5,00 · t + 1,20` (zoals nu)
 - Sinus: `y(t) = 0,87 · sin(6,28 · t + 1,57) + 0,12`
 - Exponentieel: `y(t) = 2,50 · e^(−3,00 · t) + 0,10`
 
@@ -276,6 +284,7 @@ Bij `null` fit (convergentie mislukt): toon `⚠ Sinus-fit kon niet convergeren 
 #### Per pane fit-toggle
 
 Disabled-tooltip aanpassen:
+
 - Bij `none`: zoals nu ("Stel eerst een fit-type in via de Fit-knop bovenaan")
 - Bij niet-convergerende fit: "Fit kon niet berekend worden — pas type of range aan"
 
@@ -311,14 +320,15 @@ function migrateV2toV3(v2: ProjectV2JSON): ProjectV3JSON {
       ...v2.ui,
       fitConfig: {
         ...v2.ui.fitConfig,
-        range: null,  // default = volledige trim
+        range: null, // default = volledige trim
       },
     },
-  }
+  };
 }
 ```
 
 In `deserializeProject`:
+
 - v1 → migrateV1toV2 → migrateV2toV3 → v3-flow
 - v2 → migrateV2toV3 → v3-flow
 - v3 → direct
@@ -330,11 +340,11 @@ Save schrijft altijd v3.
 
 ## Hergebruik-markering
 
-| Kandidaat | Categorie | Beslissing |
-|---|---|---|
-| `fitSine`, `fitExponential` + eval-helpers | data | Mee in bestaande `fit.ts` reusable, geen extra markering nodig |
-| Iteratieve solver (mini-LM of grid-search helper) | data | **Wel markeren** als losse `iterativeFit.ts` helper indien generiek genoeg, anders inline in `fit.ts` |
-| FitRange UI-component (twee number-inputs + checkbox) | — | **Niet markeren** — tool-specifiek aan fit-config-popover |
+| Kandidaat                                             | Categorie | Beslissing                                                                                            |
+| ----------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------- |
+| `fitSine`, `fitExponential` + eval-helpers            | data      | Mee in bestaande `fit.ts` reusable, geen extra markering nodig                                        |
+| Iteratieve solver (mini-LM of grid-search helper)     | data      | **Wel markeren** als losse `iterativeFit.ts` helper indien generiek genoeg, anders inline in `fit.ts` |
+| FitRange UI-component (twee number-inputs + checkbox) | —         | **Niet markeren** — tool-specifiek aan fit-config-popover                                             |
 
 Geen nieuwe entries in `SHARED.md` tenzij iteratieve solver echt apart staat.
 

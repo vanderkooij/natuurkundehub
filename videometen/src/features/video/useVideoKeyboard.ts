@@ -54,8 +54,7 @@ export function useVideoKeyboard() {
 
         const zone = zoneRef.current;
         const isTracking = mode === "tracken";
-        const inGraphPane =
-          !isTracking && zone.kind === "graph-pane" && !!zone.paneId;
+        const inGraphPane = !isTracking && zone.kind === "graph-pane" && !!zone.paneId;
 
         if (inGraphPane) {
           navigateInPane(zone.paneId as string, delta);
@@ -73,14 +72,5 @@ export function useVideoKeyboard() {
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [
-    video,
-    stepFrame,
-    togglePlay,
-    mode,
-    zoneRef,
-    navigateInPane,
-    jumpToMeasurement,
-    snapFrames,
-  ]);
+  }, [video, stepFrame, togglePlay, mode, zoneRef, navigateInPane, jumpToMeasurement, snapFrames]);
 }

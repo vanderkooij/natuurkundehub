@@ -211,7 +211,12 @@ function isPixel(v: unknown): v is Pixel {
   return isObject(v) && typeof v.x === "number" && typeof v.y === "number";
 }
 
-function requireField<T>(obj: Record<string, unknown>, key: string, check: (v: unknown) => v is T, label: string): T {
+function requireField<T>(
+  obj: Record<string, unknown>,
+  key: string,
+  check: (v: unknown) => v is T,
+  label: string,
+): T {
   const v = obj[key];
   if (!check(v)) {
     throw new ProjectLoadError(`Veld ontbreekt of ongeldig: ${label}`);
@@ -233,9 +238,7 @@ function migrateV1toV2(v1: Record<string, unknown>): Record<string, unknown> {
     if (isObject(graphsSrc)) {
       const graphs: Record<string, unknown> = { ...graphsSrc };
       if (Array.isArray(graphsSrc.panes)) {
-        graphs.panes = graphsSrc.panes.map((p) =>
-          isObject(p) ? { ...p, showFit: false } : p,
-        );
+        graphs.panes = graphsSrc.panes.map((p) => (isObject(p) ? { ...p, showFit: false } : p));
       }
       if (!isObject(graphsSrc.fitConfig)) {
         graphs.fitConfig = { xFit: "none", yFit: "none" };
@@ -418,9 +421,7 @@ export function deserializeProject(input: unknown): ProjectJSON {
       migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(input))))),
     );
   } else if (v === 3) {
-    normalized = migrateV7toV8(
-      migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(input)))),
-    );
+    normalized = migrateV7toV8(migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(input)))));
   } else if (v === 4) {
     normalized = migrateV7toV8(migrateV6toV7(migrateV5toV6(migrateV4toV5(input))));
   } else if (v === 5) {
@@ -454,7 +455,12 @@ export function deserializeProject(input: unknown): ProjectJSON {
 
   // ---- video ------------------------------------------------------------
   const video = requireField(data, "video", isObject, "video");
-  const fps = requireField(video, "fps", (x): x is number => typeof x === "number" && x > 0, "video.fps");
+  const fps = requireField(
+    video,
+    "fps",
+    (x): x is number => typeof x === "number" && x > 0,
+    "video.fps",
+  );
   const lastFrame = requireField(
     video,
     "lastFrame",
@@ -463,7 +469,12 @@ export function deserializeProject(input: unknown): ProjectJSON {
   );
   const trimRaw = requireField(video, "trim", isObject, "video.trim");
   const trim = {
-    start: requireField(trimRaw, "start", (x): x is number => typeof x === "number", "video.trim.start"),
+    start: requireField(
+      trimRaw,
+      "start",
+      (x): x is number => typeof x === "number",
+      "video.trim.start",
+    ),
     end: requireField(trimRaw, "end", (x): x is number => typeof x === "number", "video.trim.end"),
   };
 
@@ -473,9 +484,10 @@ export function deserializeProject(input: unknown): ProjectJSON {
   if (cal.scale !== null) {
     const s = requireField(cal, "scale", isObject, "calibration.scale");
     const unitVal = s.unit;
-    const unit = typeof unitVal === "string" && (VALID_UNITS as readonly string[]).includes(unitVal)
-      ? (unitVal as LengthUnit)
-      : null;
+    const unit =
+      typeof unitVal === "string" && (VALID_UNITS as readonly string[]).includes(unitVal)
+        ? (unitVal as LengthUnit)
+        : null;
     if (!unit) throw new ProjectLoadError("Onbekende lengte-eenheid in scale.");
     scale = {
       p1: requireField(s, "p1", isPixel, "calibration.scale.p1"),

@@ -96,14 +96,8 @@ Een duidelijke knop "Start tracking" wisselt naar tracking-modus.
 
 - [ ] Tabel met kolommen: frame, t (s), x, y (in gekozen eenheid)
 - [ ] Tabel-cellen handmatig bewerkbaar (correctie)
-- [ ] Grafieken-paneel met splitsbaar sub-pane-systeem:
-      - "+ pane" knop voegt sub-pane toe (max 4)
-      - Layouts: 1 / 2 horizontaal / 2 verticaal / 2×2
-      - Elke sub-pane heeft type-selector + sluitknop
-- [ ] Grafiek-types in v1 (positie):
-      - **x-t** — x-positie tegen tijd
-      - **y-t** — y-positie tegen tijd
-      - **y-x** — baan (trajectorie, geen tijd-as)
+- [ ] Grafieken-paneel met splitsbaar sub-pane-systeem: - "+ pane" knop voegt sub-pane toe (max 4) - Layouts: 1 / 2 horizontaal / 2 verticaal / 2×2 - Elke sub-pane heeft type-selector + sluitknop
+- [ ] Grafiek-types in v1 (positie): - **x-t** — x-positie tegen tijd - **y-t** — y-positie tegen tijd - **y-x** — baan (trajectorie, geen tijd-as)
 - [ ] Default bij eerste keer openen: één sub-pane met x-t
 - [ ] Actief tabel-rij ↔ highlighted punt in grafiek (visuele koppeling)
 
@@ -118,10 +112,7 @@ Een duidelijke knop "Start tracking" wisselt naar tracking-modus.
 
 - [ ] Toetsenbordbediening: spatie, ←/→, Z, Y, Enter
 - [ ] Reset-knop (vraagt bevestiging)
-- [ ] Help-paneel in CircuitSketch-stijl (accordion) met:
-      - Workflow stap voor stap
-      - Sneltoetsen
-      - Veelgestelde vragen (waarom werkt mijn fps niet, etc.)
+- [ ] Help-paneel in CircuitSketch-stijl (accordion) met: - Workflow stap voor stap - Sneltoetsen - Veelgestelde vragen (waarom werkt mijn fps niet, etc.)
 - [ ] Validatie-meldingen ("Stel eerst de schaal in")
 - [ ] Light/dark thema via gedeelde `nh-theme` localStorage-key
 
@@ -133,11 +124,7 @@ Een duidelijke knop "Start tracking" wisselt naar tracking-modus.
 - [ ] Analytische afgeleide van fit → snelheid en versnelling
 - [ ] Numerieke afgeleide (voorwaarts en centraal verschil) als alternatief
 - [ ] Glijdend gemiddelde over n frames
-- [ ] Nieuwe grafiek-types beschikbaar in de type-selector:
-      - **vx-t**, **vy-t** — snelheidscomponenten tegen tijd
-      - **|v|-t** — snelheidsgrootte tegen tijd
-      - **ax-t**, **ay-t** — versnellingscomponenten tegen tijd
-      - **|a|-t** — versnellingsgrootte tegen tijd
+- [ ] Nieuwe grafiek-types beschikbaar in de type-selector: - **vx-t**, **vy-t** — snelheidscomponenten tegen tijd - **|v|-t** — snelheidsgrootte tegen tijd - **ax-t**, **ay-t** — versnellingscomponenten tegen tijd - **|a|-t** — versnellingsgrootte tegen tijd
 - [ ] Snelheids- en versnellingsvectoren als pijlen op de video tonen
 - [ ] Theoretisch model overlay (bv. parabool met g = 9,81 m/s² over data)
 - [ ] Zoom + pan op video voor precieze klikken

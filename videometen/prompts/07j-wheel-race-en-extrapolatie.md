@@ -9,6 +9,7 @@ Na 07i werken Auto zoom, initial-load, en as-sleep correct. Twee resterende bugs
 2. **"Toon extrapolatie buiten meetbereik"-checkbox doet niets / inconsistent.** Ondanks `showExtrapolation === true` verschijnt zone C (dashed paars voorbij meetbereik) niet. Soms wel zone B (lichter, buiten fit-range maar binnen data). Inconsistent over pane-types.
 
 Voor context:
+
 - `videometen/prompts/07f-bugs-en-kleur.md` — `prevZoomStateRef`-introductie
 - `videometen/prompts/07i-zoom-pin-fix.md` — `&& zs !== null` guard
 - `videometen/src/_reusable/InteractiveChart.tsx` — prop-sync + `emitZoom`
@@ -27,6 +28,7 @@ Voor context:
 De 07i prop-sync regel was: bij `incoming === null` altijd USE-cfg (autozoom toepassen). Dat dekt Auto zoom-knop en initial-load correct.
 
 Maar bij **wheel-zoom uit null-state** creëert dit een race:
+
 1. `state.zoomState === null`
 2. Gebruiker scrollt → `chartjs-plugin-zoom` wijzigt `chart.scales.x/y.min/max` intern
 3. Plugin's `onZoom`-callback → `emitZoom` → `propsRef.current.onZoomChange?.(newZs)` → React `setState(newZs)` gequeued
@@ -39,30 +41,35 @@ Maar bij **wheel-zoom uit null-state** creëert dit een race:
 Voeg een nieuwe ref toe die markeert dat **de chart zojuist zelf z'n zoom heeft gewijzigd** (via wheel/pinch/pan). De prop-sync useEffect skipt één cycle bij die markering, en reset 'm.
 
 ```ts
-const chartOwnsZoomRef = useRef(false)
+const chartOwnsZoomRef = useRef(false);
 
 // In emitZoom (de chartjs-plugin-zoom callback):
 function emitZoom(newZs) {
-  chartOwnsZoomRef.current = true   // markeer: chart heeft zojuist intern gewijzigd
-  prevZoomStateRef.current = newZs  // ref ook bijwerken zoals nu
-  propsRef.current.onZoomChange?.(newZs)
+  chartOwnsZoomRef.current = true; // markeer: chart heeft zojuist intern gewijzigd
+  prevZoomStateRef.current = newZs; // ref ook bijwerken zoals nu
+  propsRef.current.onZoomChange?.(newZs);
 }
 
 // In de prop-sync useEffect:
-useEffect(() => {
-  const chart = chartRef.current
-  if (!chart) return
+useEffect(
+  () => {
+    const chart = chartRef.current;
+    if (!chart) return;
 
-  if (chartOwnsZoomRef.current) {
-    // Chart heeft net zelf gewijzigd via wheel/pinch/pan.
-    // Skip deze sync zodat we de chart-stand niet overschrijven.
-    // De volgende useEffect-run (na state-update is doorgekomen) doet de sync normaal.
-    chartOwnsZoomRef.current = false
-    return
-  }
+    if (chartOwnsZoomRef.current) {
+      // Chart heeft net zelf gewijzigd via wheel/pinch/pan.
+      // Skip deze sync zodat we de chart-stand niet overschrijven.
+      // De volgende useEffect-run (na state-update is doorgekomen) doet de sync normaal.
+      chartOwnsZoomRef.current = false;
+      return;
+    }
 
-  // ... bestaande logica met PIN/USE-cfg branches
-}, [/* deps */])
+    // ... bestaande logica met PIN/USE-cfg branches
+  },
+  [
+    /* deps */
+  ],
+);
 ```
 
 #### Belangrijke verifications

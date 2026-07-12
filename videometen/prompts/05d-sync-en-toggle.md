@@ -16,6 +16,7 @@ Wat we in gebruik zagen:
 6. De verticale stippellijn (playhead) is in analyse-fase visueel redundant nu currentFrame altijd op een meetpunt komt — kan weg, rode dot is voldoende indicator
 
 Voor context:
+
 - `videometen/prompts/05-grafieken-reusable.md`, `05b-analyse-tweaks.md`, `05c-grafiek-feedback.md`
 - `videometen/src/_reusable/InteractiveChart.tsx`
 - `videometen/src/features/measurements/GraphPane.tsx`, `Graphs.tsx`, `graph-types.ts`
@@ -41,15 +42,13 @@ In `GraphPane.tsx`, de `navigate(delta)`-functie die in `InteractionZoneState` w
 
 ```ts
 function navigate(delta: number) {
-  if (points.length === 0) return
+  if (points.length === 0) return;
   // Bepaal huidige index op basis van currentFrame
-  const currentIdx = points.findIndex(p => p.meta?.frame === currentFrame)
+  const currentIdx = points.findIndex((p) => p.meta?.frame === currentFrame);
   // Als currentFrame niet op een meetpunt valt: snap naar dichtstbijzijnde meetpunt eerst
-  const startIdx = currentIdx === -1
-    ? nearestPointIdx(points, currentFrame)
-    : currentIdx
-  const nextIdx = clamp(startIdx + delta, 0, points.length - 1)
-  setCurrentFrame(points[nextIdx].meta.frame)
+  const startIdx = currentIdx === -1 ? nearestPointIdx(points, currentFrame) : currentIdx;
+  const nextIdx = clamp(startIdx + delta, 0, points.length - 1);
+  setCurrentFrame(points[nextIdx].meta.frame);
 }
 ```
 
@@ -60,9 +59,7 @@ function navigate(delta: number) {
 Bij `currentFrame` niet op een meetpunt: het eerste pijltje "snapt" naar het dichtstbijzijnde meetpunt zonder verder te bewegen. Dat voelt fout. Beter: snap + verplaats in één key-press. Dus:
 
 ```ts
-const startIdx = currentIdx === -1
-  ? nearestPointIdx(points, currentFrame)
-  : currentIdx + delta  // alleen optellen als we al op een punt zaten
+const startIdx = currentIdx === -1 ? nearestPointIdx(points, currentFrame) : currentIdx + delta; // alleen optellen als we al op een punt zaten
 // Bij snap: de "snap zelf" is de verplaatsing; geen extra delta nodig.
 ```
 
@@ -125,15 +122,15 @@ Nieuwe plek:
 In de `tangentPlugin`:
 
 ```ts
-const leftPx  = xScale.getPixelForValue(tangentLine.x1)
-const rightPx = xScale.getPixelForValue(tangentLine.x2)
-const dotPx   = xScale.getPixelForValue(anchorX)
-const placeRight = Math.abs(rightPx - dotPx) > Math.abs(leftPx - dotPx)
-const px = placeRight ? rightPx - margin : leftPx + margin
-const py = yScale.getPixelForValue(placeRight ? tangentLine.y2 : tangentLine.y1)
+const leftPx = xScale.getPixelForValue(tangentLine.x1);
+const rightPx = xScale.getPixelForValue(tangentLine.x2);
+const dotPx = xScale.getPixelForValue(anchorX);
+const placeRight = Math.abs(rightPx - dotPx) > Math.abs(leftPx - dotPx);
+const px = placeRight ? rightPx - margin : leftPx + margin;
+const py = yScale.getPixelForValue(placeRight ? tangentLine.y2 : tangentLine.y1);
 // Verticale offset: kies de kant waar de lijn vandaan komt (above/below)
-const slopeUp = (tangentLine.y2 > tangentLine.y1) === placeRight
-const labelOffsetY = slopeUp ? -8 : +18
+const slopeUp = tangentLine.y2 > tangentLine.y1 === placeRight;
+const labelOffsetY = slopeUp ? -8 : +18;
 ```
 
 Clamp `px` en `py` binnen `chartArea` met een marge, zodat 't label niet over de assen valt.

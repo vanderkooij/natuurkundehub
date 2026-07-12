@@ -10,6 +10,7 @@ Vervolg na 07b. Vier dingen:
 4. **Fps-lock na eerste meting** — fps-detectie shuffelt nog steeds spontaan. Defensieve fix: zodra er een meting bestaat, is de fps **vergrendeld**. Alleen via expliciete reset-actie ("Alle metingen wissen" / "Begin opnieuw" / "Andere video laden") komt 'ie weer vrij. Geen confirm-dialog meer voor wijziging — gewoon dicht.
 
 Voor context:
+
 - `videometen/prompts/07-functie-fit.md` + `07b-fit-range-extra-types-scatter-fix.md`
 - `videometen/src/features/fit/fit.ts` — fit-types en eval-helpers
 - `videometen/src/features/measurements/FitInfoBar.tsx` (of waar formule + R² wordt weergegeven)
@@ -25,42 +26,46 @@ Voor context:
 
 In `FitInfoBar.tsx` (of analoog): de formule-weergave moet afhankelijk zijn van het pane-type:
 
-| Pane-type | Bron-fit | Weergegeven formule |
-|---|---|---|
-| `x-t` | xFit | `x(t) = …` (positie-fit) |
-| `y-t` | yFit | `y(t) = …` (positie-fit) |
-| `vx-t` | xFit | `vx(t) = d/dt[x(t)] = …` (eerste afgeleide) |
-| `vy-t` | yFit | `vy(t) = d/dt[y(t)] = …` (eerste afgeleide) |
-| `\|v\|-t` | beide | `vx(t) = …`, `vy(t) = …`, `\|v\|(t) = √(vx² + vy²)` |
-| `ax-t` | xFit | `ax(t) = d²/dt²[x(t)] = …` (tweede afgeleide) |
-| `ay-t` | yFit | `ay(t) = d²/dt²[y(t)] = …` (tweede afgeleide) |
-| `\|a\|-t` | beide | `ax(t) = …`, `ay(t) = …`, `\|a\|(t) = √(ax² + ay²)` |
-| `y-x` | beide | `x(t) = …`, `y(t) = …` (beide positie-formules) |
+| Pane-type | Bron-fit | Weergegeven formule                                 |
+| --------- | -------- | --------------------------------------------------- |
+| `x-t`     | xFit     | `x(t) = …` (positie-fit)                            |
+| `y-t`     | yFit     | `y(t) = …` (positie-fit)                            |
+| `vx-t`    | xFit     | `vx(t) = d/dt[x(t)] = …` (eerste afgeleide)         |
+| `vy-t`    | yFit     | `vy(t) = d/dt[y(t)] = …` (eerste afgeleide)         |
+| `\|v\|-t` | beide    | `vx(t) = …`, `vy(t) = …`, `\|v\|(t) = √(vx² + vy²)` |
+| `ax-t`    | xFit     | `ax(t) = d²/dt²[x(t)] = …` (tweede afgeleide)       |
+| `ay-t`    | yFit     | `ay(t) = d²/dt²[y(t)] = …` (tweede afgeleide)       |
+| `\|a\|-t` | beide    | `ax(t) = …`, `ay(t) = …`, `\|a\|(t) = √(ax² + ay²)` |
+| `y-x`     | beide    | `x(t) = …`, `y(t) = …` (beide positie-formules)     |
 
 #### Analytische afgeleiden per fit-type
 
 Implementeer in `fit.ts` of een nieuwe `fitFormula.ts`:
 
 ```ts
-function formatFitFormula(fit: Fit1D, derivative: 0 | 1 | 2, varName: string): string
+function formatFitFormula(fit: Fit1D, derivative: 0 | 1 | 2, varName: string): string;
 ```
 
 Voorbeelden voor kwadratische fit `y = a·t² + b·t + c`:
+
 - `derivative = 0`: `y(t) = a·t² + b·t + c` (zoals nu)
 - `derivative = 1`: `y'(t) = 2a·t + b` (lineair, één lagere graad)
 - `derivative = 2`: `y'(t) = 2a` (constant)
 
 Voor lineaire fit `y = a·t + b`:
+
 - `derivative = 0`: `y(t) = a·t + b`
 - `derivative = 1`: `y'(t) = a`
 - `derivative = 2`: `y''(t) = 0`
 
 Voor sinus `y = A·sin(ω·t + φ) + C`:
+
 - `derivative = 0`: `y(t) = A · sin(ω · t + φ) + C`
 - `derivative = 1`: `y'(t) = A·ω · cos(ω · t + φ)`
 - `derivative = 2`: `y''(t) = −A·ω² · sin(ω · t + φ)`
 
 Voor exponentieel `y = A·e^(k·t) + C`:
+
 - `derivative = 0`: `y(t) = A · e^(k·t) + C`
 - `derivative = 1`: `y'(t) = A·k · e^(k·t)`
 - `derivative = 2`: `y''(t) = A·k² · e^(k·t)`
@@ -68,6 +73,7 @@ Voor exponentieel `y = A·e^(k·t) + C`:
 #### Variabelnaam-prefix
 
 Per pane gebruik de juiste variabelnaam:
+
 - `x-t` pane met derivative 0: variable `x`
 - `vx-t` pane met derivative 1: variable `vx`
 - `ax-t` pane met derivative 2: variable `ax`
@@ -150,6 +156,7 @@ Symptoom: zoom-state op een grafiek-pane reset spontaan naar autozoom, zonder da
 **Stap 2 — Gerichte fix.** Documenteer welke verdachte je hebt geïdentificeerd in een comment in de code. Pas een minimale fix toe.
 
 **Stap 3 — Verificatie.** Test in dev-modus:
+
 - Zet zoom op een pane (wheel of as-sleep)
 - Doe diverse acties: hover, klik op punt, switch tussen modi, nieuwe meting toevoegen, fit-toggle, lijn-toggle
 - Check dat zoom-state in alle gevallen behouden blijft
@@ -191,6 +198,7 @@ setFps(fps: number, source: FpsSource): void
 ```
 
 Update alle callers:
+
 - Fps-detectie bij video-load: `setFps(detected, 'detection')`
 - Fps-chip user input: `setFps(typed, 'user')`
 - Project-load: `setFps(project.video.fps, 'project-load')`
@@ -200,7 +208,9 @@ Bij lock + niet-reset source: log een dev-warning (alleen in dev-mode, niet in p
 
 ```ts
 if (import.meta.env.DEV) {
-  console.warn(`[VIDEO] SET_FPS blocked (lock active). Source: ${action.source}, fps: ${action.fps}`)
+  console.warn(
+    `[VIDEO] SET_FPS blocked (lock active). Source: ${action.source}, fps: ${action.fps}`,
+  );
 }
 ```
 

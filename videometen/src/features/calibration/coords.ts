@@ -37,11 +37,7 @@ export interface WorldPoint {
  *   - angle π/2, click direct boven de oorsprong → world (+x, 0) — want +x
  *     wijst dan omhoog op het scherm.
  */
-export function pixelToWorld(
-  p: Pixel,
-  scale: ScaleCalibration,
-  axes: AxisCalibration,
-): WorldPoint {
+export function pixelToWorld(p: Pixel, scale: ScaleCalibration, axes: AxisCalibration): WorldPoint {
   // 1) Translate.
   const dx = p.x - axes.origin.x;
   const dy = p.y - axes.origin.y;

@@ -7,6 +7,7 @@ Vervolg op prompt 03 + tweaks (03b, 03c). De tracking-laag staat: getrackte punt
 **Grafieken zitten niet in deze prompt** — die komen in 05 als losse stap, omdat ze als reusable interactieve-grafiek-component worden gebouwd (cross-pane sync, raaklijn, meet-lijnen, zoom/pan, op basis van wat in modelleren al staat).
 
 Voor context:
+
 - `videometen/PLAN.md` — spec, datamodel
 - `videometen/mockup-analyse.html` — visuele referentie voor tabel-styling
 - `videometen/prompts/02-kalibratie.md` — `CalibrationState`
@@ -46,10 +47,10 @@ De grafieken-pane (rechtsonder) blijft in deze prompt een placeholder — die wo
 Nieuwe utility in `src/features/calibration/coords.ts` (toevoegen naast bestaande kalibratie-bestanden):
 
 ```ts
-type WorldPoint = { x: number; y: number }  // in gekozen scale-unit
-type Pixel = { x: number; y: number }       // in native videoresolutie
+type WorldPoint = { x: number; y: number }; // in gekozen scale-unit
+type Pixel = { x: number; y: number }; // in native videoresolutie
 
-function pixelToWorld(p: Pixel, cal: CalibrationState): WorldPoint
+function pixelToWorld(p: Pixel, cal: CalibrationState): WorldPoint;
 ```
 
 Logica:
@@ -73,23 +74,23 @@ In `src/features/measurements/derive.ts`:
 
 ```ts
 type MeasurementRow = {
-  frame: number
-  t: number               // seconden, t = (frame - trimStart) / fps
-  x: number               // wereld-x in scale.unit
-  y: number               // wereld-y in scale.unit
-  vx?: number             // unit/s
-  vy?: number             // unit/s
-  vMag?: number           // |v| = √(vx² + vy²)
-  withinTrim: boolean
-}
+  frame: number;
+  t: number; // seconden, t = (frame - trimStart) / fps
+  x: number; // wereld-x in scale.unit
+  y: number; // wereld-y in scale.unit
+  vx?: number; // unit/s
+  vy?: number; // unit/s
+  vMag?: number; // |v| = √(vx² + vy²)
+  withinTrim: boolean;
+};
 
 function buildRows(
   points: TrackedPoint[],
   cal: CalibrationState,
   fps: number,
   trimStart: number,
-  trimEnd: number
-): MeasurementRow[]
+  trimEnd: number,
+): MeasurementRow[];
 ```
 
 - Sorteer op frame oplopend (defensief — `TrackingState` houdt dit al bij)
@@ -141,7 +142,7 @@ In `src/features/measurements/Table.tsx`:
 Een lichte UI-context `MeasurementHoverProvider` (of als state in het Analyse-paneel — kies wat minst spaghetti is):
 
 ```ts
-type HoverState = { hoveredFrame: number | null }
+type HoverState = { hoveredFrame: number | null };
 ```
 
 - Hover op tabel-rij → `setHovered(row.frame)`
@@ -171,12 +172,12 @@ In `App.tsx` / `ThreePaneLayout.tsx`:
 
 ## Hergebruik-markering
 
-| Kandidaat | Categorie | Beslissing |
-|---|---|---|
-| `pixelToWorld` | data | **Wel markeren** (`@reusable @category data`) — generieke 2D affine transformatie, bruikbaar in elke meet-tool met scale + origin + angle |
-| `buildRows` | — | **Niet markeren** — combineert te veel tool-specifieke types |
-| `Table` | — | **Niet markeren** — kolom-schema en empty-states tool-specifiek |
-| `MeasurementHoverProvider` | — | **Niet markeren** — context-vorm is generiek maar gebruiks-scenario te specifiek |
+| Kandidaat                  | Categorie | Beslissing                                                                                                                                |
+| -------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `pixelToWorld`             | data      | **Wel markeren** (`@reusable @category data`) — generieke 2D affine transformatie, bruikbaar in elke meet-tool met scale + origin + angle |
+| `buildRows`                | —         | **Niet markeren** — combineert te veel tool-specifieke types                                                                              |
+| `Table`                    | —         | **Niet markeren** — kolom-schema en empty-states tool-specifiek                                                                           |
+| `MeasurementHoverProvider` | —         | **Niet markeren** — context-vorm is generiek maar gebruiks-scenario te specifiek                                                          |
 
 Voeg `pixelToWorld` toe aan `SHARED.md`.
 

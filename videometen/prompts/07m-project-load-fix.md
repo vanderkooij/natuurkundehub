@@ -5,12 +5,14 @@
 Project-load (Project openen... uit ToolMenu) werkt selectief:
 
 **Wel geladen** (zichtbaar in user-screenshot):
+
 - fps (chip toont juiste waarde)
 - video (in canvas)
 - trim-handles (al staat currentFrame niet op trim.start)
 - toast meldt "11 metingen geladen"
 
 **Niet geladen**:
+
 - schaal (chip toont "niet ingesteld" — JSON heeft 'm wel)
 - calibration-overlay (oorsprong + assen niet zichtbaar over video)
 - mode (toggle staat niet op "Analyseren" zoals JSON aangeeft)
@@ -22,6 +24,7 @@ Console toont geen errors.
 JSON-bestand is v6 (huidige schema), volledig ingevuld. Geen migratie-issue.
 
 Voor context:
+
 - `videometen/prompts/06-export-help.md` — project-load flow met `pendingProject` + useEffect-watcher
 - `videometen/prompts/07c-afgeleide-formule-en-bugs.md` — fps-lock
 - `videometen/prompts/07k-extrapolatie-altijd-en-mouseleave-fix.md` — schema v6, `showExtrapolation` weg
@@ -45,16 +48,17 @@ In `ToolMenu.tsx` `applyProject` (of waar 't ook zit):
 
 ```ts
 function applyProject(project: ProjectJSON) {
-  setFps(project.video.fps, 'user')        // werkt (fps zichtbaar)
-  setTrim(project.video.trim)              // werkt (trim-knoppen zichtbaar)
-  loadCalibration(project.calibration)     // ← werkt NIET (chip "niet ingesteld")
-  loadTracking(project.tracking)           // toast meldt 11 metingen — werkt? of niet?
-  loadGraphs(project.ui.graphs)            // grafieken empty — werkt niet
-  setWorkMode(project.ui.mode)             // mode niet op "Analyseren" — werkt niet
+  setFps(project.video.fps, "user"); // werkt (fps zichtbaar)
+  setTrim(project.video.trim); // werkt (trim-knoppen zichtbaar)
+  loadCalibration(project.calibration); // ← werkt NIET (chip "niet ingesteld")
+  loadTracking(project.tracking); // toast meldt 11 metingen — werkt? of niet?
+  loadGraphs(project.ui.graphs); // grafieken empty — werkt niet
+  setWorkMode(project.ui.mode); // mode niet op "Analyseren" — werkt niet
 }
 ```
 
 Mogelijke oorzaken:
+
 - **Silent error** in `loadCalibration`-tak: een undefined property access (bv. `project.calibration.scale.unit` als calibration-shape mismatch) → throw → rest van applyProject runt niet → loadTracking/loadGraphs/setWorkMode worden niet aangeroepen
 - Maar de toast meldt 11 metingen — wordt die toast vóór of na de keten getoond? Als ervoor (op basis van `project.tracking.points.length`): is misleidend, want loadTracking heeft mogelijk niet gerunt
 - **Try/catch slikt error op**: applyProject in een try-catch met algemene catch die niet logt
@@ -74,6 +78,7 @@ Als de toast op basis van JSON-data wordt getoond (niet op basis van bevestiging
 In `CalibrationState.tsx` `LOAD_FROM_PROJECT` action / `loadFromProject` methode:
 
 Verwachte payload-shape uit JSON:
+
 ```ts
 {
   scale: {
@@ -96,6 +101,7 @@ Check of de reducer/dispatcher exact deze shape verwacht. Een type-mismatch (bv.
 In 07l hebben we de pane-state structuur uitgebreid: `initialZoomState`, `resetTrigger`. De per-pane-state in `GraphsLayoutState` is mogelijk uitgebreid met velden die `loadFromProject` niet meeneemt, of velden die uit de JSON komen die niet meer in de huidige state-shape passen.
 
 Check `GraphsLayoutState.loadFromProject`:
+
 - Worden alle JSON-velden (type, showLine, showFit, zoom, tangentActive, measureActive, measureX1, measureX2) correct overgenomen?
 - Worden missende velden (bv. nieuwe in de state) ingevuld met defaults?
 - Worden de pane-ids hernieuwd (zoals 06 zei: "vermijdt collisions met react-resizable-panels group-ids")?
@@ -105,7 +111,7 @@ JSON heeft veld `zoom`, state misschien `zoomState`? Een naming-mismatch zou een
 
 ### Verdachte 4 — Volgorde-probleem met video-load side-effects
 
-In `VideoState.tsx`: bij `LOAD_VIDEO`-actie wordt `fpsAtFirstMeasurement` gereset (`null`), trim wordt opnieuw berekend op basis van nieuwe video (start=0, end=lastFrame), eventueel andere fields. 
+In `VideoState.tsx`: bij `LOAD_VIDEO`-actie wordt `fpsAtFirstMeasurement` gereset (`null`), trim wordt opnieuw berekend op basis van nieuwe video (start=0, end=lastFrame), eventueel andere fields.
 
 De pendingProject + useEffect-watcher uit 06 wachtte tot video is geladen voordat applyProject werd aangeroepen. Maar misschien fires de video.onloadedmetadata of een vergelijkbare callback **na** applyProject, en reset dan iets wat applyProject net heeft gezet.
 
@@ -132,6 +138,7 @@ Begin in `ToolMenu.tsx` bij `applyProject`. Identificeer:
 ### Stap 2 — Code-trace door elke loadXxx
 
 Voor elk: `loadCalibration`, `loadTracking`, `loadGraphs`, `setWorkMode`:
+
 1. Check payload-shape matching met JSON
 2. Check action-dispatcher voor state-shape mismatches
 3. Check of er useEffect-side-effects zijn die de net-geladen state direct overschrijven
@@ -139,6 +146,7 @@ Voor elk: `loadCalibration`, `loadTracking`, `loadGraphs`, `setWorkMode`:
 ### Stap 3 — Code-trace door VideoState's LOAD_VIDEO
 
 Identificeer welke side-effects bij video-laden plaats vinden:
+
 - Worden andere state-providers gereset (calibration, tracking, graphs)?
 - Wanneer fires dit relatief aan applyProject?
 
@@ -147,6 +155,7 @@ Identificeer welke side-effects bij video-laden plaats vinden:
 Op basis van bevinding: pas één gerichte fix toe. Documenteer root cause in een comment.
 
 **Mogelijke fixes**:
+
 - Try/catch verwijderen of error-logging toevoegen aan silent catch
 - Payload-shape correctie in loadXxx
 - Veld-naming-mismatch corrigeren in loadGraphs (`zoom` ↔ `zoomState`)
@@ -156,6 +165,7 @@ Op basis van bevinding: pas één gerichte fix toe. Documenteer root cause in ee
 ### Stap 5 — Verificatie
 
 Test met het JSON-bestand dat Jop heeft gedeeld (videometen-20201022_131908-2026-06-11.json):
+
 - Schaal-chip toont `1,20 m`
 - Calibration-overlay (oorsprong + assen) zichtbaar over video
 - 11 magenta trail-dots zichtbaar
@@ -170,6 +180,7 @@ Plus: opslaan + opnieuw openen van een verse sessie blijft werken.
 ## Bij twijfel: één ronde logs
 
 Als de code-trace niet eenduidig is, voeg dan logs toe:
+
 - `[VM/LOAD] applyProject start`
 - `[VM/LOAD] after setFps`
 - `[VM/LOAD] after setTrim`

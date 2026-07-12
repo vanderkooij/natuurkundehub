@@ -10,6 +10,7 @@ Vervolg na 07c. Vier dingen:
 4. **Coefficiënt-tooltips in FitInfoBar** — hover op een coefficient (`a`, `b`, `c`, `ω`, etc.) toont fysische betekenis. Voor specifieke gevallen (kwadratisch met `−½g`) wordt de gemeten waarde apart benoemd. Vergelijking met theoretische waardes parkeren naar 07e.
 
 Voor context:
+
 - `videometen/prompts/07c-afgeleide-formule-en-bugs.md` — vorige fix
 - `videometen/src/_reusable/InteractiveChart.tsx` — chart-config + prop-sync
 - `videometen/src/features/measurements/GraphPane.tsx` — FitInfoBar + scatter/fit-rendering
@@ -42,46 +43,51 @@ In `InteractiveChart.tsx`, in de useEffect die `zoomState`-prop naar `chart.opti
 Voeg een **`lastSyncedZoomStateRef`** toe die bijhoudt welke `zoomState`-waarde we het laatst aan de chart hebben gegeven:
 
 ```ts
-const lastSyncedZoomStateRef = useRef<ZoomState | null>(null)
+const lastSyncedZoomStateRef = useRef<ZoomState | null>(null);
 
 // In de prop-sync useEffect:
-useEffect(() => {
-  const chart = chartRef.current
-  if (!chart) return
-  const { zoomState } = propsRef.current
+useEffect(
+  () => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    const { zoomState } = propsRef.current;
 
-  // Skip als 't dezelfde waarde is als we al hebben gepushed
-  if (isEqualZoomState(zoomState, lastSyncedZoomStateRef.current)) return
+    // Skip als 't dezelfde waarde is als we al hebben gepushed
+    if (isEqualZoomState(zoomState, lastSyncedZoomStateRef.current)) return;
 
-  // Skip als de chart's huidige zoom al overeenkomt met wat we proberen te zetten
-  // (= er was net een interne wheel-wijziging die we niet willen overschrijven)
-  if (zoomState && isChartZoomEqualTo(chart, zoomState)) {
-    lastSyncedZoomStateRef.current = zoomState
-    return
-  }
+    // Skip als de chart's huidige zoom al overeenkomt met wat we proberen te zetten
+    // (= er was net een interne wheel-wijziging die we niet willen overschrijven)
+    if (zoomState && isChartZoomEqualTo(chart, zoomState)) {
+      lastSyncedZoomStateRef.current = zoomState;
+      return;
+    }
 
-  // Sync naar de chart
-  if (zoomState) {
-    chart.options.scales.x.min = zoomState.xMin
-    chart.options.scales.x.max = zoomState.xMax
-    chart.options.scales.y.min = zoomState.yMin
-    chart.options.scales.y.max = zoomState.yMax
-  } else {
-    delete chart.options.scales.x.min
-    // ... etc voor autozoom
-  }
-  chart.update('none')
-  lastSyncedZoomStateRef.current = zoomState
-}, [/* zoomState dependency */])
+    // Sync naar de chart
+    if (zoomState) {
+      chart.options.scales.x.min = zoomState.xMin;
+      chart.options.scales.x.max = zoomState.xMax;
+      chart.options.scales.y.min = zoomState.yMin;
+      chart.options.scales.y.max = zoomState.yMax;
+    } else {
+      delete chart.options.scales.x.min;
+      // ... etc voor autozoom
+    }
+    chart.update("none");
+    lastSyncedZoomStateRef.current = zoomState;
+  },
+  [
+    /* zoomState dependency */
+  ],
+);
 
 // In de onZoom-callback van chartjs-plugin-zoom:
 onZoom: (event) => {
-  const chart = event.chart
-  const newZoom = extractZoomState(chart)
+  const chart = event.chart;
+  const newZoom = extractZoomState(chart);
   // Markeer als 'laatst gesynced' voordat we de externe state updaten
-  lastSyncedZoomStateRef.current = newZoom
-  propsRef.current.onZoomChange?.(newZoom)
-}
+  lastSyncedZoomStateRef.current = newZoom;
+  propsRef.current.onZoomChange?.(newZoom);
+};
 ```
 
 Het cruciale punt: bij wheel-zoom updaten we de `lastSyncedZoomStateRef` **vóór** de state-update naar buiten — dus wanneer de prop-sync useEffect daarna fired met de nieuwe state, ziet 'ie dat de chart al gelijk is aan wat 'ie wil zetten, en skipt.
@@ -90,15 +96,15 @@ Het cruciale punt: bij wheel-zoom updaten we de `lastSyncedZoomStateRef` **vóó
 
 ```ts
 function isEqualZoomState(a: ZoomState | null, b: ZoomState | null): boolean {
-  if (a === b) return true
-  if (!a || !b) return false
-  const tol = 1e-9
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const tol = 1e-9;
   return (
     Math.abs(a.xMin - b.xMin) < tol &&
     Math.abs(a.xMax - b.xMax) < tol &&
     Math.abs(a.yMin - b.yMin) < tol &&
     Math.abs(a.yMax - b.yMax) < tol
-  )
+  );
 }
 
 function isChartZoomEqualTo(chart: Chart, zs: ZoomState): boolean {
@@ -107,7 +113,7 @@ function isChartZoomEqualTo(chart: Chart, zs: ZoomState): boolean {
     Math.abs(chart.scales.x.max - zs.xMax) < 1e-9 &&
     Math.abs(chart.scales.y.min - zs.yMin) < 1e-9 &&
     Math.abs(chart.scales.y.max - zs.yMax) < 1e-9
-  )
+  );
 }
 
 function extractZoomState(chart: Chart): ZoomState {
@@ -116,7 +122,7 @@ function extractZoomState(chart: Chart): ZoomState {
     xMax: chart.scales.x.max,
     yMin: chart.scales.y.min,
     yMax: chart.scales.y.max,
-  }
+  };
 }
 ```
 
@@ -181,16 +187,18 @@ Plaatsing: tussen de chart en de FitInfoBar. Hoogte ~20px.
 In `GraphPane.tsx`:
 
 ```tsx
-{showFit && isDerivativePane(type) && (
-  <DatasetLegend>
-    <LegendItem color="trail-current" symbol="dot">
-      Ruwe afgeleide (uit meetpunten — gevoelig voor ruis)
-    </LegendItem>
-    <LegendItem color="accent-amber" symbol="line">
-      Fit-afgeleide (uit wiskundig model — glad)
-    </LegendItem>
-  </DatasetLegend>
-)}
+{
+  showFit && isDerivativePane(type) && (
+    <DatasetLegend>
+      <LegendItem color="trail-current" symbol="dot">
+        Ruwe afgeleide (uit meetpunten — gevoelig voor ruis)
+      </LegendItem>
+      <LegendItem color="accent-amber" symbol="line">
+        Fit-afgeleide (uit wiskundig model — glad)
+      </LegendItem>
+    </DatasetLegend>
+  );
+}
 ```
 
 Helper `isDerivativePane(type)` retourneert `true` voor `vx-t`, `vy-t`, `|v|-t`, `ax-t`, `ay-t`, `|a|-t`.
@@ -220,21 +228,25 @@ Elke numerieke coefficient in de fit-formule krijgt een hover-tooltip met **fysi
 #### Tooltip-content per fit-type
 
 **Lineair** `y(t) = a · t + b`:
+
 - `a`: "**Snelheid** — toename van y per seconde (m/s als y in meter)"
 - `b`: "**Startwaarde** — y op tijdstip t = 0"
 
 **Kwadratisch** `y(t) = a · t² + b · t + c`:
+
 - `a`: "**Halve versnelling** — als dit een y(t)-fit van een vallend voorwerp is, dan is je gemeten zwaartekracht **g = {abs(2a)} m/s²** (theoretisch 9,81 m/s²)"
 - `b`: "**Startsnelheid** in y-richting (m/s)"
 - `c`: "**Startwaarde** — y op tijdstip t = 0"
 
 **Sinus** `y(t) = A · sin(ω · t + φ) + C`:
+
 - `A`: "**Amplitude** — maximale uitwijking vanaf het midden"
 - `ω`: "**Hoekfrequentie** (rad/s). Periode T = 2π/ω = **{2π/ω} s**, frequentie f = ω/2π = **{ω/(2π)} Hz**"
 - `φ`: "**Faseverschuiving** (rad) — bepaalt waar in de cyclus t = 0 valt"
 - `C`: "**Middelwaarde** — het centrum waar de oscillatie omheen schommelt"
 
 **Exponentieel** `y(t) = A · e^(k · t) + C`:
+
 - `A`: "**Beginafwijking** vanaf de asymptoot"
 - `k`: "**Vervalconstante** (1/s). Tijdconstante τ = −1/k = **{-1/k} s** — tijd waarin de afwijking met factor 1/e (~37%) verkleind is"
 - `C`: "**Asymptoot** — waar de curve naartoe gaat bij grote t"
@@ -243,9 +255,9 @@ Elke numerieke coefficient in de fit-formule krijgt een hover-tooltip met **fysi
 
 In de tooltip-tekst worden de **uitkomsten** ingevuld:
 
-- Kwadratisch `a = −4,90`: tooltip toont *"je gemeten zwaartekracht g = 9,80 m/s² (theoretisch 9,81 m/s²)"*
-- Sinus `ω = 6,28`: tooltip toont *"Periode T = 1,00 s, frequentie f = 1,00 Hz"*
-- Exponentieel `k = −3,00`: tooltip toont *"Tijdconstante τ = 0,33 s"*
+- Kwadratisch `a = −4,90`: tooltip toont _"je gemeten zwaartekracht g = 9,80 m/s² (theoretisch 9,81 m/s²)"_
+- Sinus `ω = 6,28`: tooltip toont _"Periode T = 1,00 s, frequentie f = 1,00 Hz"_
+- Exponentieel `k = −3,00`: tooltip toont _"Tijdconstante τ = 0,33 s"_
 
 #### Implementatie
 
@@ -253,20 +265,24 @@ In `FitInfoBar.tsx` (of `fitFormula.ts`): de formule wordt nu geparsed als reeks
 
 ```ts
 type FormulaToken =
-  | { kind: 'text'; value: string }   // bv. " · t² + "
-  | { kind: 'coefficient'; value: number; label: string; tooltip: string }
+  | { kind: "text"; value: string } // bv. " · t² + "
+  | { kind: "coefficient"; value: number; label: string; tooltip: string };
 ```
 
 `formatFitFormulaTokens(fit, derivative, varName)` genereert deze token-lijst. De FitInfoBar rendert ze:
 
 ```tsx
-{tokens.map((tok, i) =>
-  tok.kind === 'text'
-    ? <span key={i}>{tok.value}</span>
-    : <Tooltip key={i} content={tok.tooltip}>
+{
+  tokens.map((tok, i) =>
+    tok.kind === "text" ? (
+      <span key={i}>{tok.value}</span>
+    ) : (
+      <Tooltip key={i} content={tok.tooltip}>
         <span className="underline decoration-dotted cursor-help">{formatNumber(tok.value)}</span>
       </Tooltip>
-)}
+    ),
+  );
+}
 ```
 
 Hover-feedback: stippellijn onder de coefficient + `cursor-help`, consistent met de R²-tooltip uit 07c.

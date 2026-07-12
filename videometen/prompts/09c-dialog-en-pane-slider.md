@@ -9,6 +9,7 @@ Twee resterende dingen na 09 en 09b:
 2. **Pane-grootte slider** voor wanneer leerlingen 4 grafieken hebben en die niet allemaal compact in 2x2 willen knijpen. Toggle-stapelen (Verberg + Vergroten zou nog een toggle erbij zijn) maakt UI rommelig — een continue **slider** voelt intuïtiever en geeft persoonlijke controle.
 
 Voor context:
+
 - `videometen/prompts/09-grafiek-responsive.md` + `09b-responsive-fixes.md` — pane-grid, Verberg-mode, dialog-fix
 - `videometen/src/_reusable/dialog.tsx` — gewijzigd in 09b, blijkbaar niet voldoende
 - `videometen/src/features/measurements/Graphs.tsx` — Graphs-container met Verberg-knop
@@ -56,7 +57,7 @@ Een **continue slider** in de Graphs-container-header die bepaalt hoe groot de p
 In `GraphsLayoutState`:
 
 ```ts
-paneSize: number  // 0 = auto (default), > 0 = minimum grootte schaalfactor
+paneSize: number; // 0 = auto (default), > 0 = minimum grootte schaalfactor
 // Of: een waarde tussen 0 en 1 (% van een max-grootte)
 // Of: discreet (0-4 stappen)
 ```
@@ -86,6 +87,7 @@ Werkt onafhankelijk van de auto-layout (naast/onder uit 09) — de richting blij
 #### Interactie met Verberg-mode
 
 Combinaties zijn allemaal logisch:
+
 - Beide auto: huidige gedrag
 - Verberg aan + paneSize auto: tabel/video weg, grafieken in viewport
 - Verberg uit + paneSize > 0: tabel/video blijven, grafieken-zone scrollt
@@ -100,6 +102,7 @@ Bij smal scherm + paneSize > 0: panes worden minstens X px, container scrollt. G
 ## Hygiëne-check
 
 Tijdens uitvoer:
+
 - Check of er nog andere dialog-gerelateerde wrappers zijn met vergelijkbaar issue
 - Bekijk of de slider-styling consistent past bij de bestaande shadcn-componenten (gebruik bestaand `Slider` component)
 - Documenteer in rapport
