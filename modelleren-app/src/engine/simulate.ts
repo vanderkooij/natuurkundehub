@@ -8,12 +8,19 @@ export interface SvRow {
 }
 
 export interface SimResult {
-  /** Snapshot van alle variabelen per iteratie (begin-van-iteratie toestand). */
+  /**
+   * Snapshot van alle variabelen per iteratie (begin-van-iteratie toestand).
+   * Na een volledig doorlopen simulatie is de eindtoestand als extra laatste rij
+   * toegevoegd (bij STOP niet: die iteratie is halverwege afgebroken en zou een
+   * gemengde toestand tonen).
+   */
   data: Record<string, number>[];
   /** Variabelenamen incl. tussenvariabelen, in ontdek-volgorde. */
   varNames: string[];
   /** True als de simulatie via een STOP-conditie eindigde. */
   stopped: boolean;
+  /** Aantal uitgevoerde iteraties (data kan één rij méér bevatten, zie `data`). */
+  iterations: number;
   /** Niet-null bij een blokkerende fout (startwaarde, ontbrekende dt, runtime). */
   error: string | null;
   /** Namen van startwaarden waarvan de formule niet (eenduidig) te berekenen was. */
@@ -70,7 +77,7 @@ export function evalStartwaarden(sv: SvRow[]): {
  * DOM, geen status-UI, geen eenheden-waarschuwingen (die horen in de UI-laag).
  */
 export function simulate(sv: SvRow[], modelLines: string[], maxIter: number): SimResult {
-  const empty: SimResult = { data: [], varNames: [], stopped: false, error: null, svErrors: [] };
+  const empty: SimResult = { data: [], varNames: [], stopped: false, iterations: 0, error: null, svErrors: [] };
 
   const { vars, svErrors } = evalStartwaarden(sv);
   if (svErrors.length) {
@@ -107,9 +114,11 @@ export function simulate(sv: SvRow[], modelLines: string[], maxIter: number): Si
   const data: Record<string, number>[] = [];
   let stopped = false;
   let errorMsg: string | null = null;
+  let iterations = 0;
 
   for (let iter = 0; iter < clampedMax; iter++) {
     data.push(Object.assign({}, vars));
+    iterations = iter + 1;
     // workVars: per regel bijgewerkt zodat tussenvariabelen direct beschikbaar zijn
     const workVars: Record<string, number> = Object.assign({}, vars);
     for (let li = 0; li < modelLines.length; li++) {
@@ -129,6 +138,10 @@ export function simulate(sv: SvRow[], modelLines: string[], maxIter: number): Si
     if (stopped) break;
   }
 
+  // Volledig doorlopen: toon ook de eindtoestand (het resultaat van de laatste
+  // iteratie). Bij STOP/fout niet — die iteratie is halverwege afgebroken.
+  if (!stopped) data.push(Object.assign({}, vars));
+
   const varNames = allVarNames.filter((v) => v in vars);
-  return { data, varNames, stopped, error: errorMsg, svErrors: [] };
+  return { data, varNames, stopped, iterations, error: errorMsg, svErrors: [] };
 }

@@ -22,20 +22,25 @@ export function splitValueUnit(rest: string): { value: string; unit: string } {
   return { value, unit };
 }
 
-/** True als alle haakjes in `s` netjes sluiten. */
+/** True als alle haakjes in `s` netjes sluiten (ook in de juiste volgorde). */
 export function checkParens(s: string): boolean {
   let d = 0;
   for (const c of s) {
     if (c === "(") d++;
-    else if (c === ")") d--;
+    else if (c === ")") {
+      d--;
+      if (d < 0) return false; // ')' vóór '(' — bv. ")("
+    }
   }
   return d === 0;
 }
 
-function undefVarError(err: unknown, lineNum: number): string {
+/** Vertaalt een parseExpr-fout naar een leerlingvriendelijke regelfout. */
+function lineError(err: unknown, lineNum: number): string {
   const msg = (err as Error)?.message ?? "";
-  const m = msg.match(/(\w+) is not defined/);
-  return "Regel " + lineNum + ": variabele '" + (m ? m[1] : msg) + "' is niet gedefinieerd";
+  const m = msg.match(/^(.+?) is not defined$/);
+  if (m) return "Regel " + lineNum + ": variabele '" + m[1] + "' is niet gedefinieerd";
+  return "Regel " + lineNum + ": " + (msg || "syntaxfout in expressie");
 }
 
 /**
@@ -63,7 +68,7 @@ export function parseLine(
     try {
       condVal = !!parseExpr(cond, vars);
     } catch (err) {
-      return { error: undefVarError(err, lineNum) };
+      return { error: lineError(err, lineNum) };
     }
     if (condVal) {
       if (!checkParens(valExpr)) return { error: "Regel " + lineNum + ": haakjes sluiten niet" };
@@ -73,7 +78,7 @@ export function parseLine(
         if (!isFinite(v)) return { error: "Regel " + lineNum + ": deling door nul of oneindig getal" };
         return { assign: { [vname]: v } };
       } catch (err) {
-        return { error: undefVarError(err, lineNum) };
+        return { error: lineError(err, lineNum) };
       }
     }
     return {};
@@ -89,7 +94,7 @@ export function parseLine(
     try {
       condVal = !!parseExpr(cond, vars);
     } catch (err) {
-      return { error: undefVarError(err, lineNum) };
+      return { error: lineError(err, lineNum) };
     }
     if (condVal) return { stop: true };
     return {};
@@ -112,10 +117,7 @@ export function parseLine(
       if (!isFinite(v)) return { error: "Regel " + lineNum + ": deling door nul of oneindig getal" };
       return { assign: { [vname]: v } };
     } catch (err) {
-      const msg = (err as Error)?.message ?? "";
-      const m = msg.match(/(\w+) is not defined/);
-      if (m) return { error: "Regel " + lineNum + ": variabele '" + m[1] + "' is niet gedefinieerd" };
-      return { error: "Regel " + lineNum + ": syntaxfout in expressie" };
+      return { error: lineError(err, lineNum) };
     }
   }
 
@@ -126,16 +128,20 @@ export function parseLine(
 
 /**
  * Lichte syntax-pre-validatie: geeft de 1-based regelnummers terug die fout zijn
- * (als-zonder-dan, ongebalanceerde haakjes, of een regel zonder `=`).
+ * (als zonder geldige dan-toewijzing/STOP, ongebalanceerde haakjes, of een regel
+ * zonder `=`).
  */
 export function validateSyntax(lines: string[]): number[] {
   const errors: number[] = [];
   lines.forEach((line, i) => {
     const t = line.trim();
     if (!t || t.startsWith("//") || t.startsWith("'") || t.toUpperCase() === "STOP") return;
-    if (/^als\b/i.test(t) && !/\bdan\b/i.test(t)) {
-      errors.push(i + 1);
-      return;
+    if (/^als\b/i.test(t)) {
+      // vereist "dan <var> = ..." of "dan STOP" — anders faalt de regel bij het runnen
+      if (!/\bdan\s+(\w+\s*=|STOP\s*$)/i.test(t)) {
+        errors.push(i + 1);
+        return;
+      }
     }
     if (!checkParens(t)) {
       errors.push(i + 1);

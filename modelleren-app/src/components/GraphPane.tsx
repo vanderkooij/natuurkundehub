@@ -12,8 +12,12 @@ interface Props {
   onYVar: (v: string) => void;
   unitOf: (name: string) => string;
   themeMode: "light" | "dark";
-  /** Aanwezig als deze grafiek verwijderd mag worden (meer dan één grafiek). */
-  onRemove?: () => void;
+  /** True als deze pane de pijltjestoetsen ontvangt (klik een pane om te wisselen). */
+  kbdActive: boolean;
+  /** Aangeroepen bij een klik in de pane, zodat de app de toetsenbord-focus verlegt. */
+  onFocusPane: () => void;
+  /** True als de focus-rand getoond moet worden (alleen zinvol bij >1 grafiek). */
+  focusVisible: boolean;
 }
 
 function pointsFrom(data: Record<string, number>[], xVar: string, yVar: string) {
@@ -28,7 +32,7 @@ function pointsFrom(data: Record<string, number>[], xVar: string, yVar: string) 
   return pts;
 }
 
-export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, themeMode, onRemove }: Props) {
+export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, themeMode, kbdActive, onFocusPane, focusVisible }: Props) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [tangentActive, setTangentActive] = useState(false);
   const [zoomReset, setZoomReset] = useState(0); // ophogen = chart terug naar autozoom
@@ -40,8 +44,10 @@ export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, 
   useEffect(() => setSelectedIdx(null), [activeId]);
 
   // Pijltjestoetsen: loop met ← → over de meetpunten van de actieve run.
-  // Wordt genegeerd zolang de focus in een invoerveld staat.
+  // Alleen in de pane met toetsenbord-focus (anders bewegen alle panes tegelijk);
+  // wordt genegeerd zolang de focus in een invoerveld staat.
   useEffect(() => {
+    if (!kbdActive) return;
     function onKey(e: KeyboardEvent) {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
       const tag = document.activeElement?.tagName;
@@ -58,7 +64,7 @@ export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, 
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [active, xVar, yVar]);
+  }, [active, xVar, yVar, kbdActive]);
 
   const vars = active?.varNames ?? [];
   const label = (n: string) => {
@@ -92,7 +98,10 @@ export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, 
       : null;
 
   return (
-    <div className="card graph-pane">
+    <div
+      className={"card graph-pane" + (kbdActive && focusVisible ? " pane-focus" : "")}
+      onMouseDown={onFocusPane}
+    >
       <div className="chart-controls">
         <label className="chart-label">x-as</label>
         <select className="axis-select" value={xVar} onChange={(e) => onXVar(e.target.value)}>
@@ -132,11 +141,6 @@ export function GraphPane({ runs, activeId, xVar, yVar, onXVar, onYVar, unitOf, 
               ? " · klik een punt of loop met ← →"
               : ""}
         </span>
-        {onRemove && (
-          <button className="run-remove" onClick={onRemove} title="Verwijder deze grafiek">
-            ×
-          </button>
-        )}
       </div>
 
       <div className="chart-fill">

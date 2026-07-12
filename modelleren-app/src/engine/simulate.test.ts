@@ -47,18 +47,22 @@ describe("simulate — foutpaden", () => {
   });
 });
 
-// Golden runs — bevroren tegen de huidige vanilla-uitkomsten (gemeten juni 2026).
+// Golden runs — bevroren tegen de vanilla-uitkomsten (gemeten juni 2026), met één
+// bewuste afwijking sinds juli 2026: volledig doorlopen simulaties bevatten de
+// eindtoestand als extra laatste rij (STOP-runs niet; die zijn ongewijzigd).
 describe("simulate — golden runs (gedrag bevriezen)", () => {
   it("Constante snelheid", () => {
     const r = run("Constante snelheid");
-    expect(r.data.length).toBe(1000);
-    expect(rel(last(r).x, 999)).toBe(true);
+    expect(r.data.length).toBe(1001); // 1000 iteraties + eindtoestand
+    expect(r.iterations).toBe(1000);
+    expect(rel(last(r).x, 1000)).toBe(true);
     expect(last(r).v).toBe(10);
   });
 
   it("Vrije val (STOP na 45)", () => {
     const r = run("Vrije val");
-    expect(r.data.length).toBe(45);
+    expect(r.data.length).toBe(45); // STOP: géén extra eindtoestand-rij
+    expect(r.iterations).toBe(45);
     expect(r.stopped).toBe(true);
     expect(rel(last(r).t, 4.4)).toBe(true);
     expect(rel(last(r).v, 43.119999999999976)).toBe(true);
@@ -74,41 +78,41 @@ describe("simulate — golden runs (gedrag bevriezen)", () => {
 
   it("Stuiterende bal", () => {
     const r = run("Stuiterende bal");
-    expect(r.data.length).toBe(2000);
-    expect(rel(last(r).x, 0.0033997803633431726)).toBe(true);
-    expect(rel(last(r).v, 0.19599999999999587)).toBe(true);
+    expect(r.data.length).toBe(2001);
+    expect(rel(last(r).x, 0.00045978036334321393)).toBe(true);
+    expect(rel(last(r).v, 0.2939999999999959)).toBe(true);
   });
 
   it("Bungee jumper", () => {
     const r = run("Bungee jumper");
-    expect(r.data.length).toBe(3000);
-    expect(rel(last(r).h, 28.195138036871345)).toBe(true);
+    expect(r.data.length).toBe(3001);
+    expect(rel(last(r).h, 28.191543364691533)).toBe(true);
   });
 
   it("RC-circuit", () => {
     const r = run("RC-circuit opladen en ontladen");
-    expect(r.data.length).toBe(8000);
-    expect(rel(last(r).U, 0.032000586755813396)).toBe(true);
+    expect(r.data.length).toBe(8001);
+    expect(rel(last(r).U, 0.03196858616905758)).toBe(true);
   });
 
   it("Radioactief verval", () => {
     const r = run("Radioactief verval");
-    expect(r.data.length).toBe(1000);
-    expect(rel(last(r).N, 500300182723731850000)).toBe(true);
+    expect(r.data.length).toBe(1001);
+    expect(rel(last(r).N, 499953474697104300000)).toBe(true);
   });
 
   it("Harmonische oscillator", () => {
     const r = run("Harmonische oscillator");
-    expect(r.data.length).toBe(2000);
-    expect(rel(last(r).x, 0.9209720922300619)).toBe(true);
-    expect(rel(last(r).v, -1.1869252504724228)).toBe(true);
+    expect(r.data.length).toBe(2001);
+    expect(rel(last(r).x, 0.9081818676331076)).toBe(true);
+    expect(rel(last(r).v, -1.279022459695429)).toBe(true);
   });
 
   it("Planetenbaan", () => {
     const r = run("Planetenbaan");
-    expect(r.data.length).toBe(10000);
-    expect(rel(last(r).x, 93432602273.12904)).toBe(true);
-    expect(rel(last(r).y, 117106032520.54729)).toBe(true);
-    expect(rel(last(r).r, 149811703385.13712)).toBe(true);
+    expect(r.data.length).toBe(10001);
+    expect(rel(last(r).x, 93348510134.92725)).toBe(true);
+    expect(rel(last(r).y, 117172766435.4477)).toBe(true);
+    expect(rel(last(r).r, 149811461578.31915)).toBe(true);
   });
 });

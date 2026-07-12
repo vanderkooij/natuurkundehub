@@ -13,13 +13,31 @@ export interface ModelDoc {
 
 const STORAGE_KEY = "nh_modellen"; // zelfde key als de vanilla tool
 
-function isValidDoc(d: unknown): d is ModelDoc {
-  return (
-    !!d &&
-    typeof d === "object" &&
-    Array.isArray((d as ModelDoc).sv) &&
-    typeof (d as ModelDoc).model === "string"
-  );
+/**
+ * Valideert én saneert een extern document (import/deel-URL/localStorage).
+ * Startwaarde-rijen worden veldsgewijs gecontroleerd en naar strings gedwongen,
+ * zodat een misvormd bestand nooit de app kan laten crashen (`row.name.trim()`).
+ */
+function sanitizeDoc(d: unknown): ModelDoc | null {
+  if (!d || typeof d !== "object") return null;
+  const doc = d as { name?: unknown; sv?: unknown; model?: unknown; iter?: unknown };
+  if (!Array.isArray(doc.sv) || typeof doc.model !== "string") return null;
+  const okField = (x: unknown) => typeof x === "string" || typeof x === "number";
+  const sv: SvRow[] = [];
+  for (const r of doc.sv) {
+    if (!r || typeof r !== "object") return null;
+    const row = r as { name?: unknown; value?: unknown; unit?: unknown };
+    if (!okField(row.name) || !okField(row.value)) return null;
+    if (row.unit !== undefined && !okField(row.unit)) return null;
+    sv.push({ name: String(row.name), value: String(row.value), unit: String(row.unit ?? "") });
+  }
+  const iter = Math.floor(Number(doc.iter));
+  return {
+    name: typeof doc.name === "string" ? doc.name : undefined,
+    sv,
+    model: doc.model,
+    iter: Number.isFinite(iter) && iter >= 1 ? iter : 1000,
+  };
 }
 
 // ─── localStorage ──────────────────────────────────────────────────────────
@@ -27,7 +45,8 @@ export function loadSavedModels(): ModelDoc[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr.filter(isValidDoc) : [];
+    if (!Array.isArray(arr)) return [];
+    return arr.map(sanitizeDoc).filter((d): d is ModelDoc => d !== null);
   } catch {
     return [];
   }
@@ -54,9 +73,7 @@ export function parseShareParam(): ModelDoc | null {
     if (!param) return null;
     const json = decompressFromEncodedURIComponent(param);
     if (!json) return null;
-    const data = JSON.parse(json);
-    if (!isValidDoc(data)) return null;
-    return { sv: data.sv, model: data.model, iter: data.iter || 1000 };
+    return sanitizeDoc(JSON.parse(json));
   } catch {
     return null;
   }
@@ -71,9 +88,7 @@ export function exportModelJson(doc: ModelDoc): void {
 
 export function parseImportedJson(text: string): ModelDoc | null {
   try {
-    const data = JSON.parse(text);
-    if (!isValidDoc(data)) return null;
-    return { name: data.name, sv: data.sv, model: data.model, iter: data.iter || 1000 };
+    return sanitizeDoc(JSON.parse(text));
   } catch {
     return null;
   }

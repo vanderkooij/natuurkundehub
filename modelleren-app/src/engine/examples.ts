@@ -87,7 +87,7 @@ export const EXAMPLES: Example[] = [
       { name: "g", value: "9.8", unit: "m/s²" },
       { name: "k", value: "60", unit: "N/m" },
       { name: "L", value: "10", unit: "m" },
-      { name: "b", value: "15", unit: "" },
+      { name: "b", value: "15", unit: "kg/s" },
     ],
     model:
       "als h < h0 - L dan Fe = k*(h0 - L - h)\nals h >= h0 - L dan Fe = 0\nFw = b*v\nFres = m*g - Fe - Fw\na = Fres/m\nv = v + a*dt\nh = h - v*dt\nt = t + dt",
@@ -156,7 +156,7 @@ export const EXAMPLES: Example[] = [
       { name: "G", value: "6.67e-11", unit: "" },
     ],
     model:
-      "r = sqrt(x*x+y*y)\nF = G*M/(r*r)\nax = -F*x/r\nay = -F*y/r\nvx = vx + ax*dt\nvy = vy + ay*dt\nx = x + vx*dt\ny = y + vy*dt\nt = t + dt",
+      "r = sqrt(x*x+y*y)\na = G*M/(r*r)\nax = -a*x/r\nay = -a*y/r\nvx = vx + ax*dt\nvy = vy + ay*dt\nx = x + vx*dt\ny = y + vy*dt\nt = t + dt",
     iter: 10000,
     defaultX: "x",
     defaultY: "y",

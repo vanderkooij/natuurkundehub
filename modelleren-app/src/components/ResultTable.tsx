@@ -19,6 +19,9 @@ interface Props {
 export function ResultTable({ data, cols, runLabel }: Props) {
   const [open, setOpen] = useState(false);
   const shown = data.slice(0, MAX_ROWS);
+  // Bij afkappen tóch de laatste rij (de eindtoestand) tonen, na een ⋯-rij.
+  const truncated = data.length > MAX_ROWS;
+  const lastRow = truncated ? data[data.length - 1] : null;
 
   return (
     <div>
@@ -49,12 +52,26 @@ export function ResultTable({ data, cols, runLabel }: Props) {
                         ))}
                       </tr>
                     ))}
+                    {lastRow && (
+                      <>
+                        <tr>
+                          <td colSpan={cols.length} style={{ textAlign: "center", opacity: 0.6 }}>
+                            ⋯
+                          </td>
+                        </tr>
+                        <tr>
+                          {cols.map((c) => (
+                            <td key={c}>{c in lastRow ? fmt(lastRow[c]) : ""}</td>
+                          ))}
+                        </tr>
+                      </>
+                    )}
                   </tbody>
                 </table>
               </div>
-              {data.length > MAX_ROWS && (
+              {truncated && (
                 <div className="table-note">
-                  Eerste {MAX_ROWS} van {data.length} rijen getoond.
+                  Eerste {MAX_ROWS} en de laatste van {data.length} rijen getoond.
                 </div>
               )}
             </>

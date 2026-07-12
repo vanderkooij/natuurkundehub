@@ -64,3 +64,50 @@ describe("parseExpr — notaties (beide vormen accepteren)", () => {
     expect(parseExpr("Vtot - V", { V: 1, Vtot: 5 })).toBe(4);
   });
 });
+
+describe("parseExpr — machtsverheffing (regressie tegen XOR-bug)", () => {
+  it("haakjes als grondtal of exponent", () => {
+    expect(parseExpr("(a+b)^2", { a: 1, b: 2 })).toBe(9);
+    expect(parseExpr("(x+1)^2", { x: 2 })).toBe(9);
+    expect(parseExpr("2^(1+2)", {})).toBe(8);
+  });
+
+  it("negatieve exponent (was stil XOR: 10^-3 → -9)", () => {
+    expect(parseExpr("10^-3", {})).toBeCloseTo(0.001, 12);
+    expect(parseExpr("2^-2", {})).toBe(0.25);
+  });
+
+  it("rechts-associatief en unaire min bindt zwakker dan ^", () => {
+    expect(parseExpr("2^3^2", {})).toBe(512); // 2^(3^2)
+    expect(parseExpr("-2^2", {})).toBe(-4); // -(2^2)
+    expect(parseExpr("v^2", { v: 3 })).toBe(9);
+    expect(parseExpr("x^0.5", { x: 9 })).toBe(3);
+  });
+});
+
+describe("parseExpr — condities en foutpaden", () => {
+  it("vergelijkingen en logische operatoren", () => {
+    expect(parseExpr("3 <= 4", {})).toBe(1);
+    expect(parseExpr("h <= 0", { h: 5 })).toBe(0);
+    expect(parseExpr("x > 0 && v < 0", { x: 1, v: -1 })).toBe(1);
+    expect(parseExpr("x > 0 || v < 0", { x: -1, v: 1 })).toBe(0);
+  });
+
+  it("onbekende variabele geeft een duidelijke fout (ook 'e')", () => {
+    expect(() => parseExpr("q + 1", {})).toThrow(/q is not defined/);
+    // regressie: 'e' lekte voorheen de interne eval-scope
+    expect(() => parseExpr("e", {})).toThrow(/e is not defined/);
+  });
+
+  it("geen code-uitvoering: alleen bekende functies en variabelen", () => {
+    expect(() => parseExpr("alert(1)", {})).toThrow(/alert is not defined/);
+    expect(() => parseExpr("window.location", {})).toThrow();
+    expect(() => parseExpr("fetch('x')", {})).toThrow();
+  });
+
+  it("syntaxfouten worden gemeld i.p.v. stil verkeerd", () => {
+    expect(() => parseExpr("2 +", {})).toThrow();
+    expect(() => parseExpr("2 & 3", {})).toThrow();
+    expect(() => parseExpr("sqrt(4", {})).toThrow(/haakje/);
+  });
+});

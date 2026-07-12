@@ -18,6 +18,7 @@ describe("checkParens", () => {
     expect(checkParens("a*(b+c)")).toBe(true);
     expect(checkParens("a*(b+c")).toBe(false);
     expect(checkParens("sqrt(x))")).toBe(false);
+    expect(checkParens(")(")).toBe(false); // gebalanceerd maar verkeerde volgorde
   });
 });
 
@@ -28,6 +29,12 @@ describe("validateSyntax", () => {
     expect(validateSyntax(["x = (a+b"])).toEqual([1]); // haakjes
     expect(validateSyntax(["zomaar tekst"])).toEqual([1]); // geen =
     expect(validateSyntax(["// commentaar", "' ook", "STOP"])).toEqual([]);
+  });
+
+  it("vlagt als-dan zonder toewijzing of STOP (regressie: passeerde live-validatie)", () => {
+    expect(validateSyntax(["als x < 0 dan y"])).toEqual([1]); // geen = na dan
+    expect(validateSyntax(["als x < 0 dan y = 1"])).toEqual([]);
+    expect(validateSyntax(["als h <= 0 dan STOP"])).toEqual([]);
   });
 });
 

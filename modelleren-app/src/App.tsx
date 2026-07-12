@@ -47,15 +47,27 @@ interface ChartCfg {
 
 const START = EXAMPLES.find((e) => e.name === "Vrije val")!;
 
+/** Iteratie-invoer → geldig aantal (1–10000, zelfde grenzen als de engine). */
+function clampIter(text: string): number {
+  const n = Math.floor(Number(text));
+  if (text.trim() === "" || !Number.isFinite(n)) return 1000;
+  return Math.min(10000, Math.max(1, n));
+}
+
 export function App() {
   const { theme, toggle } = useNhTheme();
 
   const [svRows, setSvRows] = useState<SvRow[]>(START.sv.map((r) => ({ ...r })));
   const [modelText, setModelText] = useState<string>(START.model);
-  const [maxIter, setMaxIter] = useState<number>(START.iter);
+  // Als tekst bewaard zodat het veld leeg/half getypt mag zijn; geklemd bij gebruik.
+  const [maxIterText, setMaxIterText] = useState<string>(String(START.iter));
+  const maxIter = clampIter(maxIterText);
+  const setMaxIter = (n: number) => setMaxIterText(String(n));
   const [status, setStatus] = useState<Status>({ msg: "", kind: "" });
   const [charts, setCharts] = useState<ChartCfg[]>([{ id: 0, xVar: START.defaultX, yVar: START.defaultY }]);
   const [layout, setLayout] = useState<GraphLayout>("single");
+  // Welke grafiek-pane de pijltjestoetsen ontvangt (klik een pane om te wisselen).
+  const [focusedChartId, setFocusedChartId] = useState(0);
   const [runs, setRuns] = useState<SavedRun[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [savedModels, setSavedModels] = useState<ModelDoc[]>(() => loadSavedModels());
@@ -77,6 +89,8 @@ export function App() {
   const displayRuns = useMemo(() => toDisplayRuns(runs), [runs]);
   const varying = useMemo(() => varyingParamNames(runs), [runs]);
   const activeRun = displayRuns.find((r) => r.id === activeId) ?? displayRuns[displayRuns.length - 1] ?? null;
+  // Valt terug op de eerste pane als de gefocuste pane door een layoutwissel verdween.
+  const kbdChartId = charts.some((c) => c.id === focusedChartId) ? focusedChartId : (charts[0]?.id ?? 0);
 
   const unitOf = (name: string) =>
     (activeRun?.svSnapshot ?? svRows).find((r) => r.name === name)?.unit ?? "";
@@ -114,10 +128,15 @@ export function App() {
     setRuns(nextRuns);
     setActiveId(active);
     const n = nextRuns.findIndex((r) => r.id === active) + 1;
-    const tail = res.stopped ? "gestopt na " + res.data.length + " iteraties" : res.data.length + " iteraties";
+    const tail = res.stopped ? "gestopt na " + res.iterations + " iteraties" : res.iterations + " iteraties";
     setStatus({ msg: "✓ Run " + n + " · " + tail, kind: "ok" });
-    // Leer-modelleren: ontgrendel de volgende oefening na een geslaagde simulatie.
-    if (currentLearnIdx >= 0) {
+    // Leer-modelleren: ontgrendel de volgende oefening na een geslaagde simulatie
+    // van een écht model (een leeg model of alleen commentaar telt niet).
+    const heeftModelregel = lines.some((l) => {
+      const t = l.trim();
+      return t !== "" && !t.startsWith("//") && !t.startsWith("'");
+    });
+    if (currentLearnIdx >= 0 && heeftModelregel) {
       setUnlockedCount((prev) => {
         const nu = Math.min(LEARN_EXERCISES.length, Math.max(prev, currentLearnIdx + 2));
         if (nu !== prev) localStorage.setItem("nh_learn_unlocked", String(nu));
@@ -320,8 +339,9 @@ export function App() {
               type="number"
               min={1}
               max={10000}
-              value={maxIter}
-              onChange={(e) => setMaxIter(Number(e.target.value) || 1000)}
+              value={maxIterText}
+              onChange={(e) => setMaxIterText(e.target.value)}
+              onBlur={() => setMaxIterText(String(maxIter))}
             />
             <button
               className="start-btn"
@@ -384,6 +404,9 @@ export function App() {
               onYVar={(v) => setChartAxis(c.id, "yVar", v)}
               unitOf={unitOf}
               themeMode={theme}
+              kbdActive={c.id === kbdChartId}
+              onFocusPane={() => setFocusedChartId(c.id)}
+              focusVisible={charts.length > 1}
             />
           ))}
         />

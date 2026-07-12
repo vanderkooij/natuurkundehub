@@ -68,7 +68,8 @@ als abs(v) < 0.001 dan STOP  // stopconditie`}</pre>
           Kies x- en y-as per grafiek. Zoom met het muiswiel, klik een punt en loop met{" "}
           <code>← →</code> over de meetpunten. <strong>Raaklijn</strong> toont dy/dx op het
           geselecteerde punt (vaste amber kleur). <strong>⤢ Autozoom</strong> zet de assen terug naar
-          passend. Voeg meer grafieken toe met <em>+ Voeg grafiek toe</em>.
+          passend. Kies via <em>Indeling</em> hoeveel grafieken je ziet (1, 2 naast of onder
+          elkaar, of 2×2).
         </p>
         <p className="help-sub">Runs vergelijken</p>
         <p>
