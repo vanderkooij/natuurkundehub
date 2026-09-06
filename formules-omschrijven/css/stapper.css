@@ -1,0 +1,73 @@
+/* Stapper: de vergelijking die je stap voor stap omschrijft.
+   Gebruikt door de uitlegpagina en door de oefenmodus.
+   Markup: <div class="stapper" data-formule="s = v*t" data-doel="t"></div> */
+.stapper{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:16px;margin:18px 0}
+.stapper-kop{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:12px}
+.stapper-regels{display:flex;flex-direction:column;gap:2px;padding:8px 0;min-height:74px}
+
+.stapper-regel{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-size:21px;color:var(--text);padding:8px 0}
+.stapper-regel.uitleg{font-size:12.5px;color:var(--text-muted);padding:6px 0 2px;gap:6px}
+.stapper-regel.uitleg b{color:var(--accent);font-weight:600}
+.stapper-regel.nieuw{animation:regelIn .3s ease-out both}
+.stapper-regel.gelukt{color:var(--green);font-weight:500}
+@keyframes regelIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.isgelijk{color:var(--accent);font-weight:500}
+.op{color:var(--text-muted);margin:0 3px}
+.haak{color:var(--text-muted)}
+.sym{padding:0 1px;transition:opacity .4s,color .3s}
+.machtgroep{display:inline-block;white-space:nowrap}
+.breuk{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;margin:0 4px}
+.breuk>.teller,.breuk>.noemer{display:flex;align-items:center;justify-content:center;line-height:1.15}
+.breuk>.teller{padding:0 6px 4px;border-bottom:1.5px solid currentColor}
+.breuk>.noemer{padding:4px 6px 0}
+.kant{display:inline-flex;align-items:center}
+.wortel{display:inline-flex;align-items:stretch;margin:0 4px 0 3px;padding-top:3px}
+/* De schuine haal loopt tot y=0 van de svg; die staat 1px lager, precies het hart
+   van de balk erboven, zodat teken en balk op elke hoogte netjes aansluiten. */
+.wortel-teken{flex:0 0 12px;width:12px;height:auto;align-self:stretch;margin-top:1px;overflow:visible}
+.wortel>.onder{border-top:2px solid currentColor;padding:4px 7px 4px 3px;display:flex;align-items:center}
+
+/* Wegstrepen: eerst amber kleuren, dan een streep eroverheen */
+.is-weg{color:var(--accent-amber)}
+.is-weg.streep{opacity:.5;position:relative}
+.is-weg.streep::after{content:'';position:absolute;left:-2px;right:-2px;top:50%;height:2px;background:var(--accent-amber);transform:scaleX(0);transform-origin:left center;animation:streepDoor .28s ease-out forwards}
+@keyframes streepDoor{to{transform:scaleX(1)}}
+
+/* Wat verhuist kleurt amber; de beweging zelf doet een losse kopie die naar de
+   volgende regel toe vliegt (zie maakVlieger). */
+.mv-uit,.mv-smelt{color:var(--accent-amber)}
+.mv-smelt.streep{opacity:.4;transition:opacity .5s ease .3s}
+
+/* Wortel tegen kwadraat: een streep door het wortelteken zelf, niet door wat
+   eronder staat. Dat laatste blijft gewoon leesbaar staan. */
+.mv-wortelweg{color:var(--accent-amber);position:relative}
+.mv-wortelweg.streep::after{content:'';position:absolute;left:-.1em;top:50%;width:.85em;height:2px;background:var(--accent-amber);transform:scaleX(0);transform-origin:left center;animation:streepDoor .28s ease-out forwards}
+.vlieger{display:inline-flex;align-items:center;justify-content:center;z-index:60;pointer-events:none;white-space:nowrap}
+.vlieger.sym{display:inline-block;text-align:center}
+
+@media(prefers-reduced-motion:reduce){
+  .stapper-regel.nieuw{animation:none}
+  .is-weg.streep::after{animation:none;transform:scaleX(1)}
+  .mv-smelt.streep{transition:none}
+  .mv-wortelweg.streep::after{animation:none;transform:scaleX(1)}
+}
+
+.stapper-knoppen{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;padding-top:12px;border-top:1px dashed var(--border-solid)}
+.bew-btn{min-width:44px;padding:9px 12px;border-radius:9px;border:1.5px solid var(--border-solid);background:var(--bg-secondary);color:var(--text-secondary);font-family:var(--font);font-size:16px;font-weight:600;cursor:pointer;transition:all .15s}
+.bew-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
+.bew-btn.actief{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.stapper-operanden[hidden]{display:none}
+.stapper-operanden{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px;padding:10px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:9px}
+.operand-label{font-size:12.5px;color:var(--text-secondary);margin-right:2px}
+.operand-btn{min-width:38px;padding:6px 11px;border-radius:8px;border:1.5px solid var(--accent-border);background:var(--bg-card);color:var(--text);font-family:var(--font);font-size:16px;cursor:pointer;transition:all .15s}
+.operand-btn:hover{border-color:var(--accent);background:var(--bg-card-hover)}
+
+.stapper-voet{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--text-muted)}
+.stapper-status b{color:var(--accent);font-weight:600}
+.stapper-status.gelukt{color:var(--green)}
+.stapper-status.gelukt b{color:var(--green)}
+.stapper-voet-knoppen{display:flex;gap:8px}
+.mini-btn{font-family:var(--font);font-size:12px;padding:5px 11px;border-radius:14px;border:1px solid var(--border-solid);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.mini-btn:hover{border-color:var(--accent-border);color:var(--accent)}

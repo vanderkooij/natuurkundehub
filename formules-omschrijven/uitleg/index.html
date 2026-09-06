@@ -5,13 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Uitleg · Formules omschrijven · NatuurkundeHub</title>
 <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.js"></script>
-<script src="../js/verify.js"></script>
-<script src="../js/keyboard.js"></script>
-<script src="../js/katex-init.js"></script>
+<link rel="stylesheet" href="../css/stapper.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -24,6 +18,7 @@
   --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
   --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
   --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
   --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
   --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
 }
@@ -35,6 +30,7 @@
   --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
   --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
   --purple-dim:rgba(139,92,246,0.1);--purple-border:rgba(139,92,246,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
   --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
 }
 
@@ -44,6 +40,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
 .ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
 
+sup{font-size:.66em;line-height:0;vertical-align:super;font-weight:inherit}
+sub{font-size:.66em;line-height:0;vertical-align:sub;font-weight:inherit}
+
 .theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
 .theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
 
@@ -51,92 +50,76 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .header-left{display:flex;align-items:center;gap:12px}
 .app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
 .app-title span{color:var(--accent)}
-.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 20px;position:relative;z-index:1}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
 
-.main{max-width:760px;margin:0 auto;padding:40px 20px 80px;position:relative;z-index:1}
+.main{max-width:800px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
 
-.page-title{font-size:clamp(24px,4vw,36px);font-weight:700;letter-spacing:-0.8px;margin-bottom:10px}
-.page-title .grad{background:linear-gradient(135deg,var(--accent),var(--accent-amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.page-lead{font-size:15px;color:var(--text-secondary);line-height:1.7;margin-bottom:40px;max-width:580px}
+.progress-track{height:6px;background:var(--accent-dim);border:1px solid var(--border-solid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-amber));transition:width .35s ease}
+.steps-row{display:flex;gap:6px;margin:14px 0 28px;flex-wrap:wrap}
+.step-chip{border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.step-chip:hover{border-color:var(--accent-border);color:var(--accent)}
+.step-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.step-chip.done{border-color:var(--accent-border);color:var(--accent)}
 
-/* Section cards */
-.section-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);margin-bottom:28px;overflow:hidden}
-.section-card-header{padding:20px 24px 16px;border-bottom:1px solid var(--border-solid);display:flex;align-items:center;gap:14px}
-.section-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;flex-shrink:0}
-.section-card-header h2{font-size:18px;font-weight:700;letter-spacing:-0.3px}
-.section-card-body{padding:20px 24px}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-size:clamp(21px,3.4vw,27px);font-weight:700;letter-spacing:-0.6px;margin-bottom:16px}
 
-/* Steps */
-.steps{display:flex;flex-direction:column;gap:20px}
-.step{display:flex;gap:16px;align-items:flex-start}
-.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.step-content{flex:1}
-.step-title{font-size:15px;font-weight:700;margin-bottom:6px}
-.step-desc{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px}
+.content p{line-height:1.7;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content p.small{font-size:13.5px;color:var(--text-muted)}
+.content strong{color:var(--text);font-weight:700}
+.content ul{padding-left:20px;line-height:1.8;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content code{font-family:var(--mono);font-size:13.5px;background:var(--accent-dim);border:1px solid var(--accent-border);padding:1px 6px;border-radius:5px;color:var(--text)}
 
-/* Formula blocks */
-.formula-block{background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:10px;padding:14px 20px;margin-bottom:10px;text-align:center;overflow:visible;min-height:fit-content;width:100%;display:flex;align-items:center;justify-content:center}
-.formula-block .katex-display{margin:0}
-.formula-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.formula-row-item{background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px}
-.formula-row-item .step-arrow{color:var(--accent);font-size:18px;font-weight:700;flex-shrink:0}
-.formula-row-item .step-label{font-size:12px;color:var(--text-muted);font-family:var(--mono);min-width:80px;flex-shrink:0}
-.formula-row-item .fml{overflow:visible;width:100%}
+.info-box{border-left:3px solid var(--accent-amber);background:var(--amber-dim);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+.info-box .info-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-box p{margin:0 0 8px;font-size:14px;color:var(--text-secondary);line-height:1.65}
+.info-box p:last-child{margin-bottom:0}
+.info-box--accent{border-left-color:var(--accent);background:var(--accent-dim)}
+.info-box--accent .info-title{color:var(--accent)}
 
-.rule-box{background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--text-secondary)}
-.rule-box strong{color:var(--text)}
+ol.rules-list{list-style:none;counter-reset:rule;margin:16px 0}
+ol.rules-list li{counter-increment:rule;position:relative;padding:11px 0 11px 40px;font-size:15px;line-height:1.6;color:var(--text-secondary);border-bottom:1px solid var(--border-solid)}
+ol.rules-list li:last-child{border-bottom:none}
+ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px;width:26px;height:26px;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);font-weight:700;font-size:12.5px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 
-/* Example blocks */
-.example-card{background:rgba(212,146,58,0.06);border:1px solid rgba(212,146,58,0.2);border-radius:10px;padding:16px 20px;margin-bottom:12px}
-.example-label{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 
-/* Calc bar for practice */
-.calc-bar{margin-bottom:8px}
-.calc-groups{display:flex;flex-wrap:wrap;gap:5px;padding:7px 10px;background:var(--bg-card);border:1px solid var(--purple-border);border-radius:8px}
-.calc-group{display:inline-flex;align-items:center;gap:3px;flex-shrink:0}
-.calc-group-label{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-right:2px;flex-shrink:0}
-.calc-group-sep{width:1px;background:var(--border-solid);align-self:stretch;margin:0 4px;flex-shrink:0}
-.calc-btn{padding:4px 9px;border:1px solid var(--border-solid);border-radius:6px;font-size:12px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);font-family:var(--mono);line-height:1.4;transition:all .15s;flex-shrink:0;white-space:nowrap}
-.calc-btn:hover{background:var(--purple-dim);border-color:var(--purple-border);color:var(--purple)}
-.calc-btn.sub-active{background:rgba(212,146,58,0.15);border-color:rgba(212,146,58,0.4);color:var(--accent-amber)}
-.sub-indicator{font-size:11px;color:var(--accent-amber);font-family:var(--mono);margin-bottom:6px;display:none}
-.sub-indicator.visible{display:block}
+.keuze-rij{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.keuze-btn{font-family:var(--mono);font-size:13px;padding:7px 12px;border-radius:16px;border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all .15s}
+.keuze-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.keuze-btn.actief{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* Practice mini-exercise */
-.practice-card{background:var(--purple-dim);border:1px solid var(--purple-border);border-radius:10px;padding:16px 20px;margin-top:16px}
-.practice-label{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
-.practice-q{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.practice-formula{display:inline-flex;align-items:center;font-size:1.1rem}
-.practice-ask{font-size:13px;color:var(--text-secondary)}
-.practice-input{border:1.5px solid var(--purple-border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);width:100%;margin-bottom:8px}
-.practice-input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,0.12)}
-.practice-btn{padding:9px 20px;background:var(--purple);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)}
-.practice-btn:hover{background:#7c3aed}
-.practice-result{margin-top:10px;font-size:13px;padding:8px 12px;border-radius:8px;display:none}
-.practice-result.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.3);display:block}
-.practice-result.wrong{background:rgba(220,38,38,0.08);color:#ef4444;border:1px solid rgba(220,38,38,0.2);display:block}
+.cta-card{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:12px;padding:22px 24px;margin-top:22px;text-align:center}
+.cta-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.cta-card p{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.cta-rij{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+.cta-btn.tweede{background:transparent;color:var(--accent);border:1px solid var(--accent-border)}
+.cta-btn.tweede:hover{background:var(--accent-dim);box-shadow:none}
 
-.nav-row{display:flex;gap:12px;justify-content:space-between;margin-top:40px;flex-wrap:wrap}
-.nav-btn{padding:13px 24px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-.nav-btn--ghost{background:transparent;border:1.5px solid var(--border-solid);color:var(--text-muted)}
-.nav-btn--ghost:hover{border-color:var(--accent-border);color:var(--accent)}
-.nav-btn--a{background:var(--accent);color:#fff;border:none}
-.nav-btn--a:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
-.nav-btn--b{background:var(--accent-amber);color:#fff;border:none}
-.nav-btn--b:hover{background:#c07d2a;box-shadow:0 0 20px var(--accent-amber-glow)}
+.nav-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.nav-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:#0999aa}
+.nav-btn.secondary{background:transparent;color:var(--accent)}
+.nav-btn.secondary:hover:not(:disabled){background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.step-count{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:center}
 
 footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
 
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.main>*{animation:fadeUp .4s ease-out both}
-
 @media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
   .app-header{padding:0 12px}
-  .main{padding:24px 12px 60px}
-  .section-card-body,.section-card-header{padding:16px}
-  .nav-row{flex-direction:column}
-  .nav-btn{justify-content:center}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .stapper-regel{font-size:18px;gap:8px}
+  .nav-btn{padding:11px 15px;font-size:13.5px}
 }
 </style>
 </head>
@@ -151,174 +134,30 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       <img src="../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
       <span class="app-title">Natuurkunde<span>Hub</span></span>
     </a>
-    <span style="color:var(--text-muted);font-size:15px">›</span>
-    <a href="../" style="color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none">Formules omschrijven</a>
-    <span style="color:var(--text-muted);font-size:15px">›</span>
-    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Uitleg</span>
+    <span class="crumb-sep">›</span>
+    <a href="../" class="crumb">Formules omschrijven</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Uitleg</span>
   </div>
   <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
 </div>
 
+<h1 class="tool-name">Leren omschrijven</h1>
+<p class="tool-sub">Stap voor stap een formule op zijn kop zetten</p>
+
 <div class="main">
 
-  <h1 class="tool-name">Leren omschrijven</h1>
-  <p class="page-lead">Je weet wat een formule betekent, maar hoe schrijf je hem om naar een andere grootheid? Volg de stappen totdat de gevraagde grootheid alleen staat.</p>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="steps-row" id="stepsRow"></div>
 
-  <!-- STAP 1 -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <span class="section-num">BASIS</span>
-      <h2>Begrijp de structuur</h2>
-    </div>
-    <div class="section-card-body">
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <div class="step-title">Schrijf de formule op</div>
-            <div class="step-desc">Een formule is een vergelijking: twee kanten die altijd gelijk zijn. Als je beide kanten op exact dezelfde manier bewerkt, blijft de gelijkheid gelden.</div>
-            <div class="formula-block" id="f-start"></div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <div class="step-title">Bepaal wat je wilt isoleren</div>
-            <div class="step-desc">Stel: je wilt de formule omschrijven naar <span id="target-span" style="color:var(--accent-amber);font-weight:700"></span>. Die grootheid staat nu niet alleen; je gaat hem vrij maken.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="badgeSlot"></div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <div class="content" id="stepContent"></div>
 
-  <!-- STAP 2 -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <span class="section-num">REGEL 1</span>
-      <h2>Vermenigvuldigen en delen</h2>
-    </div>
-    <div class="section-card-body">
-
-      <div class="rule-box">
-        <strong>Basisregel:</strong> wat je aan de ene kant doet, doe je ook aan de andere kant. Zo blijft de vergelijking kloppen.
-      </div>
-
-      <div class="step-desc" style="margin-bottom:16px">We schrijven <span id="formula-display-2" style="font-weight:700"></span> om naar <span id="target-span-2" style="color:var(--accent-amber);font-weight:700"></span>. Stap voor stap:</div>
-
-      <div class="formula-row" id="steps-row"></div>
-
-      <div class="example-card">
-        <div class="example-label">Ander voorbeeld</div>
-        <div class="step-desc" style="margin-bottom:10px">
-          Formule: <span id="ex2-start"></span>, schrijf om naar <span id="ex2-target" style="color:var(--accent-amber);font-weight:700"></span>
-        </div>
-        <div class="formula-row" id="ex2-steps"></div>
-      </div>
-
-      <div class="example-card">
-        <div class="example-label">De grootheid staat in de noemer</div>
-        <div class="step-desc" style="margin-bottom:10px">
-          Staat de grootheid onderin een breuk? Vermenigvuldig eerst beide kanten met de noemer, zodat hij bovenaan komt. Formule: <span id="ex2b-start"></span>, schrijf om naar <span id="ex2b-target" style="color:var(--accent-amber);font-weight:700"></span>
-        </div>
-        <div class="formula-row" id="ex2b-steps"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STAP 3 (NIEUW) -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <span class="section-num">REGEL 2</span>
-      <h2>Optelling en aftrekking</h2>
-    </div>
-    <div class="section-card-body">
-
-      <div class="rule-box">
-        <strong>Optelling en aftrekking:</strong> tel bij beide kanten op wat je wilt verplaatsen, of trek het er aan beide kanten van af. De term verdwijnt dan van de ene kant.
-      </div>
-
-      <div class="example-card">
-        <div class="example-label">Voorbeeld</div>
-        <div class="step-desc" style="margin-bottom:10px">
-          Formule: <span id="ex3a-start"></span>, schrijf om naar <span id="ex3a-target" style="color:var(--accent-amber);font-weight:700"></span>
-        </div>
-        <div class="formula-row" id="ex3a-steps"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STAP 4 (NIEUW) -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <span class="section-num">REGEL 3</span>
-      <h2>Formules met haakjes</h2>
-    </div>
-    <div class="section-card-body">
-
-      <div class="rule-box">
-        <strong>Haakjes:</strong> staat er een factor vóór de haakjes, deel dan eerst beide kanten door die factor. Daarna staat de haakjesterm alleen en kun je hem verder omschrijven.
-      </div>
-
-      <div class="example-card">
-        <div class="example-label">Voorbeeld</div>
-        <div class="step-desc" style="margin-bottom:10px">
-          Formule: <span id="ex4a-start"></span>, schrijf om naar <span id="ex4a-target" style="color:var(--accent-amber);font-weight:700"></span>
-        </div>
-        <div class="formula-row" id="ex4a-steps"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STAP 5 -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <span class="section-num">REGEL 4</span>
-      <h2>Wortels en machten</h2>
-    </div>
-    <div class="section-card-body">
-
-      <div class="rule-box">
-        <strong>Omgekeerde bewerkingen:</strong> wortel en kwadraat zijn elkaars inverse. Kwadrateer beide kanten om een wortel weg te halen; neem de wortel om een kwadraat weg te halen.
-      </div>
-
-      <div class="example-card">
-        <div class="example-label">Voorbeeld — wortel wegnemen</div>
-        <div class="formula-row" id="ex5a-steps"></div>
-      </div>
-
-      <div class="example-card">
-        <div class="example-label">Voorbeeld — kwadraat wegnemen</div>
-        <div class="formula-row" id="ex5b-steps"></div>
-      </div>
-
-      <!-- Mini-oefening -->
-      <div class="practice-card">
-        <div class="practice-label">Oefen zelf</div>
-        <div class="formula-block" id="prac-formula-display" style="font-size:1.8rem;margin-bottom:14px"></div>
-        <div class="practice-q">
-          <span>Schrijf om naar:</span>
-          <span class="practice-formula" id="prac-target" style="color:var(--accent-amber)"></span>
-        </div>
-        <div class="practice-ask" style="margin-bottom:10px">Typ je antwoord als: <span style="font-family:var(--mono)" id="prac-ask">a = ...</span></div>
-        <div class="calc-bar">
-          <div class="calc-groups" id="prac-calc-groups"></div>
-        </div>
-        <input class="practice-input" id="prac-input" type="text" placeholder="a = ..." autocomplete="off" spellcheck="false"
-          onkeydown="pracHandleKey(event)">
-        <div style="display:flex;gap:10px">
-          <button class="practice-btn" onclick="checkPractice()">Controleer</button>
-          <button class="practice-btn" style="background:transparent;border:1.5px solid var(--purple-border);color:var(--purple)" onclick="nextPractice()">Nieuwe opgave →</button>
-        </div>
-        <div class="practice-result" id="prac-result"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="nav-row">
-    <a href="../" class="nav-btn nav-btn--ghost">← Terug naar overzicht</a>
-    <a href="../oefenen/" class="nav-btn nav-btn--a">Oefenen →</a>
-    <a href="../examenformules/" class="nav-btn nav-btn--b">Examenformules →</a>
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
+    <span class="step-count" id="stepCount"></span>
+    <button class="nav-btn" id="nextBtn">Volgende →</button>
   </div>
 
 </div>
@@ -329,6 +168,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
 
+<script src="../js/stapper.js"></script>
 <script>
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
@@ -345,176 +185,217 @@ function applyTheme(t){
 function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
 (function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
 
-// ── CALC BAR FOR PRACTICE ──
-const PRAC_CALC_GROUPS=[
-  {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('}]},
-  {label:'Bewerkingen',btns:[{l:'×',v:'*'},{l:'÷',v:'/'},{l:'+',v:'+'},{l:'−',v:'-'}]},
+const steps=[
+{
+  badge:'Waarom',
+  title:'Waarom zou je een formule omschrijven?',
+  html:`
+    <p>Je kent de formule <code>s = v · t</code>. Daarmee reken je een afstand uit als je de snelheid en de tijd weet. Maar wat als je juist de <strong>tijd</strong> zoekt?</p>
+    <p>Dan moet je de formule omschrijven, zodat de gezochte grootheid alleen komt te staan:</p>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Het doel</div>
+      <p>Aan het eind staat er <code>t = ...</code>, met rechts alleen nog dingen die je weet. Zolang de gezochte letter nog ergens rechts staat, of nog vastzit aan iets anders, ben je niet klaar.</p>
+    </div>
+    <p>Omschrijven is geen apart trucje per formule. Het zijn steeds dezelfde vier soorten stappen, en die leer je hier.</p>
+  `
+},
+{
+  badge:'De kern',
+  title:'Wat je links doet, doe je rechts',
+  html:`
+    <p>Een formule is een gelijkheid. Links staat evenveel als rechts. Doe je aan één kant iets, dan klopt dat niet meer, tenzij je hetzelfde aan de andere kant doet.</p>
+    <p>Dat is de hele truc. Je doet steeds een bewerking op <strong>allebei</strong> de kanten, en kiest die bewerking zo dat er aan één kant iets wegvalt.</p>
+    <p>Probeer het hieronder. Je zoekt <code>t</code>, en die zit vast aan <code>v</code> met een vermenigvuldiging. Deel dus beide kanten door <code>v</code>.</p>
+    <div class="stapper" data-formule="s = v*t" data-doel="t"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Waar richt je de bewerking op?</div>
+      <p>Op alles behalve de letter die je zoekt. Die laat je juist met rust; je werkt de rest eromheen weg.</p>
+      <p>Had je hierboven door <code>t</code> gedeeld in plaats van door <code>v</code>, dan was <code>t</code> verdwenen en stond <code>v</code> alleen. Precies verkeerd om. Kijk dus steeds naar wat er nog om je gezochte letter heen staat, en haal dát weg.</p>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Wat je zag</div>
+      <p>Rechts stond <code>v · t / v</code>. De <code>v</code> boven en de <code>v</code> onder vallen tegen elkaar weg, en <code>t</code> blijft over. Dat wegstrepen is de reden dat je juist door <code>v</code> deelde en niet door iets anders.</p>
+      <p>Kortweg zeggen we: de <code>v</code> ging naar de andere kant en werd een deling. Dat is dezelfde stap, alleen sneller opgeschreven.</p>
+    </div>
+  `
+},
+{
+  badge:'Regel 1',
+  title:'Vermenigvuldigen en delen',
+  html:`
+    <p>Zit de gezochte letter vast met een <strong>vermenigvuldiging</strong>, dan haal je dat weg door te <strong>delen</strong>. En andersom.</p>
+    <ul>
+      <li>Staat er <code>· m</code> bij? Deel beide kanten door <code>m</code>.</li>
+      <li>Staat de letter in een noemer? Vermenigvuldig beide kanten met die noemer.</li>
+    </ul>
+    <p>Zoek hieronder de <code>m</code>:</p>
+    <div class="stapper" data-formule="F = m*a" data-doel="m"></div>
+    <p>En nu een geval waarbij de gezochte letter onderin een breuk staat. Zoek <code>R</code>. Je hebt hier twee stappen nodig.</p>
+    <div class="stapper" data-formule="I = U/R" data-doel="R"></div>
+    <div class="info-box">
+      <div class="info-title">Let op</div>
+      <p>Staat de gezochte letter in de noemer, dan moet je hem eerst naar boven halen. Vermenigvuldig met die letter, en pas daarna deel je door wat er nog omheen staat.</p>
+    </div>
+  `
+},
+{
+  badge:'Regel 2',
+  title:'Optellen en aftrekken',
+  html:`
+    <p>Staat er iets bij <strong>opgeteld</strong>, dan haal je dat weg door het <strong>af te trekken</strong> van beide kanten. En andersom.</p>
+    <p>Zoek <code>Ez</code>:</p>
+    <div class="stapper" data-formule="E = Ek+Ez" data-doel="Ez"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Volgorde</div>
+      <p>Plus en min haal je meestal als eerste weg, en keer en deel daarna. Dat is de omgekeerde volgorde van rekenen: bij het uitrekenen doe je keer en deel eerst, bij het omschrijven dus juist als laatste.</p>
+    </div>
+  `
+},
+{
+  badge:'Regel 3',
+  title:'Formules met haakjes',
+  html:`
+    <p>Staat de gezochte letter binnen haakjes, dan werk je van buiten naar binnen. Haal eerst weg wat er <strong>buiten</strong> de haakjes staat, en pak daarna pas wat erbinnen staat.</p>
+    <p>Zoek <code>a</code> in de omtrek van een rechthoek:</p>
+    <div class="stapper" data-formule="p = 2*(a+b)" data-doel="a"></div>
+    <p class="small">Je kunt de haakjes ook eerst wegwerken en dan verder, maar van buiten naar binnen is bijna altijd korter.</p>
+  `
+},
+{
+  badge:'Regel 4',
+  title:'Wortels en machten',
+  html:`
+    <p>Een kwadraat haal je weg met een <strong>wortel</strong>, en een wortel met een <strong>kwadraat</strong>. Ook dat doe je aan allebei de kanten.</p>
+    <p>Zoek <code>v</code> in de formule voor kinetische energie:</p>
+    <div class="stapper" data-formule="Ek = (m*v^2)/2" data-doel="v"></div>
+    <div class="info-box">
+      <div class="info-title">Bewaar de wortel voor het laatst</div>
+      <p>Zet eerst alles wat om het kwadraat heen staat aan de andere kant, zodat er alleen nog <code>v²</code> overblijft. Pas dan trek je de wortel. Doe je dat te vroeg, dan komt de hele rest onder de wortel te staan.</p>
+    </div>
+  `
+},
+{
+  badge:'Volgorde',
+  title:'Meerdere stappen achter elkaar',
+  html:`
+    <p>De meeste formules kosten meer dan één stap. Dan is de vraag vooral: <strong>welke stap eerst?</strong></p>
+    <p>Kijk naar wat er het verst van de gezochte letter af staat, en haal dat als eerste weg. Werk zo van buiten naar binnen toe.</p>
+    <p>Zoek <code>t</code>:</p>
+    <div class="stapper" data-formule="v = v0+a*t" data-doel="t"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Er is niet één goede route</div>
+      <p>Vaak kan het op meer manieren, en dat is prima. Zolang je elke bewerking op allebei de kanten doet, blijft de formule kloppen en kom je uit op hetzelfde antwoord. De ene route is alleen wat korter dan de andere.</p>
+    </div>
+  `
+},
+{
+  badge:'Zelf doen',
+  title:'Oefen met de stapper',
+  html:`
+    <p>Kies een formule en schrijf hem om. Zit je vast, dan kun je altijd een stap terug.</p>
+    <div class="keuze-rij" id="keuze-rij"></div>
+    <div class="stapper" id="vrije-stapper" data-formule="U = I*R" data-doel="I"></div>
+    <p class="small">In de oefenmodus typ je het eindantwoord in één keer. Lukt dat nog niet, doe het dan eerst hier stap voor stap.</p>
+  `
+},
+{
+  badge:'Samenvatting',
+  title:'Aan de slag',
+  html:`
+    <p>Op een rijtje wat je nu weet:</p>
+    <ol class="rules-list">
+      <li>Doe elke bewerking op <strong>allebei</strong> de kanten van het isgelijkteken.</li>
+      <li>Richt je bewerking op de <strong>andere</strong> letters, nooit op de letter die je zoekt. Die laat je staan.</li>
+      <li>Kies de bewerking zo dat er iets wegvalt: keer tegen deel, plus tegen min, wortel tegen kwadraat.</li>
+      <li>Werk van buiten naar binnen: haal eerst weg wat het verst van de gezochte letter af staat.</li>
+      <li>Plus en min meestal eerst, keer en deel daarna, de wortel als laatste.</li>
+      <li>Staat de letter in een noemer, haal hem dan eerst naar boven.</li>
+      <li>Je bent klaar als de gezochte letter alleen staat en nergens anders meer voorkomt.</li>
+    </ol>
+    <div class="cta-card">
+      <h3>Nu zelf oefenen</h3>
+      <p>Begin met kale letterformules, of ga meteen aan de slag met de formules uit het examenprogramma.</p>
+      <div class="cta-rij">
+        <a href="../oefenen/" class="cta-btn">Oefenen →</a>
+        <a href="../examenformules/" class="cta-btn tweede">Examenformules →</a>
+      </div>
+    </div>
+  `
+}
 ];
 
-let pracKb;
+const VRIJE_FORMULES=[
+  {f:'U = I*R',        d:'I',  label:'U = I·R,  zoek I'},
+  {f:'s = v*t',        d:'v',  label:'s = v·t,  zoek v'},
+  {f:'v = v0+a*t',     d:'a',  label:'v = v₀ + a·t,  zoek a'},
+  {f:'I = U/R',        d:'U',  label:'I = U/R,  zoek U'},
+  {f:'p = 2*(a+b)',    d:'b',  label:'p = 2·(a+b),  zoek b'},
+  {f:'Ek = (m*v^2)/2', d:'m',  label:'Ek = m·v²/2,  zoek m'},
+];
 
-function pracHandleKey(e){
-  if(e.key==='Enter')checkPractice();
-}
-
-function makeStepRow(steps,container){
-  steps.forEach(s=>{
-    const row=document.createElement('div');row.className='formula-row-item';
-    const lbl=document.createElement('span');lbl.className='step-label';lbl.textContent=s.label;
-    const arr=document.createElement('span');arr.className='step-arrow';arr.textContent='→';
-    const fml=document.createElement('span');fml.className='fml';
-    renderKaTeX(s.latex,fml,false);
-    row.appendChild(lbl);row.appendChild(arr);row.appendChild(fml);
-    container.appendChild(row);
+function bouwVrijeKeuze(){
+  const rij=document.getElementById('keuze-rij');
+  if(!rij) return;
+  rij.innerHTML='';
+  VRIJE_FORMULES.forEach((v,i)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='keuze-btn'+(i===0?' actief':'');
+    b.textContent=v.label;
+    b.onclick=()=>{
+      rij.querySelectorAll('.keuze-btn').forEach(x=>x.classList.remove('actief'));
+      b.classList.add('actief');
+      const st=document.getElementById('vrije-stapper');
+      st.dataset.formule=v.f; st.dataset.doel=v.d;
+      initStapper(st);
+    };
+    rij.appendChild(b);
   });
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-  pracKb=initKeyboard('prac-input',PRAC_CALC_GROUPS,{containerId:'prac-calc-groups',subIndicatorId:'prac-sub-indicator'});
+let current=0;
 
-  // STAP 1
-  renderKaTeX('F = m \\cdot a',document.getElementById('f-start'),true);
-  renderKaTeX('m',document.getElementById('target-span'),false);
+function renderChips(){
+  const row=document.getElementById('stepsRow');
+  row.innerHTML='';
+  steps.forEach((s,i)=>{
+    const chip=document.createElement('button');
+    chip.className='step-chip'+(i===current?' active':(i<current?' done':''));
+    chip.textContent=(i+1)+'. '+s.badge;
+    chip.onclick=()=>{current=i;render();};
+    row.appendChild(chip);
+  });
+}
 
-  // STAP 2 — F = m·a → m
-  renderKaTeX('m',document.getElementById('target-span-2'),false);
-  renderKaTeX('F = m \\cdot a',document.getElementById('formula-display-2'),false);
+function render(){
+  const s=steps[current], last=current===steps.length-1;
+  document.getElementById('badgeSlot').innerHTML='<span class="badge">'+s.badge+'</span>';
+  document.getElementById('stepTitle').textContent=s.title;
+  const content=document.getElementById('stepContent');
+  content.innerHTML=s.html;
+  initStappers(content);
+  bouwVrijeKeuze();
+  document.getElementById('progressFill').style.width=((current+1)/steps.length*100)+'%';
+  document.getElementById('stepCount').textContent='Stap '+(current+1)+' van '+steps.length;
+  document.getElementById('prevBtn').disabled=current===0;
+  document.getElementById('nextBtn').textContent=last?'Naar oefenen →':'Volgende →';
+  renderChips();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-  makeStepRow([
-    {label:'Gegeven',     latex:'F = m \\cdot a'},
-    {label:'÷ a',         latex:'\\dfrac{F}{a} = \\dfrac{m \\cdot a}{a}'},
-    {label:'Vereenvoudig',latex:'\\dfrac{F}{a} = m'},
-    {label:'Resultaat',   latex:'m = \\dfrac{F}{a}'},
-  ],document.getElementById('steps-row'));
+document.getElementById('prevBtn').onclick=()=>{if(current>0){current--;render();}};
+document.getElementById('nextBtn').onclick=()=>{
+  if(current<steps.length-1){current++;render();}
+  else{window.location='../oefenen/';}
+};
 
-  // STAP 2 — ander voorbeeld: Ek = ½mv² → v
-  renderKaTeX('E_k = \\dfrac{1}{2} m v^2',document.getElementById('ex2-start'),false);
-  renderKaTeX('v',document.getElementById('ex2-target'),false);
-
-  makeStepRow([
-    {label:'Gegeven', latex:'E_k = \\tfrac{1}{2} m v^2'},
-    {label:'× 2',     latex:'2 E_k = m v^2'},
-    {label:'÷ m',     latex:'\\dfrac{2 E_k}{m} = v^2'},
-    {label:'√(·)',    latex:'v = \\sqrt{\\dfrac{2 E_k}{m}}'},
-  ],document.getElementById('ex2-steps'));
-
-  // REGEL 1 — grootheid in de noemer: ρ = m/V → V
-  renderKaTeX('\\rho = \\dfrac{m}{V}',document.getElementById('ex2b-start'),false);
-  renderKaTeX('V',document.getElementById('ex2b-target'),false);
-
-  makeStepRow([
-    {label:'Gegeven', latex:'\\rho = \\dfrac{m}{V}'},
-    {label:'× V',     latex:'\\rho \\cdot V = m'},
-    {label:'÷ ρ',     latex:'V = \\dfrac{m}{\\rho}'},
-  ],document.getElementById('ex2b-steps'));
-
-  // STAP 3 — v_gem = (v_b + v_e)/2 → v_b
-  renderKaTeX('v_{gem} = \\dfrac{v_b + v_e}{2}',document.getElementById('ex3a-start'),false);
-  renderKaTeX('v_b',document.getElementById('ex3a-target'),false);
-
-  makeStepRow([
-    {label:'Gegeven', latex:'v_{gem} = \\dfrac{v_b + v_e}{2}'},
-    {label:'× 2',     latex:'2\\, v_{gem} = v_b + v_e'},
-    {label:'− v_e',   latex:'v_b = 2\\, v_{gem} - v_e'},
-  ],document.getElementById('ex3a-steps'));
-
-  // STAP 4 — E = P·(t₂ − t₁) → t₁
-  renderKaTeX('E = P \\cdot (t_2 - t_1)',document.getElementById('ex4a-start'),false);
-  renderKaTeX('t_1',document.getElementById('ex4a-target'),false);
-
-  makeStepRow([
-    {label:'Gegeven',  latex:'E = P \\cdot (t_2 - t_1)'},
-    {label:'÷ P',      latex:'\\dfrac{E}{P} = t_2 - t_1'},
-    {label:'+ t_1',    latex:'\\dfrac{E}{P} + t_1 = t_2'},
-    {label:'− E/P',    latex:'t_1 = t_2 - \\dfrac{E}{P}'},
-  ],document.getElementById('ex4a-steps'));
-
-  // STAP 5 — wortel wegnemen: v = sqrt(2Ek/m) → Ek
-  makeStepRow([
-    {label:'Gegeven', latex:'v = \\sqrt{\\dfrac{2E_k}{m}}'},
-    {label:'(·)²',    latex:'v^2 = \\dfrac{2E_k}{m}'},
-    {label:'× m',     latex:'m v^2 = 2 E_k'},
-    {label:'÷ 2',     latex:'E_k = \\dfrac{m v^2}{2}'},
-  ],document.getElementById('ex5a-steps'));
-
-  // STAP 5 — kwadraat wegnemen: x = a²·b → a
-  makeStepRow([
-    {label:'Gegeven', latex:'x = a^2 \\cdot b'},
-    {label:'÷ b',     latex:'\\dfrac{x}{b} = a^2'},
-    {label:'√(·)',    latex:'a = \\sqrt{\\dfrac{x}{b}}'},
-  ],document.getElementById('ex5b-steps'));
-
-  // Mini-oefening: eerste opgave laden
-  loadPractice();
+document.addEventListener('keydown',(e)=>{
+  if(e.target.closest('.stapper')) return;
+  if(e.key==='ArrowRight'&&current<steps.length-1){current++;render();}
+  if(e.key==='ArrowLeft'&&current>0){current--;render();}
 });
 
-// ── MINI-OEFENING — gecontroleerd met verify.js (zelfde controle als de oefenpagina's) ──
-const PRACTICE_POOL=[
-  {formula:'x = a^{2} \\cdot b', target:'a', vars:['x','a','b'], canonical:'sqrt(x/b)',
-   hint:'Deel eerst beide kanten door b, neem daarna de wortel.'},
-  {formula:'x = \\dfrac{a}{b}', target:'b', vars:['x','a','b'], canonical:'a/x',
-   hint:'b staat in de noemer: vermenigvuldig beide kanten met b en deel daarna door x.'},
-  {formula:'v = \\sqrt{\\dfrac{a}{b}}', target:'a', vars:['v','a','b'], canonical:'v^2*b',
-   hint:'Kwadrateer eerst beide kanten om de wortel weg te werken.'},
-  {formula:'x = a + b \\cdot c', target:'b', vars:['x','a','b','c'], canonical:'(x-a)/c',
-   hint:'Trek eerst a van beide kanten af, deel daarna door c.'},
-  {formula:'E = \\tfrac{1}{2} m v^{2}', target:'v', vars:['E','m','v'], canonical:'sqrt(2*E/m)',
-   hint:'Vermenigvuldig met 2, deel door m, en neem als laatste de wortel.'},
-];
-let pracIndex=0, pracAttempts=0;
-
-function loadPractice(){
-  const ex=PRACTICE_POOL[pracIndex];
-  pracAttempts=0;
-  renderKaTeX(ex.formula,document.getElementById('prac-formula-display'),true);
-  renderKaTeX(ex.target,document.getElementById('prac-target'),false);
-  const inp=document.getElementById('prac-input');
-  inp.value='';
-  inp.placeholder=`${ex.target} = ...`;
-  document.getElementById('prac-ask').textContent=`${ex.target} = ...`;
-  const result=document.getElementById('prac-result');
-  result.className='practice-result';
-  result.style.display='none';
-}
-
-function nextPractice(){
-  pracIndex=(pracIndex+1)%PRACTICE_POOL.length;
-  loadPractice();
-}
-
-function checkPractice(){
-  const ex=PRACTICE_POOL[pracIndex];
-  const raw=document.getElementById('prac-input').value;
-  const result=document.getElementById('prac-result');
-  result.style.display='';
-  if(!raw.trim()){result.style.display='none';return;}
-
-  if(lhsIsWrongVariable(raw,ex.target,ex.vars.filter(v=>v!==ex.target),false)){
-    result.textContent=`Let op: er wordt gevraagd om ${ex.target} vrij te maken — links van het =-teken staat nu een andere grootheid.`;
-    result.className='practice-result wrong';
-    return;
-  }
-
-  let ok=false;
-  try{
-    ok=checkAnswer(raw,ex.canonical);
-  }catch(e){
-    result.textContent='Ik kan je invoer niet verwerken — controleer haakjes en symbolen.';
-    result.className='practice-result wrong';
-    return;
-  }
-
-  if(ok){
-    result.textContent='Goed! ✓';
-    result.className='practice-result ok';
-  } else {
-    pracAttempts++;
-    result.textContent=pracAttempts>=2
-      ? `Niet helemaal. Hint: ${ex.hint}`
-      : 'Niet helemaal, probeer het nog eens.';
-    result.className='practice-result wrong';
-  }
-}
+render();
 </script>
 </body>
 </html>

@@ -79,11 +79,22 @@ const COMPOUND_ATOMS = {
 };
 const COMPOUND_ATOM_KEYS = Object.keys(COMPOUND_ATOMS).sort((a, b) => b.length - a.length);
 
+// Superscripttekens die een Chromebook (of een dood dakje op andere indelingen)
+// van '^' plus een cijfer maakt.
+const SUPERSCRIPT_CHARS = {
+  '⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9',
+  '⁺':'+','⁻':'-',
+};
+
 // Gedeelde voorbewerking: spaties weg, Grieks/LaTeX naar namen, haakjes-accolades strippen
 function preprocess(expr) {
   if (!expr || typeof expr !== 'string') return '';
   let s = expr.trim().replace(/\s+/g, '');
-  const greekMap = {'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi','σ':'sigma'};
+  // Chromebooks maken van een dakje gevolgd door een cijfer één superscriptteken:
+  // wie v^2 typt houdt v² over. Terugvertalen, anders wordt een goed antwoord afgekeurd.
+  s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, run =>
+    '^(' + run.split('').map(c => SUPERSCRIPT_CHARS[c]).join('') + ')');
+  const greekMap ={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi','σ':'sigma'};
   for (const [sym, name] of Object.entries(greekMap)) s = s.split(sym).join(name);
   const latexMap = {'\\alpha':'alpha','\\beta':'beta','\\gamma':'gamma','\\delta':'delta','\\eta':'eta','\\lambda':'lambda','\\rho':'rho','\\omega':'omega','\\phi':'phi','\\Delta':'Delta','\\pi':'pi','\\cdot':'*','\\times':'*'};
   for (const [cmd, repl] of Object.entries(latexMap)) s = s.split(cmd).join(repl);

@@ -14,7 +14,7 @@ global.math = {
   }
 };
 
-const { checkAnswer, lhsIsWrongVariable, unifyCompounds, atomOf, toDisplayLatex } = require('../js/verify.js');
+const { checkAnswer, lhsIsWrongVariable, unifyCompounds, atomOf, toDisplayLatex, preprocess } = require('../js/verify.js');
 
 // ── Samengestelde namen: subscript-, platte en Δ-notatie zijn gelijkwaardig ──
 test('E_k met subscript-knop wordt goedgekeurd', () => {
@@ -176,4 +176,30 @@ test('een verkeerd antwoord (reciproque) wordt overal afgekeurd', () => {
         `${f.id} → ${key}: reciproque werd goedgekeurd`);
     }
   }
+});
+
+// ── Chromebook: een dakje gevolgd door een cijfer wordt één superscriptteken ──
+// Leerlingen typen v^2 en houden v² over. Dat hoort gewoon goedgekeurd te worden.
+test('kwadraat als superscriptteken wordt goedgekeurd', () => {
+  assert.equal(checkAnswer('v² ', 'v^2', ['v']), true);
+});
+test('derde macht als superscriptteken wordt goedgekeurd', () => {
+  assert.equal(checkAnswer('a*t³', 'a*t^3', ['a', 't']), true);
+});
+test('negatieve exponent als superscript wordt goedgekeurd', () => {
+  assert.equal(checkAnswer('t⁻²', 't^-2', ['t']), true);
+});
+test('exponent van twee cijfers als superscript wordt goedgekeurd', () => {
+  assert.equal(checkAnswer('x¹²', 'x^12', ['x']), true);
+});
+test('superscript in een grotere formule wordt goedgekeurd', () => {
+  assert.equal(checkAnswer('E = 0.5*m*v²', '0.5*m*v^2', ['m', 'v']), true);
+});
+test('superscript verandert niets aan een fout antwoord', () => {
+  assert.equal(checkAnswer('v³', 'v^2', ['v']), false);
+});
+test('preprocess vertaalt superscript naar een gewone macht', () => {
+  assert.equal(preprocess('v²'), 'v^(2)');
+  assert.equal(preprocess('t⁻³'), 't^(-3)');
+  assert.equal(preprocess('v^2'), 'v^2');
 });

@@ -12,6 +12,8 @@
 <script src="../js/verify.js"></script>
 <script src="../js/keyboard.js"></script>
 <script src="../js/katex-init.js"></script>
+<script src="../js/stapper.js"></script>
+<link rel="stylesheet" href="../css/stapper.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -100,6 +102,24 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .solution-content{display:none}
 .solution-content strong{color:var(--text);font-size:14px}
 .katex-sol{font-size:1.2rem;padding:10px 0;text-align:center;overflow:visible}
+.stapwerk{background:var(--bg-secondary);border:1px solid var(--accent-border);border-radius:10px;padding:14px 16px 4px;margin-bottom:12px;display:none}
+.stapwerk.open{display:block}
+.stapwerk-kop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.stapwerk-kop strong{font-size:14px;color:var(--accent)}
+.stapwerk-tekst{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px}
+.stapwerk .stapper{border:none;background:transparent;padding:0;margin:6px 0 10px}
+.stapwerk .stapper-kop{display:none}   /* de uitleg staat al boven de stapper */
+.overgenomen{font-size:13px;font-weight:600;color:var(--green);background:var(--green-dim);border-radius:8px;padding:8px 12px;margin:0 0 12px}
+.toast-laag{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:200;padding:0 16px}
+.toast{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:16px 30px;text-align:center;box-shadow:0 14px 44px rgba(11,181,200,0.28);animation:toastIn .28s cubic-bezier(.2,.9,.3,1.2) both}
+.toast.uit{animation:toastUit .22s ease-in both}
+.toast-titel{font-size:21px;font-weight:700;color:var(--accent);letter-spacing:-.4px}
+.toast-tekst{font-size:13px;color:var(--text-secondary);margin-top:3px}
+.toast--vuur{border-color:var(--accent-amber);box-shadow:0 14px 44px rgba(212,146,58,0.3)}
+.toast--vuur .toast-titel{color:var(--accent-amber)}
+@keyframes toastIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+@keyframes toastUit{to{opacity:0;transform:scale(.96)}}
+@media(prefers-reduced-motion:reduce){.toast,.toast.uit{animation:none}}
 .btn-row{display:flex;gap:10px}
 .qbtn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);font-family:var(--font);font-weight:600;transition:all .15s}
 .qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
@@ -121,6 +141,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 </style>
 </head>
 <body>
+<div class="toast-laag" id="toast-laag" aria-live="polite"></div>
 <div class="ambient-glow ambient-glow--cyan"></div>
 <div class="ambient-glow ambient-glow--amber"></div>
 <div class="app-header">
@@ -197,6 +218,15 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   </div>
   <div class="feedback-bar" id="feedback"></div>
   <div class="hint-bar" id="hint-bar"></div>
+  <div class="stapwerk" id="stapwerk">
+    <div class="stapwerk-kop">
+      <strong>Stap voor stap</strong>
+      <button class="mini-btn" onclick="toggleStapper()">verbergen</button>
+    </div>
+    <p class="stapwerk-tekst">Kies steeds een bewerking; de stapper past hem op allebei de kanten toe. Elke route die klopt is goed.</p>
+    <div class="stapper" id="oefen-stapper"></div>
+    <div class="overgenomen" id="overgenomen" style="display:none"></div>
+  </div>
   <div class="solution-reveal" id="solution-reveal">
     <button class="reveal-btn" id="btn-reveal" onclick="showSolution()">Bekijk correcte omschrijving</button>
     <div class="solution-content" id="solution-content">
@@ -205,6 +235,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     </div>
   </div>
   <div class="btn-row">
+    <button class="qbtn" id="btn-stap" onclick="toggleStapper()">Stap voor stap</button>
     <button class="qbtn" id="btn-skip" onclick="skipExercise()">Sla over</button>
     <button class="qbtn primary" id="btn-check" onclick="handleCheckBtn()">Controleer</button>
   </div>
@@ -536,12 +567,17 @@ function generateExercise(levels){
 }
 
 // ── STATE ──
-const CLIMB_GOAL=3, MAX_LEVEL=5;
-let state={exercise:null,attempts:0,checked:false,counter:0,selectedLevels:[],mode:'custom',climbLevel:1,climbStreak:0};
+// Vijf goed op rij om een level te stijgen. Eén fout kost één stapje, niet de
+// hele reeks: zo blijft klimmen haalbaar zonder dat het te snel gaat.
+const CLIMB_GOAL=5, MAX_LEVEL=5;
+let state={exercise:null,attempts:0,checked:false,counter:0,selectedLevels:[],mode:'custom',
+           climbLevel:1,climbStreak:0,streak:0,stapperUit:false};
 let currentCorrectAnswer=null;
 
 function startExercise(){
   state.mode='custom';
+  state.streak=0;
+  state.stapperUit=false;
   state.selectedLevels=ALL_LEVELS.filter(n=>document.querySelector(`#lbl-${n} input`).checked);
   state.counter=0;
   showPanel('exercise');
@@ -550,6 +586,8 @@ function startExercise(){
 
 function startClimb(){
   state.mode='climb';
+  state.streak=0;
+  state.stapperUit=false;
   state.climbLevel=1;
   state.climbStreak=0;
   state.counter=0;
@@ -588,8 +626,10 @@ function nextExercise(){
   tEl.innerHTML='';
   renderKaTeX(ex.solveTarget,tEl,false);
 
+  // De gevraagde grootheid staat al klaar, zodat de leerling alleen nog het
+  // rechterlid hoeft te typen.
   const inp=document.getElementById('answer-input');
-  inp.value='';
+  inp.value=`${ex.solveTarget} = `;
   inp.className='formula-input';
   inp.readOnly=false;
   inp.placeholder=`${ex.solveTarget} = ...`;
@@ -603,17 +643,24 @@ function nextExercise(){
   document.getElementById('solution-content').style.display='none';
   document.getElementById('btn-reveal').style.display='';
 
+  sluitStapper();
+  document.getElementById('oefen-stapper').innerHTML='';
+  document.getElementById('overgenomen').style.display='none';
+  document.getElementById('btn-stap').disabled=!stapperFormule(ex);
+  if(stapperVanzelf(ex)&&!document.getElementById('btn-stap').disabled)openStapper(false);
+
   const btnCheck=document.getElementById('btn-check');
   btnCheck.textContent='Controleer';
   btnCheck.className='qbtn primary';
   btnCheck.disabled=false;
   document.getElementById('btn-skip').style.display='';
   inp.focus();
+  inp.setSelectionRange(inp.value.length,inp.value.length);
 }
 
 function skipExercise(){
   if(state.checked){nextExercise();return;}
-  if(state.mode==='climb'){state.climbStreak=0;updateMeta();}
+  if(state.mode==='climb'){state.climbStreak=Math.max(0,state.climbStreak-1);updateMeta();}
   const fb=document.getElementById('feedback');
   fb.textContent='Overgeslagen — bekijk hieronder het correcte antwoord.';
   fb.className='feedback-bar retry';
@@ -736,7 +783,8 @@ function handleCheckBtn(){if(state.checked){nextExercise();return;}doCheck();}
 function doCheck(){
   const ex=state.exercise;
   const raw=document.getElementById('answer-input').value;
-  if(!raw.trim())return;
+  const ingevuld=raw.includes('=')?raw.split('=').slice(1).join('='):raw;
+  if(!ingevuld.trim())return;
 
   const inp=document.getElementById('answer-input');
   const fb=document.getElementById('feedback');
@@ -788,20 +836,29 @@ function doCheck(){
 
     if(isCorrect){
       fb.textContent='Goed! ✓';
+      state.streak++;
+      let levelToast=false;
       if(state.mode==='climb'){
         state.climbStreak++;
         if(state.climbStreak>=CLIMB_GOAL){
           if(state.climbLevel<MAX_LEVEL){
             state.climbLevel++;
             state.climbStreak=0;
-            fb.textContent=`Goed! ✓ Drie op rij — door naar level ${state.climbLevel}!`;
+            fb.textContent=`Goed! ✓ ${CLIMB_GOAL} op rij — door naar level ${state.climbLevel}!`;
+            toonToast('Level '+state.climbLevel, CLIMB_GOAL+' goed op rij.');
+            levelToast=true;
           } else {
             fb.textContent='Goed! ✓ Je beheerst het hoogste level!';
             state.climbStreak=0;
+            toonToast('Hoogste level','Je blijft op level '+MAX_LEVEL+'.');
+            levelToast=true;
           }
         }
         updateMeta();
       }
+      // Niet twee toasts tegelijk: de levelsprong is dan het nieuws.
+      if(!levelToast && state.streak>=5 && state.streak%5===0)
+        toonToast(state.streak+' op rij','Mooie reeks.','vuur');
       fb.className='feedback-bar ok';
       hintBar.className='hint-bar';
       inp.classList.add('correct');
@@ -811,12 +868,16 @@ function doCheck(){
       document.getElementById('btn-skip').style.display='none';
     } else {
       state.attempts++;
+      state.streak=0;
       if(state.attempts===1){
-        // Eerste fout: alleen feedback, geen hint
-        fb.textContent='Niet correct, probeer het nog eens.';
+        // Eerste fout: zo concreet mogelijk zeggen wat er misgaat, en de
+        // stapper openzetten zodat het niet in één sprong hoeft.
+        const wat=diagnose(raw,ex);
+        fb.textContent=wat?`Niet correct. ${wat}`:'Niet correct. Doe het hieronder stap voor stap, of pas je antwoord aan.';
         fb.className='feedback-bar retry';
         btnCheck.disabled=false;
         btnCheck.textContent='Controleer';
+        if(!document.getElementById('btn-stap').disabled)openStapper(true);
       } else if(state.attempts===2){
         // Tweede fout: hint tonen en nog een keer laten proberen
         fb.textContent='Niet correct. Gebruik de hint en probeer het nog eens.';
@@ -826,21 +887,109 @@ function doCheck(){
         btnCheck.disabled=false;
         btnCheck.textContent='Controleer';
       } else {
-        // Derde fout: uitwerking aanbieden
-        fb.textContent='Niet correct.';
+        // Derde fout: het goede antwoord meteen tonen, niet achter een knop.
+        fb.textContent='Niet correct. Hieronder staat de juiste omschrijving; probeer hem daarna zelf nog eens stap voor stap.';
         fb.className='feedback-bar retry';
         document.getElementById('solution-reveal').style.display='block';
-        document.getElementById('solution-content').style.display='none';
-        document.getElementById('btn-reveal').style.display='';
+        showSolution();
         state.checked=true;
         btnCheck.textContent='Volgende opgave';
         btnCheck.className='qbtn primary';
         document.getElementById('btn-skip').style.display='none';
         inp.classList.add('wrong');
-        if(state.mode==='climb'){state.climbStreak=0;updateMeta();}
+        if(state.mode==='climb'){state.climbStreak=Math.max(0,state.climbStreak-1);updateMeta();}
       }
     }
   },50);
+}
+
+// ── TOASTS ──
+// Midden in het venster, zodat je hem ook ziet als je onderaan de pagina staat.
+function toonToast(titel,tekst,soort){
+  const laag=document.getElementById('toast-laag');
+  const t=document.createElement('div');
+  t.className='toast'+(soort?' toast--'+soort:'');
+  t.innerHTML='<div class="toast-titel">'+titel+'</div>'+(tekst?'<div class="toast-tekst">'+tekst+'</div>':'');
+  laag.appendChild(t);
+  setTimeout(()=>{t.classList.add('uit');setTimeout(()=>t.remove(),220);},1100);
+}
+
+// ── STAPMODUS ──
+// Dezelfde stapper als op de uitlegpagina: de leerling kiest bewerkingen en de
+// stapper past ze op allebei de kanten toe. Het antwoord hoeft dus niet in één
+// sprong, en elke route die klopt telt.
+function stapperFormule(ex){
+  const gewoon=formuleUitLatex(ex.latexFormula);
+  if(!gewoon.includes('='))return null;
+  const[li,re]=gewoon.split('=');
+  try{parse(li);parse(re);}catch(e){return null;}
+  return gewoon;
+}
+
+function toggleStapper(){
+  if(document.getElementById('stapwerk').classList.contains('open')){
+    sluitStapper();
+    state.stapperUit=true;      // zelf weggeklikt: dan niet meer vanzelf open
+  } else {
+    state.stapperUit=false;
+    openStapper(false);
+  }
+}
+
+// In het begin staat de stapper vanzelf open, zodat duidelijk is dat het ook
+// stap voor stap kan. Na een paar opgaven verdwijnt hij; de knop blijft.
+function stapperVanzelf(ex){
+  return !state.stapperUit && ex.level===1 && state.counter<=3;
+}
+
+function openStapper(automatisch){
+  const btn=document.getElementById('btn-stap');
+  const formule=stapperFormule(state.exercise);
+  if(!formule){btn.disabled=true;return;}
+  const el=document.getElementById('oefen-stapper');
+  el.dataset.formule=formule;
+  el.dataset.doel=state.exercise.solveTarget;
+  initStapper(el);
+  document.getElementById('overgenomen').style.display='none';
+  document.getElementById('stapwerk').classList.add('open');
+  btn.textContent='Verberg stappen';
+  if(automatisch)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),60);
+}
+
+function sluitStapper(){
+  document.getElementById('stapwerk').classList.remove('open');
+  document.getElementById('btn-stap').textContent='Stap voor stap';
+}
+
+// De stapper meldt het zodra de gevraagde grootheid alleen staat. Het antwoord
+// gaat dan meteen in het invoerveld en wordt ook meteen nagekeken: apart op
+// Controleer klikken voegt niets toe.
+function onStapperKlaar(detail){
+  const inp=document.getElementById('answer-input');
+  const leesbaar=t=>t.replace(/Delta_/g,'Δ');
+  inp.value=leesbaar(detail.doel)+' = '+leesbaar(detail.antwoord);
+  updatePreview();
+  const melding=document.getElementById('overgenomen');
+  melding.textContent='Zo staat '+detail.doel+' alleen — overgenomen in je antwoord.';
+  melding.style.display='block';
+  if(!state.checked)setTimeout(doCheck,300);
+}
+
+// ── DIAGNOSE ──
+// Zeg zo concreet mogelijk wát er misgaat, in plaats van alleen "niet correct".
+function diagnose(raw,ex){
+  const doel=ex.solveTarget;
+  const rechterlid=raw.includes('=')?raw.split('=').slice(1).join('='):raw;
+  const namen=[...new Set((rechterlid.match(/[A-Za-z][A-Za-z0-9_]*/g)||[]).filter(n=>n!=='sqrt'))];
+  if(namen.includes(doel))
+    return `In je antwoord staat ${doel} ook rechts van het =-teken; ${doel} hoort daar juist uit weg te zijn.`;
+  const onbekend=namen.filter(n=>!(ex.vars||[]).includes(n));
+  if(onbekend.length)
+    return `De letter ${onbekend[0]} komt niet in de formule voor.`;
+  const ontbreekt=(ex.vars||[]).filter(v=>v!==doel&&!namen.includes(v));
+  if(ontbreekt.length===1)
+    return `${ontbreekt[0]} ontbreekt in je antwoord, terwijl die wel in de formule staat.`;
+  return null;
 }
 
 // ── SOLUTION ──
@@ -866,6 +1015,7 @@ function showPanel(name){
 
 // ── INIT KEYBOARD ──
 const kb=initKeyboard('answer-input',CALC_GROUPS);
+document.getElementById('oefen-stapper').addEventListener('stapper-klaar',e=>onStapperKlaar(e.detail));
 </script>
 </body>
 </html>
