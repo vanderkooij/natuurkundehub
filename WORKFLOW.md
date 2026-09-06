@@ -23,13 +23,24 @@ natuurkundehub/
 ├── circuitsketch/                    # Eigen Vite/React-project — alleen circuitsketch/dist/ wordt gedeployed
 ├── formules-omschrijven/
 │   ├── index.html                    # Keuzemenu
-│   ├── uitleg/index.html             # Uitlegmodus
-│   ├── oefenen/index.html            # Letterformules (5 levels + oplopende reeks)
-│   └── examenformules/index.html     # Formules uit het examenprogramma
+│   ├── uitleg/index.html             # Uitlegmodus (9 stappen, met de stapper)
+│   ├── oefenen/index.html            # Letterformules (5 levels + oplopende reeks, met stapmodus)
+│   ├── examenformules/index.html     # Formules uit het examenprogramma (met stapmodus)
+│   ├── css/stapper.css               # Opmaak van de stapper — gedeeld door uitleg en oefenen
+│   └── js/
+│       ├── stapper.js                # Stap-voor-stap vergelijking: parser, vereenvoudiger, animatie
+│       ├── verify.js                 # Antwoordcontrole op gelijkwaardigheid (numeriek)
+│       ├── keyboard.js               # Rekenbalk en subscript-invoer
+│       └── katex-init.js             # KaTeX-weergave
 ├── modelleren/
 │   └── index.html                    # Numerieke modelleeromgeving
 ├── significantie/
-│   └── index.html                    # Significante cijfers oefenen
+│   ├── index.html                    # Significante cijfers oefenen
+│   └── uitleg/index.html             # Uitlegmodus
+├── voorvoegsels/
+│   ├── index.html                    # Keuzemenu
+│   ├── uitleg/index.html             # Uitlegmodus
+│   └── oefenen/index.html            # Oefenmodus (4 soorten, 5 levels)
 ├── dist/                             # Gebouwde versies (automatisch, niet handmatig bewerken)
 ├── build.sh                          # Build-script — bron van waarheid voor wat er gedeployed wordt
 └── workflow.md                       # Dit bestand
@@ -51,6 +62,19 @@ Bij het ontwikkelen van nieuwe tools wordt — waar dat redelijk haalbaar is —
 - **Consistentie boven creativiteit per tool.** Gebruikers (leerlingen) moeten in elke tool dezelfde interactiepatronen herkennen. Een slider werkt overal hetzelfde; play/pause-knoppen zien er overal hetzelfde uit.
 - **Stack-keuze volgt de tool.** Eenvoudige oefen-tools blijven single-file HTML. Tools met substantiële interactie of animatie (PhET-stijl simulaties, video-analyse) verdienen de Vite + React + TS-stack zoals CircuitSketch, zodat ze profiteren van een gedeelde componenten- en sim-bibliotheek.
 - **Niet vooraf overdesignen.** De gedeelde bibliotheek groeit organisch: pas extraheren als iets voor de tweede of derde keer nodig is, niet vooraf bedenken wat ooit nuttig zou kunnen zijn.
+
+## Invoer van leerlingen (Chromebooks)
+
+De leerlingen werken op **Chromebooks**. Daar maakt het toetsenbord van een dakje gevolgd door een cijfer één superscriptteken: wie `v^2` typt houdt `v²` over, en `5*10^3` wordt `5*10³`. Een parser die alleen `^` kent, keurt daardoor een goed antwoord af. Dat is geen randgeval maar de normale situatie in de les.
+
+Elke tool met een invoerveld normaliseert de invoer daarom vóór het parsen:
+
+- **Superscripttekens** `⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻` terug naar gewone tekens. In `formules-omschrijven` wordt dat `^(...)`, omdat die vorm ook bij negatieve exponenten door de rest van de parser komt.
+- **Het echte minteken** `−` (U+2212) en gedachtestreepjes naar het gewone koppelteken. Tools tonen zelf een echt minteken, dus dat moet ook terug ingetypt kunnen worden.
+- **Spaties** als duizendtalscheiding negeren, zodat `5 000` werkt.
+- **Een kale tienmacht** zoals `10³` accepteren als `1·10³`.
+
+Vaste testreeks bij een nieuwe invoerparser: `5000`, `5e3`, `5*10^3`, `5·10³`, `4,5·10⁻³` en `10³`. In `formules-omschrijven` staan hier zeven tests voor (`npm run test:formules`).
 
 ## Contactformulier (Netlify Forms)
 
@@ -92,6 +116,10 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/formules-omschrijven/oefenen/` | Oefenen |
 | `/formules-omschrijven/examenformules/` | Examenformules |
 | `/significantie/` | Significantie |
+| `/significantie/uitleg/` | Significantie |
+| `/voorvoegsels/` | Machten van 10 en voorvoegsels *(keuzepagina, hero)* |
+| `/voorvoegsels/uitleg/` | Machten van 10 en voorvoegsels |
+| `/voorvoegsels/oefenen/` | Oefenen |
 | `/circuitsketch/` | CircuitSketch |
 | `/contact/` | Contact & Feedback |
 
