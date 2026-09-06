@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machten van 10 en voorvoegsels, stapsgewijs</title>
+<style>
+  :root{
+    --deep-green:#2D4A3E;
+    --mid-green:#5A8F7B;
+    --light-green:#E8F0EC;
+    --soft-bg:#F3F8F5;
+    --gold:#D4A84B;
+    --dark-gold:#9E7A2E;
+    --cream:#F7F5F0;
+    --text-dark:#2D2D2D;
+    --text-mid:#4A4A4A;
+    --text-light:#888888;
+    --line:#C8C8C8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Segoe UI Web", Tahoma, Geneva, Verdana, sans-serif;
+    color:var(--text-dark);
+    background:#ffffff;
+  }
+  .header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:14px 28px;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+    color:var(--text-light);
+  }
+  .shell{
+    max-width:980px;
+    margin:0 auto;
+    padding:28px 24px 60px;
+  }
+  .title-block{
+    position:relative;
+    padding-left:18px;
+    margin-bottom:6px;
+  }
+  .title-block::before{
+    content:"";
+    position:absolute;
+    left:0; top:2px; bottom:6px;
+    width:3.5px;
+    background:var(--mid-green);
+    border-radius:2px;
+  }
+  h1{
+    margin:0;
+    color:var(--deep-green);
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-0.2px;
+  }
+  .subtitle{
+    color:var(--text-light);
+    font-size:15px;
+    margin-top:4px;
+  }
+  .progress-wrap{
+    margin:26px 0 30px;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--light-green);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--mid-green);
+    border-radius:4px;
+    transition:width .35s ease;
+  }
+  .steps-row{
+    display:flex;
+    gap:6px;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .step-chip{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--text-mid);
+    font-size:12.5px;
+    padding:6px 11px;
+    border-radius:16px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .15s ease;
+    font-family:inherit;
+  }
+  .step-chip:hover{ border-color:var(--mid-green); color:var(--deep-green); }
+  .step-chip.active{
+    background:var(--deep-green);
+    border-color:var(--deep-green);
+    color:#fff;
+    font-weight:600;
+  }
+  .step-chip.done{
+    border-color:var(--mid-green);
+    color:var(--mid-green);
+  }
+
+  .badge{
+    display:inline-block;
+    background:var(--light-green);
+    color:var(--deep-green);
+    font-size:12.5px;
+    font-weight:600;
+    padding:4px 12px;
+    border-radius:14px;
+    margin-bottom:14px;
+    letter-spacing:.2px;
+  }
+  .step-title{
+    color:var(--deep-green);
+    font-size:24px;
+    font-weight:700;
+    margin:0 0 16px;
+  }
+  .content p{
+    line-height:1.6;
+    font-size:15.5px;
+    color:var(--text-dark);
+    margin:0 0 14px;
+  }
+  .content strong{ color:var(--deep-green); }
+
+  .card-row{
+    display:flex;
+    gap:16px;
+    margin:18px 0;
+    flex-wrap:wrap;
+  }
+  .card{
+    flex:1 1 220px;
+    background:var(--soft-bg);
+    border:1px solid var(--light-green);
+    border-radius:8px;
+    padding:16px 18px;
+  }
+  .card h4{
+    margin:0 0 6px;
+    color:var(--deep-green);
+    font-size:14px;
+  }
+  .card .num{
+    font-size:20px;
+    font-weight:700;
+    color:var(--text-dark);
+  }
+  .card .caption{
+    font-size:13px;
+    color:var(--text-light);
+    margin-top:4px;
+  }
+
+  table.info-table{
+    width:100%;
+    border-collapse:collapse;
+    margin:16px 0;
+    font-size:14.5px;
+  }
+  table.info-table th{
+    background:var(--light-green);
+    color:var(--deep-green);
+    text-align:left;
+    padding:9px 12px;
+    font-weight:600;
+    border-bottom:2px solid var(--mid-green);
+  }
+  table.info-table td{
+    padding:9px 12px;
+    border-bottom:1px solid #eee;
+    border-right:1px solid #eee;
+  }
+  table.info-table td:last-child{ border-right:none; color:var(--text-light); font-size:13.5px;}
+  table.info-table tr:last-child td{ border-bottom:none; }
+
+  ol.rules-list{
+    margin:16px 0;
+    padding-left:0;
+    list-style:none;
+    counter-reset:rule;
+  }
+  ol.rules-list li{
+    counter-increment:rule;
+    position:relative;
+    padding:10px 0 10px 40px;
+    font-size:15px;
+    line-height:1.5;
+    border-bottom:1px solid #f0f0f0;
+  }
+  ol.rules-list li:last-child{ border-bottom:none; }
+  ol.rules-list li::before{
+    content:counter(rule);
+    position:absolute;
+    left:0; top:9px;
+    width:26px; height:26px;
+    background:var(--light-green);
+    color:var(--mid-green);
+    font-weight:700;
+    font-size:13px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  ol.rules-list code{
+    background:var(--soft-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:13.5px;
+  }
+
+  .info-box{
+    border-left:3px solid var(--gold);
+    background:var(--cream);
+    padding:14px 18px;
+    border-radius:0 6px 6px 0;
+    margin:18px 0;
+  }
+  .info-box .info-title{
+    color:var(--dark-gold);
+    font-weight:700;
+    font-size:13.5px;
+    margin-bottom:4px;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+  }
+  .info-box p{ color:var(--text-mid); margin:0; }
+
+  .practice-item{
+    background:var(--soft-bg);
+    border:1px solid var(--light-green);
+    border-radius:8px;
+    padding:14px 18px;
+    margin:12px 0;
+  }
+  .practice-q{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .practice-q .expr{
+    font-size:17px;
+    font-weight:600;
+    color:var(--text-dark);
+  }
+  .reveal-btn{
+    background:#fff;
+    border:1px solid var(--mid-green);
+    color:var(--mid-green);
+    font-size:13px;
+    font-weight:600;
+    padding:6px 14px;
+    border-radius:16px;
+    cursor:pointer;
+    font-family:inherit;
+    transition:all .15s ease;
+  }
+  .reveal-btn:hover{ background:var(--mid-green); color:#fff; }
+  .reveal-answer{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+    font-size:14.5px;
+    color:var(--deep-green);
+    display:none;
+  }
+  .reveal-answer.show{ display:block; }
+  .reveal-answer .why{ color:var(--text-light); font-size:13px; margin-top:3px; }
+
+  .worked{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:16px;
+    flex-wrap:wrap;
+  }
+  .worked .arrow{ color:var(--mid-green); }
+  .worked .final{ color:var(--deep-green); font-weight:700; }
+  .worked .rule-tag{
+    font-size:12px;
+    color:var(--text-light);
+    background:#fff;
+    border:1px solid var(--line);
+    padding:2px 9px;
+    border-radius:10px;
+  }
+
+  .ladder{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+    margin:18px 0;
+    padding:16px;
+    background:var(--soft-bg);
+    border:1px solid var(--light-green);
+    border-radius:8px;
+  }
+  .ladder .rung{
+    background:#fff;
+    border:1px solid var(--mid-green);
+    color:var(--deep-green);
+    font-weight:700;
+    font-size:14px;
+    padding:6px 12px;
+    border-radius:6px;
+    text-align:center;
+  }
+  .ladder .rung .factor{
+    display:block;
+    font-weight:400;
+    font-size:11px;
+    color:var(--text-light);
+  }
+  .ladder .step-arrow{
+    font-size:11px;
+    color:var(--text-light);
+    text-align:center;
+    white-space:nowrap;
+  }
+
+  .nav-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:34px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+  .nav-btn{
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:600;
+    padding:10px 20px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid var(--deep-green);
+    background:var(--deep-green);
+    color:#fff;
+    transition:opacity .15s ease;
+  }
+  .nav-btn.secondary{
+    background:#fff;
+    color:var(--deep-green);
+  }
+  .nav-btn:disabled{
+    opacity:.35;
+    cursor:default;
+  }
+  .step-count{
+    font-size:13px;
+    color:var(--text-light);
+  }
+
+  @media(max-width:600px){
+    h1{ font-size:24px; }
+    .step-title{ font-size:20px; }
+    .header{ padding:12px 16px; font-size:12.5px;}
+    .shell{ padding:20px 16px 40px; }
+    .ladder{ font-size:12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span>Natuurkunde</span>
+  <span>Klas 4</span>
+</div>
+
+<div class="shell">
+
+  <div class="title-block">
+    <h1>Machten van 10 en voorvoegsels</h1>
+    <div class="subtitle">Grote en kleine getallen compact en eenduidig noteren</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="steps-row" id="stepsRow"></div>
+  </div>
+
+  <div id="badgeSlot"></div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <div class="content" id="stepContent"></div>
+
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
+    <span class="step-count" id="stepCount"></span>
+    <button class="nav-btn" id="nextBtn">Volgende →</button>
+  </div>
+
+</div>
+
+<script>
+const steps = [
+{
+  badge: "Nut en noodzaak",
+  title: "Waarom machten van 10?",
+  html: `
+    <p>In de natuurkunde kom je heel grote en heel kleine getallen tegen.</p>
+    <div class="card-row">
+      <div class="card">
+        <h4>Afstand aarde-zon</h4>
+        <div class="num">150 000 000 000 m</div>
+        <div class="caption">elf nullen, tel ze maar</div>
+      </div>
+      <div class="card">
+        <h4>Doorsnede van een atoom</h4>
+        <div class="num">0,0000000001 m</div>
+        <div class="caption">negen nullen na de komma</div>
+      </div>
+    </div>
+    <p>Zulke getallen zijn onhandig om te schrijven, foutgevoelig (je telt zo een nul te veel of te weinig), en je ziet er niet in één oogopslag hoeveel significante cijfers een getal heeft.</p>
+    <p>Een <strong>macht van 10</strong> lost dat op: hetzelfde getal, maar compact en eenduidig.</p>
+    <div class="card-row">
+      <div class="card">
+        <div class="num">1,5 × 10¹¹ m</div>
+        <div class="caption">in plaats van 150 000 000 000 m</div>
+      </div>
+      <div class="card">
+        <div class="num">1 × 10⁻¹⁰ m</div>
+        <div class="caption">in plaats van 0,0000000001 m</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Link met significantie</div>
+      <p>In wetenschappelijke notatie zie je meteen hoeveel cijfers significant zijn: alleen de cijfers vóór de macht tellen mee. Dat maakt deze notatie niet alleen compacter, maar ook nauwkeuriger dan gewoon "nullen bijschrijven".</p>
+    </div>
+  `
+},
+{
+  badge: "Definitie",
+  title: "Wat is wetenschappelijke notatie?",
+  html: `
+    <p>Een getal in wetenschappelijke notatie schrijf je als <strong>a × 10ⁿ</strong>, waarbij <code>a</code> een getal is tussen 1 en 10 (1 ≤ a &lt; 10) en <code>n</code> een geheel getal.</p>
+    <ul style="padding-left:20px; line-height:1.7; font-size:15px;">
+      <li>Een <strong>groot</strong> getal (groter dan 1) krijgt een <strong>positieve</strong> macht.</li>
+      <li>Een <strong>klein</strong> getal (kleiner dan 1) krijgt een <strong>negatieve</strong> macht.</li>
+      <li><code>n</code> is het aantal plekken dat de komma verschuift.</li>
+    </ul>
+    <table class="info-table">
+      <tr><th>Getal</th><th>Wetenschappelijke notatie</th><th>Toelichting</th></tr>
+      <tr><td>150 000 000 000</td><td>1,5 × 10¹¹</td><td>komma 11 plekken naar links</td></tr>
+      <tr><td>93 000 000</td><td>9,3 × 10⁷</td><td>komma 7 plekken naar links</td></tr>
+      <tr><td>0,0000000001</td><td>1 × 10⁻¹⁰</td><td>komma 10 plekken naar rechts</td></tr>
+      <tr><td>0,00072</td><td>7,2 × 10⁻⁴</td><td>komma 4 plekken naar rechts</td></tr>
+    </table>
+  `
+},
+{
+  badge: "Oefenen",
+  title: "Omzetten naar wetenschappelijke notatie",
+  html: `
+    <p>Probeer eerst zelf de macht van 10 te bepalen voordat je het antwoord bekijkt.</p>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">4500</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">4,5 × 10³</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">0,0068</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">6,8 × 10⁻³</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">250 000</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">2,5 × 10⁵</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">0,000000032</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">3,2 × 10⁻⁸</div>
+    </div>
+  `
+},
+{
+  badge: "Oefenen",
+  title: "Terug naar standaardnotatie",
+  html: `
+    <p>Nu de andere kant op: van wetenschappelijke notatie naar een uitgeschreven getal.</p>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">3,2 × 10⁵</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">320 000</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">6,1 × 10⁻³</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">0,0061</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">9,5 × 10⁻⁶</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">0,0000095</div>
+    </div>
+  `
+},
+{
+  badge: "Voorvoegsels",
+  title: "Wat en waarom",
+  html: `
+    <p>In plaats van steeds <code>× 10ⁿ</code> bij een eenheid te schrijven, gebruik je in de praktijk vaak een <strong>voorvoegsel</strong> voor die eenheid. Dat is een vast woorddeel dat een bepaalde macht van 10 vervangt.</p>
+    <div class="card-row">
+      <div class="card">
+        <h4>Met macht van 10</h4>
+        <div class="num">1 × 10⁻⁶ m</div>
+      </div>
+      <div class="card">
+        <h4>Met voorvoegsel</h4>
+        <div class="num">1 µm</div>
+        <div class="caption">1 micrometer</div>
+      </div>
+    </div>
+    <p>Beide notaties betekenen exact hetzelfde. Het voorvoegsel is vooral handig omdat het getal dan dicht bij de grootte blijft die past bij wat je meet: afstanden tussen steden in kilometers, de dikte van een chip in nanometers, de stroom door een LED in milliampère.</p>
+  `
+},
+{
+  badge: "Voorvoegsels",
+  title: "Overzicht voorvoegsels",
+  html: `
+    <table class="info-table">
+      <tr><th>Voorvoegsel</th><th>Symbool</th><th>Factor</th></tr>
+      <tr><td>tera</td><td>T</td><td>10¹²</td></tr>
+      <tr><td>giga</td><td>G</td><td>10⁹</td></tr>
+      <tr><td>mega</td><td>M</td><td>10⁶</td></tr>
+      <tr><td>kilo</td><td>k</td><td>10³</td></tr>
+      <tr><td>(basiseenheid)</td><td>–</td><td>10⁰</td></tr>
+      <tr><td>deci</td><td>d</td><td>10⁻¹</td></tr>
+      <tr><td>centi</td><td>c</td><td>10⁻²</td></tr>
+      <tr><td>milli</td><td>m</td><td>10⁻³</td></tr>
+      <tr><td>micro</td><td>µ</td><td>10⁻⁶</td></tr>
+      <tr><td>nano</td><td>n</td><td>10⁻⁹</td></tr>
+      <tr><td>pico</td><td>p</td><td>10⁻¹²</td></tr>
+    </table>
+    <div class="info-box">
+      <div class="info-title">Let op</div>
+      <p>Deze tabel is de basis die je uit je hoofd kent. Deci en centi kom je vooral tegen bij lengte (dm, cm), de rest gebruik je bij vrijwel elke natuurkundige grootheid.</p>
+    </div>
+  `
+},
+{
+  badge: "Combineren",
+  title: "Voorvoegsel en macht van 10 samen",
+  html: `
+    <p>Reken deze zelf om, en controleer daarna je antwoord.</p>
+    <div class="practice-item">
+      <div class="worked">
+        <span class="expr">5 km</span>
+        <span class="arrow">=</span>
+        <span>5 × 10³ m</span>
+        <span class="arrow">=</span>
+        <span class="final">5000 m</span>
+      </div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">3 mA = ... A</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">3 × 10⁻³ A = 0,003 A</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">250 µs = ... s</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">250 × 10⁻⁶ s = 2,5 × 10⁻⁴ s</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">12 MW = ... W</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">12 × 10⁶ W = 12 000 000 W</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q">
+        <span class="expr">2 500 000 Pa = ... MPa</span>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button>
+      </div>
+      <div class="reveal-answer">2,5 MPa <div class="why">hier ga je van de basiseenheid terug naar een voorvoegsel</div></div>
+    </div>
+  `
+},
+{
+  badge: "Tips",
+  title: "Rekenen met voorvoegsels",
+  html: `
+    <div class="info-box">
+      <div class="info-title">Vuistregel</div>
+      <p>Reken bij een berekening met een formule eerst alles om naar de basiseenheid (zonder voorvoegsel), tenzij alle grootheden toevallig al hetzelfde voorvoegsel hebben.</p>
+    </div>
+    <p>Op de twee ladders die je in de praktijk het meest gebruikt, scheelt elke stap een factor 1000:</p>
+    <div class="ladder">
+      <div class="rung">T<span class="factor">10¹²</span></div>
+      <div class="step-arrow">×1000→</div>
+      <div class="rung">G<span class="factor">10⁹</span></div>
+      <div class="step-arrow">×1000→</div>
+      <div class="rung">M<span class="factor">10⁶</span></div>
+      <div class="step-arrow">×1000→</div>
+      <div class="rung">k<span class="factor">10³</span></div>
+      <div class="step-arrow">×1000→</div>
+      <div class="rung">basis<span class="factor">10⁰</span></div>
+    </div>
+    <div class="ladder">
+      <div class="rung">basis<span class="factor">10⁰</span></div>
+      <div class="step-arrow">÷1000→</div>
+      <div class="rung">m<span class="factor">10⁻³</span></div>
+      <div class="step-arrow">÷1000→</div>
+      <div class="rung">µ<span class="factor">10⁻⁶</span></div>
+      <div class="step-arrow">÷1000→</div>
+      <div class="rung">n<span class="factor">10⁻⁹</span></div>
+      <div class="step-arrow">÷1000→</div>
+      <div class="rung">p<span class="factor">10⁻¹²</span></div>
+    </div>
+    <p style="font-size:13.5px; color:var(--text-light);">Deci en centi vallen buiten deze ladders van 1000: van de basiseenheid naar deci is ×10, van deci naar centi nog eens ×10.</p>
+  `
+},
+{
+  badge: "Samenvatting",
+  title: "Aan de slag",
+  html: `
+    <p>Op een rijtje wat je nu weet:</p>
+    <ol class="rules-list">
+      <li>Wetenschappelijke notatie: <code>a × 10ⁿ</code>, met 1 ≤ a &lt; 10.</li>
+      <li>Grote getallen krijgen een positieve macht, kleine getallen een negatieve macht.</li>
+      <li>Een voorvoegsel is een korte, vaste naam voor een macht van 10 bij een eenheid.</li>
+      <li>Reken bij formules eerst om naar de basiseenheid, tenzij alles al hetzelfde voorvoegsel heeft.</li>
+    </ol>
+    <div class="info-box">
+      <div class="info-title">Tip</div>
+      <p>Oefen dit net zolang tot je de voorvoegseltabel niet meer hoeft op te zoeken: bij natuurkunde kom je hem elke les weer tegen.</p>
+    </div>
+  `
+}
+];
+
+let current = 0;
+
+function toggleReveal(btn){
+  const answer = btn.parentElement.nextElementSibling;
+  answer.classList.toggle('show');
+  btn.textContent = answer.classList.contains('show') ? 'Verberg antwoord' : 'Toon antwoord';
+}
+
+function renderSteps(){
+  const row = document.getElementById('stepsRow');
+  row.innerHTML = '';
+  steps.forEach((s, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'step-chip' + (i === current ? ' active' : (i < current ? ' done' : ''));
+    chip.textContent = (i+1) + '. ' + s.badge;
+    chip.onclick = () => { current = i; render(); };
+    row.appendChild(chip);
+  });
+}
+
+function render(){
+  const s = steps[current];
+  document.getElementById('badgeSlot').innerHTML = '<span class="badge">' + s.badge + '</span>';
+  document.getElementById('stepTitle').textContent = s.title;
+  document.getElementById('stepContent').innerHTML = s.html;
+  document.getElementById('progressFill').style.width = ((current+1)/steps.length*100) + '%';
+  document.getElementById('stepCount').textContent = 'Stap ' + (current+1) + ' van ' + steps.length;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').textContent = current === steps.length-1 ? 'Klaar ✓' : 'Volgende →';
+  document.getElementById('nextBtn').disabled = current === steps.length-1;
+  renderSteps();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').onclick = () => { if(current>0){ current--; render(); } };
+document.getElementById('nextBtn').onclick = () => { if(current<steps.length-1){ current++; render(); } };
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowRight' && current < steps.length-1){ current++; render(); }
+  if(e.key === 'ArrowLeft' && current > 0){ current--; render(); }
+});
+
+render();
+</script>
+
+</body>
+</html>

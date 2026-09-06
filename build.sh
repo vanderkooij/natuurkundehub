@@ -48,6 +48,9 @@ cp -r formules-omschrijven dist/formules-omschrijven
 # Kopieer Significantie (statische HTML)
 cp -r significantie dist/significantie
 
+# Kopieer Voorvoegsels (statische HTML)
+cp -r voorvoegsels dist/voorvoegsels
+
 # Kopieer de Contactpagina (statische HTML)
 cp -r contact dist/contact
 

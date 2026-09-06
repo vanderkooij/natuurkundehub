@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uitleg · Voorvoegsels · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --purple-dim:rgba(139,92,246,0.1);--purple-border:rgba(139,92,246,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+/* Machten worden als <sup> gezet, niet met Unicode-superscripts: die renderen
+   in JetBrains Mono slecht, vooral 10⁻¹⁰. */
+sup{font-size:.66em;line-height:0;vertical-align:super;font-weight:inherit;letter-spacing:0}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:800px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+
+/* Voortgang */
+.progress-track{height:6px;background:var(--accent-dim);border:1px solid var(--border-solid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-amber));transition:width .35s ease}
+.steps-row{display:flex;gap:6px;margin:14px 0 28px;flex-wrap:wrap}
+.step-chip{border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.step-chip:hover{border-color:var(--accent-border);color:var(--accent)}
+.step-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.step-chip.done{border-color:var(--accent-border);color:var(--accent)}
+
+/* Stapkop */
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-size:clamp(21px,3.4vw,27px);font-weight:700;letter-spacing:-0.6px;margin-bottom:16px}
+
+.content p{line-height:1.7;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content p.small{font-size:13.5px;color:var(--text-muted)}
+.content strong{color:var(--text);font-weight:700}
+.content ul{padding-left:20px;line-height:1.8;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content code{font-family:var(--mono);font-size:13.5px;background:var(--accent-dim);border:1px solid var(--accent-border);padding:1px 6px;border-radius:5px;color:var(--text)}
+
+/* Kaartjes met voorbeeldgetallen */
+.card-row{display:flex;gap:14px;margin:18px 0;flex-wrap:wrap}
+.card-row .card{flex:1 1 220px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;padding:16px 18px}
+.card-row .card h4{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.card-row .card .num{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--text);word-break:break-word}
+.card-row .card .caption{font-size:12.5px;color:var(--text-muted);margin-top:6px}
+
+/* Tabellen */
+.table-wrap{overflow-x:auto;margin:16px 0}
+table.info-table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:340px}
+table.info-table th{background:var(--accent-dim);color:var(--accent);text-align:left;padding:9px 12px;font-weight:700;font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--accent-border);white-space:nowrap}
+table.info-table td{padding:9px 12px;border-bottom:1px solid var(--border-solid);color:var(--text-secondary);white-space:nowrap}
+table.info-table tr:last-child td{border-bottom:none}
+table.info-table .mono{font-family:var(--mono);color:var(--text)}
+table.info-table .note{color:var(--text-muted);font-size:13px;white-space:normal}
+table.info-table .val{font-family:var(--mono);font-size:13px;color:var(--text-secondary);text-align:right}
+table.info-table th.right{text-align:right}
+table.info-table tr.is-base td{background:var(--accent-dim);color:var(--text);font-weight:700}
+
+/* Info-box */
+.info-box{border-left:3px solid var(--accent-amber);background:var(--amber-dim);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+.info-box .info-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-box p{margin:0 0 8px;font-size:14px;color:var(--text-secondary);line-height:1.65}
+.info-box p:last-child{margin-bottom:0}
+.info-box--accent{border-left-color:var(--accent);background:var(--accent-dim)}
+.info-box--accent .info-title{color:var(--accent)}
+
+/* Reveal-oefeningen */
+.practice-item{background:var(--purple-dim);border:1px solid var(--purple-border);border-radius:10px;padding:14px 18px;margin:10px 0}
+.practice-q{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.practice-q .expr{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text)}
+.reveal-btn{background:var(--bg-card);border:1px solid var(--purple-border);color:var(--purple);font-family:var(--font);font-size:13px;font-weight:700;padding:7px 15px;border-radius:16px;cursor:pointer;transition:all .15s}
+.reveal-btn:hover{background:var(--purple);color:#fff;border-color:var(--purple)}
+.reveal-answer{margin-top:10px;padding-top:10px;border-top:1px dashed var(--purple-border);font-family:var(--mono);font-size:14.5px;color:var(--accent);display:none}
+.reveal-answer.show{display:block}
+.reveal-answer .why{font-family:var(--font);color:var(--text-muted);font-size:12.5px;margin-top:5px}
+
+/* Uitgewerkt voorbeeld */
+.worked{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:16px;color:var(--text-secondary)}
+.worked .arrow{color:var(--accent)}
+.worked .best{color:var(--accent);font-weight:500}
+.worked .tag{font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:3px 8px;border-radius:5px}
+
+/* ── LADDER-COMPONENT ── (zie JS-blok onderaan; wordt hergebruikt in de oefenmodus) */
+.ladder{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;padding:14px 16px;margin:16px 0}
+.ladder-caption{font-size:12.5px;color:var(--text-muted);margin-bottom:8px;line-height:1.5}
+.ladder-legend{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--accent);margin-bottom:8px}
+.ladder-rungs{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding-bottom:6px}
+.rung{flex:0 0 auto;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:8px 12px;cursor:pointer;font-family:var(--font);color:var(--text);text-align:center;transition:all .15s;line-height:1.25}
+.rung:hover{border-color:var(--accent-border);background:var(--accent-dim)}
+.rung .rung-sym{display:block;font-weight:700;font-size:15px}
+.rung .rung-factor{display:block;font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-top:3px}
+.rung.is-from{background:var(--accent);border-color:var(--accent);color:#fff}
+.rung.is-from .rung-factor{color:rgba(255,255,255,0.85)}
+.rung.is-to{background:var(--accent-amber);border-color:var(--accent-amber);color:#fff}
+.rung.is-to .rung-factor{color:rgba(255,255,255,0.9)}
+.rung.in-path{border-color:var(--accent-border);background:var(--accent-dim)}
+.rung.rare{opacity:.45}
+.rung.rare.is-from,.rung.rare.is-to{opacity:1}
+.rung-gap{flex:0 0 auto;display:flex;align-items:center;font-size:13px;color:var(--border-solid);white-space:nowrap;padding:0 2px}
+.rung-gap.in-path{color:var(--accent)}
+.ladder-readout{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-solid);font-size:14px;color:var(--text-secondary);line-height:1.6;min-height:62px}
+.ladder-readout .big{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--accent);display:block;margin-bottom:4px;word-break:break-word}
+.ladder-readout .hint{color:var(--text-muted);font-size:13px}
+.ladder-readout .via{display:block;margin-top:6px;font-size:12.5px;color:var(--text-muted)}
+.ladder-readout .via b{font-family:var(--mono);font-weight:500;color:var(--text-secondary)}
+
+/* Samenvattingslijst */
+ol.rules-list{list-style:none;counter-reset:rule;margin:16px 0}
+ol.rules-list li{counter-increment:rule;position:relative;padding:11px 0 11px 40px;font-size:15px;line-height:1.6;color:var(--text-secondary);border-bottom:1px solid var(--border-solid)}
+ol.rules-list li:last-child{border-bottom:none}
+ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px;width:26px;height:26px;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);font-weight:700;font-size:12.5px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* Doorverwijzing naar oefenen */
+.cta-card{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:12px;padding:22px 24px;margin-top:22px;text-align:center}
+.cta-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.cta-card p{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+
+/* Navigatie */
+.nav-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.nav-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:#0999aa}
+.nav-btn.secondary{background:transparent;color:var(--accent)}
+.nav-btn.secondary:hover:not(:disabled){background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.step-count{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:center}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+/* Smal scherm: de wordmark en het eerste kruimelpad wijken, het logo blijft de weg terug. */
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .practice-q{gap:8px}
+  .practice-q .expr{font-size:15px}
+  .nav-btn{padding:11px 15px;font-size:13.5px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../" class="crumb">Voorvoegsels</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Uitleg</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Machten van 10 en voorvoegsels</h1>
+<p class="tool-sub">Grote en kleine getallen compact en eenduidig noteren</p>
+
+<div class="main">
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="steps-row" id="stepsRow"></div>
+
+  <div id="badgeSlot"></div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <div class="content" id="stepContent"></div>
+
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
+    <span class="step-count" id="stepCount"></span>
+    <button class="nav-btn" id="nextBtn">Volgende →</button>
+  </div>
+
+</div>
+
+<footer>
+  <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../assets/logo/JK_dark.svg';if(fl)fl.src='../assets/logo/JK_white.svg';
+    if(fav)fav.href='../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../assets/logo/JK_light.svg';if(fl)fl.src='../assets/logo/JK_black.svg';
+    if(fav)fav.href='../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   LADDER-COMPONENT
+   Zelfstandig blok: dit stuk (PREFIXES t/m initLadders) plus de
+   .ladder-regels uit de stylesheet zijn samen te kopiëren naar de
+   oefenpagina, waar de ladder als hint na een tweede fout verschijnt.
+
+   Markup:
+     <div class="ladder" data-ladder="T,G,M,k,1" data-unit="W"></div>
+   Attributen:
+     data-ladder  komma-lijst met symbolen uit PREFIXES ("1" = basiseenheid)
+     data-unit    eenheid voor de concrete voorbeelden, bijvoorbeeld W of s
+     data-from    optioneel; symbool dat vooraf als startpunt gemarkeerd staat
+     data-to      optioneel; symbool dat vooraf als eindpunt gemarkeerd staat
+
+   Uitgangspunt: de treden beschrijven de EENHEID, de uitleeswaarde
+   beschrijft wat er met JOUW GETAL gebeurt. Die twee lopen tegen elkaar
+   in, dus ze staan nooit als losse factor bij dezelfde pijl.
+   ══════════════════════════════════════════════════════════════ */
+
+// Lijst en niet een object: de volgorde van groot naar klein is hier betekenisvol,
+// en een objectsleutel '1' zou door JavaScript vooraan gesorteerd worden.
+const PREFIX_LIST=[
+  {sym:'T' ,name:'tera' ,exp:12},
+  {sym:'G' ,name:'giga' ,exp:9},
+  {sym:'M' ,name:'mega' ,exp:6},
+  {sym:'k' ,name:'kilo' ,exp:3},
+  {sym:'h' ,name:'hecto',exp:2},
+  {sym:'da',name:'deca' ,exp:1},
+  {sym:'1' ,name:'basiseenheid',exp:0,label:'basis'},
+  {sym:'d' ,name:'deci' ,exp:-1},
+  {sym:'c' ,name:'centi',exp:-2},
+  {sym:'m' ,name:'milli',exp:-3},
+  {sym:'µ' ,name:'micro',exp:-6},
+  {sym:'n' ,name:'nano' ,exp:-9},
+  {sym:'p' ,name:'pico' ,exp:-12}
+];
+const PREFIXES=Object.fromEntries(PREFIX_LIST.map(p=>[p.sym,p]));
+
+// 10^n als leesbare macht. <sup> in plaats van Unicode-superscripts.
+function pow10(n){return '10<sup>'+String(n).replace('-','−')+'</sup>';}
+
+// 10^n voluit, met vaste spaties per drie cijfers zoals in Binas.
+function uitgeschreven(exp){
+  if(exp===0) return '1';
+  if(exp>0)  return ('1'+'0'.repeat(exp)).replace(/\B(?=(\d{3})+$)/g,' ');
+  return '0,'+('0'.repeat(-exp-1)+'1').replace(/(\d{3})(?=\d)/g,'$1 ');
+}
+
+// Naam van een trede in lopende tekst: "kilo (k)" of "de basiseenheid".
+function rungLabel(symbol){
+  return symbol==='1' ? 'de basiseenheid' : PREFIXES[symbol].name+' ('+symbol+')';
+}
+
+function initLadder(el){
+  const symbols=(el.dataset.ladder||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const unit=el.dataset.unit||'';
+  // data-common: de voorvoegsels die bij deze eenheid echt voorkomen. De ladder
+  // houdt zijn vaste vorm, maar de rest wordt gedimd zodat ks of mOhm niet als
+  // gewoon voorbeeld overkomt.
+  const common=(el.dataset.common||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const zeldzaam=s=>common.length>0 && !common.includes(s);
+  let from=el.dataset.from||null, to=el.dataset.to||null;
+
+  // De stapgrootte hoeft niet overal gelijk te zijn: rond deci en centi is het 10 en geen 1000.
+  const gapExps=symbols.slice(1).map((s,i)=>PREFIXES[symbols[i]].exp-PREFIXES[s].exp);
+  const evenStap=gapExps.every(e=>e===gapExps[0]);
+
+  // De ladder staat altijd in dezelfde volgorde. Niet de ladder draait om, maar de
+  // richting waarin je hem afloopt, en dat staat aan allebei de uiteinden.
+  const kleinerNaarRechts=gapExps[0]>0;
+  const stapN=uitgeschreven(Math.abs(gapExps[0]));
+  const caption=document.createElement('div');
+  caption.className='ladder-caption';
+  caption.innerHTML=(evenStap?'Elke stap is een factor '+stapN+'. ':'')+
+    'Naar rechts wordt de <strong>eenheid</strong> '+(kleinerNaarRechts?'kleiner':'groter')+
+    ' en je <strong>getal</strong> dus '+(kleinerNaarRechts?'groter':'kleiner')+
+    '. Naar links gebeurt precies het omgekeerde.';
+
+  const legend=document.createElement('div');
+  legend.className='ladder-legend';
+  legend.innerHTML='<span>&larr; eenheid '+(kleinerNaarRechts?'groter':'kleiner')+', getal '+(kleinerNaarRechts?'kleiner':'groter')+'</span>'+
+                   '<span>eenheid '+(kleinerNaarRechts?'kleiner':'groter')+', getal '+(kleinerNaarRechts?'groter':'kleiner')+' &rarr;</span>';
+
+  const row=document.createElement('div');
+  row.className='ladder-rungs';
+
+  const readout=document.createElement('div');
+  readout.className='ladder-readout';
+
+  const rungEls={}, gapEls=[];
+  symbols.forEach((symbol,i)=>{
+    if(i>0){
+      const gap=document.createElement('span');
+      gap.className='rung-gap';
+      gap.textContent='↔';  // beide kanten op, de ladder zelf draait nooit
+      row.appendChild(gap);
+      gapEls.push(gap);
+    }
+    const p=PREFIXES[symbol];
+    const btn=document.createElement('button');
+    btn.className='rung';
+    btn.type='button';
+    btn.innerHTML='<span class="rung-sym"></span><span class="rung-factor"></span>';
+    btn.querySelector('.rung-sym').textContent=p.label||symbol;
+    btn.querySelector('.rung-factor').innerHTML=pow10(p.exp);
+    btn.title=p.name;
+    if(zeldzaam(symbol)) btn.classList.add('rare');
+    btn.onclick=()=>select(symbol);
+    row.appendChild(btn);
+    rungEls[symbol]=btn;
+  });
+
+  // Klikvolgorde: eerste klik zet het startpunt, tweede het eindpunt,
+  // een derde klik begint opnieuw. Nogmaals op het startpunt wist de keuze.
+  function select(symbol){
+    if(from===null){ from=symbol; to=null; }
+    else if(to===null){ if(symbol===from){ from=null; } else { to=symbol; } }
+    else { from=symbol; to=null; }
+    draw();
+  }
+
+  function draw(){
+    symbols.forEach(s=>rungEls[s].classList.remove('is-from','is-to','in-path'));
+    gapEls.forEach(g=>g.classList.remove('in-path'));
+
+    if(from===null){
+      readout.innerHTML='<span class="hint">Klik de trede aan waar je vandaan komt, en daarna de trede waar je naartoe gaat.</span>';
+      return;
+    }
+    rungEls[from].classList.add('is-from');
+    if(to===null){
+      readout.innerHTML='<span class="hint">Je begint bij '+rungLabel(from)+'. Klik nu de trede waar je naartoe gaat.</span>';
+      return;
+    }
+    rungEls[to].classList.add('is-to');
+
+    // Markeer de treden en pijlen tussen begin en eind.
+    const a=symbols.indexOf(from), b=symbols.indexOf(to);
+    for(let i=Math.min(a,b)+1;i<Math.max(a,b);i++) rungEls[symbols[i]].classList.add('in-path');
+    for(let i=Math.min(a,b);i<Math.max(a,b);i++) gapEls[i].classList.add('in-path');
+
+    const diff=PREFIXES[from].exp-PREFIXES[to].exp;
+    if(diff===0){
+      readout.innerHTML='<span class="hint">Zelfde trede, er verandert niets aan je getal.</span>';
+      return;
+    }
+    const vanS=(from==='1'?'':from)+unit, naarS=(to==='1'?'':to)+unit;
+    let html='<span class="big">1 '+vanS+' = '+uitgeschreven(diff)+' '+naarS+'</span>'+
+             '<span class="hint">Van '+rungLabel(from)+' naar '+rungLabel(to)+' is een factor '+pow10(Math.abs(diff))+'. '+
+             'Je getal wordt dus '+uitgeschreven(Math.abs(diff))+' keer '+(diff>0?'groter':'kleiner')+'.</span>';
+    // Allebei vergelijken met de basiseenheid: dat is de route die je in een berekening ook loopt.
+    if(from!=='1'&&to!=='1'){
+      html+='<span class="via">Via de basiseenheid: <b>1 '+vanS+' = '+uitgeschreven(PREFIXES[from].exp)+' '+unit+'</b>'+
+            ' en <b>1 '+naarS+' = '+uitgeschreven(PREFIXES[to].exp)+' '+unit+'</b></span>';
+    }
+    const raar=[from,to].filter(zeldzaam).map(s=>(s==='1'?'':s)+unit);
+    if(raar.length){
+      html+='<span class="via">De omrekening klopt, maar '+raar.join(' en ')+
+            ' gebruik je in de praktijk niet.</span>';
+    }
+    readout.innerHTML=html;
+  }
+
+  el.innerHTML='';
+  el.appendChild(caption);
+  el.appendChild(legend);
+  el.appendChild(row);
+  el.appendChild(readout);
+  draw();
+}
+
+function initLadders(root){
+  (root||document).querySelectorAll('.ladder[data-ladder]').forEach(initLadder);
+}
+/* ═══════════════════ EINDE LADDER-COMPONENT ═══════════════════ */
+
+
+// De voorvoegseltabel komt uit PREFIXES, zodat tabel en ladders niet uit elkaar kunnen lopen.
+function buildPrefixTable(){
+  let rows='';
+  for(const p of PREFIX_LIST){
+    const base=p.sym==='1';
+    rows+='<tr'+(base?' class="is-base"':'')+'>'+
+          '<td>'+(base?'(basiseenheid)':p.name)+'</td>'+
+          '<td class="mono">'+(base?'–':p.sym)+'</td>'+
+          '<td class="mono">'+pow10(p.exp)+'</td>'+
+          '<td class="val">'+uitgeschreven(p.exp)+'</td></tr>';
+  }
+  return '<div class="table-wrap"><table class="info-table">'+
+         '<tr><th>Voorvoegsel</th><th>Symbool</th><th>Factor</th><th class="right">Voluit</th></tr>'+
+         rows+'</table></div>';
+}
+
+
+const steps=[
+{
+  badge:'Nut en noodzaak',
+  title:'Waarom machten van 10?',
+  html:`
+    <p>In de natuurkunde kom je heel grote en heel kleine getallen tegen.</p>
+    <div class="card-row">
+      <div class="card">
+        <h4>Afstand aarde-zon</h4>
+        <div class="num">150 000 000 000 m</div>
+        <div class="caption">zo schrijf je dat liever niet op</div>
+      </div>
+      <div class="card">
+        <h4>Doorsnede van een atoom</h4>
+        <div class="num">0,0000000001 m</div>
+        <div class="caption">en dit al helemaal niet</div>
+      </div>
+    </div>
+    <p>Zulke getallen zijn onhandig om te schrijven en foutgevoelig: je zet er zo een nul te veel of te weinig neer, en dat scheelt meteen een factor 10.</p>
+    <p>Een <strong>macht van 10</strong> lost dat op. Hetzelfde getal, maar compact en eenduidig.</p>
+    <div class="card-row">
+      <div class="card">
+        <div class="num">1,5·10<sup>11</sup> m</div>
+        <div class="caption">in plaats van 150 000 000 000 m</div>
+      </div>
+      <div class="card">
+        <div class="num">1·10<sup>&minus;10</sup> m</div>
+        <div class="caption">in plaats van 0,0000000001 m</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Extra, voor de bovenbouw</div>
+      <p>Werk je nog niet met significante cijfers? Sla dit blokje dan gerust over.</p>
+      <p>In wetenschappelijke notatie zie je meteen hoeveel cijfers significant zijn, want alleen de cijfers vóór de macht tellen mee. Zo is 1,5·10<sup>11</sup> m nauwkeuriger opgeschreven dan 150 000 000 000 m, waar je niet kunt zien welke nullen gemeten zijn.</p>
+    </div>
+  `
+},
+{
+  badge:'Definitie',
+  title:'Wat is wetenschappelijke notatie?',
+  html:`
+    <p>Een getal in wetenschappelijke notatie schrijf je als <strong>a·10<sup>n</sup></strong>, waarbij <code>a</code> een getal is tussen 1 en 10 (dus 1 ≤ a &lt; 10) en <code>n</code> een geheel getal.</p>
+    <ul>
+      <li>Een <strong>groot</strong> getal (groter dan 1) krijgt een <strong>positieve</strong> macht.</li>
+      <li>Een <strong>klein</strong> getal (kleiner dan 1) krijgt een <strong>negatieve</strong> macht.</li>
+    </ul>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Welke kant schuift de komma op?</div>
+      <p><strong>Naar de notatie toe.</strong> Zet de komma direct achter het eerste cijfer dat geen nul is. Het aantal plekken dat je geschoven hebt, is de macht. Schoof je naar links, dan is de macht positief. Schoof je naar rechts, dan is de macht negatief.</p>
+      <p><strong>Terug naar een gewoon getal.</strong> Nu gaat de komma precies de andere kant op: bij een positieve macht naar rechts, bij een negatieve macht naar links.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="info-table">
+        <tr><th>Getal</th><th>Wetenschappelijke notatie</th><th>Komma naar de notatie toe</th></tr>
+        <tr><td class="mono">150 000 000 000</td><td class="mono">1,5·10<sup>11</sup></td><td class="note">11 plekken naar links</td></tr>
+        <tr><td class="mono">93 000 000</td><td class="mono">9,3·10<sup>7</sup></td><td class="note">7 plekken naar links</td></tr>
+        <tr><td class="mono">0,0000000001</td><td class="mono">1·10<sup>&minus;10</sup></td><td class="note">10 plekken naar rechts</td></tr>
+        <tr><td class="mono">0,00072</td><td class="mono">7,2·10<sup>&minus;4</sup></td><td class="note">4 plekken naar rechts</td></tr>
+      </table>
+    </div>
+    <p class="small">Lees je de middelste kolom terug naar de linker, dan schuift de komma dus precies andersom.</p>
+  `
+},
+{
+  badge:'Oefenen',
+  title:'Omzetten naar wetenschappelijke notatie',
+  html:`
+    <p>Bepaal eerst zelf de macht van 10, en bekijk daarna pas het antwoord.</p>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">4500</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">4,5·10<sup>3</sup></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">0,0068</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">6,8·10<sup>&minus;3</sup></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">250 000</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">2,5·10<sup>5</sup></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">0,000000032</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">3,2·10<sup>&minus;8</sup></div>
+    </div>
+  `
+},
+{
+  badge:'Oefenen',
+  title:'Terug naar standaardnotatie',
+  html:`
+    <p>Nu de andere kant op: van wetenschappelijke notatie naar een uitgeschreven getal.</p>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">3,2·10<sup>5</sup></span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">320 000</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">6,1·10<sup>&minus;3</sup></span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">0,0061</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">9,5·10<sup>&minus;6</sup></span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">0,0000095</div>
+    </div>
+  `
+},
+{
+  badge:'Voorvoegsels',
+  title:'Wat en waarom',
+  html:`
+    <p>In plaats van steeds <code>·10<sup>n</sup></code> bij een eenheid te schrijven, gebruik je in de praktijk vaak een <strong>voorvoegsel</strong> voor die eenheid: een vast woorddeel dat een bepaalde macht van 10 vervangt.</p>
+    <div class="card-row">
+      <div class="card">
+        <h4>Met macht van 10</h4>
+        <div class="num">1·10<sup>&minus;6</sup> m</div>
+      </div>
+      <div class="card">
+        <h4>Met voorvoegsel</h4>
+        <div class="num">1 µm</div>
+        <div class="caption">1 micrometer</div>
+      </div>
+    </div>
+    <p>Beide notaties betekenen exact hetzelfde. Het voorvoegsel is handig omdat het getal dan dicht blijft bij de grootte van wat je meet: afstanden tussen steden in kilometers, de dikte van een chip in nanometers, de stroom door een led in milliampère.</p>
+  `
+},
+{
+  badge:'Voorvoegsels',
+  title:'Overzicht voorvoegsels',
+  html:`
+    <p>De vierde kolom laat zien hoe groot of klein een voorvoegsel echt is. Kijk vooral eens hoe ver kilo en milli uit elkaar liggen, en hoe ver tera en pico.</p>
+    `+buildPrefixTable()+`
+    <div class="info-box">
+      <div class="info-title">Let op</div>
+      <p>Deze hele tabel hoor je te kennen. Waar je ze tegenkomt verschilt wel per voorvoegsel: deci en centi vooral bij lengte (dm, cm), hecto vooral bij luchtdruk (hPa), en de rest bij zo ongeveer elke natuurkundige grootheid.</p>
+    </div>
+  `
+},
+{
+  badge:'Combineren',
+  title:'Voorvoegsel en macht van 10 samen',
+  html:`
+    <p>Dezelfde meting kun je op drie manieren opschrijven. Alle drie zijn ze even goed, want het is precies hetzelfde getal:</p>
+    <div class="practice-item">
+      <div class="worked">
+        <span class="expr">5 km</span><span class="arrow">=</span><span class="best">5·10<sup>3</sup> m</span><span class="arrow">=</span><span>5000 m</span>
+        <span class="tag">gebruik deze</span>
+      </div>
+    </div>
+    <p>Schrijf zoveel mogelijk de middelste vorm op. Bij een tienmacht hoef je geen nullen te tellen, dus je maakt er minder fouten mee dan met een uitgeschreven getal. Bij grote en kleine getallen wordt dat verschil alleen maar groter.</p>
+    <p>Reken deze zelf om naar een tienmacht, en controleer daarna je antwoord.</p>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">3 mA = … A</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">3·10<sup>&minus;3</sup> A</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">250 µs = … s</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">2,5·10<sup>&minus;4</sup> s<div class="why">250·10<sup>&minus;6</sup> s klopt ook, maar in wetenschappelijke notatie zet je het voorste getal tussen 1 en 10</div></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">12 MW = … W</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">1,2·10<sup>7</sup> W</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">2 500 000 Pa = … MPa</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">2,5 MPa<div class="why">hier ga je van de basiseenheid terug naar een voorvoegsel</div></div>
+    </div>
+  `
+},
+{
+  badge:'De ladder',
+  title:'Rekenen met voorvoegsels',
+  html:`
+    <div class="info-box">
+      <div class="info-title">Vuistregel</div>
+      <p>Reken bij een berekening met een formule eerst alles om naar de basiseenheid, dus zonder voorvoegsel. Alleen als alle grootheden toevallig al hetzelfde voorvoegsel hebben, mag je dat overslaan.</p>
+      <p>Daarom staat de basiseenheid op elke ladder hieronder, en vergelijkt de tool jouw twee treden allebei met die basis.</p>
+    </div>
+    <p>Dit is de hele ladder, van tera tot pico, met de basiseenheid in het midden. Elke stap scheelt een factor 1000, en de ladder staat altijd zo: groot links, klein rechts. Wat er met je getal gebeurt hangt af van de kant die je op gaat, en dat staat aan allebei de uiteinden. <strong>Klik twee treden aan</strong> om het te zien. Je kunt ook in één keer van mm naar Mm.</p>
+    <div class="ladder" data-ladder="T,G,M,k,1,m,µ,n,p" data-unit="m"></div>
+    <p>Tussen kilo en milli zitten nog meer voorvoegsels, met stappen van 10 in plaats van 1000: hecto, deca, deci en centi. Van kilo naar milli zijn dat zes stappen van 10, samen precies dezelfde factor 10<sup>6</sup> als de twee stappen van 1000 op de ladder hierboven. Let dus op dat er tussen cm en mm een factor 10 zit en geen 1000.</p>
+    <div class="ladder" data-ladder="k,h,da,1,d,c,m" data-unit="m"></div>
+  `
+},
+{
+  badge:'Samenvatting',
+  title:'Aan de slag',
+  html:`
+    <p>Op een rijtje wat je nu weet:</p>
+    <ol class="rules-list">
+      <li>Wetenschappelijke notatie: <code>a·10<sup>n</sup></code>, met 1 ≤ a &lt; 10.</li>
+      <li>Grote getallen krijgen een positieve macht, kleine getallen een negatieve macht.</li>
+      <li>Naar de notatie toe schuift de komma de ene kant op, en bij het terugrekenen precies andersom.</li>
+      <li>Een voorvoegsel is een korte, vaste naam voor een macht van 10 bij een eenheid.</li>
+      <li>Elke stap op de ladder van tera tot pico scheelt een factor 1000. Rond deci en centi is het een factor 10.</li>
+      <li>Reken bij formules eerst om naar de basiseenheid, en schrijf je antwoord het liefst als tienmacht.</li>
+    </ol>
+    <div class="cta-card">
+      <h3>Nu zelf oefenen</h3>
+      <p>Je onthoudt dit pas als je het een paar keer gedaan hebt. In de oefenmodus krijg je onbeperkt opgaven, in vijf levels.</p>
+      <a href="../oefenen/" class="cta-btn">Start oefenen →</a>
+    </div>
+  `
+}
+];
+
+let current=0;
+
+function toggleReveal(btn){
+  const answer=btn.parentElement.nextElementSibling;
+  answer.classList.toggle('show');
+  btn.textContent=answer.classList.contains('show')?'Verberg antwoord':'Toon antwoord';
+}
+
+function renderChips(){
+  const row=document.getElementById('stepsRow');
+  row.innerHTML='';
+  steps.forEach((s,i)=>{
+    const chip=document.createElement('button');
+    chip.className='step-chip'+(i===current?' active':(i<current?' done':''));
+    chip.textContent=(i+1)+'. '+s.badge;
+    chip.onclick=()=>{current=i;render();};
+    row.appendChild(chip);
+  });
+}
+
+function render(){
+  const s=steps[current], last=current===steps.length-1;
+  document.getElementById('badgeSlot').innerHTML='<span class="badge">'+s.badge+'</span>';
+  document.getElementById('stepTitle').textContent=s.title;
+  const content=document.getElementById('stepContent');
+  content.innerHTML=s.html;
+  initLadders(content);
+  document.getElementById('progressFill').style.width=((current+1)/steps.length*100)+'%';
+  document.getElementById('stepCount').textContent='Stap '+(current+1)+' van '+steps.length;
+  document.getElementById('prevBtn').disabled=current===0;
+  document.getElementById('nextBtn').textContent=last?'Naar oefenen →':'Volgende →';
+  renderChips();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').onclick=()=>{if(current>0){current--;render();}};
+document.getElementById('nextBtn').onclick=()=>{
+  if(current<steps.length-1){current++;render();}
+  else{window.location='../oefenen/';}
+};
+
+document.addEventListener('keydown',(e)=>{
+  if(e.target.closest('.ladder')) return;  // pijltjes horen daar bij de treden
+  if(e.key==='ArrowRight'&&current<steps.length-1){current++;render();}
+  if(e.key==='ArrowLeft'&&current>0){current--;render();}
+});
+
+render();
+</script>
+</body>
+</html>

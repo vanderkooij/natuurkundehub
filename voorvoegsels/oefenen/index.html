@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oefenen · Voorvoegsels · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);--green-border:rgba(22,163,74,0.3);
+  --red:#ef4444;--red-dim:rgba(220,38,38,0.08);--red-border:rgba(220,38,38,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);--green-border:rgba(34,197,94,0.3);
+  --red:#f87171;--red-dim:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+sup{font-size:.66em;line-height:0;vertical-align:super;font-weight:inherit;letter-spacing:0}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:780px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+
+.section-title{font-size:12px;font-family:var(--mono);font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title.amber{color:var(--accent-amber)}
+.section-note{font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6}
+
+/* Soort-vraagrijen: zelfde vorm als de levelregels, met de richting erbij */
+.opt-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 14px;background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:10px;cursor:pointer;transition:all .15s}
+.opt-row:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.opt-row.active{border-color:var(--accent);background:var(--accent-dim)}
+.opt-row.active .level-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt-name{font-size:14px;font-weight:700;flex:1;min-width:150px}
+.opt-uitleg{display:block;font-size:12px;font-weight:400;color:var(--text-muted);margin-top:2px}
+.opt-example{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:6px;padding:4px 8px;flex-shrink:0}
+.dir-select{font-family:var(--font);font-size:12px;color:var(--text-secondary);background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:6px;padding:4px 6px;cursor:pointer;max-width:100%}
+.dir-select:disabled{opacity:.4;cursor:default}
+.dir-leeg{width:1px}
+
+/* Meerkeuze: welke is het grootst */
+.keuze-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.keuze-btn{font-family:var(--mono);font-size:16px;padding:16px 12px;border-radius:10px;border:1.5px solid var(--border-solid);background:var(--bg-secondary);color:var(--text);cursor:pointer;transition:all .15s}
+.keuze-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+.keuze-btn:disabled{cursor:default}
+.keuze-btn.gekozen{border-color:var(--accent);background:var(--accent-dim)}
+.keuze-btn.goed{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.keuze-btn.fout{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.keuze-btn.gelijk{font-family:var(--font);font-size:14px;font-weight:600}
+
+/* Tabeloefening: naam, symbool, factor */
+.tabel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.tabel-cel{display:flex;flex-direction:column;gap:6px}
+.tabel-kop{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);text-align:center}
+.tabel-vast{font-family:var(--mono);font-size:18px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--accent-dim);border:1.5px solid var(--accent-border);color:var(--text)}
+.tabel-invoer{font-family:var(--mono);font-size:16px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--bg-secondary);border:1.5px solid var(--accent-border);color:var(--text);width:100%}
+.tabel-invoer::placeholder{color:var(--text-muted);opacity:.65;font-style:italic}
+.tabel-invoer:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.tabel-invoer.ok{border-color:var(--green)}
+.tabel-invoer.wrong{border-color:var(--red)}
+.tabel-macht{display:block;font-family:var(--mono);font-size:18px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--bg-secondary);border:1.5px solid var(--accent-border);color:var(--text)}
+.tabel-macht.ok{border-color:var(--green)}
+.tabel-macht.wrong{border-color:var(--red)}
+.tabel-exp{width:44px;font-family:var(--mono);font-size:12px;text-align:center;border:none;border-bottom:1.5px solid var(--accent-border);background:transparent;color:var(--text);padding:0 2px;vertical-align:super;line-height:1.1}
+.tabel-exp:focus{outline:none;border-bottom-color:var(--accent);border-bottom-width:2px}
+.tabel-exp::placeholder{color:var(--text-muted);opacity:.6}
+
+/* Oefenvormen: drie kaarten, alleen de eerste met instellingen */
+.setup-intro{font-size:13.5px;color:var(--text-secondary);line-height:1.7;text-align:center;max-width:520px;margin:0 auto 18px}
+.setup-link{color:var(--accent);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-border)}
+.setup-link:hover{border-bottom-color:var(--accent)}
+.vorm-kaart{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:14px}
+.vorm-kaart h2{font-size:19px;font-weight:700;margin-bottom:6px}
+.vorm-kaart p{font-size:13.5px;color:var(--text-secondary);line-height:1.6;max-width:460px;margin:0 auto 14px}
+.vorm-voorbeeld{font-family:var(--mono);font-size:14px;color:var(--accent);background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:9px;padding:9px 12px;display:inline-block;margin-bottom:18px}
+.vorm-kaart .section-title{text-align:left}
+
+/* Uitklap voor wie zelf wil instellen */
+.disclosure{width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border:1px solid var(--border-solid);border-radius:10px;background:transparent;color:var(--text-muted);font-family:var(--font);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:22px}
+.disclosure:hover{border-color:var(--accent-border);color:var(--accent)}
+.disclosure .chev{transition:transform .2s;font-size:9px;line-height:1}
+.disclosure[aria-expanded="true"]{color:var(--accent);border-color:var(--accent-border);margin-bottom:18px}
+#opties{text-align:left}
+.disclosure[aria-expanded="true"] .chev{transform:rotate(180deg)}
+
+/* Levels: één regel per level, met het voorbeeld erbij */
+.level-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.level-toggle{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 14px;background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:10px;cursor:pointer;transition:all .15s}
+.level-toggle:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.level-toggle.active{border-color:var(--accent);background:var(--accent-dim)}
+.level-check{width:19px;height:19px;border-radius:5px;border:2px solid var(--border-solid);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px;color:transparent}
+.level-toggle.active .level-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.level-label{font-size:14px;font-weight:700;flex-shrink:0}
+.level-desc{font-size:12.5px;color:var(--text-muted);flex:1;min-width:120px}
+.level-example{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:6px;padding:4px 8px;flex-shrink:0}
+
+.start-btn{width:100%;padding:14px 20px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.start-btn:hover:not(:disabled){background:#0999aa;box-shadow:0 0 22px var(--accent-glow)}
+.start-btn:disabled{opacity:.35;cursor:default}
+.start-btn.amber{background:var(--accent-amber)}
+.start-btn.amber:hover{background:#c07d2a;box-shadow:0 0 22px var(--accent-amber-glow)}
+
+.divider{display:flex;align-items:center;gap:14px;margin:26px 0;color:var(--text-muted);font-size:12px;font-family:var(--mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border-solid)}
+
+/* Oefenpaneel */
+.ex-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ex-top-links{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.terug-btn{font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--text-muted);background:transparent;border:none;padding:4px 0;cursor:pointer;transition:color .15s}
+.terug-btn:hover{color:var(--accent)}
+.level-badge{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:5px 11px;border-radius:6px;letter-spacing:1px}
+.ex-counter{font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.status-links{display:flex;align-items:baseline;gap:9px;min-width:0}
+.status-level{font-size:20px;font-weight:700;letter-spacing:-.4px;color:var(--accent)}
+.status-soort{font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted)}
+.status-midden{display:flex;align-items:center;gap:9px;flex:1;justify-content:center;min-width:120px}
+.klim-dots{display:inline-flex;gap:5px}
+.klim-dot{width:9px;height:9px;border-radius:50%;background:var(--border-solid);transition:background .25s,transform .25s}
+.klim-dot.vol{background:var(--accent);transform:scale(1.15)}
+.klim-tekst{font-size:11.5px;color:var(--text-muted);white-space:nowrap}
+.status-rechts{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-score{white-space:nowrap}
+.streak{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.streak .flame{font-size:14px;filter:grayscale(1);opacity:.4;transition:all .2s}
+.streak.hot .flame{filter:none;opacity:1}
+.streak.hot{color:var(--accent-amber)}
+
+.q-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:26px 24px;margin-bottom:16px}
+.q-hint{font-size:12.5px;color:var(--text-muted);margin-bottom:16px;text-align:center;line-height:1.5}
+.q-line{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:clamp(16px,3.2vw,21px);color:var(--text)}
+.q-answer{display:inline-flex;align-items:center;gap:8px}
+.q-input{width:clamp(120px,30vw,180px);padding:9px 12px;border:1.5px solid var(--accent-border);border-radius:9px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);font-size:17px;text-align:center}
+.q-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.q-input.ok{border-color:var(--green)}
+.q-input.wrong{border-color:var(--red)}
+.q-unit{font-family:var(--mono);font-size:clamp(16px,3.2vw,21px);color:var(--accent)}
+.q-format{text-align:center;font-size:12px;color:var(--text-muted);margin-top:14px}
+
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s}
+.btn:hover{background:#0999aa}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--accent-dim)}
+.btn.muted{background:transparent;color:var(--text-muted);border-color:var(--border-solid)}
+.btn.muted:hover{background:var(--bg-card-hover);color:var(--text-secondary)}
+
+.feedback{border-radius:10px;padding:13px 16px;font-size:14px;line-height:1.6;margin-bottom:16px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-dim);border:1px solid var(--green-border);color:var(--green)}
+.feedback.wrong{background:var(--red-dim);border:1px solid var(--red-border);color:var(--red)}
+.feedback.neutral{background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--text-secondary)}
+.feedback .answer{font-family:var(--mono);color:var(--text);font-weight:500}
+
+/* ── LADDER-COMPONENT ── (gelijk aan de uitlegpagina) */
+.ladder-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.ladder-bar .hint-text{font-size:12px;color:var(--text-muted)}
+.ladder{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.ladder-caption{font-size:12.5px;color:var(--text-muted);margin-bottom:8px;line-height:1.5}
+.ladder-legend{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--accent);margin-bottom:8px}
+.ladder-rungs{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding-bottom:6px}
+.rung{flex:0 0 auto;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:8px 12px;cursor:pointer;font-family:var(--font);color:var(--text);text-align:center;transition:all .15s;line-height:1.25}
+.rung:hover{border-color:var(--accent-border);background:var(--accent-dim)}
+.rung .rung-sym{display:block;font-weight:700;font-size:15px}
+.rung .rung-factor{display:block;font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-top:3px}
+.rung.is-from{background:var(--accent);border-color:var(--accent);color:#fff}
+.rung.is-from .rung-factor{color:rgba(255,255,255,0.85)}
+.rung.is-to{background:var(--accent-amber);border-color:var(--accent-amber);color:#fff}
+.rung.is-to .rung-factor{color:rgba(255,255,255,0.9)}
+.rung.in-path{border-color:var(--accent-border);background:var(--accent-dim)}
+.rung.rare{opacity:.45}
+.rung.rare.is-from,.rung.rare.is-to{opacity:1}
+.rung-gap{flex:0 0 auto;display:flex;align-items:center;font-size:13px;color:var(--border-solid);white-space:nowrap;padding:0 2px}
+.rung-gap.in-path{color:var(--accent)}
+.ladder-readout{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-solid);font-size:14px;color:var(--text-secondary);line-height:1.6;min-height:62px}
+.ladder-readout .big{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--accent);display:block;margin-bottom:4px;word-break:break-word}
+.ladder-readout .hint{color:var(--text-muted);font-size:13px}
+.ladder-readout .via{display:block;margin-top:6px;font-size:12.5px;color:var(--text-muted)}
+.ladder-readout .via b{font-family:var(--mono);font-weight:500;color:var(--text-secondary)}
+
+/* Toasts bij een levelsprong of een mooie reeks */
+.toast-laag{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:200;padding:0 16px}
+.toast{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:16px 30px;text-align:center;box-shadow:0 14px 44px rgba(11,181,200,0.28);animation:toastIn .28s cubic-bezier(.2,.9,.3,1.2) both}
+.toast.uit{animation:toastUit .22s ease-in both}
+.toast-titel{font-size:21px;font-weight:700;color:var(--accent);letter-spacing:-.4px}
+.toast-tekst{font-size:13px;color:var(--text-secondary);margin-top:3px}
+.toast--vuur{border-color:var(--accent-amber);box-shadow:0 14px 44px rgba(212,146,58,0.3)}
+.toast--vuur .toast-titel{color:var(--accent-amber)}
+@keyframes toastIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+@keyframes toastUit{to{opacity:0;transform:scale(.96)}}
+@media(prefers-reduced-motion:reduce){.toast,.toast.uit{animation:none}}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+  .opt-name{min-width:100%}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .q-card{padding:22px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="toast-laag" id="toast-laag" aria-live="polite"></div>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../" class="crumb">Voorvoegsels</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Oefenen</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Oefenen</h1>
+<p class="tool-sub">Machten van 10 en voorvoegsels</p>
+
+<div class="main">
+
+  <!-- ══ KEUZESCHERM ══ -->
+  <div id="setup">
+
+    <p class="setup-intro">Kies een oefenvorm. Je begint steeds bij level 1 en klimt vanzelf omhoog: na drie goede antwoorden op rij ga je een level verder.<br>
+      Weet je nog niet hoe het werkt? <a href="../uitleg/" class="setup-link">Bekijk eerst de uitleg</a>.</p>
+
+    <div class="vorm-kaart">
+      <h2>Omrekenen</h2>
+      <p>Van de ene eenheid naar de andere, en wetenschappelijke notatie.</p>
+      <div class="vorm-voorbeeld">5 km = … m</div>
+      <button class="start-btn amber" id="climb-btn">Start oefenen →</button>
+
+      <button class="disclosure" id="opties-btn" aria-expanded="false">
+        <span>Liever zelf instellen</span><span class="chev">▼</span>
+      </button>
+
+      <div id="opties" hidden>
+        <div class="section-title">Wat wil je oefenen?</div>
+        <div class="level-grid" id="type-list"></div>
+
+        <div class="section-title">Hoe moeilijk?</div>
+        <div class="level-grid" id="level-grid"></div>
+
+        <button class="start-btn" id="start-btn" disabled>Kies een level om te starten</button>
+      </div>
+    </div>
+
+    <div class="vorm-kaart">
+      <h2>Welke is het grootst?</h2>
+      <p>Drie waarden van dezelfde grootheid, in verschillende eenheden. Soms zijn ze alle drie gelijk.</p>
+      <div class="vorm-voorbeeld">2500 mm of 2,5 m?</div>
+      <button class="start-btn" data-vorm="D">Start oefenen →</button>
+    </div>
+
+    <div class="vorm-kaart">
+      <h2>De voorvoegseltabel</h2>
+      <p>Naam, symbool en factor. Eén vakje staat er al, de andere twee vul je in.</p>
+      <div class="vorm-voorbeeld">micro · µ · 10⁻⁶</div>
+      <button class="start-btn" data-vorm="E">Start oefenen →</button>
+    </div>
+
+  </div>
+
+  <!-- ══ OEFENSCHERM ══ -->
+  <div id="exercise" hidden>
+
+    <div class="ex-top">
+      <button class="terug-btn" id="back-btn">← Andere oefenvorm</button>
+      <span class="ex-counter" id="ex-counter">Opgave 1</span>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-links">
+        <span class="status-level" id="ex-level">Level 1</span>
+        <span class="status-soort" id="ex-soort">omrekenen</span>
+      </div>
+      <div class="status-midden">
+        <span class="klim-dots" id="klim-dots"></span>
+        <span class="klim-tekst" id="klim-tekst"></span>
+      </div>
+      <div class="status-rechts">
+        <span class="streak" id="streak"><span class="flame">🔥</span><span id="streak-num">0</span></span>
+        <span class="status-score" id="session-score" title="goed van totaal deze sessie">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-hint" id="q-hint"></div>
+      <div id="q-invoer">
+        <div class="q-line">
+          <span id="q-left"></span>
+          <span class="q-answer">
+            <input class="q-input" id="q-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="?">
+            <span class="q-unit" id="q-unit"></span>
+          </span>
+        </div>
+        <div class="q-format" id="q-format"></div>
+      </div>
+
+      <div id="q-keuze" hidden>
+        <div class="keuze-grid" id="keuze-grid"></div>
+      </div>
+
+      <div id="q-tabel" hidden>
+        <div class="tabel-grid" id="tabel-grid"></div>
+        <div class="q-format" id="q-format-tabel"></div>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="check-btn">Controleer</button>
+      <button class="btn ghost" id="reveal-btn">Toon antwoord</button>
+    </div>
+
+    <div class="ladder-bar">
+      <button class="btn muted" id="ladder-btn">Ladder tonen</button>
+      <span class="hint-text" id="ladder-hint"></span>
+    </div>
+    <div id="ladder-panel" hidden>
+      <div class="ladder" data-ladder="T,G,M,k,1,m,µ,n,p" data-unit="m" data-common="k,1,d,c,m,µ,n,p"></div>
+      <div class="ladder" data-ladder="k,h,da,1,d,c,m" data-unit="m" data-common="k,1,d,c,m,µ,n,p"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../assets/logo/JK_dark.svg';if(fl)fl.src='../assets/logo/JK_white.svg';
+    if(fav)fav.href='../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../assets/logo/JK_light.svg';if(fl)fl.src='../assets/logo/JK_black.svg';
+    if(fav)fav.href='../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   LADDER-COMPONENT (identiek aan voorvoegsels/uitleg/index.html)
+   ══════════════════════════════════════════════════════════════ */
+
+const PREFIX_LIST=[
+  {sym:'T' ,name:'tera' ,exp:12},
+  {sym:'G' ,name:'giga' ,exp:9},
+  {sym:'M' ,name:'mega' ,exp:6},
+  {sym:'k' ,name:'kilo' ,exp:3},
+  {sym:'h' ,name:'hecto',exp:2},
+  {sym:'da',name:'deca' ,exp:1},
+  {sym:'1' ,name:'basiseenheid',exp:0,label:'basis'},
+  {sym:'d' ,name:'deci' ,exp:-1},
+  {sym:'c' ,name:'centi',exp:-2},
+  {sym:'m' ,name:'milli',exp:-3},
+  {sym:'µ' ,name:'micro',exp:-6},
+  {sym:'n' ,name:'nano' ,exp:-9},
+  {sym:'p' ,name:'pico' ,exp:-12}
+];
+const PREFIXES=Object.fromEntries(PREFIX_LIST.map(p=>[p.sym,p]));
+
+function pow10(n){return '10<sup>'+String(n).replace('-','−')+'</sup>';}
+
+function uitgeschreven(exp){
+  if(exp===0) return '1';
+  if(exp>0)  return ('1'+'0'.repeat(exp)).replace(/\B(?=(\d{3})+$)/g,' ');
+  return '0,'+('0'.repeat(-exp-1)+'1').replace(/(\d{3})(?=\d)/g,'$1 ');
+}
+
+function rungLabel(symbol){
+  return symbol==='1' ? 'de basiseenheid' : PREFIXES[symbol].name+' ('+symbol+')';
+}
+
+function initLadder(el){
+  const symbols=(el.dataset.ladder||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const unit=el.dataset.unit||'';
+  // data-common: de voorvoegsels die bij deze eenheid echt voorkomen. De ladder
+  // houdt zijn vaste vorm, maar de rest wordt gedimd zodat ks of mOhm niet als
+  // gewoon voorbeeld overkomt.
+  const common=(el.dataset.common||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const zeldzaam=s=>common.length>0 && !common.includes(s);
+  let from=el.dataset.from||null, to=el.dataset.to||null;
+
+  const gapExps=symbols.slice(1).map((s,i)=>PREFIXES[symbols[i]].exp-PREFIXES[s].exp);
+  const evenStap=gapExps.every(e=>e===gapExps[0]);
+  const kleinerNaarRechts=gapExps[0]>0;
+  const stapN=uitgeschreven(Math.abs(gapExps[0]));
+
+  const caption=document.createElement('div');
+  caption.className='ladder-caption';
+  caption.innerHTML=(evenStap?'Elke stap is een factor '+stapN+'. ':'')+
+    'Naar rechts wordt de <strong>eenheid</strong> '+(kleinerNaarRechts?'kleiner':'groter')+
+    ' en je <strong>getal</strong> dus '+(kleinerNaarRechts?'groter':'kleiner')+
+    '. Naar links gebeurt precies het omgekeerde.';
+
+  const legend=document.createElement('div');
+  legend.className='ladder-legend';
+  legend.innerHTML='<span>&larr; eenheid '+(kleinerNaarRechts?'groter':'kleiner')+', getal '+(kleinerNaarRechts?'kleiner':'groter')+'</span>'+
+                   '<span>eenheid '+(kleinerNaarRechts?'kleiner':'groter')+', getal '+(kleinerNaarRechts?'groter':'kleiner')+' &rarr;</span>';
+
+  const row=document.createElement('div');
+  row.className='ladder-rungs';
+  const readout=document.createElement('div');
+  readout.className='ladder-readout';
+
+  const rungEls={}, gapEls=[];
+  symbols.forEach((symbol,i)=>{
+    if(i>0){
+      const gap=document.createElement('span');
+      gap.className='rung-gap';
+      gap.textContent='↔';
+      row.appendChild(gap);
+      gapEls.push(gap);
+    }
+    const p=PREFIXES[symbol];
+    const btn=document.createElement('button');
+    btn.className='rung';
+    btn.type='button';
+    btn.innerHTML='<span class="rung-sym"></span><span class="rung-factor"></span>';
+    btn.querySelector('.rung-sym').textContent=p.label||symbol;
+    btn.querySelector('.rung-factor').innerHTML=pow10(p.exp);
+    btn.title=p.name;
+    if(zeldzaam(symbol)) btn.classList.add('rare');
+    btn.onclick=()=>select(symbol);
+    row.appendChild(btn);
+    rungEls[symbol]=btn;
+  });
+
+  function select(symbol){
+    if(from===null){ from=symbol; to=null; }
+    else if(to===null){ if(symbol===from){ from=null; } else { to=symbol; } }
+    else { from=symbol; to=null; }
+    draw();
+  }
+
+  function draw(){
+    symbols.forEach(s=>rungEls[s].classList.remove('is-from','is-to','in-path'));
+    gapEls.forEach(g=>g.classList.remove('in-path'));
+    if(from===null){
+      readout.innerHTML='<span class="hint">Klik de trede aan waar je vandaan komt, en daarna de trede waar je naartoe gaat.</span>';
+      return;
+    }
+    rungEls[from].classList.add('is-from');
+    if(to===null){
+      readout.innerHTML='<span class="hint">Je begint bij '+rungLabel(from)+'. Klik nu de trede waar je naartoe gaat.</span>';
+      return;
+    }
+    rungEls[to].classList.add('is-to');
+    const a=symbols.indexOf(from), b=symbols.indexOf(to);
+    for(let i=Math.min(a,b)+1;i<Math.max(a,b);i++) rungEls[symbols[i]].classList.add('in-path');
+    for(let i=Math.min(a,b);i<Math.max(a,b);i++) gapEls[i].classList.add('in-path');
+    const diff=PREFIXES[from].exp-PREFIXES[to].exp;
+    if(diff===0){
+      readout.innerHTML='<span class="hint">Zelfde trede, er verandert niets aan je getal.</span>';
+      return;
+    }
+    const vanS=(from==='1'?'':from)+unit, naarS=(to==='1'?'':to)+unit;
+    let html='<span class="big">1 '+vanS+' = '+uitgeschreven(diff)+' '+naarS+'</span>'+
+             '<span class="hint">Van '+rungLabel(from)+' naar '+rungLabel(to)+' is een factor '+pow10(Math.abs(diff))+'. '+
+             'Je getal wordt dus '+uitgeschreven(Math.abs(diff))+' keer '+(diff>0?'groter':'kleiner')+'.</span>';
+    if(from!=='1'&&to!=='1'){
+      html+='<span class="via">Via de basiseenheid: <b>1 '+vanS+' = '+uitgeschreven(PREFIXES[from].exp)+' '+unit+'</b>'+
+            ' en <b>1 '+naarS+' = '+uitgeschreven(PREFIXES[to].exp)+' '+unit+'</b></span>';
+    }
+    const raar=[from,to].filter(zeldzaam).map(s=>(s==='1'?'':s)+unit);
+    if(raar.length){
+      html+='<span class="via">De omrekening klopt, maar '+raar.join(' en ')+
+            ' gebruik je in de praktijk niet.</span>';
+    }
+    readout.innerHTML=html;
+  }
+
+  el.innerHTML='';
+  el.appendChild(caption);
+  el.appendChild(legend);
+  el.appendChild(row);
+  el.appendChild(readout);
+  draw();
+}
+
+function initLadders(root){
+  (root||document).querySelectorAll('.ladder[data-ladder]').forEach(initLadder);
+}
+/* ═══════════════════ EINDE LADDER-COMPONENT ═══════════════════ */
+
+
+/* ── INVOERPARSER (overgenomen uit significantie/index.html) ── */
+function parseAnswer(input){
+  if(!input || !input.trim()) return { valid:false };
+  let s = input.trim();
+  // Eerst normaliseren: de tool toont een echt minteken, dus dat moet ook terug
+  // ingetypt of geplakt kunnen worden.
+  s = s.replace(/[−‒–—]/g,'-');
+  const sup = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+'};
+  s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, m => '^' + m.split('').map(c=>sup[c]).join(''));
+  s = s.replace(/\s*[\*·×x]\s*10\s*\^\s*\(?\s*([-+]?\d+)\s*\)?/g, 'e$1');
+  // Een kale tienmacht zonder voorgetal: 10³ betekent 1·10³.
+  s = s.replace(/^([-+]?)\s*10\s*\^\s*\(?\s*([-+]?\d+)\s*\)?\s*$/, (m,teken,exp)=>teken+'1e'+exp);
+  s = s.replace(/\s/g,'');                        // spaties als duizendtalscheiding
+  const sDot = s.replace(/,/g,'.');
+  const m = sDot.match(/^([-+]?)(\d+(?:\.\d+)?|\.\d+)(?:e([-+]?\d+))?$/i);
+  if(!m) return { valid:false };
+  const teken = m[1]==='-' ? -1 : 1;
+  const mantissa = parseFloat(m[2]);
+  const exponent = m[3] ? parseInt(m[3],10) : 0;
+  return { valid:true, value: teken*mantissa*Math.pow(10,exponent),
+           mantissa, exponent, hasScientific: m[3]!==undefined };
+}
+
+
+/* ── GETALLEN OPMAKEN ── */
+function schoon(v){ return Number(v.toPrecision(12)); }
+
+function sciDelen(v){
+  if(v===0) return {a:0,e:0};
+  const teken = v<0?-1:1, abs = Math.abs(v);
+  let e = Math.floor(Math.log10(abs)+1e-12);
+  let a = abs/Math.pow(10,e);
+  if(a>=10){a/=10;e++;}
+  if(a<1){a*=10;e--;}
+  return {a: teken*schoon(a), e};
+}
+
+// Voluit, ook bij hele kleine of hele grote getallen. Groepjes van drie cijfers,
+// zodat 1 000 000 leesbaar blijft; de parser negeert die spaties bij invoer.
+function fmtPlain(v){
+  if(v===0) return '0';
+  const teken = v<0?'-':'';
+  const {a,e} = sciDelen(Math.abs(v));
+  const cijfers = schoon(a).toString().replace('.','');
+  const voorKomma = 1+e;
+  let heel, deel;
+  if(voorKomma<=0){ heel='0'; deel='0'.repeat(-voorKomma)+cijfers; }
+  else if(voorKomma>=cijfers.length){ heel=cijfers+'0'.repeat(voorKomma-cijfers.length); deel=''; }
+  else { heel=cijfers.slice(0,voorKomma); deel=cijfers.slice(voorKomma); }
+  deel = deel.replace(/0+$/,'');
+  const heelG = heel.replace(/\B(?=(\d{3})+$)/g,' ');
+  // Alleen lange decimalen groeperen: 0,0048 hoort niet als "0,004 8" te lezen.
+  const deelG = deel.length>6 ? deel.replace(/(\d{3})(?=\d)/g,'$1 ') : deel;
+  return teken+heelG+(deelG?','+deelG:'');
+}
+
+function fmtSci(v){
+  const {a,e} = sciDelen(v);
+  const aStr = schoon(a).toString().replace('.',',');
+  return e===0 ? aStr : aStr+'·'+pow10(e);
+}
+
+
+/* ── WAT KOMT ECHT VOOR: whitelist eenheid en voorvoegsel ── */
+const UNIT_PREFIXES={
+  'm' :['k','1','d','c','m','µ','n','p'],
+  's' :['1','m','µ','n','p'],
+  'g' :['k','1','m','µ','n'],
+  'Hz':['T','G','M','k','1'],
+  'W' :['T','G','M','k','1','m','µ'],
+  'N' :['M','k','1','m','µ'],
+  'J' :['G','M','k','1','m','µ'],
+  'A' :['k','1','m','µ','n','p'],
+  'V' :['M','k','1','m','µ'],
+  'Pa':['G','M','k','h','1'],
+  'Ω' :['G','M','k','1']
+};
+const ALLE_EENHEDEN=Object.keys(UNIT_PREFIXES);
+
+const MANT_HEEL=[1,2,3,4,5,7,9];
+const MANT_1   =[1.5,2.5,3.2,4.8,6.8,7.5,9.3,8.4];
+const MANT_2   =[1.25,2.75,3.05,4.85,6.84,7.25,9.05,8.16];
+const MANT_3   =[1.235,2.505,4.875,6.845,9.025,3.408];
+
+const LEVELS={
+  1:{nr:1, prefixes:['k','1','m'], units:['m','s','g'], heel:true,
+     diffOk:d=>d===3, mantissen:MANT_HEEL, expNotatie:[2,3], expGetal:[2,3],
+     tabel:['k','c','m'],
+     desc:'kilo en milli, hele getallen',
+     voorbeeld:'5 km = … m'},
+  2:{nr:2, prefixes:['k','1','d','c','m'], units:['m','s','g','Hz','W','N','J'], heel:false,
+     diffOk:d=>d>=1&&d<=3, mantissen:MANT_1, expNotatie:[1,2,3], expGetal:[1,2,3],
+     tabel:['M','k','d','c','m','µ'],
+     desc:'ook centi en deci, kommagetallen',
+     voorbeeld:'2,5 cm = … mm'},
+  3:{nr:3, prefixes:['G','M','k','1','d','c','m','µ','n'], units:ALLE_EENHEDEN, heel:false,
+     diffOk:d=>d>=4&&d<=6, mantissen:MANT_1.concat(MANT_2), expNotatie:[4,5,6], expGetal:[1,2,3,4,5],
+     tabel:['G','M','k','d','c','m','µ','n'],
+     desc:'ook mega, giga, micro en nano',
+     voorbeeld:'2,5 MΩ = … Ω'},
+  4:{nr:4, prefixes:['T','G','M','k','h','1','d','c','m','µ','n','p'], units:ALLE_EENHEDEN, heel:false,
+     diffOk:d=>d>=7, mantissen:MANT_2.concat(MANT_3), expNotatie:[7,8,9,10,11,12], expGetal:[1,2,3,4,5,6],
+     tabel:['T','G','M','k','h','da','d','c','m','µ','n','p'],
+     desc:'alle voorvoegsels, grote sprongen',
+     voorbeeld:'3,2 TW = … kW'},
+  5:{nr:5, prefixes:['T','G','M','k','h','1','d','c','m','µ','n','p'], units:ALLE_EENHEDEN, heel:false,
+     diffOk:d=>d>=1, mantissen:MANT_1.concat(MANT_2,MANT_3), expNotatie:[1,2,3,4,5,6,7,8,9,10,11,12], expGetal:[1,2,3,4,5,6], sciKans:0.5,
+     tabel:['T','G','M','k','h','da','d','c','m','µ','n','p'],
+     desc:'alles door elkaar, soms in wetenschappelijke notatie',
+     voorbeeld:'0,0045 A = … mA'}
+};
+
+// De naam zegt wat je doet. B en C verschillen in of de basiseenheid meedoet:
+// dat is precies het onderscheid dat in de les ook telt.
+// Twee soorten, en het verschil is meteen te zien: met of zonder eenheid.
+// Omrekenen dekt ook de basiseenheid, want die is gewoon een trede op de ladder.
+const TYPES={
+  C:{naam:'Omrekenen', kort:'omrekenen',
+     uitleg:'van de ene eenheid naar de andere',
+     voorbeeld:'5 km = … m',
+     richtingen:[['beide','allebei de kanten op'],['kleiner','naar een kleinere eenheid'],['groter','naar een grotere eenheid']]},
+  A:{naam:'Wetenschappelijke notatie', kort:'notatie',
+     uitleg:'zonder eenheid, alleen het getal',
+     voorbeeld:'4500 = 4,5·10³',
+     richtingen:[['beide','allebei de kanten op'],['notatie','naar de notatie'],['getal','naar een gewoon getal']]},
+  D:{naam:'Welke is het grootst?', kort:'vergelijken',
+     uitleg:'kies de grootste van drie',
+     voorbeeld:'2500 mm of 2,5 m?',
+     richtingen:[]},
+  E:{naam:'De voorvoegseltabel', kort:'tabel',
+     uitleg:'naam, symbool en factor',
+     voorbeeld:'micro → µ → 10⁻⁶',
+     richtingen:[]}
+};
+
+
+/* ── OPGAVEN MAKEN ── */
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function label(prefix,unit){ return (prefix==='1'?'':prefix)+unit; }
+function schuif(v,d){ return schoon(v*Math.pow(10,d)); }
+
+function kiesWaarde(L){
+  return L.heel ? pick([1,2,3,4,5,6,8,12,15,20,25,50])
+                : pick([1.5,2.5,3.2,4.8,0.25,0.75,12.5,0.5,7.5,1.25,6.4,0.4]);
+}
+function wilSci(L){ return L.sciKans ? Math.random()<L.sciKans : false; }
+
+
+function maakVraagA(L,richting){
+  const naarNotatie = richting==='notatie' || (richting==='beide' && Math.random()<0.5);
+  const a = pick(L.mantissen);
+  const decimalen = (String(a).split('.')[1]||'').length;
+  // Een exponent kleiner dan het aantal decimalen laat de komma middenin het
+  // getal landen (9,05·10¹ = 90,5). Daar zit het echte tellen, niet in nullen.
+  const kanBinnen = decimalen>=2;
+  const binnen = kanBinnen && Math.random() < (naarNotatie ? 0.3 : 0.5);
+  const e = binnen ? 1+Math.floor(Math.random()*(decimalen-1))
+                   : pick(naarNotatie ? L.expNotatie : L.expGetal) * pick([1,-1]);
+  const waarde = schuif(a,e);
+  if(naarNotatie){
+    return {type:'A', antwoord:waarde, eisSci:true, eenheid:'',
+            stap:{exponent:sciDelen(waarde).e},
+            linksHTML: fmtPlain(waarde)+' &nbsp;=',
+            hint:'Schrijf dit getal in wetenschappelijke notatie.',
+            format:'Typ een tienmacht. Dat mag als 4,5e3, als 4,5*10^3 of als 4,5·10³.'};
+  }
+  return {type:'A', antwoord:waarde, eisSci:false, toonPlat:true, eenheid:'',
+          stap:{exponent:sciDelen(waarde).e},
+          linksHTML: fmtSci(waarde)+' &nbsp;=',
+          hint:'Schrijf dit als een gewoon getal, zonder tienmacht.',
+          format:'Typ een gewoon getal, met een komma als er decimalen zijn.'};
+}
+
+function maakVraagC(L,richting){
+  const unit = pick(L.units);
+  const toegestaan = UNIT_PREFIXES[unit].filter(p=>L.prefixes.includes(p));
+  const paren=[];
+  for(const a of toegestaan) for(const b of toegestaan){
+    if(a===b) continue;
+    const d = PREFIXES[a].exp - PREFIXES[b].exp;
+    if(!L.diffOk(Math.abs(d))) continue;
+    if(richting==='kleiner' && d<=0) continue;   // eenheid kleiner, dus getal groter
+    if(richting==='groter'  && d>=0) continue;
+    paren.push([a,b,d]);
+  }
+  if(!paren.length) return null;
+  const [van,naar,d] = pick(paren);
+  const waarde = kiesWaarde(L);
+  // Vanaf level 2 staat het gegeven getal soms als tienmacht, zodat je leert dat
+  // 2·10⁻³ A en 2 mA hetzelfde zijn. Dat was voorheen een apart oefentype.
+  const gegevenAlsSci = L.nr>=2 && Math.random()<0.35;
+  return {type:'C', antwoord:schuif(waarde,d), eisSci:wilSci(L),
+          eenheid:label(naar,unit), eenheidBasis:unit,
+          stap:{d, van, naar, unit},
+          gegevenMantisse: gegevenAlsSci ? sciDelen(waarde).a : null,
+          linksHTML: (gegevenAlsSci ? fmtSci(waarde) : fmtPlain(waarde))+' '+label(van,unit)+' &nbsp;=',
+          hint:'Reken om naar de eenheid die rechts staat.',
+          format:'Typ een getal. Een tienmacht mag als 5e3, als 5*10^3 of als 5·10³.'};
+}
+
+function husselen(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+
+// "Welke is het grootst?" Drie dezelfde grootheden in verschillende eenheden.
+// Soms zijn ze alle drie gelijk; dat is de val waar het hier om draait.
+function maakVraagD(L){
+  const unit = pick(L.units);
+  const toegestaan = UNIT_PREFIXES[unit].filter(p=>L.prefixes.includes(p));
+  if(toegestaan.length<3) return null;
+  // Drie treden die naast elkaar liggen. Dat houdt de getallen leesbaar en het is
+  // ook waar de verwarring echt zit: mm tegen cm tegen m, niet GOhm tegen Ohm.
+  const oplopend = toegestaan.slice().sort((a,b)=>PREFIXES[b].exp-PREFIXES[a].exp);
+  const start = Math.floor(Math.random()*(oplopend.length-2));
+  const prefs = husselen(oplopend.slice(start,start+3));
+  const basis = schuif(kiesWaarde(L), pick([0,1,2]));       // waarde in basiseenheden
+  const soort = Math.random();
+  const gelijk = soort<0.25;
+  let factoren;
+  if(gelijk)          factoren=[1,1,1];
+  else if(soort<0.5)  factoren=husselen([1,1,pick(L.nr<=2?[10,100]:[2,4,5,10])]);
+  else                factoren=husselen(L.nr<=2 ? [1,10,100] : pick([[1,10,100],[1,2,5],[1,4,10],[1,2.5,10]]));
+  const waarden = factoren.map(m=>schuif(basis*m,0));
+  const opties = prefs.map((p,i)=>({
+    label: fmtPlain(schuif(waarden[i], -PREFIXES[p].exp))+' '+label(p,unit),
+    waarde: waarden[i]
+  }));
+  const grootste = Math.max(...waarden);
+  const aantalGrootste = waarden.filter(w=>Math.abs(w-grootste)<1e-12).length;
+  // Bij niet-gelijke waarden moet er precies één grootste zijn.
+  if(!gelijk && aantalGrootste!==1) return null;
+  return {type:'D', vorm:'keuze', eenheidBasis:unit,
+          opties, gelijk,
+          juist: gelijk ? 3 : waarden.findIndex(w=>Math.abs(w-grootste)<1e-12),
+          hint:'Alle drie gaan over dezelfde grootheid. Welke waarde is het grootst?'};
+}
+
+// De voorvoegseltabel: één cel staat er, de andere twee vul je in.
+function maakVraagE(L){
+  // Niet twee keer achter elkaar hetzelfde voorvoegsel vragen.
+  let kandidaten = (L.tabel||L.prefixes).filter(p=>p!=='1' && p!==state.laatsteTabelSym);
+  if(!kandidaten.length) kandidaten = (L.tabel||L.prefixes).filter(p=>p!=='1');
+  if(!kandidaten.length) return null;
+  const sym = pick(kandidaten), p = PREFIXES[sym];
+  const gegeven = pick(['naam','symbool','factor']);
+  return {type:'E', vorm:'tabel', sym, exp:p.exp, naam:p.name, gegeven,
+          hint:'Vul de twee lege vakjes in: de naam (zoals micro), het symbool en de macht van 10. Let op hoofdletters, want M is mega en m is milli.',
+          format:'De 10 staat er al, typ alleen de macht. Bijvoorbeeld −6 of 3.'};
+}
+
+function maakVraag(level,type,richting){
+  const L = LEVELS[level];
+  for(let i=0;i<300;i++){
+    const q = type==='A' ? maakVraagA(L,richting)
+            : type==='D' ? maakVraagD(L)
+            : type==='E' ? maakVraagE(L)
+            : maakVraagC(L,richting);
+    // Staat het gegeven als tienmacht en is het voorgetal toevallig gelijk aan
+    // het antwoord, dan valt er niets te rekenen. Opnieuw proberen.
+    if(q && q.gegevenMantisse!=null && Math.abs(q.gegevenMantisse-q.antwoord)<1e-12) continue;
+    if(q){
+      q.level=level;
+      // Bij exponent 0 is het getal zelf al de wetenschappelijke notatie; dan
+      // is ·10⁰ eisen onzin.
+      if(q.eisSci && sciDelen(q.antwoord).e===0) q.eisSci=false;
+      if(q.eisSci){
+        if(!q.hint.includes('wetenschappelijke notatie'))
+          q.hint+=' Geef je antwoord in wetenschappelijke notatie.';
+        q.toonPlat=false;
+      }
+      return q;
+    }
+  }
+  return null;
+}
+
+
+/* ── CONTROLE ── */
+function dichtbij(a,b){
+  if(b===0) return Math.abs(a)<1e-12;
+  return Math.abs(a-b)/Math.abs(b) < 1e-9;
+}
+
+function controleer(invoer,vraag){
+  const p = parseAnswer(invoer);
+  if(!p.valid) return 'onleesbaar';
+  if(!dichtbij(p.value, vraag.antwoord)) return 'fout';
+  if(vraag.eisSci){
+    if(!p.hasScientific) return 'geen-notatie';
+    if(!(Math.abs(p.mantissa)>=1 && Math.abs(p.mantissa)<10)) return 'mantisse';
+  }
+  return 'goed';
+}
+
+// 'u' en de Griekse mu tellen als het micro-teken; verder is hoofdlettergevoelig
+// juist de bedoeling, want M is mega en m is milli.
+function normSymbool(t){ return t.trim().replace(/[μu]/g,'µ'); }
+
+// De 10 staat voorgedrukt in het vakje, dus hier hoort alleen de macht. We
+// rekenen ook goed wanneer iemand uit gewoonte de hele macht overtypt.
+function controleerExponent(invoer, exp){
+  const sup = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+'};
+  let t = invoer.trim().replace(/[−‒–—]/g,'-');
+  t = t.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, m => m.split('').map(c=>sup[c]).join(''));
+  t = t.replace(/\s/g,'').replace(/^\^/,'');
+  const m = t.match(/^(?:10\^?|e)?([-+]?\d+)$/i);   // -3, ^-3, 10^-3, 10-3, e-3
+  return !!m && Number(m[1])===exp;
+}
+
+function controleerTabel(vraag){
+  const velden = ['naam','symbool','factor'].filter(k=>k!==vraag.gegeven);
+  const uitslag = {};
+  for(const k of velden){
+    const inv = el('tab-'+k).value;
+    if(!inv.trim()){ uitslag[k]=false; continue; }
+    if(k==='naam')         uitslag[k] = inv.trim().toLowerCase()===vraag.naam.toLowerCase();
+    else if(k==='symbool') uitslag[k] = normSymbool(inv)===vraag.sym;
+    else uitslag[k] = controleerExponent(inv, vraag.exp);
+  }
+  return {velden, uitslag, alles: velden.every(k=>uitslag[k])};
+}
+
+// Wat ging er mis? We vergelijken het antwoord met het juiste antwoord. Zit er
+// precies een macht van 10 tussen, dan valt af te leiden welke stap de leerling
+// gemaakt heeft, en dat is bruikbaarder dan alleen "fout".
+function diagnose(invoer, vraag){
+  const p = parseAnswer(invoer);
+  if(!p.valid || !vraag.stap || p.value===0 || vraag.antwoord===0) return null;
+
+  const verhouding = Math.abs(p.value/vraag.antwoord);
+  const n = Math.round(Math.log10(verhouding));
+  if(Math.abs(verhouding-Math.pow(10,n)) > verhouding*1e-9) return null;   // geen zuivere tienmachtfout
+  if(n===0) return null;
+
+  // Wetenschappelijke notatie: geen ladder, wel een macht die kan omklappen.
+  if(vraag.type==='A'){
+    const e = vraag.stap.exponent;
+    if(e!==0 && n===-2*e)
+      return 'Je hebt het teken van de macht omgedraaid. Het moet '+pow10(e)+' zijn, niet '+pow10(-e)+'.';
+    return 'Je macht van 10 zit er '+Math.abs(n)+' naast: '+
+           (n>0?'jouw getal is te groot':'jouw getal is te klein')+'.';
+  }
+
+  const {d, van, naar, unit} = vraag.stap;
+  const gebruikt = d + n;                       // de stap die de leerling gemaakt heeft
+  const vanL = label(van,unit), naarL = label(naar,unit);
+
+  if(gebruikt === -d)
+    return 'Je hebt de komma de verkeerde kant op geschoven. Van '+vanL+' naar '+naarL+
+           ' wordt je getal juist '+(d>0?'groter':'kleiner')+'.';
+
+  if(Math.abs(gebruikt)===3 && Math.abs(d)!==3)
+    return 'Tussen '+vanL+' en '+naarL+' zit een factor '+uitgeschreven(Math.abs(d))+', niet 1 000.';
+
+  const mis = Math.abs(gebruikt-d);
+  if(mis%3===0)
+    return 'Je zit '+(mis/3===1?'één stap':(mis/3)+' stappen')+' van 1 000 naast het antwoord.';
+  if(mis===1 || mis===2)
+    return 'Je zit '+(mis===1?'één stap':'twee stappen')+' van 10 naast het antwoord.';
+  return 'Je antwoord is een factor '+pow10(Math.abs(n))+' te '+(n>0?'groot':'klein')+'.';
+}
+
+function antwoordHTML(v){
+  if(v.vorm==='keuze') return v.gelijk ? 'ze zijn alle drie gelijk' : v.opties[v.juist].label;
+  if(v.vorm==='tabel') return v.naam+' &nbsp;·&nbsp; '+v.sym+' &nbsp;·&nbsp; '+pow10(v.exp);
+  const getal = v.eisSci ? fmtSci(v.antwoord)
+              : v.toonPlat              ? fmtPlain(v.antwoord)
+              : (Math.abs(v.antwoord)>=1e6 || (v.antwoord!==0 && Math.abs(v.antwoord)<1e-4))
+                ? fmtSci(v.antwoord) : fmtPlain(v.antwoord);
+  return getal + (v.eenheid ? ' '+v.eenheid : '');
+}
+
+
+/* ── STAAT EN SCHERM ── */
+const CLIMB_DOEL=3, MAX_LEVEL=5;
+const state={
+  types:['C'], keuzeTypes:['C'], richting:{A:'beide',C:'beide',D:'beide',E:'beide'}, levels:[], modus:'eigen',
+  climbLevel:1, climbStreak:0,
+  vraag:null, pogingen:0, klaar:false, teller:0,
+  score:{goed:0,totaal:0}, streak:0,
+  ladderKeuze:null, ladderEenheid:'m', ladderHint:false, klimMelding:'', laatsteTabelSym:null
+};
+
+const el = id=>document.getElementById(id);
+
+const EIGEN_TYPES=['C','A'];      // vergelijken en de tabel zijn eigen oefenvormen
+
+function bouwTypen(){
+  el('type-list').innerHTML = EIGEN_TYPES.map(t=>{
+    const T=TYPES[t], aan=state.keuzeTypes.includes(t);
+    const opties=T.richtingen.map(([k,tekst])=>
+      '<option value="'+k+'"'+(state.richting[t]===k?' selected':'')+'>'+tekst+'</option>').join('');
+    const keuzelijst = T.richtingen.length
+      ? '<select class="dir-select" data-type="'+t+'"'+(aan?'':' disabled')+'>'+opties+'</select>'
+      : '<span class="dir-leeg"></span>';
+    return '<div class="opt-row'+(aan?' active':'')+'" data-type="'+t+'">'+
+           '<span class="level-check">✓</span>'+
+           '<span class="opt-name">'+T.naam+'<span class="opt-uitleg">'+T.uitleg+'</span></span>'+
+           '<span class="opt-example">'+T.voorbeeld+'</span>'+
+           keuzelijst+
+           '</div>';
+  }).join('');
+  el('type-list').querySelectorAll('.opt-row').forEach(r=>{
+    r.onclick=e=>{
+      if(e.target.closest('.dir-select')) return;      // de keuzelijst schakelt de rij niet
+      const t=r.dataset.type;
+      state.keuzeTypes = state.keuzeTypes.includes(t) ? state.keuzeTypes.filter(x=>x!==t) : state.keuzeTypes.concat(t);
+      tekenKeuze();
+    };
+  });
+  el('type-list').querySelectorAll('.dir-select').forEach(sel=>{
+    sel.onchange=()=>{ state.richting[sel.dataset.type]=sel.value; };
+    sel.onclick=e=>e.stopPropagation();
+  });
+}
+
+function bouwLevels(){
+  el('level-grid').innerHTML = [1,2,3,4,5].map(n=>{
+    const L=LEVELS[n], aan=state.levels.includes(n);
+    return '<div class="level-toggle'+(aan?' active':'')+'" data-level="'+n+'">'+
+           '<span class="level-check">✓</span>'+
+           '<span class="level-label">Level '+n+'</span>'+
+           '<span class="level-desc">'+L.desc+'</span>'+
+           '<span class="level-example">'+L.voorbeeld+'</span></div>';
+  }).join('');
+  el('level-grid').querySelectorAll('.level-toggle').forEach(t=>{
+    t.onclick=()=>{
+      const n=Number(t.dataset.level);
+      state.levels = state.levels.includes(n)
+        ? state.levels.filter(x=>x!==n)
+        : state.levels.concat(n).sort();
+      tekenKeuze();
+    };
+  });
+}
+
+function tekenKeuze(){
+  bouwTypen();
+  bouwLevels();
+  const knop=el('start-btn');
+  const klaar = state.keuzeTypes.length>0 && state.levels.length>0;
+  knop.disabled = !klaar;
+  knop.textContent = state.keuzeTypes.length===0 ? 'Kies wat je wilt oefenen'
+                   : state.levels.length===0 ? 'Kies een level'
+                   : 'Start oefenen →';
+}
+
+function toonPaneel(naam){
+  el('setup').hidden = naam!=='setup';
+  el('exercise').hidden = naam!=='exercise';
+  window.scrollTo({top:0});     // het keuzescherm is lang; anders start je onderaan
+}
+
+// De ladder praat dezelfde eenheid als de vraag, dus 1 kHz = 1 000 Hz bij een Hz-vraag.
+function zetLadderEenheid(u){
+  if(!u || u===state.ladderEenheid) return;
+  state.ladderEenheid=u;
+  el('ladder-panel').querySelectorAll('.ladder').forEach(l=>{
+    l.dataset.unit=u;
+    l.dataset.common=(UNIT_PREFIXES[u]||[]).join(',');   // ks en mΩ blijven gedimd
+    initLadder(l);
+  });
+}
+
+const LADDER_1000=['T','G','M','k','1','m','µ','n','p'];
+
+// Zet de gevraagde stap als begin- en eindpunt op de ladder waar allebei de
+// treden op staan, en klap hem open voor deze ene vraag.
+function markeerLadder(van, naar, unit){
+  zetLadderEenheid(unit);
+  const ladders=[...el('ladder-panel').querySelectorAll('.ladder')];
+  const doel = (LADDER_1000.includes(van) && LADDER_1000.includes(naar)) ? 0 : 1;
+  ladders.forEach((l,i)=>{
+    if(i===doel){ l.dataset.from=van; l.dataset.to=naar; }
+    else { delete l.dataset.from; delete l.dataset.to; }
+    initLadder(l);
+  });
+  state.ladderHint=true;
+  tekenLadder();
+}
+
+function wisLadderMarkering(){
+  el('ladder-panel').querySelectorAll('.ladder').forEach(l=>{
+    if(l.dataset.from||l.dataset.to){ delete l.dataset.from; delete l.dataset.to; initLadder(l); }
+  });
+}
+
+function tekenLadder(){
+  const auto = state.ladderKeuze===null;
+  const niveau = state.vraag ? state.vraag.level : 1;
+  const aan = state.ladderHint ? true : (auto ? niveau<=2 : state.ladderKeuze);
+  el('ladder-panel').hidden = !aan;
+  el('ladder-btn').textContent = aan ? 'Ladder verbergen' : 'Ladder tonen';
+  el('ladder-hint').textContent = state.ladderHint
+    ? 'De gevraagde stap staat gemarkeerd.'
+    : auto ? 'Staat vanzelf aan op level 1 en 2.'
+           : 'Je hebt de ladder zelf '+(aan?'aangezet':'uitgezet')+'.';
+}
+
+function toonToast(titel, tekst, soort){
+  const laag=el('toast-laag');
+  const t=document.createElement('div');
+  t.className='toast'+(soort?' toast--'+soort:'');
+  t.innerHTML='<div class="toast-titel">'+titel+'</div>'+(tekst?'<div class="toast-tekst">'+tekst+'</div>':'');
+  laag.appendChild(t);
+  setTimeout(()=>{ t.classList.add('uit'); setTimeout(()=>t.remove(),220); }, 1100);
+}
+
+// Eén plek waar een goed of fout antwoord geteld wordt, zodat de drie
+// vraagvormen niet uit elkaar kunnen lopen.
+function telGoed(){
+  state.score.totaal++; state.score.goed++;
+  state.streak++;
+  klimStap();                                  // die vuurt de level-toast
+  if(state.streak>=5 && state.streak%5===0)
+    toonToast(state.streak+' op rij', 'Mooie reeks.', 'vuur');
+}
+
+function telFout(){
+  state.score.totaal++;
+  state.streak=0;
+  if(state.modus==='climb') state.climbStreak=0;
+}
+
+function tekenScore(){
+  const s=state.score, v=state.streak;
+  el('session-score').textContent = s.goed+' / '+s.totaal;
+  el('streak-num').textContent = String(v);
+  el('streak').classList.toggle('hot', v>=3);
+  el('ex-counter').textContent = 'Opgave '+state.teller;
+
+  const level = state.modus==='climb' ? state.climbLevel : (state.vraag ? state.vraag.level : 1);
+  el('ex-level').textContent = 'Level '+level;
+
+  // Stippen laten zien hoe ver je bent naar het volgende level.
+  if(state.modus==='climb'){
+    let dots='';
+    for(let i=0;i<CLIMB_DOEL;i++) dots+='<span class="klim-dot'+(i<state.climbStreak?' vol':'')+'"></span>';
+    el('klim-dots').innerHTML=dots;
+    el('klim-tekst').textContent = state.climbLevel<MAX_LEVEL
+      ? 'naar level '+(state.climbLevel+1)
+      : 'hoogste level';
+  } else {
+    el('klim-dots').innerHTML='';
+    el('klim-tekst').textContent='';
+  }
+}
+
+function volgendeVraag(){
+  const niveau = state.modus==='climb' ? state.climbLevel : pick(state.levels);
+  const type = pick(state.types);
+  const q = maakVraag(niveau, type, state.richting[type]);
+  if(!q) return;
+  state.vraag=q; state.pogingen=0; state.klaar=false; state.teller++;
+  state.ladderHint=false; wisLadderMarkering();
+  if(q.vorm==='tabel') state.laatsteTabelSym=q.sym;
+
+  el('ex-soort').textContent = TYPES[q.type].kort;
+  el('q-hint').textContent = q.hint;
+  el('feedback').className='feedback';
+  el('check-btn').textContent='Controleer';
+  el('reveal-btn').hidden=false;
+
+  const vorm = q.vorm||'invoer';
+  el('q-invoer').hidden = vorm!=='invoer';
+  el('q-keuze').hidden  = vorm!=='keuze';
+  el('q-tabel').hidden  = vorm!=='tabel';
+  // Bij meerkeuze antwoord je door te klikken, dus dan is er niets te controleren.
+  el('check-btn').hidden = vorm==='keuze';
+
+  if(vorm==='invoer'){
+    el('q-left').innerHTML = q.linksHTML;
+    el('q-unit').textContent = q.eenheid;
+    el('q-format').textContent = q.format;
+    const inp=el('q-input');
+    inp.value=''; inp.className='q-input';
+    inp.focus();
+  } else if(vorm==='keuze'){
+    tekenKeuzeOpties();
+  } else {
+    tekenTabel(q);
+  }
+
+  if(q.eenheidBasis) zetLadderEenheid(q.eenheidBasis);
+  tekenLadder();
+  tekenScore();
+}
+
+function tekenKeuzeOpties(){
+  const q=state.vraag, g=el('keuze-grid');
+  g.innerHTML = q.opties.map((o,i)=>'<button class="keuze-btn" data-i="'+i+'">'+o.label+'</button>').join('')
+              + '<button class="keuze-btn gelijk" data-i="3">Ze zijn alle drie gelijk</button>';
+  g.querySelectorAll('.keuze-btn').forEach(b=>{
+    b.onclick=()=>beantwoordKeuze(Number(b.dataset.i));
+  });
+}
+
+function tekenTabel(q){
+  const kop={naam:'Voorvoegsel', symbool:'Symbool', factor:'Factor'};
+  // Neutrale hints: een echt voorvoegsel als placeholder leest als een ingevuld antwoord.
+  const plaats={naam:'naam', symbool:'symbool', factor:'10^…'};
+  const vast={naam:q.naam, symbool:q.sym, factor:pow10(q.exp)};
+  el('tabel-grid').innerHTML = ['naam','symbool','factor'].map(k=>{
+    let cel;
+    if(k===q.gegeven)      cel='<span class="tabel-vast">'+vast[k]+'</span>';
+    else if(k==='factor')  cel='<span class="tabel-macht" id="cel-factor">10<input class="tabel-exp" id="tab-factor" type="text" autocomplete="off" spellcheck="false" placeholder="?"></span>';
+    else                   cel='<input class="tabel-invoer" id="tab-'+k+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+plaats[k]+'">';
+    return '<div class="tabel-cel"><span class="tabel-kop">'+kop[k]+'</span>'+cel+'</div>';
+  }).join('');
+  // De uitleg over de macht slaat alleen ergens op als je dat vakje ook invult.
+  el('q-format-tabel').textContent = q.gegeven==='factor' ? '' : q.format;
+  el('tabel-grid').querySelectorAll('.tabel-invoer,.tabel-exp').forEach(inp=>{
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); controleerNu(); } });
+  });
+  const eerste = el('tabel-grid').querySelector('.tabel-invoer,.tabel-exp');
+  if(eerste) eerste.focus();
+}
+
+// Meerkeuze telt de klik meteen als antwoord; een tweede poging heeft hier geen zin.
+function beantwoordKeuze(i){
+  if(state.klaar) return;
+  const q=state.vraag, goed = i===q.juist;
+  state.pogingen++;
+  if(goed) telGoed(); else telFout();
+  el('keuze-grid').querySelectorAll('.keuze-btn').forEach(b=>{
+    const n=Number(b.dataset.i);
+    b.disabled=true;
+    if(n===q.juist) b.classList.add('goed');
+    else if(n===i)  b.classList.add('fout');
+  });
+  if(goed) toonFeedback('ok','Goed. <span class="answer">'+antwoordHTML(q)+'</span>'+(state.klimMelding||''));
+  else     toonFeedback('wrong','Niet goed. Het antwoord is <span class="answer">'+antwoordHTML(q)+'</span>');
+  state.klimMelding='';
+  rondAf();
+}
+
+// Drie goed op rij in de oplopende reeks betekent een level omhoog.
+function klimStap(){
+  state.klimMelding='';
+  if(state.modus!=='climb') return;
+  state.climbStreak++;
+  if(state.climbStreak>=CLIMB_DOEL){
+    if(state.climbLevel<MAX_LEVEL){
+      state.climbLevel++;
+      state.klimMelding=' Drie op rij, door naar level '+state.climbLevel+'.';
+      toonToast('Level '+state.climbLevel, 'Drie goed op rij.');
+    } else {
+      state.klimMelding=' Drie op rij op het hoogste level.';
+    }
+    state.climbStreak=0;
+  }
+}
+
+function toonFeedback(klasse,html){
+  const f=el('feedback');
+  f.className='feedback show '+klasse;
+  f.innerHTML=html;
+}
+
+function rondAf(){
+  state.klaar=true;
+  el('check-btn').hidden=false;          // bij meerkeuze is dit nu de weg vooruit
+  el('check-btn').textContent='Volgende opgave →';
+  el('reveal-btn').hidden=true;          // het antwoord staat er al
+  tekenScore();
+  if(state.vraag.vorm==='keuze') el('check-btn').focus();
+}
+
+function controleerNu(){
+  if(state.klaar){ volgendeVraag(); return; }
+  if(state.vraag.vorm==='tabel'){ controleerTabelNu(); return; }
+  const inp=el('q-input');
+  const uitslag=controleer(inp.value, state.vraag);
+
+  if(uitslag==='onleesbaar'){                     // kost geen poging
+    toonFeedback('neutral','Dat kan ik niet lezen. Typ alleen een getal, bijvoorbeeld <span class="answer">5000</span> of <span class="answer">5e3</span>.');
+    return;
+  }
+
+  const eerste = state.pogingen===0;
+  state.pogingen++;
+
+  if(uitslag==='goed'){
+    let extra='';
+    if(eerste){
+      telGoed();
+      extra=state.klimMelding; state.klimMelding='';
+    }
+    inp.classList.remove('wrong'); inp.classList.add('ok');
+    toonFeedback('ok','Goed. <span class="answer">'+antwoordHTML(state.vraag)+'</span>'+extra);
+    rondAf();
+    return;
+  }
+
+  if(eerste) telFout();
+  inp.classList.add('wrong');
+
+  let bericht;
+  if(uitslag==='geen-notatie')
+    bericht='Het getal klopt, maar het staat nog niet in wetenschappelijke notatie. Schrijf het als een getal maal een macht van 10.';
+  else if(uitslag==='mantisse')
+    bericht='Het getal klopt, maar in wetenschappelijke notatie moet het voorste getal tussen 1 en 10 liggen.';
+  else
+    bericht = diagnose(inp.value, state.vraag) || 'Nog niet goed. Probeer het nog een keer, of klik op Toon antwoord.';
+
+  // Vanaf de tweede fout op dezelfde vraag komt de ladder erbij, met de stap erin.
+  const st = state.vraag.stap;
+  if(state.pogingen>=2 && st && st.van){
+    markeerLadder(st.van, st.naar, st.unit);
+    bericht += ' Kijk eens naar de ladder hieronder.';
+  }
+  toonFeedback('wrong', bericht);
+  tekenScore();
+  inp.select();
+}
+
+// De tabeloefening heeft twee velden, dus een eigen controle met feedback per vak.
+function controleerTabelNu(){
+  const q=state.vraag, r=controleerTabel(q);
+  const leeg = r.velden.some(k=>!el('tab-'+k).value.trim());
+  if(leeg){                                       // kost geen poging
+    toonFeedback('neutral','Vul allebei de vakjes in.');
+    return;
+  }
+  const eerste = state.pogingen===0;
+  state.pogingen++;
+  r.velden.forEach(k=>{
+    const doel = k==='factor' ? el('cel-factor') : el('tab-'+k);
+    doel.classList.remove('ok','wrong');
+    doel.classList.add(r.uitslag[k]?'ok':'wrong');
+  });
+  if(r.alles){
+    let extra='';
+    if(eerste){ telGoed(); extra=state.klimMelding; state.klimMelding=''; }
+    toonFeedback('ok','Goed. <span class="answer">'+antwoordHTML(q)+'</span>'+extra);
+    rondAf();
+    return;
+  }
+  if(eerste) telFout();
+  const mis = r.velden.filter(k=>!r.uitslag[k]);
+  const naam = {naam:'het voorvoegsel', symbool:'het symbool', factor:'de factor'};
+  toonFeedback('wrong','Nog niet goed: kijk nog eens naar '+mis.map(k=>naam[k]).join(' en ')+'.');
+  tekenScore();
+  const eersteFout = el('tab-'+mis[0]);
+  if(eersteFout){ eersteFout.focus(); eersteFout.select(); }
+}
+
+function toonAntwoord(){
+  if(state.klaar) return;
+  if(state.pogingen===0) telFout();                // onbeantwoord telt als fout
+  if(state.vraag.vorm==='keuze'){
+    el('keuze-grid').querySelectorAll('.keuze-btn').forEach(b=>{
+      b.disabled=true;
+      if(Number(b.dataset.i)===state.vraag.juist) b.classList.add('goed');
+    });
+  }
+  toonFeedback('neutral','Het antwoord is <span class="answer">'+antwoordHTML(state.vraag)+'</span>');
+  rondAf();
+}
+
+
+/* ── KOPPELEN ── */
+tekenKeuze();
+initLadders(document);
+
+function startReeks(types){
+  state.types=types.slice();
+  state.modus='climb'; state.climbLevel=1; state.climbStreak=0; state.teller=0;
+  state.score={goed:0,totaal:0}; state.streak=0;
+  toonPaneel('exercise'); volgendeVraag();
+}
+
+el('start-btn').onclick=()=>{
+  state.types=state.keuzeTypes.slice();
+  state.modus='eigen'; state.teller=0;
+  state.score={goed:0,totaal:0}; state.streak=0;
+  toonPaneel('exercise'); volgendeVraag();
+};
+el('climb-btn').onclick=()=>startReeks(['C','A']);
+document.querySelectorAll('.start-btn[data-vorm]').forEach(b=>{
+  b.onclick=()=>startReeks([b.dataset.vorm]);
+});
+el('back-btn').onclick=()=>toonPaneel('setup');
+el('opties-btn').onclick=()=>{
+  const open = el('opties').hidden;
+  el('opties').hidden = !open;
+  el('opties-btn').setAttribute('aria-expanded', String(open));
+};
+el('check-btn').onclick=controleerNu;
+el('reveal-btn').onclick=toonAntwoord;
+el('ladder-btn').onclick=()=>{
+  state.ladderKeuze = el('ladder-panel').hidden;
+  tekenLadder();
+};
+// Eén Enter controleert, de tweede gaat naar de volgende opgave. Niet ook op
+// document luisteren: dan handelde dezelfde toetsaanslag allebei de stappen af
+// en zag de leerling de melding "Goed" nooit.
+el('q-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ e.preventDefault(); controleerNu(); }
+});
+</script>
+</body>
+</html>

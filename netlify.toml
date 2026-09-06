@@ -51,3 +51,8 @@
   from = "/significantie"
   to = "/significantie/"
   status = 301
+
+[[redirects]]
+  from = "/voorvoegsels"
+  to = "/voorvoegsels/"
+  status = 301
