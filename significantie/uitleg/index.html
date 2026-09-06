@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uitleg · Significantie · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --purple-dim:rgba(139,92,246,0.1);--purple-border:rgba(139,92,246,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+sup{font-size:.66em;line-height:0;vertical-align:super;font-weight:inherit;letter-spacing:0}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:800px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+
+/* Voortgang */
+.progress-track{height:6px;background:var(--accent-dim);border:1px solid var(--border-solid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-amber));transition:width .35s ease}
+.steps-row{display:flex;gap:6px;margin:14px 0 28px;flex-wrap:wrap}
+.step-chip{border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.step-chip:hover{border-color:var(--accent-border);color:var(--accent)}
+.step-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.step-chip.done{border-color:var(--accent-border);color:var(--accent)}
+
+/* Stapkop */
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-size:clamp(21px,3.4vw,27px);font-weight:700;letter-spacing:-0.6px;margin-bottom:16px}
+
+.content p{line-height:1.7;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content p.small{font-size:13.5px;color:var(--text-muted)}
+.content strong{color:var(--text);font-weight:700}
+.content ul{padding-left:20px;line-height:1.8;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content code{font-family:var(--mono);font-size:13.5px;background:var(--accent-dim);border:1px solid var(--accent-border);padding:1px 6px;border-radius:5px;color:var(--text)}
+
+/* Kaartjes */
+.card-row{display:flex;gap:14px;margin:18px 0;flex-wrap:wrap}
+.card-row .card{flex:1 1 220px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;padding:16px 18px}
+.card-row .card h4{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.card-row .card .num{font-family:var(--mono);font-size:19px;font-weight:500;color:var(--text);word-break:break-word}
+.card-row .card .caption{font-size:12.5px;color:var(--text-muted);margin-top:6px}
+.card-row .card p{font-size:14px;margin:0;line-height:1.6}
+
+/* Tabellen */
+.table-wrap{overflow-x:auto;margin:16px 0}
+table.info-table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:360px}
+table.info-table th{background:var(--accent-dim);color:var(--accent);text-align:left;padding:9px 12px;font-weight:700;font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--accent-border);white-space:nowrap}
+table.info-table td{padding:9px 12px;border-bottom:1px solid var(--border-solid);color:var(--text-secondary)}
+table.info-table tr:last-child td{border-bottom:none}
+table.info-table .mono{font-family:var(--mono);color:var(--text);white-space:nowrap}
+table.info-table .aantal{font-family:var(--mono);color:var(--accent);font-weight:500;text-align:center}
+table.info-table .note{color:var(--text-muted);font-size:13px}
+
+/* Banden die laten zien hoe groot het gebied is waarin de meting ligt */
+.band-blok{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;padding:16px;margin:16px 0}
+.band-rij{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.band-rij:last-child{margin-bottom:0}
+.band-label{font-family:var(--mono);font-size:15px;color:var(--text);min-width:80px}
+.band-spoor{flex:1;min-width:130px;height:14px;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:7px;position:relative;overflow:hidden}
+.band-vak{position:absolute;left:0;top:0;bottom:0;background:var(--accent);opacity:.7;border-radius:7px}
+.band-tekst{font-size:12.5px;color:var(--text-muted);min-width:200px}
+
+/* Info-box */
+.info-box{border-left:3px solid var(--accent-amber);background:var(--amber-dim);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+.info-box .info-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-box p{margin:0 0 8px;font-size:14px;color:var(--text-secondary);line-height:1.65}
+.info-box p:last-child{margin-bottom:0}
+.info-box--accent{border-left-color:var(--accent);background:var(--accent-dim)}
+.info-box--accent .info-title{color:var(--accent)}
+
+/* Reveal-oefeningen */
+.practice-item{background:var(--purple-dim);border:1px solid var(--purple-border);border-radius:10px;padding:14px 18px;margin:10px 0}
+.practice-q{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.practice-q .expr{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text)}
+.reveal-btn{background:var(--bg-card);border:1px solid var(--purple-border);color:var(--purple);font-family:var(--font);font-size:13px;font-weight:700;padding:7px 15px;border-radius:16px;cursor:pointer;transition:all .15s}
+.reveal-btn:hover{background:var(--purple);color:#fff;border-color:var(--purple)}
+.reveal-answer{margin-top:10px;padding-top:10px;border-top:1px dashed var(--purple-border);font-family:var(--mono);font-size:14.5px;color:var(--accent);display:none}
+.reveal-answer.show{display:block}
+.reveal-answer .why{font-family:var(--font);color:var(--text-muted);font-size:12.5px;margin-top:5px}
+
+/* Uitgewerkt voorbeeld */
+.worked{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:16px;color:var(--text-secondary)}
+.worked .arrow{color:var(--accent)}
+.worked .final{color:var(--accent);font-weight:500}
+.worked .tag{font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--text-muted);background:var(--bg-secondary);border:1px solid var(--border-solid);padding:3px 9px;border-radius:5px}
+
+/* ── TELLER-COMPONENT ── (zie JS onderaan; los te kopiëren naar de oefenpagina) */
+.teller{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:10px;padding:16px;margin:16px 0}
+.teller-caption{font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5}
+.teller-invoer-rij{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.teller-invoer{flex:1;min-width:150px;padding:9px 12px;border:1.5px solid var(--accent-border);border-radius:9px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);font-size:16px}
+.teller-invoer:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.teller-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.preset-btn{font-family:var(--mono);font-size:12.5px;padding:5px 10px;border-radius:14px;border:1px solid var(--border-solid);background:var(--bg-secondary);color:var(--text-secondary);cursor:pointer;transition:all .15s}
+.preset-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.teller-cijfers{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:16px 0 12px}
+.cijfer{min-width:62px;padding:9px 5px 7px;border-radius:8px;border:1.5px solid var(--border-solid);background:var(--bg-secondary);font-family:var(--mono);font-size:19px;text-align:center;color:var(--text-muted);transition:all .2s}
+.cijfer.sig{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);font-weight:500}
+.cijfer.ambigu{border-color:var(--accent-amber);background:var(--amber-dim);color:var(--accent-amber)}
+.cijfer.leesteken{border:none;background:transparent;min-width:14px;padding:9px 0 7px;color:var(--text);font-size:19px}
+.cijfer.staart{border-style:dashed;opacity:.85}
+.cijfer-oordeel{display:block;font-family:var(--font);font-size:8.5px;font-weight:700;letter-spacing:.3px;margin-top:5px;text-transform:uppercase}
+.cijfer-reden{display:block;font-family:var(--font);font-size:8px;font-weight:500;letter-spacing:.1px;margin-top:1px;opacity:.75}
+.teller-uitslag{padding-top:12px;border-top:1px dashed var(--border-solid);text-align:center}
+.teller-getal{font-size:22px;font-weight:700;color:var(--accent)}
+.teller-reden{font-size:13px;color:var(--text-muted);margin-top:4px;line-height:1.55}
+.teller-waarschuwing{margin-top:10px;background:var(--amber-dim);border:1px solid var(--amber-border);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--text-secondary);line-height:1.6;text-align:left}
+.teller-waarschuwing b{color:var(--accent-amber)}
+
+/* Samenvattingslijst */
+ol.rules-list{list-style:none;counter-reset:rule;margin:16px 0}
+ol.rules-list li{counter-increment:rule;position:relative;padding:11px 0 11px 40px;font-size:15px;line-height:1.6;color:var(--text-secondary);border-bottom:1px solid var(--border-solid)}
+ol.rules-list li:last-child{border-bottom:none}
+ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px;width:26px;height:26px;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);font-weight:700;font-size:12.5px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* Doorverwijzing */
+.cta-card{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:12px;padding:22px 24px;margin-top:22px;text-align:center}
+.cta-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.cta-card p{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+
+/* Navigatie */
+.nav-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.nav-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:#0999aa}
+.nav-btn.secondary{background:transparent;color:var(--accent)}
+.nav-btn.secondary:hover:not(:disabled){background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.step-count{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:center}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .practice-q{gap:8px}
+  .practice-q .expr{font-size:15px}
+  .nav-btn{padding:11px 15px;font-size:13.5px}
+  .cijfer{min-width:54px;font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../" class="crumb">Significantie</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Uitleg</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Significantie</h1>
+<p class="tool-sub">Waarom nauwkeurigheid ertoe doet, en hoe je ermee rekent</p>
+
+<div class="main">
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="steps-row" id="stepsRow"></div>
+
+  <div id="badgeSlot"></div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <div class="content" id="stepContent"></div>
+
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
+    <span class="step-count" id="stepCount"></span>
+    <button class="nav-btn" id="nextBtn">Volgende →</button>
+  </div>
+
+</div>
+
+<footer>
+  <img src="../../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../../assets/logo/JK_dark.svg';if(fl)fl.src='../../assets/logo/JK_white.svg';
+    if(fav)fav.href='../../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../../assets/logo/JK_light.svg';if(fl)fl.src='../../assets/logo/JK_black.svg';
+    if(fav)fav.href='../../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   TELLER-COMPONENT
+   Zelfstandig blok: dit stuk (SUPERSCRIPTS t/m initTellers) plus de
+   .teller-regels uit de stylesheet zijn samen te kopiëren naar de
+   oefenpagina, bijvoorbeeld als hint na een fout antwoord.
+
+   Markup:  <div class="teller" data-teller="26,00"></div>
+   ══════════════════════════════════════════════════════════════ */
+
+const SUPERSCRIPTS={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+'};
+
+// De tienmacht telt nooit mee, dus die halen we er eerst af.
+function splitsTienmacht(tekst){
+  let s=tekst.trim().replace(/[−‒–—]/g,'-');
+  let m=s.match(/^(.+?)\s*[·*x×]\s*10\s*\^?\s*\(?\s*([-+]?\d+)\s*\)?$/i);
+  if(m) return {mantisse:m[1].trim(), exponent:m[2]};
+  m=s.match(/^(.+?)\s*[·*x×]\s*10\s*([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+)$/);
+  if(m) return {mantisse:m[1].trim(), exponent:[...m[2]].map(c=>SUPERSCRIPTS[c]).join('')};
+  m=s.match(/^(.+?)e([-+]?\d+)$/i);
+  if(m) return {mantisse:m[1].trim(), exponent:m[2]};
+  return {mantisse:s, exponent:null};
+}
+
+// Loopt het getal cijfer voor cijfer na en zegt van elk of het meetelt.
+function telSignificant(invoer){
+  const {mantisse, exponent} = splitsTienmacht(invoer||'');
+  let t = mantisse.replace(/^[-+]/,'').replace(/\s/g,'').replace(/\./g,',');
+  if(!/^\d*,?\d*$/.test(t) || !/\d/.test(t)) return null;
+
+  const heeftKomma = t.includes(',');
+  const tekens = [...t];
+  const cijferIndex = tekens.map((c,i)=>c===','?-1:i).filter(i=>i>=0);
+  const eersteNietNul = cijferIndex.find(i=>tekens[i]!=='0');
+  const laatsteNietNul = [...cijferIndex].reverse().find(i=>tekens[i]!=='0');
+
+  let ambigu=false;
+  const uit = tekens.map((teken,i)=>{
+    if(teken===',') return {teken, soort:'leesteken'};
+    if(eersteNietNul===undefined) return {teken, soort:'niet', oordeel:'telt niet', reden:'geen waarde'};
+    if(i<eersteNietNul)  return {teken, soort:'niet', oordeel:'telt niet', reden:'plaatsbepalend'};
+    if(teken!=='0')      return {teken, soort:'sig',  oordeel:'telt mee'};
+    if(i<laatsteNietNul) return {teken, soort:'sig',  oordeel:'telt mee', reden:'ligt ertussen'};
+    if(heeftKomma)       return {teken, soort:'sig',  oordeel:'telt mee', reden:'staat er expres'};
+    ambigu=true;         return {teken, soort:'ambigu', oordeel:'onduidelijk', reden:'gemeten?'};
+  });
+
+  const aantal = uit.filter(c=>c.soort==='sig').length;
+  return {cijfers:uit, aantal, ambigu, exponent, heeftKomma};
+}
+
+const TELLER_PRESETS=['26','26,00','0,54','0,0054','0,80910','205','2600','7,93·10³'];
+
+function initTeller(el){
+  const start = el.dataset.teller || TELLER_PRESETS[0];
+
+  const caption=document.createElement('div');
+  caption.className='teller-caption';
+  caption.textContent='Typ een getal of kies er een hieronder. De tool laat per cijfer zien of het meetelt.';
+
+  const rij=document.createElement('div');
+  rij.className='teller-invoer-rij';
+  const invoer=document.createElement('input');
+  invoer.type='text'; invoer.className='teller-invoer';
+  invoer.setAttribute('autocomplete','off'); invoer.setAttribute('spellcheck','false');
+  invoer.placeholder='bijvoorbeeld 0,0540';
+  rij.appendChild(invoer);
+
+  const presets=document.createElement('div');
+  presets.className='teller-presets';
+  TELLER_PRESETS.forEach(p=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='preset-btn';
+    b.innerHTML=p.replace(/([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+)$/, m=>'<sup>'+[...m].map(c=>SUPERSCRIPTS[c]).join('').replace('-','−')+'</sup>');
+    b.onclick=()=>{ invoer.value=p; teken(); };
+    presets.appendChild(b);
+  });
+
+  const cijferRij=document.createElement('div');
+  cijferRij.className='teller-cijfers';
+  const uitslag=document.createElement('div');
+  uitslag.className='teller-uitslag';
+
+  function teken(){
+    const r = telSignificant(invoer.value);
+    cijferRij.innerHTML=''; uitslag.innerHTML='';
+    if(!r){
+      uitslag.innerHTML='<div class="teller-reden">Typ een getal, bijvoorbeeld <strong>0,0540</strong> of <strong>7,93·10<sup>3</sup></strong>.</div>';
+      return;
+    }
+    r.cijfers.forEach(c=>{
+      const d=document.createElement('span');
+      d.className='cijfer '+(c.soort==='leesteken'?'leesteken':c.soort==='sig'?'sig':c.soort==='ambigu'?'ambigu staart':'');
+      d.innerHTML = c.teken +
+        (c.oordeel ? '<span class="cijfer-oordeel">'+c.oordeel+'</span>' : '') +
+        (c.reden   ? '<span class="cijfer-reden">'+c.reden+'</span>' : '');
+      cijferRij.appendChild(d);
+    });
+    if(r.exponent!==null){
+      const m=document.createElement('span');
+      m.className='cijfer leesteken';
+      m.innerHTML='·10<sup>'+String(r.exponent).replace('-','−')+'</sup><span class="cijfer-oordeel">telt niet</span><span class="cijfer-reden">tienmacht</span>';
+      cijferRij.appendChild(m);
+    }
+    const woord = r.aantal===1 ? '1 significant cijfer' : r.aantal+' significante cijfers';
+    const maximaal = r.cijfers.filter(c=>c.soort==='sig'||c.soort==='ambigu').length;
+    const heeftVoorloop = r.cijfers.some(c=>c.label==='plaatsbepalend');
+    let reden;
+    if(r.ambigu)             reden='Het kunnen er '+r.aantal+' tot '+maximaal+' zijn. Aan deze notatie is niet te zien welke nullen gemeten zijn.';
+    else if(heeftVoorloop)   reden='De voorloopnullen tellen niet mee, alles daarna wel.';
+    else if(r.exponent!==null) reden='De tienmacht telt niet mee, alleen de cijfers ervoor.';
+    else                     reden='Alles vanaf het eerste cijfer dat geen nul is telt mee.';
+    uitslag.innerHTML='<div class="teller-getal">'+(r.ambigu?'niet af te lezen':woord)+'</div><div class="teller-reden">'+reden+'</div>';
+    if(r.ambigu){
+      const w=document.createElement('div');
+      w.className='teller-waarschuwing';
+      w.innerHTML='<b>Het ligt aan de notatie, niet aan je meting.</b> Heb je die nullen echt gemeten, dan zijn ze significant. '+
+                  'Alleen kan iemand die dit leest dat niet zien. Laat het zien met een komma (<code>2600,</code> als je tot op de eenheid gemeten hebt) '+
+                  'of met een tienmacht: <code>2,6·10<sup>3</sup></code> heeft er 2, <code>2,60·10<sup>3</sup></code> heeft er 3 en '+
+                  '<code>2,600·10<sup>3</sup></code> heeft er 4.';
+      uitslag.appendChild(w);
+    }
+  }
+
+  invoer.addEventListener('input',teken);
+  invoer.value=start;
+
+  el.innerHTML='';
+  el.appendChild(caption);
+  el.appendChild(rij);
+  el.appendChild(presets);
+  el.appendChild(cijferRij);
+  el.appendChild(uitslag);
+  teken();
+}
+
+function initTellers(root){
+  (root||document).querySelectorAll('.teller[data-teller]').forEach(initTeller);
+}
+/* ═══════════════════ EINDE TELLER-COMPONENT ═══════════════════ */
+
+
+const steps=[
+{
+  badge:'Nut en noodzaak',
+  title:'Waarom significantie?',
+  html:`
+    <p>In de natuurkunde meet je bijna nooit een getal dat helemaal exact is. Elk meetinstrument heeft een grens aan hoe nauwkeurig het kan meten.</p>
+    <div class="card-row">
+      <div class="card">
+        <h4>Gemeten met een liniaal</h4>
+        <div class="num">12,3 cm</div>
+        <div class="caption">drie cijfers, grof afleesbaar</div>
+      </div>
+      <div class="card">
+        <h4>Gemeten met een schuifmaat</h4>
+        <div class="num">12,34 cm</div>
+        <div class="caption">vier cijfers, veel nauwkeuriger</div>
+      </div>
+    </div>
+    <p>Het aantal cijfers waarmee je een getal opschrijft vertelt dus iets: het laat zien hoe nauwkeurig die meting was. Dat aantal cijfers heet het aantal <strong>significante cijfers</strong>.</p>
+    <p>Stel dat je met deze twee metingen gaat rekenen. Je rekenmachine geeft dan zomaar een antwoord met acht cijfers achter de komma. Mag je dat overnemen?</p>
+    <div class="info-box">
+      <div class="info-title">Het probleem</div>
+      <p>Een berekening kan nooit nauwkeuriger zijn dan de minst nauwkeurige meting die erin zit. Neem je toch alle cijfers van je rekenmachine over, dan suggereer je een nauwkeurigheid die je metingen helemaal niet hebben. Dat heet <strong>valse nauwkeurigheid</strong>. Significantie is de manier om dat te voorkomen.</p>
+    </div>
+  `
+},
+{
+  badge:'Definitie',
+  title:'Wat is een significant cijfer?',
+  html:`
+    <p>Het aantal significante cijfers is het aantal cijfers waarmee een getal is opgeschreven, waarbij nullen die alleen de komma op de goede plek zetten niet meetellen.</p>
+    <div class="table-wrap">
+      <table class="info-table">
+        <tr><th>Getal</th><th>Significante cijfers</th><th>Toelichting</th></tr>
+        <tr><td class="mono">26</td><td class="aantal">2</td><td class="note"></td></tr>
+        <tr><td class="mono">26,00</td><td class="aantal">4</td><td class="note">veel nauwkeuriger dan 26</td></tr>
+        <tr><td class="mono">238,4</td><td class="aantal">4</td><td class="note"></td></tr>
+        <tr><td class="mono">0,54</td><td class="aantal">2</td><td class="note">de nul ervoor zegt niets over de nauwkeurigheid</td></tr>
+        <tr><td class="mono">0,0054</td><td class="aantal">2</td><td class="note">de nullen zetten alleen de komma goed</td></tr>
+        <tr><td class="mono">0,80910</td><td class="aantal">5</td><td class="note">de nul aan het eind staat er expres</td></tr>
+        <tr><td class="mono">7,93·10<sup>3</sup></td><td class="aantal">3</td><td class="note">een tienmacht maakt niets nauwkeuriger</td></tr>
+      </table>
+    </div>
+    <p>Let op de eerste twee rijen: <strong>26</strong> en <strong>26,00</strong> zijn wiskundig hetzelfde getal, maar in de natuurkunde vertellen ze een ander verhaal over hoe nauwkeurig er gemeten is.</p>
+    <p>Maar wat betekent dat, nauwkeuriger? Elk gemeten getal is afgerond, dus de echte waarde ligt in een gebied eromheen. <strong>Meer significante cijfers betekent een kleiner gebied.</strong> Kijk naar de twee metingen van de vorige stap:</p>
+    <div class="band-blok">
+      <div class="band-rij">
+        <span class="band-label">12,3 cm</span>
+        <span class="band-spoor"><span class="band-vak" style="width:100%"></span></span>
+        <span class="band-tekst">ligt tussen 12,25 en 12,35 cm</span>
+      </div>
+      <div class="band-rij">
+        <span class="band-label">12,34 cm</span>
+        <span class="band-spoor"><span class="band-vak" style="width:10%"></span></span>
+        <span class="band-tekst">ligt tussen 12,335 en 12,345 cm</span>
+      </div>
+    </div>
+    <p>Bij 12,3 cm is dat gebied 0,1 cm breed, bij 12,34 cm nog maar 0,01 cm. Tien keer zo nauwkeurig, en dat ene extra cijfer is precies wat dat laat zien.</p>
+  `
+},
+{
+  badge:'Regels',
+  title:'De regels op een rij',
+  html:`
+    <ol class="rules-list">
+      <li>De cijfers <code>1</code> tot en met <code>9</code> zijn altijd significant.</li>
+      <li>Nullen tussen twee andere cijfers zijn altijd significant, zoals in <code>3000,7</code> en <code>205</code>.</li>
+      <li>Voorloopnullen, dus nullen vóór het eerste cijfer dat geen nul is, zijn nooit significant. Denk aan <code>0,0054</code>.</li>
+      <li>Nullen aan het eind tellen mee als je ze bewust hebt opgeschreven, dus als je ze echt gemeten hebt. Bij <code>26,00</code> en <code>12,30</code> kan iedereen dat zien.</li>
+      <li>Een tienmacht (<code>·10<sup>n</sup></code>) telt nooit mee.</li>
+    </ol>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Vuistregel</div>
+      <p>Lees het getal van links naar rechts en begin te tellen bij het eerste cijfer dat geen nul is. Vanaf daar telt alles mee, ook de nullen ertussen en erachter.</p>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Het lastige geval</div>
+      <p>Meet je met een geodriehoek precies 10 cm, dan heb je die nul echt gemeten. Je meting heeft dus twee significante cijfers. Maar wie alleen <code>10 cm</code> leest kan dat niet zien: het kan net zo goed een ruwe schatting zijn die op 10 is afgerond. <strong>Het probleem zit in de notatie, niet in je meting.</strong></p>
+      <p>Laat daarom zien wat je gemeten hebt. Lees je millimeters af, schrijf dan <code>10,0 cm</code>. Bij een groot getal doe je hetzelfde met een tienmacht: <code>1,5·10<sup>3</sup></code> heeft er twee, <code>1,50·10<sup>3</sup></code> heeft er drie en <code>1,500·10<sup>3</sup></code> heeft er vier.</p>
+      <p>Dat geldt ook als je zelf een antwoord opschrijft. Het getal <code>3000</code> mag natuurlijk bestaan, maar het zegt iets anders dan <code>3,0·10<sup>3</sup></code>. Wees je daarvan bewust als je je uitkomst noteert.</p>
+    </div>
+  `
+},
+{
+  badge:'Zelf tellen',
+  title:'Tel mee, cijfer voor cijfer',
+  html:`
+    <p>Hieronder kun je zelf getallen invoeren. De tool kleurt per cijfer of het meetelt en zegt erbij waarom. <strong>Probeer eerst zelf te tellen</strong> en kijk daarna of het klopt.</p>
+    <div class="teller" data-teller="0,0540"></div>
+    <p>Probeer in elk geval <code>26</code> naast <code>26,00</code>, en <code>2600</code> om te zien wanneer een getal onduidelijk wordt.</p>
+    <p>En nu zonder hulp. Bepaal eerst zelf het aantal, klik dan pas op Toon antwoord.</p>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">34</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">2 significante cijfers</div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">278,09</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">5 significante cijfers<div class="why">de nul zit tussen twee andere cijfers en telt dus mee</div></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">0,0970</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">3 significante cijfers<div class="why">de voorloopnullen tellen niet mee, de nul aan het eind wel</div></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">4,29·10<sup>&minus;3</sup></span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">3 significante cijfers<div class="why">de tienmacht telt niet mee, alleen de 4, 2 en 9</div></div>
+    </div>
+  `
+},
+{
+  badge:'Afronden',
+  title:'Afronden op significante cijfers',
+  html:`
+    <p>Soms moet je een getal juist afronden tot een bepaald aantal significante cijfers, zodat je eindwaarde past bij de nauwkeurigheid van je meting.</p>
+    <p>Je telt vanaf het eerste cijfer dat geen nul is. Het cijfer dat daarna komt bepaalt of je naar boven of naar beneden afrondt.</p>
+    <div class="practice-item">
+      <div class="worked">
+        <span class="expr">45,62</span><span class="arrow">→</span><span class="final">46</span>
+        <span class="arrow">=</span><span class="final">4,6·10<sup>1</sup></span>
+        <span class="tag">2 significante cijfers</span>
+      </div>
+      <div class="reveal-answer show">Je houdt de 4 en de 5 over. Het volgende cijfer is een 6, dus de 5 wordt een 6.</div>
+    </div>
+    <p>Reken deze zelf, en controleer daarna je antwoord.</p>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">0,0588 &nbsp;→&nbsp; 2 significante cijfers</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">0,059 &nbsp;=&nbsp; 5,9·10<sup>&minus;2</sup><div class="why">de voorloopnullen tellen niet mee, dus je telt vanaf de 5</div></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">2990 &nbsp;→&nbsp; 2 significante cijfers</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">3,0·10<sup>3</sup><div class="why">hier kun je het niet als gewoon getal opschrijven: aan 3000 zou niemand kunnen zien dat er maar twee cijfers significant zijn</div></div>
+    </div>
+    <div class="practice-item">
+      <div class="practice-q"><span class="expr">0,004 999 &nbsp;→&nbsp; 3 significante cijfers</span><button class="reveal-btn" onclick="toggleReveal(this)">Toon antwoord</button></div>
+      <div class="reveal-answer">0,005 00 &nbsp;=&nbsp; 5,00·10<sup>&minus;3</sup><div class="why">de 9 rondt door, en die laatste nullen moet je laten staan want die zijn significant</div></div>
+    </div>
+  `
+},
+{
+  badge:'Rekenregels',
+  title:'Rekenen met significantie',
+  html:`
+    <p>Gebruik je gemeten waarden in een berekening, dan moet je antwoord de nauwkeurigheid van de minst nauwkeurige waarde volgen. Daarvoor zijn er twee regels, en welke je nodig hebt hangt af van de bewerking.</p>
+    <div class="card-row">
+      <div class="card">
+        <h4>Vermenigvuldigen en delen</h4>
+        <p>Rond af op het <strong>kleinste aantal significante cijfers</strong> van de getallen die je gebruikt.</p>
+      </div>
+      <div class="card">
+        <h4>Optellen en aftrekken</h4>
+        <p>Rond af op het <strong>kleinste aantal decimalen</strong> van de getallen die je gebruikt.</p>
+      </div>
+    </div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Hoe onthoud je welke</div>
+      <p>Bij vermenigvuldigen en delen gaat het om hoeveel cijfers je kent, bij optellen en aftrekken om hoe ver achter de komma je gemeten hebt. Kijk dus naar de bewerking en niet naar het antwoord.</p>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Waarom dit werkt</div>
+      <p>Het resultaat van een berekening is nooit betrouwbaarder dan de minst nauwkeurige waarde die erin zit, net zoals een ketting maar zo sterk is als de zwakste schakel.</p>
+    </div>
+  `
+},
+{
+  badge:'Voorbeelden',
+  title:'Voorbeelden uitgewerkt',
+  html:`
+    <div class="practice-item">
+      <div class="worked">
+        <span class="expr">20,6 · 2,3</span><span class="arrow">=</span><span>47,38</span>
+        <span class="arrow">→</span><span class="final">47</span>
+        <span class="tag">2,3 heeft 2 significante cijfers</span>
+      </div>
+    </div>
+    <div class="practice-item">
+      <div class="worked">
+        <span class="expr">2,88 + 1,4</span><span class="arrow">=</span><span>4,28</span>
+        <span class="arrow">→</span><span class="final">4,3</span>
+        <span class="tag">1,4 heeft 1 decimaal</span>
+      </div>
+    </div>
+    <div class="practice-item">
+      <div class="worked">
+        <span class="expr">12 + 0,02</span><span class="arrow">=</span><span>12,02</span>
+        <span class="arrow">→</span><span class="final">12</span>
+        <span class="tag">12 heeft 0 decimalen</span>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Let op</div>
+      <p>Het laatste voorbeeld laat goed zien waarom dit ertoe doet. Hoe precies je ook optelt, het antwoord kan nooit nauwkeuriger worden dan de minst nauwkeurige term. Die 0,02 verandert het antwoord dus niet.</p>
+    </div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Rond pas op het eind af</div>
+      <p>Doe je meerdere stappen achter elkaar, rond dan pas bij het eindantwoord af. Rond je tussendoor al af, dan stapelen die afrondingen zich op en kan je eindantwoord er merkbaar naast zitten.</p>
+    </div>
+  `
+},
+{
+  badge:'Samenvatting',
+  title:'Aan de slag',
+  html:`
+    <p>Op een rijtje wat je nu weet:</p>
+    <ol class="rules-list">
+      <li>Significante cijfers laten zien hoe nauwkeurig een meting is: hoe meer cijfers, hoe kleiner het gebied waarin de echte waarde ligt.</li>
+      <li>Tel vanaf het eerste cijfer dat geen nul is. Voorloopnullen tellen niet mee, en een tienmacht ook niet.</li>
+      <li>Nullen ertussen tellen altijd mee. Nullen aan het eind tellen mee als je ze echt gemeten hebt.</li>
+      <li>Schrijf je een antwoord op, zorg dan dat een ander kan zien hoeveel cijfers je gemeten hebt. <code>3000</code> en <code>3,0·10<sup>3</sup></code> zeggen niet hetzelfde.</li>
+      <li>Bij vermenigvuldigen en delen volg je het kleinste aantal significante cijfers.</li>
+      <li>Bij optellen en aftrekken volg je het kleinste aantal decimalen.</li>
+      <li>Reken tussendoor met alle cijfers en rond pas bij je eindantwoord af.</li>
+    </ol>
+    <div class="cta-card">
+      <h3>Nu zelf oefenen</h3>
+      <p>Je onthoudt dit pas als je het een paar keer gedaan hebt. In de oefenmodus kun je tellen, afronden en rekenen, met uitleg bij elk antwoord.</p>
+      <a href="../" class="cta-btn">Start oefenen →</a>
+    </div>
+  `
+}
+];
+
+let current=0;
+
+function toggleReveal(btn){
+  const answer=btn.parentElement.nextElementSibling;
+  answer.classList.toggle('show');
+  btn.textContent=answer.classList.contains('show')?'Verberg antwoord':'Toon antwoord';
+}
+
+function renderChips(){
+  const row=document.getElementById('stepsRow');
+  row.innerHTML='';
+  steps.forEach((s,i)=>{
+    const chip=document.createElement('button');
+    chip.className='step-chip'+(i===current?' active':(i<current?' done':''));
+    chip.textContent=(i+1)+'. '+s.badge;
+    chip.onclick=()=>{current=i;render();};
+    row.appendChild(chip);
+  });
+}
+
+function render(){
+  const s=steps[current], last=current===steps.length-1;
+  document.getElementById('badgeSlot').innerHTML='<span class="badge">'+s.badge+'</span>';
+  document.getElementById('stepTitle').textContent=s.title;
+  const content=document.getElementById('stepContent');
+  content.innerHTML=s.html;
+  initTellers(content);
+  document.getElementById('progressFill').style.width=((current+1)/steps.length*100)+'%';
+  document.getElementById('stepCount').textContent='Stap '+(current+1)+' van '+steps.length;
+  document.getElementById('prevBtn').disabled=current===0;
+  document.getElementById('nextBtn').textContent=last?'Naar oefenen →':'Volgende →';
+  renderChips();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').onclick=()=>{if(current>0){current--;render();}};
+document.getElementById('nextBtn').onclick=()=>{
+  if(current<steps.length-1){current++;render();}
+  else{window.location='../';}
+};
+
+document.addEventListener('keydown',(e)=>{
+  if(e.target.closest('.teller')) return;   // pijltjes horen daar bij het invoerveld
+  if(e.key==='ArrowRight'&&current<steps.length-1){current++;render();}
+  if(e.key==='ArrowLeft'&&current>0){current--;render();}
+});
+
+render();
+</script>
+</body>
+</html>

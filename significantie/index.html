@@ -52,7 +52,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .main{max-width:840px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
 
 /* Intro */
-.intro{text-align:center;max-width:580px;margin:0 auto 28px;font-size:15px;color:var(--text-secondary);line-height:1.6}
+.intro{text-align:center;max-width:580px;margin:0 auto 28px;font-size:15px;color:var(--text-secondary);line-height:1.75}
+.intro-link{color:var(--accent);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-border)}
+.intro-link:hover{border-bottom-color:var(--accent)}
 
 /* Mode cards (landing) */
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:24px}
@@ -88,7 +90,27 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .exercise-area.show{display:block;animation:fadeUp .25s ease-out both}
 
 /* Score row */
-.score-row{display:flex;align-items:center;justify-content:space-between;padding:0 4px;margin-bottom:14px;font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+.status-links{display:flex;align-items:baseline;gap:9px;min-width:0}
+.status-oefening{font-size:20px;font-weight:700;letter-spacing:-.4px;color:var(--accent)}
+.status-soort{font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted)}
+.status-midden{display:flex;align-items:center;gap:9px;flex:1;justify-content:center;min-width:120px}
+.reeks-dots{display:inline-flex;gap:5px}
+.reeks-dot{width:9px;height:9px;border-radius:50%;background:var(--border-solid);transition:background .25s,transform .25s}
+.reeks-dot.vol{background:var(--accent);transform:scale(1.15)}
+.reeks-tekst{font-size:11.5px;color:var(--text-muted);white-space:nowrap}
+.status-rechts{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-score{white-space:nowrap}
+.toast-laag{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:200;padding:0 16px}
+.toast{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:16px 30px;text-align:center;box-shadow:0 14px 44px rgba(11,181,200,0.28);animation:toastIn .28s cubic-bezier(.2,.9,.3,1.2) both}
+.toast.uit{animation:toastUit .22s ease-in both}
+.toast-titel{font-size:21px;font-weight:700;color:var(--accent);letter-spacing:-.4px}
+.toast-tekst{font-size:13px;color:var(--text-secondary);margin-top:3px}
+.toast--vuur{border-color:var(--accent-amber);box-shadow:0 14px 44px rgba(212,146,58,0.3)}
+.toast--vuur .toast-titel{color:var(--accent-amber)}
+@keyframes toastIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+@keyframes toastUit{to{opacity:0;transform:scale(.96)}}
+@media(prefers-reduced-motion:reduce){.toast,.toast.uit{animation:none}}
 .streak{display:inline-flex;align-items:center;gap:6px;font-weight:600}
 .streak .flame{font-size:14px;filter:grayscale(1);opacity:.4;transition:all .2s}
 .streak.hot .flame{filter:none;opacity:1}
@@ -179,6 +201,7 @@ footer a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
+<div class="toast-laag" id="toast-laag" aria-live="polite"></div>
 
 <div class="ambient-glow ambient-glow--cyan"></div>
 <div class="ambient-glow ambient-glow--amber"></div>
@@ -203,7 +226,8 @@ footer a:hover{text-decoration:underline}
   <p class="intro">
     Bij natuurkunde mag je antwoord niet meer precisie suggereren dan je gegevens. Oefen hier met
     significante cijfers; tellen, afronden, en bij een berekening het juiste aantal cijfers kiezen.
-    Kies hieronder een oefening.
+    Kies hieronder een oefening.<br>
+    Weet je nog niet hoe het werkt? <a href="uitleg/" class="intro-link">Bekijk eerst de uitleg</a>.
   </p>
 
   <div class="cards-grid">
@@ -241,9 +265,19 @@ footer a:hover{text-decoration:underline}
 
   <div class="exercise-area" id="exercise-area">
 
-    <div class="score-row">
-      <span class="streak" id="streak"><span class="flame">🔥</span><span id="streak-num">0</span></span>
-      <span class="session-score" id="session-score">0 / 0 deze sessie</span>
+    <div class="status-bar">
+      <div class="status-links">
+        <span class="status-oefening" id="st-oefening">Tellen</span>
+        <span class="status-soort" id="st-soort">oefening A</span>
+      </div>
+      <div class="status-midden">
+        <span class="reeks-dots" id="st-dots"></span>
+        <span class="reeks-tekst" id="st-tekst"></span>
+      </div>
+      <div class="status-rechts">
+        <span class="streak" id="streak"><span class="flame">🔥</span><span id="streak-num">0</span></span>
+        <span class="status-score" id="session-score" title="goed van totaal deze sessie">0 / 0</span>
+      </div>
     </div>
 
     <div class="exercise-card" id="exercise-card">
@@ -368,6 +402,8 @@ function parseAnswer(input){
   s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, m => '^' + m.split('').map(c=>sup[c]).join(''));
   // [*·×x] 10 ^ n  →  en
   s = s.replace(/\s*[\*·×x]\s*10\s*\^\s*\(?\s*([-+]?\d+)\s*\)?/g, 'e$1');
+  // Een kale tienmacht: 10^3 of 10³ betekent 1·10^3 (en telt dus als 1 significant cijfer).
+  s = s.replace(/^([-+]?)\s*10\s*\^\s*\(?\s*([-+]?\d+)\s*\)?\s*$/, (m,teken,exp)=>teken+'1e'+exp);
   const sDot = s.replace(/,/g,'.');
   const m = sDot.match(/^([-+]?)(\d+(?:\.\d+)?|\.\d+)(?:e([-+]?\d+))?$/i);
   if(!m) return { valid:false, error:'parse_fail' };
@@ -1140,13 +1176,43 @@ function renderKatex(el, latex){
   }
 }
 
+// ── TOAST ──
+// Midden in het venster, zodat je hem ook ziet als je onderaan de pagina staat.
+const REEKS_DOEL = 5;
+function toonToast(titel, tekst, soort){
+  const laag = document.getElementById('toast-laag');
+  const t = document.createElement('div');
+  t.className = 'toast' + (soort ? ' toast--' + soort : '');
+  t.innerHTML = '<div class="toast-titel">' + titel + '</div>' +
+                (tekst ? '<div class="toast-tekst">' + tekst + '</div>' : '');
+  laag.appendChild(t);
+  setTimeout(() => { t.classList.add('uit'); setTimeout(() => t.remove(), 220); }, 1100);
+}
+
+// Statusbalk: welke oefening je doet, hoe ver je bent in de reeks van vijf,
+// je huidige reeks en de score van deze sessie.
+function refreshStatusBar(){
+  if(!state.mode) return;
+  const desc = modeDescriptor(state.mode);
+  document.getElementById('st-oefening').textContent = desc.kort;
+  document.getElementById('st-soort').textContent = desc.soort;
+  const v = state.streak[state.mode];
+  const inReeks = v % REEKS_DOEL;
+  let dots = '';
+  for(let i = 0; i < REEKS_DOEL; i++)
+    dots += '<span class="reeks-dot' + (i < (v > 0 && inReeks === 0 ? REEKS_DOEL : inReeks) ? ' vol' : '') + '"></span>';
+  document.getElementById('st-dots').innerHTML = dots;
+  document.getElementById('st-tekst').textContent =
+    v > 0 && inReeks === 0 ? 'reeks vol' : 'naar ' + (Math.floor(v / REEKS_DOEL) + 1) * REEKS_DOEL + ' op rij';
+}
+
 function modeDescriptor(mode){
   return {
-    'A':      { label: 'A · tel de significante cijfers',              inputLabel: 'Aantal significante cijfers' },
-    'B':      { label: 'B · schrijf in N significante cijfers',        inputLabel: 'Jouw antwoord' },
-    'C-mix':  { label: 'C · berekenen + afronden (alles)',             inputLabel: 'Jouw antwoord' },
-    'C-mult': { label: 'C · berekenen + afronden (× en ÷)',            inputLabel: 'Jouw antwoord' },
-    'C-add':  { label: 'C · berekenen + afronden (+ en −)',            inputLabel: 'Jouw antwoord' }
+    'A':      { label: 'A · tel de significante cijfers',       kort: 'Tellen',    soort: 'oefening A',          inputLabel: 'Aantal significante cijfers' },
+    'B':      { label: 'B · schrijf in N significante cijfers', kort: 'Afronden',  soort: 'oefening B',          inputLabel: 'Jouw antwoord' },
+    'C-mix':  { label: 'C · berekenen + afronden (alles)',      kort: 'Berekenen', soort: 'oefening C · alles',  inputLabel: 'Jouw antwoord' },
+    'C-mult': { label: 'C · berekenen + afronden (× en ÷)',     kort: 'Berekenen', soort: 'oefening C · × en ÷', inputLabel: 'Jouw antwoord' },
+    'C-add':  { label: 'C · berekenen + afronden (+ en −)',     kort: 'Berekenen', soort: 'oefening C · + en −', inputLabel: 'Jouw antwoord' }
   }[mode];
 }
 
@@ -1244,24 +1310,27 @@ function updatePreview(){
 }
 
 function setStreak(mode, value){
+  const vorige = state.streak[mode];
   state.streak[mode] = value;
   if(state.mode === mode){
     ui.streakNum.textContent = String(value);
-    if(value >= 3){
-      ui.streakEl.classList.add('hot');
-    } else {
-      ui.streakEl.classList.remove('hot');
-    }
+    ui.streakEl.classList.toggle('hot', value >= 3);
+    refreshStatusBar();
   }
+  // Elke vijf goed op rij is een mijlpaal.
+  if(value > vorige && value % REEKS_DOEL === 0)
+    toonToast(value + ' op rij', value === REEKS_DOEL ? 'Mooie reeks.' : 'Je blijft doorgaan.', 'vuur');
 }
 function refreshStreakDisplay(){
   const v = state.streak[state.mode];
   ui.streakNum.textContent = String(v);
   ui.streakEl.classList.toggle('hot', v >= 3);
+  refreshStatusBar();
 }
 function refreshScoreDisplay(){
   const s = state.score[state.mode];
-  ui.sessionScore.textContent = `${s.right} / ${s.total} deze sessie`;
+  ui.sessionScore.textContent = `${s.right} / ${s.total}`;
+  refreshStatusBar();
 }
 
 function showFeedback(result, opts){
