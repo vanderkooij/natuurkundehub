@@ -857,9 +857,9 @@ export function CircuitEditor() {
     if (!selectedComp) return null;
     const g = componentGeom(doc, selectedComp);
     if (!g) return null;
-    // Klem binnen het canvas zodat het paneel (±240 breed, ±270 hoog) niet
+    // Klem binnen het canvas zodat het paneel (304 breed, ±270 hoog) niet
     // buiten beeld valt bij componenten langs de rand.
-    const x = Math.min(Math.max(g.center.x * view.s + view.tx, 130), Math.max(130, size.w - 130));
+    const x = Math.min(Math.max(g.center.x * view.s + view.tx, 160), Math.max(160, size.w - 160));
     const y = Math.min(Math.max(g.center.y * view.s + view.ty + 64, 8), Math.max(8, size.h - 280));
     return { x, y };
   })();

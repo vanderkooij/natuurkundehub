@@ -73,13 +73,13 @@ export function ContextPanel({
 
   return (
     <div
-      className="absolute z-20 w-60 -translate-x-1/2 rounded-xl border border-(--border-solid) bg-card p-3 shadow-xl"
+      className="absolute z-20 w-76 -translate-x-1/2 rounded-xl border border-(--border-solid) bg-card p-3 shadow-xl"
       style={{ left: x, top: y }}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-semibold text-(--text-primary)">{def.label}</span>
-        <div className="flex gap-1">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="truncate text-sm font-semibold text-(--text-primary)">{def.label}</span>
+        <div className="flex shrink-0 gap-1">
           {!meter && (
             <button type="button" className={iconBtn} title="Roteren" onClick={onRotate}>
               <RotateCw size={15} />
@@ -208,7 +208,7 @@ export function ContextPanel({
                 step={def.step}
                 value={value}
                 onChange={(e) => onValue(clamp(Number(e.target.value), def.min ?? 0, def.max ?? 0))}
-                className="w-16 rounded-md border border-(--border-solid) bg-(--bg-primary) px-1.5 py-1 text-right text-sm text-(--text-primary)"
+                className="w-20 rounded-md border border-(--border-solid) bg-(--bg-primary) px-1.5 py-1 text-right text-sm text-(--text-primary)"
               />
               <span className="w-4 text-sm text-(--text-muted)">{def.unit}</span>
             </div>
