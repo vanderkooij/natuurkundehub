@@ -2,7 +2,7 @@ import { Minus, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { COMPONENT_DEFS } from "@/model/componentDefs";
-import { componentGeom, dist, nearestSnap, resolveVertex, type Pt } from "@/model/geometry";
+import { GRID, componentGeom, dist, nearestSnap, resolveVertex, snapToGrid, type Pt } from "@/model/geometry";
 import { computeFlows } from "@/model/flows";
 import { LED_IMAX } from "@/model/ledSpec";
 import { activeRange, ANALOG_H, ANALOG_SPEC, ANALOG_W, isAnalog } from "@/model/meterSpec";
@@ -285,10 +285,12 @@ export function CircuitEditor() {
 
   // Globale pointer-afhandeling tijdens een drag (leest refs → geen stale closures).
   useEffect(() => {
-    const moveVertexSnapped = (vid: string, w: Pt, exclude: Set<string>) => {
+    // Een knoop volgt de muis, maar springt naar een knoop in de buurt (samen-
+    // smelten) en anders naar het raster. Alt = vrij slepen.
+    const moveVertexSnapped = (vid: string, w: Pt, exclude: Set<string>, free: boolean) => {
       const snap = nearestSnap(docRef.current, w, exclude);
       setSnapTargetId(snap?.id ?? null);
-      const p = snap ? snap.pos : w;
+      const p = snap ? snap.pos : free ? w : snapToGrid(w);
       circuitRef.current.moveVertex(vid, p.x, p.y);
     };
 
@@ -310,6 +312,11 @@ export function CircuitEditor() {
     const onGlobalDown = (e: PointerEvent) => {
       const svg = svgRef.current;
       if (!svg || !svg.contains(e.target as Node)) return; // paneel/toolbar → met rust laten
+      // De canvas-handlers doen preventDefault (geen tekstselectie); daardoor
+      // verliest een invoerveld (labeleditor, waardeveld) niet vanzelf de focus.
+      // Dus: expliciet loslaten.
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && !svg.contains(active)) active.blur();
       try {
         svg.setPointerCapture(e.pointerId);
       } catch {
@@ -357,14 +364,19 @@ export function CircuitEditor() {
         return;
       }
       const w = screenToWorld(e.clientX, e.clientY);
+      const free = e.altKey; // Alt = zonder raster
       if (drag.type === "move") {
         const dx = w.x - drag.startW.x;
         const dy = w.y - drag.startW.y;
         if (drag.analog) {
-          circuitRef.current.moveAnalogMeter(drag.id, (drag.ocx ?? 0) + dx, (drag.ocy ?? 0) + dy);
+          const c = { x: (drag.ocx ?? 0) + dx, y: (drag.ocy ?? 0) + dy };
+          const p = free ? c : snapToGrid(c);
+          circuitRef.current.moveAnalogMeter(drag.id, p.x, p.y);
         } else {
-          const p0 = { x: drag.orig0.x + dx, y: drag.orig0.y + dy };
-          const p1 = { x: drag.orig1.x + dx, y: drag.orig1.y + dy };
+          // Terminal 0 op het raster; terminal 1 houdt dezelfde onderlinge afstand.
+          const raw0 = { x: drag.orig0.x + dx, y: drag.orig0.y + dy };
+          const p0 = free ? raw0 : snapToGrid(raw0);
+          const p1 = { x: p0.x + (drag.orig1.x - drag.orig0.x), y: p0.y + (drag.orig1.y - drag.orig0.y) };
           circuitRef.current.moveComponent(drag.id, p0, p1);
           const ex = new Set([drag.v0, drag.v1]);
           const s0 = nearestSnap(docRef.current, p0, ex);
@@ -374,12 +386,15 @@ export function CircuitEditor() {
       } else if (drag.type === "labelmove") {
         circuitRef.current.moveLabel(drag.id, drag.ox + (w.x - drag.startW.x), drag.oy + (w.y - drag.startW.y));
       } else if (drag.type === "groupmove") {
+        // Groep: de verschuiving in hele rasterstappen, dan blijft wat uitgelijnd was uitgelijnd.
+        const d = { x: w.x - drag.startW.x, y: w.y - drag.startW.y };
+        const dd = free ? d : snapToGrid(d);
         circuitRef.current.moveGroup({
           vertices: drag.vertices,
           analog: drag.analog,
           labels: drag.labels,
-          dx: w.x - drag.startW.x,
-          dy: w.y - drag.startW.y,
+          dx: dd.x,
+          dy: dd.y,
         });
       } else if (drag.type === "marquee") {
         setMarquee({ a: drag.startW, b: w });
@@ -390,9 +405,9 @@ export function CircuitEditor() {
           ty: drag.startTy + (e.clientY - drag.startY),
         });
       } else if (drag.type === "wire") {
-        moveVertexSnapped(drag.newVid, w, new Set([drag.newVid, drag.fromVid]));
+        moveVertexSnapped(drag.newVid, w, new Set([drag.newVid, drag.fromVid]), free);
       } else if (drag.type === "vertex") {
-        moveVertexSnapped(drag.vid, w, new Set([drag.vid]));
+        moveVertexSnapped(drag.vid, w, new Set([drag.vid]), free);
       } else if (drag.type === "bend") {
         if (drag.vid === null) {
           if (dist(drag.startW, w) < BEND_THRESHOLD) return;
@@ -404,7 +419,7 @@ export function CircuitEditor() {
           );
           drag.vid = vid;
         }
-        moveVertexSnapped(drag.vid, w, new Set([drag.vid]));
+        moveVertexSnapped(drag.vid, w, new Set([drag.vid]), free);
       }
     };
 
@@ -433,10 +448,9 @@ export function CircuitEditor() {
       } else if (drag.type === "move") {
         // Alleen snappen als er echt versleept is (een tik = enkel selecteren).
         if (dist(drag.startW, w) >= 4) {
-          const dx = w.x - drag.startW.x;
-          const dy = w.y - drag.startW.y;
-          const p0 = { x: drag.orig0.x + dx, y: drag.orig0.y + dy };
-          const p1 = { x: drag.orig1.x + dx, y: drag.orig1.y + dy };
+          // Waar de terminals nu (na raster-snap) liggen — niet de ruwe muispositie.
+          const p0 = resolveVertex(docRef.current, drag.v0) ?? drag.orig0;
+          const p1 = resolveVertex(docRef.current, drag.v1) ?? drag.orig1;
           const ex = new Set([drag.v0, drag.v1]);
           const s0 = nearestSnap(docRef.current, p0, ex);
           if (s0) ex.add(s0.id);
@@ -464,7 +478,8 @@ export function CircuitEditor() {
         if (snap) circuitRef.current.mergeVertex(snap.id, drag.vid);
       } else if (drag.type === "place") {
         if (overSvg(e.clientX, e.clientY)) {
-          const id = circuitRef.current.addComponent(drag.ctype, w.x, w.y);
+          const p = e.altKey ? w : snapToGrid(w);
+          const id = circuitRef.current.addComponent(drag.ctype, p.x, p.y);
           setSelection({ kind: "component", id });
         }
         setPlacing(null);
@@ -752,6 +767,7 @@ export function CircuitEditor() {
   const onBackgroundPointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (pointersRef.current.size >= 2) return;
+      e.preventDefault(); // geen tekstselectie (svg-labels) bij slepen/klikken op het canvas
       setSelection(null);
       setMultiSel(null);
       const touchLike = e.pointerType !== "mouse";
@@ -910,8 +926,9 @@ export function CircuitEditor() {
             onWheel={onWheel}
           >
             <defs>
-              <pattern id="cf-grid" width={28} height={28} patternUnits="userSpaceOnUse">
-                <circle cx={1} cy={1} r={1} fill="var(--cf-grid)" />
+              {/* Rasterstippen precies op de snap-punten (veelvouden van GRID). */}
+              <pattern id="cf-grid" x={-1.5} y={-1.5} width={GRID} height={GRID} patternUnits="userSpaceOnUse">
+                <circle cx={1.5} cy={1.5} r={1} fill="var(--cf-grid)" />
               </pattern>
             </defs>
             <g transform={`translate(${view.tx} ${view.ty}) scale(${view.s})`}>
@@ -1049,7 +1066,6 @@ export function CircuitEditor() {
               }
               onSetRange={(i) => circuit.setAnalogRange(selectedComp.id, i)}
               onRotate={() => circuit.rotateComponent(selectedComp.id)}
-              onMirror={() => circuit.mirrorComponent(selectedComp.id)}
               onDetach={() => circuit.detachComponent(selectedComp.id)}
               onDelete={() => {
                 circuit.deleteComponent(selectedComp.id);

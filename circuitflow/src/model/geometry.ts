@@ -2,6 +2,14 @@ import type { CircuitComponent, CircuitDoc } from "./types";
 
 export const SNAP_RADIUS = 22;
 
+/**
+ * Rasterafstand (wereld-px). Terminals, knikpunten en meters snappen hierop
+ * bij slepen, zodat onderdelen vanzelf uitgelijnd staan. TERMINAL_SPAN (120)
+ * is een veelvoud, dus beide terminals van een vers geplaatst component
+ * liggen op het raster.
+ */
+export const GRID = 30;
+
 export interface Pt {
   x: number;
   y: number;
@@ -14,6 +22,11 @@ export function resolveVertex(doc: CircuitDoc, id: string): Pt | null {
 
 export function dist(a: Pt, b: Pt): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+/** Dichtstbijzijnde rasterpunt. */
+export function snapToGrid(p: Pt): Pt {
+  return { x: Math.round(p.x / GRID) * GRID, y: Math.round(p.y / GRID) * GRID };
 }
 
 export interface CompGeom {

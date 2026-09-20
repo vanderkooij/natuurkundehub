@@ -5,6 +5,14 @@ import { activeRange, analogPortOffsets, isAnalog } from "@/model/meterSpec";
 import type { CircuitComponent, CircuitDoc, ComponentType, Vertex } from "@/model/types";
 import { EMPTY_DOC } from "@/model/types";
 
+/**
+ * "Verbindingen loskoppelen": het draadeinde schuift DETACH_BACK px terug langs
+ * de draad en DETACH_SIDE px opzij. Het laatste draadstuk komt dan scheef te
+ * staan en eindigt zichtbaar naast het aansluitpunt (bewust niet op het raster).
+ */
+const DETACH_BACK = 40;
+const DETACH_SIDE = 24;
+
 let counter = 0;
 export function makeId(prefix: string): string {
   counter += 1;
@@ -91,6 +99,35 @@ function referencedElsewhere(doc: CircuitDoc, vid: string, exceptComp: string): 
   }
   for (const w of doc.wires) if (w.nodes.includes(vid)) return true;
   return false;
+}
+
+/**
+ * Nieuwe positie voor een losgekoppeld draadeinde op vertex `vid`: terug langs
+ * het laatste draadstuk en opzij, van het component (`center`) af. Null als er
+ * geen draad aan zit (dan valt er niets te verschuiven).
+ */
+function detachedWireEnd(doc: CircuitDoc, vid: string, center: Pt): Pt | null {
+  const v = doc.vertices[vid];
+  if (!v) return null;
+  for (const w of doc.wires) {
+    const i = w.nodes.indexOf(vid);
+    if (i < 0) continue;
+    const nb = doc.vertices[w.nodes[i === 0 ? 1 : i - 1]];
+    if (!nb) continue;
+    const len = Math.hypot(v.x - nb.x, v.y - nb.y);
+    if (len < 1) continue;
+    const dx = (v.x - nb.x) / len; // richting van het laatste draadstuk, náár de terminal
+    const dy = (v.y - nb.y) / len;
+    let px = -dy; // loodrecht daarop, weg van het component
+    let py = dx;
+    if (px * (v.x - center.x) + py * (v.y - center.y) < 0) {
+      px = -px;
+      py = -py;
+    }
+    const back = Math.min(DETACH_BACK, len / 2);
+    return { x: v.x - dx * back + px * DETACH_SIDE, y: v.y - dy * back + py * DETACH_SIDE };
+  }
+  return null;
 }
 
 // Exported voor unit-tests (state/__tests__/reducer.test.ts).
@@ -184,15 +221,38 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
           c.id === action.id ? { ...c, mirrored: !c.mirrored } : c,
         ),
       };
-    case "reversePolarity":
-      // Wissel anode/kathode (v0↔v1) zonder de vertices/draden te verplaatsen —
-      // keert de LED elektrisch én in het symbool om.
+    case "reversePolarity": {
+      const comp = doc.components.find((c) => c.id === action.id);
+      if (!comp) return doc;
+      if (comp.ports) {
+        // Analoge meter: wissel de meetsnoeren van de zwarte poort en de actieve
+        // rode poort (de vertex-id's ruilen van plek; de draden blijven eraan
+        // hangen en springen mee naar de andere poort).
+        const act = activeRange(doc, comp);
+        if (!act) return doc;
+        const i = act.index + 1;
+        const ports = [...comp.ports];
+        [ports[0], ports[i]] = [ports[i], ports[0]];
+        const offs = analogPortOffsets();
+        const vertices = { ...doc.vertices };
+        for (const k of [0, i]) {
+          const v = vertices[ports[k]];
+          if (v) vertices[ports[k]] = { ...v, x: (comp.cx ?? 0) + offs[k].x, y: (comp.cy ?? 0) + offs[k].y };
+        }
+        const components = doc.components.map((c) =>
+          c.id === comp.id ? { ...c, ports, v0: ports[0], v1: ports[1] } : c,
+        );
+        return { ...doc, vertices, components };
+      }
+      // Wissel v0↔v1 zonder de vertices/draden te verplaatsen — keert het
+      // component elektrisch én in het plaatje om (+/− van een bron, LED-richting).
       return {
         ...doc,
         components: doc.components.map((c) =>
           c.id === action.id ? { ...c, v0: c.v1, v1: c.v0 } : c,
         ),
       };
+    }
     case "setValue":
       return {
         ...doc,
@@ -286,14 +346,23 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
       return pruneVertices({ ...doc, components, wires, vertices });
     }
     case "detachComponent": {
+      // Het component houdt z'n plek en krijgt nieuwe terminal-vertices; de
+      // draden blijven op de oude vertex, die een stukje wegschuift zodat je
+      // ziet dat de kabel los is. Een oude vertex die ook terminal van een ander
+      // component is, blijft liggen (anders vervormt dat component).
       const comp = doc.components.find((c) => c.id === action.id);
       if (!comp) return doc;
       const vertices = { ...doc.vertices };
       const ids = action.newVertexIds;
+      const otherTerminal = (vid: string) =>
+        doc.components.some((c) => c.id !== comp.id && (c.v0 === vid || c.v1 === vid || c.ports?.includes(vid)));
+      const nudge = (vid: string, center: Pt) => {
+        if (otherTerminal(vid)) return;
+        const p = detachedWireEnd(doc, vid, center);
+        if (p) vertices[vid] = { ...vertices[vid], x: p.x, y: p.y };
+      };
 
       if (comp.ports) {
-        // Analoge meter: elke bedrade poort krijgt een eigen (nieuwe) vertex; de
-        // draad blijft op de oude vertex liggen → verbinding verbroken.
         const offs = analogPortOffsets();
         const cx = comp.cx ?? 0;
         const cy = comp.cy ?? 0;
@@ -301,6 +370,7 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
           if (!referencedElsewhere(doc, pid, comp.id)) return pid;
           const nid = ids[i];
           vertices[nid] = { id: nid, x: cx + offs[i].x, y: cy + offs[i].y };
+          nudge(pid, { x: cx, y: cy });
           return nid;
         });
         const components = doc.components.map((c) =>
@@ -309,17 +379,32 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
         return { ...doc, vertices, components };
       }
 
+      const a = doc.vertices[comp.v0];
+      const b = doc.vertices[comp.v1];
+      if (!a || !b) return doc;
+      const center = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      // Zat de terminal direct op een ander component (zonder draad)? Dan kan de
+      // oude vertex niet mee; in plaats daarvan buigt de eigen lead: de nieuwe
+      // terminal komt een stukje naar binnen en opzij.
+      const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const ux = (b.x - a.x) / len;
+      const uy = (b.y - a.y) / len;
+      const bent = (t: Vertex, inward: number, nid: string): Vertex => ({
+        id: nid,
+        x: t.x + ux * inward * (DETACH_BACK / 2) - uy * DETACH_SIDE,
+        y: t.y + uy * inward * (DETACH_BACK / 2) + ux * DETACH_SIDE,
+      });
       let v0 = comp.v0;
       let v1 = comp.v1;
       if (referencedElsewhere(doc, comp.v0, comp.id)) {
-        const src = doc.vertices[comp.v0];
-        vertices[ids[0]] = { id: ids[0], x: src.x, y: src.y };
+        vertices[ids[0]] = otherTerminal(comp.v0) ? bent(a, 1, ids[0]) : { id: ids[0], x: a.x, y: a.y };
         v0 = ids[0];
+        nudge(comp.v0, center);
       }
       if (referencedElsewhere(doc, comp.v1, comp.id)) {
-        const src = doc.vertices[comp.v1];
-        vertices[ids[1]] = { id: ids[1], x: src.x, y: src.y };
+        vertices[ids[1]] = otherTerminal(comp.v1) ? bent(b, -1, ids[1]) : { id: ids[1], x: b.x, y: b.y };
         v1 = ids[1];
+        nudge(comp.v1, center);
       }
       const components = doc.components.map((c) => (c.id === comp.id ? { ...c, v0, v1 } : c));
       return { ...doc, vertices, components };

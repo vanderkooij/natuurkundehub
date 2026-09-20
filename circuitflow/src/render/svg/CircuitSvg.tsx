@@ -151,6 +151,38 @@ function statusLabel(result: SolveResult, c: CircuitComponent): { text: string; 
   return { text: formatCurrent(Math.abs(i)), warn: false };
 }
 
+/** Meetwaarde, uitslag en selectiestatus van een analoge VOS-meter. */
+function analogState(
+  doc: CircuitDoc,
+  result: SolveResult,
+  c: CircuitComponent,
+  selection: Selection,
+  multi: MultiSelection | null | undefined,
+) {
+  const spec = ANALOG_SPEC[c.type]!;
+  const ports = c.ports!;
+  const sel =
+    (selection?.kind === "component" && selection.id === c.id) ||
+    (multi?.components.has(c.id) ?? false);
+  const act = activeRange(doc, c);
+  let reading = 0;
+  if (act) {
+    if (c.type === "analogAmmeter") reading = result.elementCurrents.get(c.id) ?? 0;
+    else if (result.nodePotentials.has(ports[0]) && result.nodePotentials.has(act.portId))
+      // Alleen meten als de common (zwart) én de actieve rode poort verbonden zijn.
+      // Rood = +, zwart = −: V(rood) − V(common), zodat de naald bij juist
+      // aansluiten naar rechts uitslaat en bij omgekeerd naar links.
+      reading = (result.nodePotentials.get(act.portId) ?? 0) - (result.nodePotentials.get(ports[0]) ?? 0);
+  }
+  const range = act?.range ?? 1;
+  const r = Number.isFinite(reading) ? reading : range * 2; // ∞ → doorslaan
+  // Teken behouden: bij omgekeerd aansluiten slaat de naald de verkeerde
+  // kant op (onder 0), i.p.v. gewoon een geldige waarde te tonen.
+  const deflection = act ? r / range : 0;
+  const overRange = !!act && Math.abs(r) > range;
+  return { spec, act, deflection, overRange, sel, cx: c.cx ?? 0, cy: c.cy ?? 0 };
+}
+
 export function CircuitSvg({
   doc,
   result,
@@ -184,6 +216,42 @@ export function CircuitSvg({
           <feGaussianBlur stdDeviation="5" />
         </filter>
       </defs>
+
+      {/* Analoge meterkasten: ónder de draden, zodat een meetsnoer dat over de kast
+          loopt zichtbaar blijft (de poorten komen straks bóven de draden). */}
+      {doc.components.map((c) => {
+        if (!isAnalog(c.type) || !c.ports) return null;
+        const { spec, act, deflection, overRange, sel, cx, cy } = analogState(doc, result, c, selection, multi);
+        return (
+          <g key={`ab-${c.id}`}>
+            {sel && (
+              <rect
+                x={cx - ANALOG_W / 2 - 4}
+                y={cy - ANALOG_H / 2 - 4}
+                width={ANALOG_W + 8}
+                height={ANALOG_H + 8}
+                rx={10}
+                fill="var(--cf-select)"
+                opacity={0.12}
+                stroke="var(--cf-select)"
+                strokeWidth={1.5}
+              />
+            )}
+            <g
+              transform={`translate(${cx} ${cy})`}
+              onPointerDown={(e) => onComponentPointerDown(c.id, e)}
+              style={{ cursor: "grab" }}
+            >
+              <AnalogMeter
+                spec={spec}
+                deflection={deflection}
+                activeIndex={act ? act.index : null}
+                overRange={overRange}
+              />
+            </g>
+          </g>
+        );
+      })}
 
       {/* Draden (polylijnen) */}
       {doc.wires.map((w) => {
@@ -226,59 +294,11 @@ export function CircuitSvg({
 
       {/* Componenten */}
       {doc.components.map((c) => {
-        // Analoge VOS-meter: eigen render-pad (4 poorten, boog, naald).
+        // Analoge VOS-meter: de kast staat al onder de draden; hier alleen de 4 poorten.
         if (isAnalog(c.type) && c.ports) {
-          const spec = ANALOG_SPEC[c.type]!;
-          const sel =
-            (selection?.kind === "component" && selection.id === c.id) ||
-            (multi?.components.has(c.id) ?? false);
-          const act = activeRange(doc, c);
-          let reading = 0;
-          if (act) {
-            if (c.type === "analogAmmeter") reading = result.elementCurrents.get(c.id) ?? 0;
-            else if (result.nodePotentials.has(c.ports[0]) && result.nodePotentials.has(act.portId))
-              // Alleen meten als de common (zwart) én de actieve rode poort verbonden zijn.
-              // Rood = +, zwart = −: V(rood) − V(common), zodat de naald bij juist
-              // aansluiten naar rechts uitslaat en bij omgekeerd naar links.
-              reading =
-                (result.nodePotentials.get(act.portId) ?? 0) -
-                (result.nodePotentials.get(c.ports[0]) ?? 0);
-          }
-          const range = act?.range ?? 1;
-          const r = Number.isFinite(reading) ? reading : range * 2; // ∞ → doorslaan
-          // Teken behouden: bij omgekeerd aansluiten slaat de naald de verkeerde
-          // kant op (onder 0), i.p.v. gewoon een geldige waarde te tonen.
-          const deflection = act ? r / range : 0;
-          const overRange = !!act && Math.abs(r) > range;
-          const cx = c.cx ?? 0;
-          const cy = c.cy ?? 0;
+          const { act } = analogState(doc, result, c, selection, multi);
           return (
             <g key={c.id}>
-              {sel && (
-                <rect
-                  x={cx - ANALOG_W / 2 - 4}
-                  y={cy - ANALOG_H / 2 - 4}
-                  width={ANALOG_W + 8}
-                  height={ANALOG_H + 8}
-                  rx={10}
-                  fill="var(--cf-select)"
-                  opacity={0.12}
-                  stroke="var(--cf-select)"
-                  strokeWidth={1.5}
-                />
-              )}
-              <g
-                transform={`translate(${cx} ${cy})`}
-                onPointerDown={(e) => onComponentPointerDown(c.id, e)}
-                style={{ cursor: "grab" }}
-              >
-                <AnalogMeter
-                  spec={spec}
-                  deflection={deflection}
-                  activeIndex={act ? act.index : null}
-                  overRange={overRange}
-                />
-              </g>
               {c.ports.map((pid, i) => {
                 const p = analogPortPos(c, i);
                 const isActive = act?.portId === pid;

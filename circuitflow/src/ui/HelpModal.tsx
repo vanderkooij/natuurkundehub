@@ -50,7 +50,8 @@ export function HelpModal({ onClose }: Props) {
         <ul className="flex flex-col gap-2.5">
           <Row k="sleep">Sleep een onderdeel uit de balk bovenaan (of een meter uit de rechterstrook) op het canvas.</Row>
           <Row k="verbind">Sleep vanaf een aansluitpunt naar een ander om ze met een draad te verbinden; klik onderweg voor een knikpunt.</Row>
-          <Row k="klik">Klik een onderdeel om z'n waarde, kleur of bereik in te stellen (of met de pijltjestoetsen ← →; Shift = grote stap). Bij de LDR/NTC stel je zo het licht of de temperatuur in.</Row>
+          <Row k="klik">Klik een onderdeel om z'n waarde, kleur of bereik in te stellen (of met de pijltjestoetsen ← →; Shift = grote stap). Bij de LDR/NTC stel je zo het licht of de temperatuur in. De ⇄-knop draait het onderdeel om (+/− van een bron, LED-richting, meetsnoeren van een meter).</Row>
+          <Row k="raster">Onderdelen en draden springen bij het slepen op het raster, zodat alles netjes uitlijnt. Houd Alt ingedrukt om vrij te slepen.</Row>
           <Row k="kader">Sleep over leeg canvas voor een selectiekader: meerdere onderdelen tegelijk selecteren, dan dupliceren of verwijderen. Pannen = Alt+slepen (of middelste muisknop).</Row>
           <Row k="touch">Op een touchscreen/digibord: sleep een onderdeel om het te verplaatsen, sleep vanaf een aansluitpunt naar een ander voor een draad, sleep leeg canvas om te pannen, en knijp met twee vingers om te zoomen.</Row>
           <Row k="✂">Selecteer een knoop met een draad en klik het schaartje om die aansluiting los te maken.</Row>

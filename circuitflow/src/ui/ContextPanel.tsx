@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Copy, FlipVertical2, LineChart, RotateCw, Trash2, Unlink } from "lucide-react";
+import { ArrowLeftRight, Copy, LineChart, RotateCw, Trash2, Unlink } from "lucide-react";
 
 import { COMPONENT_DEFS } from "@/model/componentDefs";
 import { LED_COLORS, ledColor } from "@/model/ledSpec";
@@ -21,7 +21,6 @@ interface Props {
   analogActiveIndex: number | null;
   onSetRange: (rangeIndex: number) => void;
   onRotate: () => void;
-  onMirror: () => void;
   onDetach: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
@@ -43,7 +42,7 @@ const VALUE_LABEL: Record<string, string> = {
 };
 
 const iconBtn =
-  "grid h-7 w-7 place-items-center rounded-md border border-(--border-solid) text-(--text-secondary) hover:bg-(--bg-card-hover)";
+  "grid h-7 w-7 place-items-center rounded-md border border-(--border-solid) text-(--text-secondary) hover:bg-(--bg-card-hover) disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent";
 
 export function ContextPanel({
   comp,
@@ -57,7 +56,6 @@ export function ContextPanel({
   analogActiveIndex,
   onSetRange,
   onRotate,
-  onMirror,
   onDetach,
   onDelete,
   onDuplicate,
@@ -83,31 +81,22 @@ export function ContextPanel({
         <span className="text-sm font-semibold text-(--text-primary)">{def.label}</span>
         <div className="flex gap-1">
           {!meter && (
-            <>
-              <button type="button" className={iconBtn} title="Roteren" onClick={onRotate}>
-                <RotateCw size={15} />
-              </button>
-              {comp.type === "led" ? (
-                <button type="button" className={iconBtn} title="Polariteit omkeren" onClick={onReverse}>
-                  <ArrowLeftRight size={15} />
-                </button>
-              ) : (
-                <button type="button" className={iconBtn} title="Spiegelen" onClick={onMirror}>
-                  <FlipVertical2 size={15} />
-                </button>
-              )}
-            </>
-          )}
-          {digitalMeter && (
-            <button
-              type="button"
-              className={iconBtn}
-              title="Meetdraden omwisselen (teken omkeren)"
-              onClick={onReverse}
-            >
-              <ArrowLeftRight size={15} />
+            <button type="button" className={iconBtn} title="Roteren" onClick={onRotate}>
+              <RotateCw size={15} />
             </button>
           )}
+          {/* Omdraaien: +/− van een bron, LED-richting, of de meetsnoeren van een
+              meter wisselen. Bij een analoge meter alleen zinvol als er een
+              rood bereik is aangesloten. */}
+          <button
+            type="button"
+            className={iconBtn}
+            title={meter ? "Meetsnoeren omwisselen (teken omkeren)" : "Omdraaien (polariteit omkeren)"}
+            onClick={onReverse}
+            disabled={isAnalog(comp.type) && analogActiveIndex === null}
+          >
+            <ArrowLeftRight size={15} />
+          </button>
           <button type="button" className={iconBtn} title="Dupliceren (Ctrl+D)" onClick={onDuplicate}>
             <Copy size={15} />
           </button>

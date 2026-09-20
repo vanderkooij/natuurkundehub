@@ -115,6 +115,9 @@
 @layer components {
   .cf-canvas {
     background: var(--cf-canvas);
+    /* Slepen op het canvas mag nooit tekst (svg-labels) selecteren. */
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* Component-leads en draden. */
