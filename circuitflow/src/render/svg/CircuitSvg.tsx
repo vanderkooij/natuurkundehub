@@ -54,6 +54,8 @@ interface Props {
   schematic: boolean;
   measureMode: boolean;
   snapTargetId: string | null;
+  /** Zoomfactor: het klikgebied van een draad blijft op het scherm even breed. */
+  scale: number;
   onComponentPointerDown: (id: string, e: React.PointerEvent) => void;
   onTerminalPointerDown: (vid: string, e: React.PointerEvent) => void;
   onWireSegmentPointerDown: (wireId: string, segIndex: number, e: React.PointerEvent) => void;
@@ -191,6 +193,7 @@ export function CircuitSvg({
   schematic,
   measureMode,
   snapTargetId,
+  scale,
   onComponentPointerDown,
   onTerminalPointerDown,
   onWireSegmentPointerDown,
@@ -270,7 +273,8 @@ export function CircuitSvg({
                   onPointerDown={(e) => onWireSegmentPointerDown(w.id, i, e)}
                   style={{ cursor: "pointer" }}
                 >
-                  <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth={16} />
+                  {/* Ruim klikgebied: minstens ~28 schermpixels, ook uitgezoomd en met een vinger. */}
+                  <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth={Math.max(16, 28 / scale)} />
                   <line
                     className={hot ? "cf-wire cf-hot-wire" : "cf-wire"}
                     x1={a.x}

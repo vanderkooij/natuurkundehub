@@ -14,6 +14,23 @@ import { ComponentSymbol } from "@/render/svg/Symbols";
 
 interface Props {
   onInstrumentPointerDown: (type: ComponentType, e: React.PointerEvent) => void;
+  /** Voltmeter met pennen: los instrument, aan/uit met een tik. */
+  probeOn: boolean;
+  onToggleProbe: () => void;
+}
+
+/** Klein plaatje van de pennen-voltmeter voor in de strook. */
+function ProbePreview() {
+  return (
+    <svg viewBox="0 0 80 56" width={72} height={50} className="pointer-events-none">
+      <rect x={16} y={2} width={48} height={28} rx={5} fill="#f5c542" stroke="#b58a12" strokeWidth={1.5} />
+      <rect x={21} y={6} width={38} height={11} rx={2} fill="#c9d8b6" />
+      <path d="M 32 26 C 32 40, 14 34, 14 44" fill="none" stroke="#1f2937" strokeWidth={2} />
+      <path d="M 48 26 C 48 40, 66 34, 66 44" fill="none" stroke="#dc2626" strokeWidth={2} />
+      <rect x={11} y={43} width={6} height={10} rx={2} fill="#1f2937" />
+      <rect x={63} y={43} width={6} height={10} rx={2} fill="#dc2626" />
+    </svg>
+  );
 }
 
 function Preview({ type }: { type: ComponentType }) {
@@ -37,7 +54,7 @@ function Preview({ type }: { type: ComponentType }) {
   );
 }
 
-export function InstrumentRail({ onInstrumentPointerDown }: Props) {
+export function InstrumentRail({ onInstrumentPointerDown, probeOn, onToggleProbe }: Props) {
   // Standaard dicht: meters zijn er pas als je ze nodig hebt (meer canvasruimte).
   const [collapsed, setCollapsed] = useState(true);
 
@@ -74,6 +91,20 @@ export function InstrumentRail({ onInstrumentPointerDown }: Props) {
           <ChevronRight size={16} />
         </button>
       </div>
+      <button
+        type="button"
+        onClick={onToggleProbe}
+        aria-pressed={probeOn}
+        title={probeOn ? "Pennen-voltmeter weghalen" : "Voltmeter met pennen: tik ergens op een draad of aansluiting"}
+        className={
+          "flex select-none flex-col items-center gap-1 rounded-lg border p-2 hover:bg-(--bg-card-hover) " +
+          (probeOn ? "border-(--accent) bg-(--bg-card-hover)" : "border-(--border-solid) bg-(--bg-card)")
+        }
+      >
+        <ProbePreview />
+        <span className="text-[11px] text-(--text-secondary)">Voltmeter met pennen</span>
+        <span className="text-[10px] font-semibold text-(--accent)">{probeOn ? "aan · tik om weg te halen" : "tik om te pakken"}</span>
+      </button>
       {INSTRUMENTS.map((type) => (
         <button
           key={type}

@@ -50,9 +50,10 @@
   4. Alleen symbolen, met de stapper.
   Doel: een letter is een getal waarvan we de waarde nog niet weten. Nog beslissen: bestaande tool uitbreiden of onderbouw totaal anders opzetten (veel hergebruik in beide gevallen).
 - [x] **Formules omschrijven onderbouw: plus en min** (gebouwd 2026-09-30). Apart spoor naast keer en delen, met dezelfde vier treden. Uitleg op `onderbouw/uitleg/?spoor=plusmin`, oefenen via de keuze bovenaan (of `?soort=plusmin`). Contexten: hoe laat moet je weg (tijden als klok, 15:00 − 28 = 14:32), wisselgeld, plaats op een lijn, verschil tussen begin- en eindsnelheid. Letters: s = s₁ + s₂, t_aankomst = t_vertrek + t_reis, en losse letters.
-- [ ] **CircuitFlow: deeltjes lopen uit de pas.** Bij een parallelschakeling kiest elk deeltje bij een knooppunt een route (gewogen verdeling); omdat de routes niet even lang zijn raken ze op den duur uit de pas. Na slepen van een component wordt het erger, want de signatuur voor opnieuw zaaien kijkt niet naar de lengtes. Wens: bij elke aanpassing mag er een nieuw nulpunt komen (deeltjes verspringen even), maar tijdens gewoon draaien nooit.
-- [ ] **CircuitFlow: losse draden verwijderen.** Een draadje afzonderlijk aanklikken en deleten lukt nu niet.
-- [ ] **CircuitFlow: voorbeeldschakelingen op het raster.** De presets liggen nog op het oude raster (veelvouden van 20/40) en niet op het raster van 30 px. Plus twee nieuwe: (a) twee weerstanden parallel, samen in serie met een derde; (b) twee weerstanden in serie, samen parallel aan een derde.
+- [x] **CircuitFlow: deeltjes per stroomkring** (2026-09-30). De stroom wordt opgesplitst in kringen van pool naar pool; elke kring heeft een vaste trein deeltjes die als geheel rondrijdt, dus niets raakt uit de pas. Bij een splitsing gaat de ene trein links, de andere rechts. Bij elke aanpassing (ook verslepen) een nieuw nulpunt. Code: `circuitflow/src/model/particles.ts`.
+- [x] **CircuitFlow: draden aanklikken en verwijderen** (2026-09-30). Klikgebied minstens ~28 schermpixels (ook uitgezoomd), buigen pas na 10 px slepen, en een knop *Verwijderen* onder een geselecteerde draad (voor digibord zonder toetsenbord).
+- [x] **CircuitFlow: voorbeeldschakelingen op het raster** (2026-09-30), plus twee combischakelingen: 20 Ω ∥ 30 Ω in serie met 10 Ω, en 10 Ω + 20 Ω parallel aan 20 Ω (6 V).
+- [x] **CircuitFlow: voltmeter met meetpennen** (2026-09-30). Los instrument in de meterstrook: kastje met rode en zwarte pen die je op elke draad of aansluiting zet, zonder iets los te koppelen. Bewust geen stroompennen: een stroommeter moet in de kring.
 
 ### Overig
 - [ ] Onderzoeksvaardigheden app — ondersteuning bij practicumverslagen, variabelen, conclusies etc.

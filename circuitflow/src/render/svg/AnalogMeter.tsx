@@ -82,8 +82,8 @@ export function AnalogMeter({ spec, deflection, activeIndex, overRange }: Props)
   return (
     <g>
       {/* kastje */}
-      <rect x={-hw} y={-hh} width={ANALOG_W} height={ANALOG_H} rx={12} fill="#e3e8ee" stroke="#aab4c0" strokeWidth={1.8} />
-      <text x={-hw + 14} y={-hh + 22} fontSize={14} fontWeight={700} fill="#1f5fa8">
+      <rect x={-hw} y={-hh} width={ANALOG_W} height={ANALOG_H} rx={12} fill="var(--cf-meter-case)" stroke="var(--cf-meter-case-edge)" strokeWidth={1.8} />
+      <text x={-hw + 14} y={-hh + 22} fontSize={14} fontWeight={700} fill="var(--cf-meter-brand)">
         VOS
       </text>
       {/* venster */}
@@ -106,7 +106,7 @@ export function AnalogMeter({ spec, deflection, activeIndex, overRange }: Props)
           textAnchor="end"
           fontSize={10}
           fontWeight={600}
-          fill="#2d2d4a"
+          fill="var(--cf-meter-case-text)"
         >
           {i === 0 ? "0" : fmt(spec.ranges[i - 1])}
         </text>

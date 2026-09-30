@@ -36,6 +36,13 @@
   --cf-wire: #475569;
   --cf-lead: #475569;
   --cf-terminal: #cbd5e1;
+  /* Kast van de analoge meters (het venster zelf blijft altijd licht). */
+  --cf-meter-case: #e3e8ee;
+  --cf-meter-case-edge: #aab4c0;
+  --cf-meter-case-text: #2d2d4a;
+  --cf-meter-brand: #1f5fa8;
+  /* Lichte rand om de meetsnoeren en pennen (zwart blijft zo zichtbaar). */
+  --cf-probe-halo: rgba(255, 255, 255, 0.85);
   --cf-select: var(--accent);
 }
 
@@ -58,6 +65,12 @@
   --cf-wire: #94a3b8;
   --cf-lead: #94a3b8;
   --cf-terminal: #334155;
+  /* Neutraal grijs, bewust anders dan de blauwgrijze kaarten van het menu. */
+  --cf-meter-case: #3a3c40;
+  --cf-meter-case-edge: #5e6167;
+  --cf-meter-case-text: #e5e7eb;
+  --cf-meter-brand: #7fb2ea;
+  --cf-probe-halo: rgba(203, 213, 225, 0.7);
 }
 
 /* Map NH-tokens naar Tailwind-utilities (bg-card, text-muted, border, …). */

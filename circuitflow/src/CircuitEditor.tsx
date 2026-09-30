@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { COMPONENT_DEFS } from "@/model/componentDefs";
@@ -7,6 +7,7 @@ import { computeFlows } from "@/model/flows";
 import { LED_IMAX } from "@/model/ledSpec";
 import { activeRange, ANALOG_H, ANALOG_SPEC, ANALOG_W, isAnalog } from "@/model/meterSpec";
 import { toNetlist } from "@/model/netlist";
+import { probeContact, probeVoltage, type ProbeState } from "@/model/probe";
 import { sweepIU, sweepLedColors } from "@/model/sweep";
 import type { CircuitDoc, ComponentType } from "@/model/types";
 import { docToJson, exportPng, jsonToDoc, sharePayloadFromHash } from "@/lib/io";
@@ -15,6 +16,8 @@ import { ValuesTable } from "@/ui/ValuesTable";
 import { CanvasOverlay, type FlowMode } from "@/render/CanvasOverlay";
 import { AnalogMeter } from "@/render/svg/AnalogMeter";
 import { CircuitSvg, type MultiSelection, type Selection } from "@/render/svg/CircuitSvg";
+import { ProbeMeter } from "@/render/svg/ProbeMeter";
+import { formatVoltage } from "@/lib/format";
 import { ComponentSymbol } from "@/render/svg/Symbols";
 import { solve } from "@/sim";
 import { ContextPanel } from "@/ui/ContextPanel";
@@ -87,13 +90,14 @@ function marqueeHits(doc: CircuitDoc, a: Pt, b: Pt): MultiSelection | null {
   if (!components.size && !wires.size && !labels.size) return null;
   return { components, wires, labels };
 }
-const BEND_THRESHOLD = 5; // wereld-px voordat een segment-sleep een knikpunt maakt
+const BEND_THRESHOLD = 10; // scherm-px voordat een segment-sleep een knikpunt maakt (een tik selecteert alleen)
 
 export function CircuitEditor() {
   const circuit = useCircuit();
   const { doc } = circuit;
   const result = useMemo(() => solve(toNetlist(doc)), [doc]);
   const flows = useMemo(() => computeFlows(doc, result), [doc, result]);
+  const sourceIds = useMemo(() => doc.components.filter((c) => c.type === "source").map((c) => c.id), [doc]);
 
   // Doorbranden: een LED boven de doorbrandstroom (of een zekering boven zijn
   // nominale stroom) licht/vonkt eerst kort en gaat dan uit (permanent open tot
@@ -119,6 +123,8 @@ export function CircuitEditor() {
   const [toast, setToast] = useState<string | null>(null);
   const [task, setTask] = useState<string | null>(null);
   const [graphId, setGraphId] = useState<string | null>(null);
+  // Voltmeter met meetpennen: los instrument, geen deel van de schakeling.
+  const [probe, setProbe] = useState<ProbeState | null>(null);
   const graphComp = doc.components.find((c) => c.id === graphId) ?? null;
   // LED → alle kleuren naast elkaar (elk hun eigen knie); anders één curve.
   const graphCurves = useMemo(() => {
@@ -138,6 +144,14 @@ export function CircuitEditor() {
   }, [doc, graphId]);
 
   const [view, setViewState] = useState<View>({ s: 1, tx: 0, ty: 0 });
+  // Vangstraal van een pen: op het scherm minstens ~26 px, ook uitgezoomd.
+  const probeRadius = Math.max(18, 26 / view.s);
+  const redContact = useMemo(() => (probe ? probeContact(doc, probe.red, probeRadius) : null), [doc, probe, probeRadius]);
+  const blackContact = useMemo(() => (probe ? probeContact(doc, probe.black, probeRadius) : null), [doc, probe, probeRadius]);
+  const probeDisplay = (() => {
+    const u = probeVoltage(result, redContact, blackContact);
+    return u === null ? "– – –" : formatVoltage(u);
+  })();
   const [selection, setSelection] = useState<Selection>(null);
   // Selectiekader (rubber band) + de groepsselectie die eruit volgt.
   const [marquee, setMarquee] = useState<{ a: Pt; b: Pt } | null>(null);
@@ -410,7 +424,7 @@ export function CircuitEditor() {
         moveVertexSnapped(drag.vid, w, new Set([drag.vid]), free);
       } else if (drag.type === "bend") {
         if (drag.vid === null) {
-          if (dist(drag.startW, w) < BEND_THRESHOLD) return;
+          if (dist(drag.startW, w) * viewRef.current.s < BEND_THRESHOLD) return;
           const vid = circuitRef.current.insertWaypoint(
             drag.wireId,
             drag.segIndex,
@@ -864,6 +878,40 @@ export function CircuitEditor() {
     return { x, y };
   })();
 
+  // Voltmeter met pennen aan/uit. Verschijnt midden in beeld: kastje rechtsboven,
+  // pennen eronder, klaar om ergens op te zetten.
+  const toggleProbe = () => {
+    if (probe) {
+      setProbe(null);
+      return;
+    }
+    const cx = (size.w / 2 - view.tx) / view.s;
+    const cy = (size.h / 2 - view.ty) / view.s;
+    setProbe({
+      body: { x: cx + 180, y: cy - 150 },
+      red: { x: cx + 240, y: cy + 30 },
+      black: { x: cx + 120, y: cy + 30 },
+    });
+  };
+
+  // Geselecteerde draad: een knop om hem te verwijderen, voor wie geen
+  // toetsenbord heeft (digibord, touchscreen). Staat onder het midden van de draad.
+  const selectedWire =
+    selection?.kind === "wire" ? doc.wires.find((w) => w.id === selection.id) ?? null : null;
+  const wireBarPos = (() => {
+    if (!selectedWire || selectedWire.nodes.length < 2) return null;
+    const k = Math.floor((selectedWire.nodes.length - 1) / 2);
+    const a = resolveVertex(doc, selectedWire.nodes[k]);
+    const b = resolveVertex(doc, selectedWire.nodes[k + 1]);
+    if (!a || !b) return null;
+    const x = ((a.x + b.x) / 2) * view.s + view.tx;
+    const y = ((a.y + b.y) / 2) * view.s + view.ty + 22;
+    return {
+      x: Math.min(Math.max(x, 90), Math.max(90, size.w - 90)),
+      y: Math.min(Math.max(y, 8), Math.max(8, size.h - 50)),
+    };
+  })();
+
   // Meldingen (kortsluiting / conflict / onbepaald).
   const banner = result.shortedSources.length
     ? "Kortsluiting: de bron is kortgesloten."
@@ -941,6 +989,7 @@ export function CircuitEditor() {
                 schematic={schematic}
                 measureMode={measureMode}
                 snapTargetId={snapTargetId}
+                scale={view.s}
                 onComponentPointerDown={onComponentPointerDown}
                 onTerminalPointerDown={onTerminalPointerDown}
                 onWireSegmentPointerDown={onWireSegmentPointerDown}
@@ -950,6 +999,22 @@ export function CircuitEditor() {
                 onLabelPointerDown={onLabelPointerDown}
                 onLabelDoubleClick={onLabelDoubleClick}
               />
+              {probe && (
+                <ProbeMeter
+                  probe={probe}
+                  display={probeDisplay}
+                  redContact={!!redContact}
+                  blackContact={!!blackContact}
+                  toWorld={screenToWorld}
+                  onMove={(deel, pt) => setProbe((p) => (p ? { ...p, [deel]: pt } : p))}
+                  onDrop={(deel) => {
+                    // Losgelaten op een draad of aansluiting: de punt schuift er precies op.
+                    const c = deel === "red" ? redContact : deel === "black" ? blackContact : null;
+                    if (c) setProbe((p) => (p ? { ...p, [deel]: { x: c.x, y: c.y } } : p));
+                  }}
+                  onClose={() => setProbe(null)}
+                />
+              )}
               {marquee && (
                 <rect
                   x={Math.min(marquee.a.x, marquee.b.x)}
@@ -967,7 +1032,7 @@ export function CircuitEditor() {
             </g>
           </svg>
 
-          <CanvasOverlay width={size.w} height={size.h} flows={flows} view={view} mode={mode} />
+          <CanvasOverlay width={size.w} height={size.h} flows={flows} sources={sourceIds} view={view} mode={mode} />
 
           {/* Groepsactie-balk bij een selectiekader-selectie */}
           {multiSel && (
@@ -1085,6 +1150,27 @@ export function CircuitEditor() {
             />
           )}
 
+          {selectedWire && wireBarPos && (
+            <div
+              className="absolute z-20 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-(--border-solid) bg-card px-2.5 py-1.5 shadow-xl"
+              style={{ left: wireBarPos.x, top: wireBarPos.y }}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <span className="text-xs font-semibold uppercase tracking-wide text-(--text-muted)">Draad</span>
+              <button
+                type="button"
+                onClick={() => {
+                  circuit.deleteWire(selectedWire.id);
+                  setSelection(null);
+                }}
+                className="flex items-center gap-1.5 rounded-md border border-(--border-solid) px-2.5 py-1 text-sm text-destructive hover:bg-(--bg-card-hover)"
+              >
+                <Trash2 size={15} />
+                Verwijderen
+              </button>
+            </div>
+          )}
+
           {graphComp && (
             <GraphPanel
               title={COMPONENT_DEFS[graphComp.type].label}
@@ -1170,7 +1256,7 @@ export function CircuitEditor() {
               );
             })()}
         </div>
-        <InstrumentRail onInstrumentPointerDown={onPalettePointerDown} />
+        <InstrumentRail onInstrumentPointerDown={onPalettePointerDown} probeOn={!!probe} onToggleProbe={toggleProbe} />
       </div>
 
       {placing && (
