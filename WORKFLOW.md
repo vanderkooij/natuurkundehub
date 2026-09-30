@@ -22,13 +22,17 @@ natuurkundehub/
 │       └── grootheden.js             # Vraagdata — download via admin en upload naar GitHub
 ├── circuitsketch/                    # Eigen Vite/React-project — alleen circuitsketch/dist/ wordt gedeployed
 ├── formules-omschrijven/
-│   ├── index.html                    # Keuzemenu
-│   ├── uitleg/index.html             # Uitlegmodus (9 stappen, met de stapper)
-│   ├── oefenen/index.html            # Letterformules (5 levels + oplopende reeks, met stapmodus)
-│   ├── examenformules/index.html     # Formules uit het examenprogramma (met stapmodus)
+│   ├── index.html                    # Keuzemenu: eerst onderbouw of bovenbouw (#onderbouw / #bovenbouw)
+│   ├── uitleg/index.html             # Bovenbouw: uitlegmodus (9 stappen, met de stapper)
+│   ├── oefenen/index.html            # Bovenbouw: letterformules (5 levels + oplopende reeks, met stapmodus)
+│   ├── examenformules/index.html     # Bovenbouw: formules uit het examenprogramma (met stapmodus)
+│   ├── onderbouw/
+│   │   ├── uitleg/index.html         # Van vlek naar letter; ?spoor=plusmin geeft het plus-en-min-spoor
+│   │   └── oefenen/index.html        # Keer/delen of plus/min; 4 levels + extra level 5 (klas 3), met de stapper
 │   ├── css/stapper.css               # Opmaak van de stapper — gedeeld door uitleg en oefenen
 │   └── js/
-│       ├── stapper.js                # Stap-voor-stap vergelijking: parser, vereenvoudiger, animatie
+│       ├── stapper.js                # Stap-voor-stap vergelijking: parser, vereenvoudiger, animatie (ook onderbouwstand)
+│       ├── onderbouw.js              # Onderbouw: vlek, woordcontexten, opgavegenerators, invulcontrole
 │       ├── verify.js                 # Antwoordcontrole op gelijkwaardigheid (numeriek)
 │       ├── keyboard.js               # Rekenbalk en subscript-invoer
 │       └── katex-init.js             # KaTeX-weergave

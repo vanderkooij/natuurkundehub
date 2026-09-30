@@ -82,6 +82,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .mode-card--c .mode-btn{background:#8b5cf6}
 .mode-card--c .mode-btn:hover{background:#7c3aed;box-shadow:0 0 20px rgba(139,92,246,0.3)}
 
+.cards-grid--2{grid-template-columns:1fr 1fr;max-width:720px;margin-left:auto;margin-right:auto}
+a.mode-card{cursor:pointer}
+[hidden]{display:none!important}
+.mode-letter{align-self:flex-start}
+.laag-kop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 auto 18px}
+
+.laag-terug{font-size:13px;font-weight:600;color:var(--text-muted);text-decoration:none;transition:color .15s}
+.laag-terug:hover{color:var(--accent)}
+.laag-naam{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase}
 .explainer{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:24px 28px;font-size:14px;color:var(--text-secondary);line-height:1.7;text-align:center}
 .explainer strong{color:var(--text)}
 
@@ -96,7 +105,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 .explainer{animation-delay:.25s}
 
 @media(max-width:760px){
-  .cards-grid{grid-template-columns:1fr}
+  .cards-grid,.cards-grid--2{grid-template-columns:1fr}
   .app-header{padding:0 12px}
   .main{padding:28px 12px 60px}
   .mode-card{padding:28px 22px}
@@ -126,10 +135,78 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 <div class="main">
 
   <div class="hero">
-    <h1>Kies een <span class="grad">oefenmodus</span></h1>
-    <p>Oefen het omschrijven van formules — van stap-voor-stap uitleg tot de echte formules uit je examenprogramma.</p>
+    <h1>Formules <span class="grad">omschrijven</span></h1>
+    <p id="hero-tekst">Kies eerst of je in de onderbouw of in de bovenbouw zit.</p>
   </div>
 
+  <!-- Eerste keuze: onderbouw of bovenbouw. De keuze staat in de adresbalk
+       (#onderbouw of #bovenbouw), zodat de terugknop en de links vanuit de
+       subpagina's op de goede plek uitkomen. -->
+  <div class="cards-grid cards-grid--2" id="laag-keuze">
+    <a class="mode-card mode-card--c" href="#onderbouw">
+      <span class="mode-letter">KLAS 1 T/M 3</span>
+      <h2>Onderbouw</h2>
+      <p>Van een som met een vlek naar een formule met letters. Alleen keer en delen.</p>
+      <ul class="bullets">
+        <li>Een letter is een getal dat je nog niet weet</li>
+        <li>Snelheid, afstand en tijd</li>
+        <li>Stap voor stap, zonder toetsenbord</li>
+      </ul>
+      <span class="mode-btn">Naar onderbouw →</span>
+    </a>
+    <a class="mode-card" href="#bovenbouw">
+      <span class="mode-letter">HAVO EN VWO</span>
+      <h2>Bovenbouw</h2>
+      <p>Alle soorten formules, met haakjes, machten en wortels, en de formules uit het examenprogramma.</p>
+      <ul class="bullets">
+        <li>Uitleg met de stapper</li>
+        <li>Letterformules in vijf levels</li>
+        <li>Examenformules havo en vwo</li>
+      </ul>
+      <span class="mode-btn">Naar bovenbouw →</span>
+    </a>
+  </div>
+
+  <div class="laag" id="laag-onderbouw" hidden>
+    <div class="laag-kop"><a href="#" class="laag-terug">← andere keuze</a><span class="laag-naam">Onderbouw</span></div>
+    <div class="cards-grid">
+      <div class="mode-card mode-card--c" onclick="window.location='/formules-omschrijven/onderbouw/uitleg/'">
+        <span class="mode-letter">UITLEG</span>
+        <h2>Keer en delen</h2>
+        <p>Van een som met een vlek naar v = s / t. Waarom je een woord of een letter mag gebruiken voor een getal dat je nog niet weet.</p>
+        <ul class="bullets">
+          <li>Een som met een vlek</li>
+          <li>De weegschaal en het tegenovergestelde</li>
+          <li>Van snelheid naar v, van afstand naar s</li>
+        </ul>
+        <a href="/formules-omschrijven/onderbouw/uitleg/" class="mode-btn">Bekijk uitleg →</a>
+      </div>
+      <div class="mode-card mode-card--c" onclick="window.location='/formules-omschrijven/onderbouw/uitleg/?spoor=plusmin'">
+        <span class="mode-letter">UITLEG</span>
+        <h2>Plus en min</h2>
+        <p>Dezelfde opbouw met erbij en eraf: tijden, geld en afstanden die je bij elkaar optelt.</p>
+        <ul class="bullets">
+          <li>Hoe laat moet je weg?</li>
+          <li>Erbij en eraf zijn elkaars tegenovergestelde</li>
+          <li>Afstanden met een nummertje: s₁ en s₂</li>
+        </ul>
+        <a href="/formules-omschrijven/onderbouw/uitleg/?spoor=plusmin" class="mode-btn">Bekijk uitleg →</a>
+      </div>
+      <div class="mode-card" onclick="window.location='/formules-omschrijven/onderbouw/oefenen/'">
+        <h2>Oefenen</h2>
+        <p>Kies keer en delen of plus en min. Vier levels, van vlek tot letters, met de stapper. Typen hoeft niet.</p>
+        <ul class="bullets">
+          <li>Vlek, woorden, woord en letter, letters</li>
+          <li>Oplopende reeks: klim vanzelf omhoog</li>
+          <li>Extra level met vier letters voor klas 3</li>
+        </ul>
+        <a href="/formules-omschrijven/onderbouw/oefenen/" class="mode-btn">Start oefenen →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="laag" id="laag-bovenbouw" hidden>
+  <div class="laag-kop"><a href="#" class="laag-terug">← andere keuze</a><span class="laag-naam">Bovenbouw</span></div>
   <div class="cards-grid">
 
     <div class="mode-card mode-card--c" onclick="window.location='/formules-omschrijven/uitleg/'">
@@ -166,6 +243,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       <a href="/formules-omschrijven/examenformules/" class="mode-btn">Naar examenformules →</a>
     </div>
 
+  </div>
   </div>
 
 
@@ -208,6 +286,21 @@ function toggleTheme(){
   else if(window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
   else applyTheme('light');
 })();
+
+// Onderbouw of bovenbouw: volgt de hash in de adresbalk.
+function toonLaag(){
+  const laag=location.hash.replace('#','');
+  const geldig=laag==='onderbouw'||laag==='bovenbouw';
+  document.getElementById('laag-keuze').hidden=geldig;
+  document.getElementById('laag-onderbouw').hidden=laag!=='onderbouw';
+  document.getElementById('laag-bovenbouw').hidden=laag!=='bovenbouw';
+  document.getElementById('hero-tekst').textContent=
+    laag==='onderbouw'?'Begin met de uitleg, of ga meteen oefenen.':
+    laag==='bovenbouw'?'Van stap-voor-stap uitleg tot de echte formules uit je examenprogramma.':
+    'Kies eerst of je in de onderbouw of in de bovenbouw zit.';
+}
+window.addEventListener('hashchange',toonLaag);
+toonLaag();
 </script>
 </body>
 </html>

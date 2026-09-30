@@ -311,6 +311,27 @@ const SYMBOLEN = { Delta:'Δ', Omega:'Ω', Sigma:'Σ', Phi:'Φ', Lambda:'Λ', Ga
   kappa:'κ', lambda:'λ', mu:'μ', nu:'ν', xi:'ξ', pi:'π', rho:'ρ', sigma:'σ', tau:'τ',
   phi:'φ', chi:'χ', psi:'ψ', omega:'ω' };
 
+// Hoe een formule getoond wordt. De onderbouw zet hier eigen weergaven per naam
+// (een vlek, een woord, woord en symbool samen) en een ×-teken in plaats van ·.
+// Wordt per stapper gezet vlak voor het tekenen; zie initStapper.
+const STANDAARD_WEERGAVE = { namen: null, maal: '·', getal: null };
+let _weergave = STANDAARD_WEERGAVE;
+
+function metWeergave(weergave, fn){
+  const oud = _weergave;
+  _weergave = Object.assign({}, STANDAARD_WEERGAVE, weergave);
+  try { return fn(); } finally { _weergave = oud; }
+}
+
+function naamHTML(naam){
+  return (_weergave.namen && _weergave.namen[naam]) || toonNaam(naam);
+}
+
+// Getallen met een komma, zoals op school.
+function getalTekst(w){
+  return String(Math.round(w * 1e9) / 1e9).replace('.', ',');
+}
+
 function toonNaam(naam){
   const m = naam.match(/^([A-Za-z]+)_?([0-9A-Za-z]*)$/);
   if(!m) return naam;
@@ -326,9 +347,9 @@ function renderKnoop(n, wegSet, ouderRang){
     (ouderRang !== undefined && eigenRang < ouderRang) ? '<span class="haak">(</span>' + html + '<span class="haak">)</span>' : html;
 
   switch(n.t){
-    case 'var':  return '<span class="sym' + weg + '" data-id="' + n.id + '">' + toonNaam(n.naam) + '</span>';
-    case 'num':  return '<span class="sym' + weg + '" data-id="' + n.id + '">' + n.waarde + '</span>';
-    case 'mul':  return wikkel(renderKnoop(n.l, wegSet, RANG.mul) + '<span class="op">·</span>' + renderKnoop(n.r, wegSet, RANG.mul), RANG.mul);
+    case 'var':  return '<span class="sym' + weg + '" data-id="' + n.id + '">' + naamHTML(n.naam) + '</span>';
+    case 'num':  return '<span class="sym' + weg + '" data-id="' + n.id + '">' + (_weergave.getal ? _weergave.getal(n.waarde) : getalTekst(n.waarde)) + '</span>';
+    case 'mul':  return wikkel(renderKnoop(n.l, wegSet, RANG.mul) + '<span class="op">' + _weergave.maal + '</span>' + renderKnoop(n.r, wegSet, RANG.mul), RANG.mul);
     case 'add':  return wikkel(renderKnoop(n.l, wegSet, RANG.add) + '<span class="op">+</span>' + renderKnoop(n.r, wegSet, RANG.add), RANG.add);
     case 'sub':  return (n.l.t === 'num' && n.l.waarde === 0)
              ? wikkel('<span class="op">−</span>' + renderKnoop(n.r, wegSet, RANG.sub + 1), RANG.add)
@@ -362,6 +383,59 @@ function naarTekst(n, ouderRang){
              : haak(naarTekst(n.l, RANG.add) + '-' + naarTekst(n.r, RANG.sub + 1), RANG.add);
   }
   return '';
+}
+
+// Een hele vergelijking of een losse uitdrukking als HTML, in dezelfde opmaak als
+// de stapper (breuk met deelstreep). Voor opgaven en antwoordknoppen buiten de
+// stapper om.
+function toonVergelijking(tekst, weergave){
+  return metWeergave(weergave, () => {
+    const [l, r] = String(tekst).split('=');
+    return '<span class="kant">' + renderKnoop(parse(l)) + '</span>' +
+           '<span class="isgelijk">=</span>' +
+           '<span class="kant">' + renderKnoop(parse(r)) + '</span>';
+  });
+}
+
+function toonUitdrukking(tekst, weergave){
+  return metWeergave(weergave, () => renderKnoop(parse(tekst)));
+}
+
+/* ── Rekenen ────────────────────────────────────────────────────────── */
+
+// De waarde van een boom; `waarden` geeft de getallen voor de namen.
+function rekenWaarde(n, waarden){
+  switch(n.t){
+    case 'num':  return n.waarde;
+    case 'var':  return waarden && n.naam in waarden ? waarden[n.naam] : NaN;
+    case 'add':  return rekenWaarde(n.l, waarden) + rekenWaarde(n.r, waarden);
+    case 'sub':  return rekenWaarde(n.l, waarden) - rekenWaarde(n.r, waarden);
+    case 'mul':  return rekenWaarde(n.l, waarden) * rekenWaarde(n.r, waarden);
+    case 'div':  return rekenWaarde(n.l, waarden) / rekenWaarde(n.r, waarden);
+    case 'pow':  return Math.pow(rekenWaarde(n.l, waarden), n.n);
+    case 'sqrt': return Math.sqrt(rekenWaarde(n.l, waarden));
+  }
+  return NaN;
+}
+
+function alleenGetallen(n){
+  if(!n) return true;
+  if(n.t === 'var') return false;
+  return alleenGetallen(n.l) && alleenGetallen(n.r);
+}
+
+// Uitrekenen mag als er alleen getallen staan en er een net getal uitkomt: een
+// heel getal of hooguit twee cijfers achter de komma. Komt er iets als 0,333…
+// uit, dan blijft de breuk gewoon staan.
+function kanRekenen(n){
+  if(n.t === 'num' || !alleenGetallen(n)) return false;
+  const w = rekenWaarde(n);
+  return Number.isFinite(w) && Math.abs(w * 100 - Math.round(w * 100)) < 1e-9;
+}
+
+function rekenUit(n){
+  if(!kanRekenen(n)) return n;
+  return knoop('num', { waarde: Math.round(rekenWaarde(n) * 100) / 100 });
 }
 
 // Namen die als één geheel gelezen moeten worden; de rest van de letters staat
@@ -487,6 +561,22 @@ const BEWERKINGEN = {
   kwad:   { naam: 'kwadrateer beide kanten', teken: 'x²', operand: false,
             pas: z => knoop('pow', { l: z, n: 2 }) },
   wissel: { naam: 'verwissel de kanten', teken: '⇄', operand: false, wisselt: true },
+  reken:  { naam: 'reken uit', teken: 'reken uit', operand: false, direct: true,
+            pas: z => rekenUit(z) },
+};
+
+const BOVENBOUW_BEWERKINGEN = ['deel', 'maal', 'plus', 'min', 'tekens', 'wortel', 'kwad', 'wissel'];
+
+// De onderbouw krijgt alleen keer en delen, met woorden op de knoppen. Delen
+// staat er als woord: een dubbele punt of ÷ willen we daar niet.
+const ONDERBOUW_BEWERKINGEN = ['maal', 'deel', 'wissel'];
+const ONDERBOUW_TEKST = {
+  maal:   { knop: '× keer',      naam: 'doe allebei de kanten keer' },
+  deel:   { knop: 'delen door',  naam: 'deel allebei de kanten door' },
+  wissel: { knop: '⇄ omdraaien', naam: 'draai de kanten om' },
+  reken:  { knop: '= reken uit', naam: 'reken uit' },
+  plus:   { knop: '+ erbij',     naam: 'tel bij allebei de kanten op' },
+  min:    { knop: '− eraf',      naam: 'haal van allebei de kanten af' },
 };
 
 // De losse variabelen en getallen die in de vergelijking voorkomen, als operand.
@@ -538,6 +628,7 @@ function operanden(links, rechts){
 function doeStap(links, rechts, sleutel, operand){
   const b = BEWERKINGEN[sleutel];
   if(b.wisselt) return { links: kopie(rechts), rechts: kopie(links) };
+  if(b.direct) return { links: b.pas(kopie(links)), rechts: b.pas(kopie(rechts)) };
   const zet = (kant) => {
     let n = b.pas(kopie(kant), operand);
     n = verdeelWortels(n, []);
@@ -552,6 +643,21 @@ function initStapper(el){
   const startTekst = el.dataset.formule || 'x = a*b';
   const doel = el.dataset.doel || 'x';
   const [linkTekst, rechtTekst] = startTekst.split('=');
+
+  // Onderbouw: alleen keer en delen, ×-teken, knoppen met woorden. Met
+  // data-uitrekenen="1" staan er getallen in en ben je pas klaar als de andere
+  // kant één getal is. Eigen weergaven per naam gaan via el.stapperNamen.
+  const onderbouw = el.dataset.stijl === 'onderbouw';
+  const uitrekenen = el.dataset.uitrekenen === '1';
+  const weergave = { namen: el.stapperNamen || null, maal: onderbouw ? '×' : '·', getal: el.stapperGetal || null };
+  const lijst = el.dataset.bewerkingen ? el.dataset.bewerkingen.split(',')
+              : (onderbouw ? ONDERBOUW_BEWERKINGEN : BOVENBOUW_BEWERKINGEN).slice();
+  if(uitrekenen && lijst.indexOf('reken') < 0) lijst.push('reken');
+  const teken = (n, wegSet, rang) => metWeergave(weergave, () => renderKnoop(n, wegSet, rang));
+  const naamVan = naam => metWeergave(weergave, () => naamHTML(naam));
+  const tekst = sleutel => onderbouw && ONDERBOUW_TEKST[sleutel];
+  const bewNaam = sleutel => tekst(sleutel) ? tekst(sleutel).naam : BEWERKINGEN[sleutel].naam;
+  const bewKnop = sleutel => tekst(sleutel) ? tekst(sleutel).knop : BEWERKINGEN[sleutel].teken;
 
   let links, rechts, geschiedenis, klaar, gekozenBewerking;
 
@@ -568,6 +674,11 @@ function initStapper(el){
   operandRij.className = 'stapper-operanden';
   operandRij.hidden = true;
 
+  const melding = document.createElement('div');
+  melding.className = 'stapper-melding';
+  melding.hidden = true;
+  let laatsteStap = null;
+
   const voet = document.createElement('div');
   voet.className = 'stapper-voet';
 
@@ -576,20 +687,28 @@ function initStapper(el){
     links = parse(linkTekst);
     rechts = parse(rechtTekst);
     geschiedenis = [];
+    laatsteStap = null;
+    melding.hidden = true;
     klaar = false;
     gekozenBewerking = null;
     tekenAlles();
   }
 
-  function isKlaar(){
+  function staatAlleen(){
     return (links.t === 'var' && links.naam === doel && !bevat(rechts, doel))
         || (rechts.t === 'var' && rechts.naam === doel && !bevat(links, doel));
   }
 
+  // Bij uitrekenen moet de andere kant ook nog één getal zijn.
+  function isKlaar(){
+    if(!staatAlleen()) return false;
+    return !uitrekenen || links.t === 'num' || rechts.t === 'num';
+  }
+
   function regelHTML(l, r, wegSet){
-    return '<span class="kant">' + renderKnoop(l, wegSet) + '</span>' +
+    return '<span class="kant">' + teken(l, wegSet) + '</span>' +
            '<span class="isgelijk">=</span>' +
-           '<span class="kant">' + renderKnoop(r, wegSet) + '</span>';
+           '<span class="kant">' + teken(r, wegSet) + '</span>';
   }
 
   function voegRegelToe(html, klasse){
@@ -619,20 +738,22 @@ function initStapper(el){
         const knop = document.createElement('button');
         knop.type = 'button';
         knop.className = 'bew-btn';
-        knop.innerHTML = '<span class="bew-teken">' + BEWERKINGEN.wissel.teken + '</span>';
-        knop.title = BEWERKINGEN.wissel.naam;
+        knop.className += onderbouw ? ' woord' : '';
+        knop.innerHTML = '<span class="bew-teken">' + bewKnop('wissel') + '</span>';
+        knop.title = bewNaam('wissel');
         knop.onclick = () => pasToe('wissel', null);
         knoppen.appendChild(knop);
       }
       return;
     }
-    for(const sleutel in BEWERKINGEN){
-      const b = BEWERKINGEN[sleutel];
+    for(const sleutel of lijst){
+      // Uitrekenen kan alleen als er een kant is met alleen getallen.
+      if(sleutel === 'reken' && !kanRekenen(links) && !kanRekenen(rechts)) continue;
       const knop = document.createElement('button');
       knop.type = 'button';
-      knop.className = 'bew-btn' + (gekozenBewerking === sleutel ? ' actief' : '');
-      knop.innerHTML = '<span class="bew-teken">' + b.teken + '</span>';
-      knop.title = b.naam;
+      knop.className = 'bew-btn' + (gekozenBewerking === sleutel ? ' actief' : '') + (onderbouw ? ' woord' : '');
+      knop.innerHTML = '<span class="bew-teken">' + bewKnop(sleutel) + '</span>';
+      knop.title = bewNaam(sleutel);
       knop.onclick = () => kiesBewerking(sleutel);
       knoppen.appendChild(knop);
     }
@@ -640,18 +761,17 @@ function initStapper(el){
 
   function kiesBewerking(sleutel){
     const b = BEWERKINGEN[sleutel];
-    if(b.wisselt){ pasToe(sleutel, null); return; }
-    if(!b.operand){ pasToe(sleutel, null); return; }
+    if(b.wisselt || !b.operand){ pasToe(sleutel, null); return; }
     gekozenBewerking = (gekozenBewerking === sleutel) ? null : sleutel;
     tekenKnoppen();
     if(!gekozenBewerking){ operandRij.hidden = true; return; }
-    operandRij.innerHTML = '<span class="operand-label">' + BEWERKINGEN[sleutel].naam + '</span>';
+    operandRij.innerHTML = '<span class="operand-label">' + bewNaam(sleutel) + '</span>';
     for(const o of operanden(links, rechts)){
       const knop = document.createElement('button');
       knop.type = 'button';
       knop.className = 'operand-btn';
       knop.dataset.tekst = naarTekst(o);
-      knop.innerHTML = renderKnoop(o, null, RANG.mul);   // haakjes om een hele som
+      knop.innerHTML = teken(o, null, RANG.mul);   // haakjes om een hele som
       knop.onclick = () => pasToe(sleutel, o);
       operandRij.appendChild(knop);
     }
@@ -720,11 +840,13 @@ function initStapper(el){
   function pasToe(sleutel, operand){
     const b = BEWERKINGEN[sleutel];
     geschiedenis.push({ links, rechts });
+    laatsteStap = { sleutel: sleutel, operand: operand };
     gekozenBewerking = null;
 
-    if(b.wisselt){
-      const h = links; links = rechts; rechts = h;
-      voegRegelToe('<span class="stap-uitleg">' + b.naam + '</span>', 'uitleg');
+    if(b.wisselt || b.direct){
+      if(b.wisselt){ const h = links; links = rechts; rechts = h; }
+      else { links = b.pas(links); rechts = b.pas(rechts); }
+      voegRegelToe('<span class="stap-uitleg">' + bewNaam(sleutel) + '</span>', 'uitleg');
       voegRegelToe(regelHTML(links, rechts), 'nieuw');
       naStap();
       return;
@@ -732,7 +854,7 @@ function initStapper(el){
 
     const ruwLinks = b.pas(links, operand);
     const ruwRechts = b.pas(rechts, operand);
-    voegRegelToe('<span class="stap-uitleg">' + b.naam + (operand ? ' <b>' + renderKnoop(operand, null, RANG.mul) + '</b>' : '') + '</span>', 'uitleg');
+    voegRegelToe('<span class="stap-uitleg">' + bewNaam(sleutel) + (operand ? ' <b>' + teken(operand, null, RANG.mul) + '</b>' : '') + '</span>', 'uitleg');
 
     // Eerst de ruwe regel neerzetten, daarna pas bewerken: die functies passen de
     // boom ter plekke aan, dus na afloop is het ruwe beeld weg.
@@ -793,25 +915,58 @@ function initStapper(el){
     klaar = isKlaar();
     tekenKnoppen();
     tekenVoet();
+    tekenMelding();
     if(klaar) regels.lastChild.classList.add('gelukt');
     regels.lastChild.scrollIntoView({ block: 'nearest' });
     if(klaar && !wasKlaar){
       const antwoord = (links.t === 'var' && links.naam === doel) ? rechts : links;
       el.dispatchEvent(new CustomEvent('stapper-klaar', {
-        bubbles: true, detail: { doel: doel, antwoord: naarTekst(antwoord) }
+        bubbles: true, detail: { doel: doel, antwoord: naarTekst(antwoord), stappen: geschiedenis.length }
       }));
     }
+  }
+
+  // Onderbouw: een zacht seintje bij een route die voor een tweedeklasser
+  // verwarrend wordt. Er wordt niets geblokkeerd; stap terug kan altijd.
+  function bevatEen(n){
+    if(!n) return false;
+    if(n.t === 'num') return n.waarde === 1;
+    return bevatEen(n.l) || bevatEen(n.r);
+  }
+  function bevatMin(n){
+    if(!n) return false;
+    if(n.t === 'num') return n.waarde < 0;
+    if(n.t === 'sub' && n.l.t === 'num' && n.l.waarde === 0) return true;
+    return bevatMin(n.l) || bevatMin(n.r);
+  }
+  function tekenMelding(){
+    melding.hidden = true;
+    if(!onderbouw || klaar || !laatsteStap) return;
+    let tekst = '';
+    const metDoel = laatsteStap.operand && laatsteStap.operand.t === 'var' && laatsteStap.operand.naam === doel;
+    if(metDoel && (laatsteStap.sleutel === 'deel' || laatsteStap.sleutel === 'min'))
+      tekst = (laatsteStap.sleutel === 'deel' ? 'Je deelde door' : 'Je haalde eraf') + ' wat je zoekt. Zo raak je het juist kwijt. ' +
+              'Kijk liever wat er nog <b>bij</b> ' + naamVan(doel) + ' staat, en haal dat weg. Ga een stap terug.';
+    else if(bevatMin(links) || bevatMin(rechts))
+      tekst = 'Er staat nu een <b>min</b> voor. Dat kan wel, maar het wordt lastig. Ga een stap terug en kies iets anders.';
+    else if(bevatEen(links) || bevatEen(rechts))
+      tekst = 'Er staat nu een <b>1</b>. Dat komt doordat iets gedeeld door zichzelf 1 is, net als 6 gedeeld door 6. ' +
+              'Deze route kan wel, maar hij wordt lastig. Ga een stap terug en kies iets anders.';
+    if(!tekst) return;
+    melding.innerHTML = tekst;
+    melding.hidden = false;
   }
 
   function tekenVoet(){
     voet.innerHTML = '';
     const status = document.createElement('span');
     status.className = 'stapper-status' + (klaar ? ' gelukt' : '');
+    const wie = '<b>' + naamVan(doel) + '</b>';
     status.innerHTML = !klaar
-      ? 'Zoek: <b>' + toonNaam(doel) + '</b>'
+      ? (uitrekenen && staatAlleen() ? wie + ' staat alleen. Reken nu de andere kant uit.' : 'Zoek: ' + wie)
       : omgekeerdKlaar()
-        ? '<b>' + toonNaam(doel) + '</b> staat alleen. Draai hem nog om met ⇄, dan staat het antwoord er zoals je het opschrijft.'
-        : '<b>' + toonNaam(doel) + '</b> staat alleen. Klaar.';
+        ? wie + ' staat alleen. Draai hem nog om met ⇄, dan staat het antwoord er zoals je het opschrijft.'
+        : wie + ' staat alleen. Klaar.';
     voet.appendChild(status);
 
     const knoppenRechts = document.createElement('span');
@@ -822,6 +977,7 @@ function initStapper(el){
       terug.onclick = () => {
         const vorig = geschiedenis.pop();
         links = vorig.links; rechts = vorig.rechts; klaar = false;
+        laatsteStap = null; melding.hidden = true;
         regels.innerHTML = '';
         voegRegelToe(regelHTML(links, rechts));
         tekenKnoppen(); tekenVoet();
@@ -835,14 +991,27 @@ function initStapper(el){
     voet.appendChild(knoppenRechts);
   }
 
-  kop.innerHTML = 'Kies een bewerking. De stapper past hem op allebei de kanten toe en streept weg wat tegen elkaar wegvalt.';
+  kop.innerHTML = onderbouw
+    ? 'Kies wat je met allebei de kanten doet. Wat tegen elkaar wegvalt, wordt weggestreept.'
+    : 'Kies een bewerking. De stapper past hem op allebei de kanten toe en streept weg wat tegen elkaar wegvalt.';
   el.innerHTML = '';
   el.appendChild(kop);
   el.appendChild(regels);
   el.appendChild(knoppen);
   el.appendChild(operandRij);
+  el.appendChild(melding);
   el.appendChild(voet);
   begin();
+
+  // Van buitenaf één stap laten doen, met dezelfde animatie. Voor een
+  // keuzevraag in de uitleg: je ziet wat jouw keuze met de som doet.
+  el.stapperDoe = (sleutel, operandTekst) => {
+    let o = null;
+    if(operandTekst != null){
+      o = operanden(links, rechts).find(x => naarTekst(x) === operandTekst) || parse(operandTekst);
+    }
+    pasToe(sleutel, o);
+  };
 }
 
 function initStappers(root){
@@ -852,5 +1021,6 @@ function initStappers(root){
 if(typeof module !== 'undefined' && module.exports){
   module.exports = { parse, zelfde, vereenvoudig, vereenvoudigVolledig, verdeelWortels,
                      renderKnoop, naarTekst, formuleUitLatex, operanden, doeStap,
-                     BEWERKINGEN, bevat, knoop };
+                     BEWERKINGEN, bevat, knoop, toonVergelijking, toonUitdrukking,
+                     rekenWaarde, kanRekenen, rekenUit, alleenGetallen, getalTekst, toonNaam };
 }

@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uitleg onderbouw · Formules omschrijven · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/logo/JK_dark.svg" id="favicon">
+<link rel="stylesheet" href="../../css/stapper.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.1);
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --purple-dim:rgba(139,92,246,0.1);--purple-border:rgba(139,92,246,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+sup{font-size:.66em;line-height:0;vertical-align:super;font-weight:inherit}
+sub{font-size:.66em;line-height:0;vertical-align:sub;font-weight:inherit}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:800px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+
+.progress-track{height:6px;background:var(--accent-dim);border:1px solid var(--border-solid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-amber));transition:width .35s ease}
+.steps-row{display:flex;gap:6px;margin:14px 0 28px;flex-wrap:wrap}
+.step-chip{border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.step-chip:hover{border-color:var(--accent-border);color:var(--accent)}
+.step-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.step-chip.done{border-color:var(--accent-border);color:var(--accent)}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-size:clamp(21px,3.4vw,27px);font-weight:700;letter-spacing:-0.6px;margin-bottom:16px}
+
+.content p{line-height:1.7;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content p.small{font-size:13.5px;color:var(--text-muted)}
+.content strong{color:var(--text);font-weight:700}
+.content ul{padding-left:20px;line-height:1.8;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+
+.info-box{border-left:3px solid var(--accent-amber);background:var(--amber-dim);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+.info-box .info-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-box p{margin:0 0 8px;font-size:14px;color:var(--text-secondary);line-height:1.65}
+.info-box p:last-child{margin-bottom:0}
+.info-box--accent{border-left-color:var(--accent);background:var(--accent-dim)}
+.info-box--accent .info-title{color:var(--accent)}
+
+ol.rules-list{list-style:none;counter-reset:rule;margin:16px 0}
+ol.rules-list li{counter-increment:rule;position:relative;padding:11px 0 11px 40px;font-size:15px;line-height:1.6;color:var(--text-secondary);border-bottom:1px solid var(--border-solid)}
+ol.rules-list li:last-child{border-bottom:none}
+ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px;width:26px;height:26px;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);font-weight:700;font-size:12.5px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* Formules in de lopende tekst en in kaartjes */
+.f{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;font-size:17px;color:var(--text);margin:0 2px}
+.f .kant{display:inline-flex;align-items:center}
+.f-groot{display:flex;align-items:center;justify-content:center;gap:12px;font-size:26px;color:var(--text);padding:10px 0}
+.kaart{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:18px;margin:18px 0}
+.kaart-kop{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;text-align:center}
+
+.keuze-rij{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.keuze-btn{font-family:var(--font);font-size:16px;min-width:52px;padding:8px 14px;border-radius:10px;border:1.5px solid var(--border-solid);background:var(--bg-secondary);color:var(--text);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.keuze-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.keuze-btn.actief{background:var(--accent);border-color:var(--accent);color:#fff}
+.keuze-btn.goed{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.keuze-btn.fout{border-color:var(--red);background:var(--red-dim);color:var(--red);opacity:.7}
+.keuze-btn .vlek{color:inherit}
+.klein-btn{font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:14px;border:1px solid var(--border-solid);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.klein-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.controle{font-size:14px;line-height:1.9;color:var(--text-secondary);text-align:center;min-height:28px;padding:4px 8px;border-radius:8px}
+.controle.goed{color:var(--green);background:var(--green-dim)}
+.controle.fout{color:var(--red);background:var(--red-dim)}
+.controle-som{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;font-size:17px;margin:0 3px;color:var(--text)}
+.controle-som .kant{display:inline-flex;align-items:center}
+
+/* Probeer zelf: tussendoor oefenen in de uitleg */
+.probeer{border:1.5px solid var(--accent-amber);background:var(--bg-card);border-radius:12px;padding:16px 18px;margin:20px 0}
+.probeer-kop{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.probeer-kop .teller{color:var(--text-muted);font-weight:500;letter-spacing:.3px;text-transform:none}
+.probeer-vraag{font-size:15px;color:var(--text-secondary);line-height:1.7;text-align:center}
+.probeer-vraag .f{font-size:19px}
+.probeer .stapper{border:none;padding:4px 0 0;margin:6px 0 0;background:transparent}
+.probeer .stapper-kop{display:none}
+.stapper.demo[hidden]{display:none}
+.stapper.demo{border-top:1px dashed var(--border-solid);margin-top:10px;padding-top:6px}
+.stapper.demo .stapper-knoppen,.stapper.demo .stapper-operanden,.stapper.demo .stapper-voet,.stapper.demo .stapper-melding{display:none}
+.probeer-uitleg{font-size:14px;line-height:1.7;padding:8px 12px;border-radius:8px;margin-top:6px;text-align:center}
+.probeer-uitleg:empty{display:none}
+.probeer-uitleg.goed{color:var(--green);background:var(--green-dim)}
+.probeer-uitleg.fout{color:var(--red);background:var(--red-dim)}
+.probeer-voet{display:flex;justify-content:center;margin-top:8px}
+.paren{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.paar{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border:1px solid var(--border-solid);border-radius:10px;background:var(--bg-card);font-size:15px;font-weight:600;color:var(--text)}
+.paar .pijl{color:var(--accent-amber)}
+
+/* Rekenfamilie: drie sommen die bij elkaar horen */
+.familie{display:flex;flex-direction:column;gap:6px;align-items:center;margin:8px 0 6px}
+.familie-rij{display:flex;align-items:center;justify-content:center;gap:10px;font-size:22px;color:var(--text);padding:6px 18px;border-radius:10px;border:1.5px solid transparent;transition:all .25s;min-width:220px}
+.familie-rij.raak{border-color:var(--green);background:var(--green-dim)}
+.familie-rij .kant{display:inline-flex;align-items:center}
+.familie-label{font-size:12px;color:var(--green);font-weight:600;margin-left:6px;white-space:nowrap}
+
+/* Weegschaal */
+.balans{position:relative;width:320px;height:230px;margin:6px auto 0}
+.balans-arm{position:absolute;left:30px;top:66px;width:260px;height:6px;border-radius:3px;background:var(--text-secondary);transition:transform .6s cubic-bezier(.4,.1,.3,1)}
+.balans-as{position:absolute;left:153px;top:62px;width:14px;height:14px;border-radius:50%;background:var(--accent-amber)}
+.balans-voet{position:absolute;left:130px;top:72px;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:140px solid var(--border-solid)}
+.balans-grond{position:absolute;left:90px;top:210px;width:140px;height:6px;border-radius:3px;background:var(--border-solid)}
+.schaal{position:absolute;top:69px;width:120px;margin-left:-60px;display:flex;flex-direction:column;align-items:center;transition:transform .6s cubic-bezier(.4,.1,.3,1)}
+.schaal.links{left:30px}
+.schaal.rechts{left:290px}
+.schaal-touw{width:90px;height:30px}
+.schaal-touw line{stroke:var(--text-muted);stroke-width:1.5}
+.schaal-bak{min-width:110px;min-height:48px;padding:4px 8px 6px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:19px;color:var(--text);border-bottom:4px solid var(--text-secondary);border-radius:0 0 40px 40px;background:var(--bg-card)}
+.schaal-bak .kant{display:inline-flex;align-items:center}
+.schaal-waarde{font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:4px}
+.balans-melding{text-align:center;font-size:14px;font-weight:600;min-height:22px;margin:6px 0 10px}
+.balans-melding.goed{color:var(--green)}
+.balans-melding.scheef{color:var(--red)}
+
+table.letters{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:15px}
+table.letters th{font-family:var(--mono);font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--border-solid)}
+table.letters td{padding:10px;border-bottom:1px solid var(--border-solid);color:var(--text-secondary)}
+table.letters td.letter{font-size:22px;font-weight:600;color:var(--accent);width:70px;text-align:center}
+
+.cta-card{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:12px;padding:22px 24px;margin-top:22px;text-align:center}
+.cta-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.cta-card p{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+
+.nav-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.nav-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:#0999aa}
+.nav-btn.secondary{background:transparent;color:var(--accent)}
+.nav-btn.secondary:hover:not(:disabled){background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.step-count{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:center}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@media(prefers-reduced-motion:reduce){.balans-arm,.schaal,.familie-rij{transition:none}}
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .stapper-regel{font-size:18px;gap:8px}
+  .nav-btn{padding:11px 15px;font-size:13.5px}
+  .f-groot{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../../#onderbouw" class="crumb">Formules omschrijven</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Uitleg onderbouw</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Van vlek naar letter</h1>
+<p class="tool-sub">Een letter is een getal dat je nog niet weet</p>
+
+<div class="main">
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="steps-row" id="stepsRow"></div>
+
+  <div id="badgeSlot"></div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <div class="content" id="stepContent"></div>
+
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
+    <span class="step-count" id="stepCount"></span>
+    <button class="nav-btn" id="nextBtn">Volgende →</button>
+  </div>
+
+</div>
+
+<footer>
+  <img src="../../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script src="../../js/stapper.js"></script>
+<script src="../../js/onderbouw.js"></script>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../../assets/logo/JK_dark.svg';if(fl)fl.src='../../assets/logo/JK_white.svg';
+    if(fav)fav.href='../../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../../assets/logo/JK_light.svg';if(fl)fl.src='../../assets/logo/JK_black.svg';
+    if(fav)fav.href='../../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+// Twee sporen op één pagina: keer en delen (standaard) of plus en min
+// (?spoor=plusmin). De onderdelen zijn hetzelfde, de sommen en teksten niet.
+const PM=new URLSearchParams(location.search).get('spoor')==='plusmin';
+const SOORT=PM?'plusmin':'keerdeel';
+if(PM){
+  document.querySelector('.tool-name').textContent='Van vlek naar letter: plus en min';
+  document.title='Uitleg plus en min · Formules omschrijven · NatuurkundeHub';
+  document.querySelectorAll('.crumb')[1].textContent='Uitleg plus en min';
+}
+
+// Hoe namen in de formules getoond worden. Een stapper op de pagina kiest er
+// één met data-namen="...".
+const NAAMSETS={
+  vlek:{vlek:VLEK_SVG},
+  afstand:{afstand:vlekWoord('afstand')},
+  svt:{v:hybrideNaam('v','snelheid'),s:hybrideNaam('s','afstand'),t:hybrideNaam('t','tijd')},
+  vertrek:{vertrek:vlekWoord('vertrektijd')},
+  stukken:{s:hybrideNaam('s','totale afstand'),s_1:hybrideNaam(toonNaam('s_1'),'eerste stuk'),s_2:hybrideNaam(toonNaam('s_2'),'tweede stuk')},
+};
+const OB={maal:'×'};
+const F=(tekst,namen)=>'<span class="f">'+toonVergelijking(tekst,Object.assign({namen:namen===undefined?NAAMSETS.vlek:namen},OB))+'</span>';
+const U=(tekst,namen)=>'<span class="f">'+toonUitdrukking(tekst,Object.assign({namen:namen===undefined?NAAMSETS.vlek:namen},OB))+'</span>';
+
+// De weegschaal als HTML; `id` maakt hem uniek op de pagina.
+function balansHTML(id){
+  const touw='<svg class="schaal-touw" viewBox="0 0 90 30"><line x1="45" y1="0" x2="4" y2="30"/><line x1="45" y1="0" x2="86" y2="30"/></svg>';
+  return '<div class="balans"><div class="balans-voet"></div><div class="balans-grond"></div>'+
+    '<div class="balans-arm" id="'+id+'-arm"></div><div class="balans-as"></div>'+
+    '<div class="schaal links" id="'+id+'-l">'+touw+'<div class="schaal-bak" id="'+id+'-bak-l"></div><div class="schaal-waarde" id="'+id+'-w-l"></div></div>'+
+    '<div class="schaal rechts" id="'+id+'-r">'+touw+'<div class="schaal-bak" id="'+id+'-bak-r"></div><div class="schaal-waarde" id="'+id+'-w-r"></div></div>'+
+    '</div><div class="balans-melding" id="'+id+'-melding"></div><div class="keuze-rij" id="'+id+'-knoppen"></div>';
+}
+
+// Zet de weegschaal: inhoud van beide schalen, de waarden eronder en de hoek.
+function zetBalans(id,lHTML,rHTML,wl,wr){
+  document.getElementById(id+'-bak-l').innerHTML='<span class="kant">'+lHTML+'</span>';
+  document.getElementById(id+'-bak-r').innerHTML='<span class="kant">'+rHTML+'</span>';
+  document.getElementById(id+'-w-l').textContent=Number.isFinite(wl)?'= '+getalTekst(wl):'';
+  document.getElementById(id+'-w-r').textContent=Number.isFinite(wr)?'= '+getalTekst(wr):'';
+  // Zwaarste kant omlaag. Positieve hoek draait met de klok mee: rechts omlaag.
+  const hoek=(Number.isFinite(wl)&&Number.isFinite(wr))?(wl>wr?-9:wr>wl?9:0):0;
+  const dy=130*Math.sin(hoek*Math.PI/180);
+  document.getElementById(id+'-arm').style.transform='rotate('+hoek+'deg)';
+  document.getElementById(id+'-l').style.transform='translateY('+(-dy)+'px)';
+  document.getElementById(id+'-r').style.transform='translateY('+dy+'px)';
+  return hoek;
+}
+
+function zetBalansKnoppen(id,knoppen,actief){
+  const rij=document.getElementById(id+'-knoppen');
+  rij.innerHTML='';
+  knoppen.forEach(([sleutel,label,fn])=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='keuze-btn'+(sleutel===actief?' actief':'');
+    b.style.fontSize='14px';b.textContent=label;b.onclick=fn;
+    rij.appendChild(b);
+  });
+}
+
+// Een uitdrukking met sommige getallen weggestreept, zoals in de stapper.
+function metStreep(tekst,getal){
+  const boom=parse(tekst);
+  const weg=new Set();
+  (function zoek(n){if(!n)return;if(n.t==='num'&&n.waarde===getal)weg.add(n.id);zoek(n.l);zoek(n.r);})(boom);
+  return metWeergave(Object.assign({namen:NAAMSETS.vlek},OB),()=>renderKnoop(boom,weg));
+}
+
+/* ── Probeer zelf: een keuzevraag ──────────────────────────────────── */
+// Elke keuze heeft een eigen uitleg, ook de foute: juist daar leer je van.
+const KEUZES={
+  familie:{
+    vraag:()=>'Bij '+F('4 = 20/5')+' hoort ook:',
+    opties:[
+      {html:()=>F('20 = 4*5'),goed:true, uitleg:'Klopt: 4 keer 5 is 20. Dezelfde familie.'},
+      {html:()=>F('5 = 4/20'),goed:false,uitleg:'4 gedeeld door 20 is 0,2, en geen 5. Het grote getal hoort boven de deelstreep.'},
+      {html:()=>F('20 = 4/5'),goed:false,uitleg:'4 gedeeld door 5 is 0,8, en geen 20. Om 20 te krijgen doe je 4 keer 5.'},
+    ]},
+  balans:{
+    vraag:()=>'Op de weegschaal ligt links '+U('4*3')+' en rechts '+U('12')+'. Je deelt links door 3. Wat moet je rechts doen?',
+    opties:[
+      {html:()=>'ook delen door 3',goed:true, uitleg:'Ja: links wordt 4 en rechts ook 4. De weegschaal blijft recht.'},
+      {html:()=>'niets',          goed:false,uitleg:'Dan is links 4 en rechts nog 12. De weegschaal gaat scheef.'},
+      {html:()=>'keer 3',stap:['maal','3'],         goed:false,uitleg:'Dan is links 4 en rechts 36. Je moet aan allebei de kanten hetzelfde doen.'},
+    ]},
+  tegen1:{
+    eenStap:true,som:'vlek/5 = 3',doel:'vlek',namen:'vlek',bew:'maal,deel,wissel',
+    vraag:()=>F('vlek/5 = 3')+'<br>Wat doe je met allebei de kanten om de vlek vrij te maken?',
+    opties:[
+      {html:()=>'keer 5',stap:['maal','5'],       goed:true, uitleg:'Ja. Bij de vlek staat "gedeeld door 5". Het tegenovergestelde is keer 5. Dan blijft de vlek over: vlek = 15.'},
+      {html:()=>'delen door 5',stap:['deel','5'], goed:false,uitleg:'Dan deel je nog een keer door 5. De 5 gaat dan niet weg, er komt er juist een bij.'},
+      {html:()=>'keer 3',       goed:false,uitleg:'De 3 staat niet bij de vlek. Kijk naar wat er bij de vlek staat: gedeeld door 5.'},
+    ]},
+  tegen2:{
+    eenStap:true,som:'4*vlek = 20',doel:'vlek',namen:'vlek',bew:'maal,deel,wissel',
+    vraag:()=>F('4*vlek = 20')+'<br>Wat doe je met allebei de kanten?',
+    opties:[
+      {html:()=>'delen door 4',stap:['deel','4'], goed:true, uitleg:'Ja. Bij de vlek staat "keer 4". Het tegenovergestelde is delen door 4. Dan staat er vlek = 5.'},
+      {html:()=>'delen door 20',stap:['deel','20'],goed:false,uitleg:'De 20 staat niet bij de vlek. Die laat je staan; je haalt weg wat bij de vlek staat.'},
+      {html:()=>'keer 4',stap:['maal','4'],       goed:false,uitleg:'Dan staat er 4 × 4 × vlek. De 4 gaat niet weg. Het tegenovergestelde van keer is delen.'},
+    ]},
+  onder:{
+    som:'v = s/t',doel:'t',namen:'',bew:'maal,deel,wissel',
+    vraag:()=>F('v = s/t',null)+'<br>Je zoekt <b>t</b>. Wat doe je als eerste?',
+    opties:[
+      {html:()=>'keer t',stap:['maal','t'],        goed:true, uitleg:'Ja. Bij t staat nu "gedeeld door t": t staat onder de deelstreep. Het tegenovergestelde is keer t. Dan valt de t onder de streep weg en staat t links boven.'},
+      {html:()=>'delen door v',stap:['deel','v'],  goed:false,uitleg:'Dan verdwijnt de v links, maar t staat rechts nog steeds onder de deelstreep. Je bent nog niet verder.'},
+      {html:()=>'delen door s',stap:['deel','s'],  goed:false,uitleg:'De s staat niet in de weg van t. En s gedeeld door s is 1, dus je krijgt een 1 erbij. Dat maakt het alleen lastiger.'},
+    ]},
+};
+
+function tekenKeuze(el){
+  const k=KEUZES[el.dataset.keuze];
+  el.innerHTML='<div class="probeer-kop">Probeer zelf</div><div class="probeer-vraag">'+k.vraag()+'</div>'+
+    '<div class="keuze-rij"></div><div class="stapper demo" hidden></div><div class="probeer-uitleg"></div>';
+  const rij=el.querySelector('.keuze-rij'),uitleg=el.querySelector('.probeer-uitleg'),demo=el.querySelector('.stapper.demo');
+  // Toon wat de stap doet: stapper opnieuw op de beginsom, dan de stap.
+  let demoTimers=[];
+  const doeVoor=(stap,goed)=>{
+    demoTimers.forEach(clearTimeout);
+    demo.hidden=false;
+    demo.dataset.formule=k.som;demo.dataset.doel=k.doel;demo.dataset.stijl='onderbouw';
+    demo.dataset.bewerkingen=k.bew;
+    demo.stapperNamen=NAAMSETS[k.namen]||null;
+    initStapper(demo);
+    demoTimers=[setTimeout(()=>demo.stapperDoe(stap[0],stap[1]),250)];
+    // Goed gekozen en in één stap klaar: ook meteen uitrekenen, dan zie je de uitkomst.
+    if(goed&&k.eenStap)demoTimers.push(setTimeout(()=>demo.stapperDoe('reken'),3000));
+  };
+  k.opties.forEach(o=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='keuze-btn';b.innerHTML=o.html();
+    b.onclick=()=>{
+      rij.querySelectorAll('.keuze-btn').forEach(x=>x.classList.remove('goed','fout'));
+      b.classList.add(o.goed?'goed':'fout');
+      uitleg.textContent=o.uitleg;
+      uitleg.className='probeer-uitleg '+(o.goed?'goed':'fout');
+      if(o.stap)doeVoor(o.stap,o.goed);
+    };
+    rij.appendChild(b);
+  });
+}
+
+/* ── Probeer zelf: sommen met de stapper ───────────────────────────── */
+// Een nieuwe som van hetzelfde level als in het oefenen, steeds opnieuw.
+const PROBEER_TEKST={
+  1:o=>'Maak de vlek vrij en reken uit wat eronder zit.',
+  2:o=>o.vraag,
+  3:o=>'Maak <b>'+o.woorden[o.doel]+' ('+o.doel+')</b> vrij.',
+  4:o=>'Maak <b>'+o.doel+'</b> vrij.',
+};
+function tekenProbeerStapper(el){
+  const n=Number(el.dataset.niveau);
+  let gelukt=0,recent=[];
+  el.innerHTML='<div class="probeer-kop">Probeer zelf<span class="teller"></span></div>'+
+    '<div class="probeer-vraag"></div><div class="stapper"></div><div class="probeer-uitleg"></div>'+
+    '<div class="probeer-voet"><button class="klein-btn">nieuwe som</button></div>';
+  const vraag=el.querySelector('.probeer-vraag'),st=el.querySelector('.stapper'),
+        uitleg=el.querySelector('.probeer-uitleg'),teller=el.querySelector('.teller');
+  let o;
+  function nieuw(){
+    o=maakOpgave(n,recent.slice(-3),SOORT);recent.push(o.sleutel);
+    vraag.innerHTML=PROBEER_TEKST[n](o);
+    st.dataset.formule=o.formule;st.dataset.doel=o.doel;st.dataset.stijl='onderbouw';
+    st.dataset.bewerkingen=(PM?'plus,min':'maal,deel')+',wissel';
+    if(n<=2)st.dataset.uitrekenen='1';else delete st.dataset.uitrekenen;
+    st.stapperNamen=o.namen;
+    st.stapperGetal=o.getal||null;
+    initStapper(st);
+    uitleg.textContent='';uitleg.className='probeer-uitleg';
+  }
+  st.addEventListener('stapper-klaar',e=>{
+    gelukt++;
+    teller.textContent=gelukt+' gelukt';
+    const kort=(kortsteRoute(o.formule,o.doel,n<=2,5,o.bewerkingen)||{}).stappen;
+    uitleg.innerHTML=(n<=2?invulControle(o.formule,o.doel,o.goed,o.getal).html:'Goed zo.')+
+      (kort&&e.detail.stappen>kort?' Het kan ook in '+kort+' stappen.':'');
+    uitleg.className='probeer-uitleg goed';
+  });
+  el.querySelector('.probeer-voet button').onclick=nieuw;
+  nieuw();
+}
+
+const STEPS_KD=[
+{
+  badge:'De vlek',
+  title:'Een vlek op je som',
+  html:`
+    <p>Er is een vlek op je som gekomen. Eén getal kun je niet meer lezen:</p>
+    <div class="kaart">
+      <div class="f-groot" id="puzzel-som"></div>
+      <div class="kaart-kop">Welk getal zit er onder de vlek?</div>
+      <div class="keuze-rij" id="puzzel-keuze"></div>
+      <div class="controle" id="puzzel-controle"></div>
+      <div class="keuze-rij"><button class="klein-btn" id="puzzel-nieuw">nieuwe som</button></div>
+    </div>
+    <p>Je weet niet meteen wat er onder de vlek staat, maar je kunt het wel <strong>uitzoeken</strong>. Kies maar eens een fout getal: je ziet dan dat de som niet meer klopt. Probeer er een paar met <em>nieuwe som</em>.</p>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Onthoud</div>
+      <p>Onder de vlek zit gewoon een getal. We weten alleen nog niet welk.</p>
+    </div>
+  `
+},
+{
+  badge:'Familie',
+  title:'Drie sommen in één',
+  html:`
+    <p>Als ${F('2 = 6/3')} klopt, dan weet je meteen nog twee dingen:</p>
+    <ul>
+      <li>${F('6 = 2*3')}</li>
+      <li>${F('3 = 6/2')}</li>
+    </ul>
+    <p>Deze drie sommen horen bij elkaar. Het is steeds hetzelfde verhaal, alleen anders opgeschreven.</p>
+    <div class="kaart">
+      <div class="kaart-kop">Zet de vlek op een van de getallen. In één van de drie sommen staat de vlek dan alleen, en daar lees je hem meteen af.</div>
+      <div class="keuze-rij" id="fam-keuze"></div>
+      <div class="familie" id="fam-rijen"></div>
+      <div class="keuze-rij"><button class="klein-btn" id="fam-nieuw">andere getallen</button></div>
+    </div>
+    <div class="probeer" data-keuze="familie"></div>
+    <div class="info-box">
+      <div class="info-title">Het idee</div>
+      <p>Staat de vlek op een lastige plek, zoek dan de som uit dezelfde familie waarin de vlek alleen staat. Die som hoef je alleen nog uit te rekenen.</p>
+    </div>
+  `
+},
+{
+  badge:'Weegschaal',
+  title:'Het isgelijkteken is een weegschaal',
+  html:`
+    <p>Links van het isgelijkteken staat evenveel als rechts. Je kunt het zien als een <strong>weegschaal in evenwicht</strong>.</p>
+    <div class="kaart">${balansHTML('bal')}</div>
+    <p>Doe je aan één kant iets, dan raakt de weegschaal uit evenwicht. Doe je <strong>aan allebei de kanten hetzelfde</strong>, dan blijft hij recht.</p>
+    <div class="probeer" data-keuze="balans"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">De regel</div>
+      <p>Wat je links doet, doe je ook rechts. Dan blijft de som kloppen.</p>
+    </div>
+  `
+},
+{
+  badge:'Tegenovergestelde',
+  title:'Het tegenovergestelde doen',
+  html:`
+    <p>Nu ligt de vlek op de weegschaal. Je wilt weten wat eronder zit. Daarvoor moet de vlek <strong>alleen</strong> op zijn schaal komen te liggen.</p>
+    <div class="kaart">${balansHTML('tegen')}</div>
+    <p>Bij de vlek stond nog "keer 3". Dat haal je weg met het <strong>tegenovergestelde</strong>: delen door 3. En omdat het een weegschaal is, doe je dat aan allebei de kanten.</p>
+    <div class="paren">
+      <span class="paar">keer <span class="pijl">⇄</span> delen door</span>
+    </div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">De kern</div>
+      <p>Je doet het tegenovergestelde met wat je <strong>al weet</strong>, zodat alleen overblijft wat je <strong>niet weet</strong>. De vlek zelf laat je met rust.</p>
+    </div>
+    <div class="probeer" data-keuze="tegen2"></div>
+    <div class="probeer" data-keuze="tegen1"></div>
+  `
+},
+{
+  badge:'Stapper',
+  title:'Stap voor stap met de stapper',
+  html:`
+    <p>De stapper doet precies wat je net op de weegschaal deed. Jij kiest wat je met allebei de kanten doet; de stapper schrijft het op en streept weg wat tegen elkaar wegvalt.</p>
+    <p>Dezelfde som als op de weegschaal. Bij de vlek staat "keer 3". Kies <strong>delen door</strong> en dan de 3. Is de vlek alleen, dan reken je de andere kant uit.</p>
+    <div class="stapper" data-formule="3*vlek = 12" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+    <p>Nu een lastigere. Hier staat de vlek <strong>onder de deelstreep</strong>:</p>
+    <div class="f-groot">${F('2 = 6/vlek')}</div>
+    <p>Wat staat er bij de vlek? Er staat "6 gedeeld door de vlek". De vlek wegdelen kan dus niet: hij deelt zelf al. Het tegenovergestelde van delen door de vlek is <strong>keer de vlek</strong>. Daarmee valt de vlek onder de streep weg en komt hij boven te staan. Daarna is het net als hierboven.</p>
+    <div class="stapper" data-formule="2 = 6/vlek" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+    <div class="info-box">
+      <div class="info-title">Twee stappen</div>
+      <p>Staat wat je zoekt onder de deelstreep, dan heb je twee stappen nodig: eerst naar boven halen met keer, daarna weghalen wat er nog bij staat.</p>
+    </div>
+    <div class="probeer" data-niveau="1"></div>
+  `
+},
+{
+  badge:'Woorden',
+  title:'De vlek krijgt een naam',
+  html:`
+    <p>Bij natuurkunde ken je al een som met woorden erin:</p>
+    <div class="f-groot" id="woordformule"></div>
+    <p>Een fietser rijdt 20 seconden lang met een snelheid van 5 m/s. Hoe groot is de afstand?</p>
+    <p>Vul in wat je weet. De afstand weet je niet: dat is de vlek. Alleen heeft de vlek nu een <strong>naam</strong>. De afstand staat boven de deelstreep, met "gedeeld door 20" erbij. Wat is daar het tegenovergestelde van?</p>
+    <div class="stapper" data-formule="5 = afstand/20" data-doel="afstand" data-stijl="onderbouw" data-uitrekenen="1" data-namen="afstand"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Onthoud</div>
+      <p>Een woord in een formule staat voor een getal. Als je het getal weet, vul je het in. Weet je het niet, dan is het de vlek die je gaat uitzoeken.</p>
+    </div>
+    <div class="probeer" data-niveau="2"></div>
+  `
+},
+{
+  badge:'Letters',
+  title:'Een letter in plaats van een woord',
+  html:`
+    <p>Woorden opschrijven kost veel ruimte. Daarom gebruiken we <strong>letters</strong>. Elke letter hoort bij één woord:</p>
+    <table class="letters">
+      <tr><th>Woord</th><th>Letter</th><th>Waar komt de letter vandaan?</th></tr>
+      <tr><td>snelheid</td><td class="letter">v</td><td>Latijn: <em>velocitas</em>, snelheid</td></tr>
+      <tr><td>afstand</td><td class="letter">s</td><td>Latijn: <em>spatium</em>, ruimte of afstand</td></tr>
+      <tr><td>tijd</td><td class="letter">t</td><td>Latijn: <em>tempus</em>, tijd</td></tr>
+    </table>
+    <div class="info-box">
+      <div class="info-title">Let op</div>
+      <p>De <strong>s</strong> is van afstand, niet van snelheid. Snelheid is de <strong>v</strong>. De letters komen niet uit het Engels maar uit het Latijn, en eigenlijk maakt het niet uit welke letter het is. Het is een afspraak, zodat iedereen op de wereld dezelfde formule opschrijft.</p>
+    </div>
+    <p>Hieronder staan de letter en het woord nog samen. Zoek de afstand. Wat staat er bij de s? "Gedeeld door t". Het tegenovergestelde daarvan ken je.</p>
+    <div class="stapper" data-formule="v = s/t" data-doel="s" data-stijl="onderbouw" data-namen="svt"></div>
+    <p class="small">Er staan nu geen getallen meer in. Het antwoord is dus geen getal, maar een nieuwe formule: zo reken je de afstand uit als je de snelheid en de tijd weet.</p>
+    <div class="probeer" data-niveau="3"></div>
+  `
+},
+{
+  badge:'Alleen letters',
+  title:'Alleen nog letters',
+  html:`
+    <p>Nu laten we de woorden weg. Er verandert niets: elke letter is nog steeds een getal dat je (nog) niet weet.</p>
+    <p>Deze keer zoek je de tijd. Die staat <strong>onder de deelstreep</strong>, net als de vlek in ${F('2 = 6/vlek')}. Denk eerst na voordat je begint:</p>
+    <div class="probeer" data-keuze="onder"></div>
+    <p>Probeer het nu met de stapper: eerst keer t, daarna weghalen wat er nog bij t staat.</p>
+    <div class="stapper" data-formule="v = s/t" data-doel="t" data-stijl="onderbouw"></div>
+    <div class="info-box">
+      <div class="info-title">Net als bij de vlek</div>
+      <p>Staat wat je zoekt onder de deelstreep, haal het dan eerst naar boven: doe allebei de kanten keer die letter. Daarna deel je weg wat er nog naast staat.</p>
+    </div>
+    <div class="probeer" data-niveau="4"></div>
+  `
+},
+{
+  badge:'Zelf doen',
+  title:'Alles door elkaar',
+  html:`
+    <p>Kies een som en maak zelf vrij wat je zoekt. Zit je vast, dan kun je altijd een stap terug.</p>
+    <div class="keuze-rij" id="vrije-keuze"></div>
+    <div class="stapper" id="vrije-stapper" data-formule="2 = 6/vlek" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+  `
+},
+{
+  badge:'Samenvatting',
+  title:'Aan de slag',
+  html:`
+    <p>Op een rijtje wat je nu weet:</p>
+    <ol class="rules-list">
+      <li>Een vlek, een woord of een letter staat voor een <strong>getal dat je nog niet weet</strong>.</li>
+      <li>Het isgelijkteken is een weegschaal: links staat evenveel als rechts.</li>
+      <li>Wat je links doet, doe je ook <strong>rechts</strong>.</li>
+      <li>Doe het <strong>tegenovergestelde</strong> met wat je al weet: keer haal je weg met delen, delen haal je weg met keer.</li>
+      <li>Wat je zoekt laat je met rust. Je haalt weg wat er <strong>bij</strong> staat.</li>
+      <li>Staat wat je zoekt onder de deelstreep, haal het dan eerst naar boven met keer.</li>
+      <li>De s is afstand, de v is snelheid en de t is tijd.</li>
+      <li>Je bent klaar als wat je zoekt alleen staat.</li>
+    </ol>
+    <div class="cta-card">
+      <h3>Nu zelf oefenen</h3>
+      <p>Begin met vlekkensommen en klim op naar formules met alleen letters.</p>
+      <a href="../oefenen/" class="cta-btn">Oefenen →</a>
+    </div>
+  `
+}
+];
+
+/* ── Plus en min: keuzevragen en stappen ──────────────────────────── */
+Object.assign(KEUZES,{
+  familie_pm:{
+    vraag:()=>'Bij '+F('12 = 7+5')+' hoort ook:',
+    opties:[
+      {html:()=>F('7 = 12-5'),goed:true, uitleg:'Klopt: 12 min 5 is 7. Dezelfde familie.'},
+      {html:()=>F('5 = 7-12'),goed:false,uitleg:'7 min 12 kan niet zomaar: dan kom je onder de nul uit. Het totaal, 12, staat vooraan.'},
+      {html:()=>F('12 = 7-5'),goed:false,uitleg:'7 min 5 is 2, en geen 12. Om 12 te krijgen tel je 7 en 5 op.'},
+    ]},
+  balans_pm:{
+    vraag:()=>'Op de weegschaal ligt links '+U('8+2')+' en rechts '+U('10')+'. Je haalt links 2 eraf. Wat moet je rechts doen?',
+    opties:[
+      {html:()=>'ook 2 eraf',goed:true, uitleg:'Ja: links wordt 8 en rechts ook 8. De weegschaal blijft recht.'},
+      {html:()=>'niets',     goed:false,uitleg:'Dan is links 8 en rechts nog 10. De weegschaal gaat scheef.'},
+      {html:()=>'2 erbij',   goed:false,uitleg:'Dan is links 8 en rechts 12. Je moet aan allebei de kanten hetzelfde doen.'},
+    ]},
+  tegen_pm1:{
+    eenStap:true,som:'vlek-5 = 12',doel:'vlek',namen:'vlek',bew:'plus,min,wissel',
+    vraag:()=>F('vlek-5 = 12')+'<br>Wat doe je met allebei de kanten om de vlek vrij te maken?',
+    opties:[
+      {html:()=>'5 erbij',stap:['plus','5'], goed:true, uitleg:'Ja. Bij de vlek staat "min 5". Het tegenovergestelde is 5 erbij. Dan staat er vlek = 17.'},
+      {html:()=>'5 eraf',stap:['min','5'],  goed:false,uitleg:'Dan haal je er nog eens 5 af. De 5 gaat niet weg, er komt er juist een bij.'},
+      {html:()=>'12 erbij',stap:['plus','12'],goed:false,uitleg:'De 12 staat niet bij de vlek. Kijk naar wat er bij de vlek staat: min 5.'},
+    ]},
+  tegen_pm2:{
+    eenStap:true,som:'vlek+7 = 20',doel:'vlek',namen:'vlek',bew:'plus,min,wissel',
+    vraag:()=>F('vlek+7 = 20')+'<br>Wat doe je met allebei de kanten?',
+    opties:[
+      {html:()=>'7 eraf',stap:['min','7'],  goed:true, uitleg:'Ja. Bij de vlek staat "plus 7". Het tegenovergestelde is 7 eraf. Dan staat er vlek = 13.'},
+      {html:()=>'20 eraf',stap:['min','20'],stap:['min','20'], goed:false,uitleg:'De 20 staat niet bij de vlek. Die laat je staan; je haalt weg wat bij de vlek staat.'},
+      {html:()=>'7 erbij',stap:['plus','7'], goed:false,uitleg:'Dan staat er vlek + 7 + 7. De 7 gaat niet weg. Het tegenovergestelde van erbij is eraf.'},
+    ]},
+  onder_pm:{
+    som:'20 = 30-vlek',doel:'vlek',namen:'vlek',bew:'plus,min,wissel',
+    vraag:()=>F('20 = 30-vlek')+'<br>Er staat <b>min</b> de vlek. Wat doe je als eerste?',
+    opties:[
+      {html:()=>'de vlek erbij',stap:['plus','vlek'],goed:true, uitleg:'Ja. Bij de vlek staat "min". Het tegenovergestelde is de vlek erbij tellen. Dan staat er 20 + vlek = 30, zonder min voor de vlek.'},
+      {html:()=>'30 eraf',stap:['min','30'],      goed:false,uitleg:'Dan staat er links 20 min 30 en rechts min de vlek. Een min voor de vlek: dat wordt lastig.'},
+      {html:()=>'20 eraf',      goed:false,uitleg:'Dan staat er 0 = 30 min 20 min de vlek. De vlek heeft nog steeds een min ervoor.'},
+    ]},
+});
+
+const STEPS_PM=[
+{
+  badge:'De vlek',
+  title:'Een vlek op je som',
+  html:`
+    <p>Er is een vlek op je som gekomen. Eén getal kun je niet meer lezen:</p>
+    <div class="kaart">
+      <div class="f-groot" id="puzzel-som"></div>
+      <div class="kaart-kop">Welk getal zit er onder de vlek?</div>
+      <div class="keuze-rij" id="puzzel-keuze"></div>
+      <div class="controle" id="puzzel-controle"></div>
+      <div class="keuze-rij"><button class="klein-btn" id="puzzel-nieuw">nieuwe som</button></div>
+    </div>
+    <p>Kies maar eens een fout getal: je ziet dan dat de som niet meer klopt. Probeer er een paar met <em>nieuwe som</em>.</p>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Onthoud</div>
+      <p>Onder de vlek zit gewoon een getal. We weten alleen nog niet welk.</p>
+    </div>
+  `
+},
+{
+  badge:'Familie',
+  title:'Drie sommen in één',
+  html:`
+    <p>Als ${F('10 = 6+4')} klopt, dan weet je meteen nog twee dingen:</p>
+    <ul>
+      <li>${F('6 = 10-4')}</li>
+      <li>${F('4 = 10-6')}</li>
+    </ul>
+    <p>Deze drie sommen horen bij elkaar. Het totaal staat bij de min altijd vooraan.</p>
+    <div class="kaart">
+      <div class="kaart-kop">Zet de vlek op een van de getallen. In één van de drie sommen staat de vlek dan alleen, en daar lees je hem meteen af.</div>
+      <div class="keuze-rij" id="fam-keuze"></div>
+      <div class="familie" id="fam-rijen"></div>
+      <div class="keuze-rij"><button class="klein-btn" id="fam-nieuw">andere getallen</button></div>
+    </div>
+    <div class="probeer" data-keuze="familie_pm"></div>
+  `
+},
+{
+  badge:'Weegschaal',
+  title:'Het isgelijkteken is een weegschaal',
+  html:`
+    <p>Links van het isgelijkteken staat evenveel als rechts. Je kunt het zien als een <strong>weegschaal in evenwicht</strong>.</p>
+    <div class="kaart">${balansHTML('bal')}</div>
+    <p>Leg je aan één kant iets bij, dan raakt de weegschaal uit evenwicht. Doe je <strong>aan allebei de kanten hetzelfde</strong>, dan blijft hij recht.</p>
+    <div class="probeer" data-keuze="balans_pm"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">De regel</div>
+      <p>Wat je links doet, doe je ook rechts. Dan blijft de som kloppen.</p>
+    </div>
+  `
+},
+{
+  badge:'Tegenovergestelde',
+  title:'Het tegenovergestelde doen',
+  html:`
+    <p>Nu ligt de vlek op de weegschaal. Je wilt weten wat eronder zit. Daarvoor moet de vlek <strong>alleen</strong> op zijn schaal komen te liggen.</p>
+    <div class="kaart">${balansHTML('tegen')}</div>
+    <p>Bij de vlek stond nog "plus 4". Dat haal je weg met het <strong>tegenovergestelde</strong>: 4 eraf. En omdat het een weegschaal is, doe je dat aan allebei de kanten.</p>
+    <div class="paren">
+      <span class="paar">erbij <span class="pijl">⇄</span> eraf</span>
+    </div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">De kern</div>
+      <p>Je doet het tegenovergestelde met wat je <strong>al weet</strong>, zodat alleen overblijft wat je <strong>niet weet</strong>. De vlek zelf laat je met rust.</p>
+    </div>
+    <div class="probeer" data-keuze="tegen_pm2"></div>
+    <div class="probeer" data-keuze="tegen_pm1"></div>
+  `
+},
+{
+  badge:'Stapper',
+  title:'Stap voor stap met de stapper',
+  html:`
+    <p>De stapper doet precies wat je net op de weegschaal deed. Jij kiest wat je met allebei de kanten doet; de stapper schrijft het op en streept weg wat tegen elkaar wegvalt.</p>
+    <p>Dezelfde som als op de weegschaal. Bij de vlek staat "plus 4". Kies <strong>eraf</strong> en dan de 4. Is de vlek alleen, dan reken je de andere kant uit.</p>
+    <div class="stapper" data-formule="vlek+4 = 10" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+    <p>Nu een lastigere. Hier staat er <strong>min de vlek</strong>:</p>
+    <div class="f-groot">${F('20 = 30-vlek')}</div>
+    <div class="probeer" data-keuze="onder_pm"></div>
+    <p>Probeer het nu met de stapper: eerst de vlek erbij, daarna weghalen wat er nog bij de vlek staat.</p>
+    <div class="stapper" data-formule="20 = 30-vlek" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+    <div class="info-box">
+      <div class="info-title">Twee stappen</div>
+      <p>Staat er min voor wat je zoekt, dan heb je twee stappen nodig: eerst erbij tellen zodat de min weg is, daarna weghalen wat er nog bij staat.</p>
+    </div>
+    <div class="probeer" data-niveau="1"></div>
+  `
+},
+{
+  badge:'Woorden',
+  title:'De vlek krijgt een naam',
+  html:`
+    <p>Met tijden reken je ook met plus en min:</p>
+    <div class="f-groot" id="woordformule"></div>
+    <p>Je wilt om 15:00 bij de sportclub zijn. Je fietst er 28 minuten over. Hoe laat moet je weg?</p>
+    <p>Vul in wat je weet. De vertrektijd weet je niet: dat is de vlek. Alleen heeft de vlek nu een <strong>naam</strong>. Wat staat er bij de vertrektijd? "Plus 28". Wat is daar het tegenovergestelde van?</p>
+    <div class="stapper" data-formule="900 = vertrek+28" data-doel="vertrek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vertrek" data-klok="1"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">Onthoud</div>
+      <p>Een woord in een formule staat voor een getal, of hier voor een tijd. Weet je het niet, dan is het de vlek die je gaat uitzoeken.</p>
+    </div>
+    <div class="probeer" data-niveau="2"></div>
+  `
+},
+{
+  badge:'Letters',
+  title:'Een letter in plaats van een woord',
+  html:`
+    <p>Een route bestaat uit twee stukken. De totale afstand is het eerste stuk plus het tweede stuk. Afstand is <strong>s</strong>. Omdat er meer afstanden zijn, krijgen ze een klein nummertje eronder: ${F('s = s_1+s_2',null)}</p>
+    <div class="info-box">
+      <div class="info-title">Het nummertje</div>
+      <p>s<sub>1</sub> zeg je als "s één". Het is gewoon een afstand, maar met een naam zodat je weet welke. Het nummertje doet niet mee met rekenen.</p>
+    </div>
+    <p>Hieronder staan de letter en het woord nog samen. Zoek het tweede stuk:</p>
+    <div class="stapper" data-formule="s = s_1+s_2" data-doel="s_2" data-stijl="onderbouw" data-namen="stukken"></div>
+    <div class="probeer" data-niveau="3"></div>
+  `
+},
+{
+  badge:'Alleen letters',
+  title:'Alleen nog letters',
+  html:`
+    <p>Nu laten we de woorden weg. Er verandert niets: elke letter is nog steeds een getal dat je (nog) niet weet. Ook als het een letter is die nergens voor staat.</p>
+    <p>Zoek de <strong>z</strong>. Die staat met een min ervoor, net als de vlek in ${F('20 = 30-vlek')}.</p>
+    <div class="stapper" data-formule="x = y-z" data-doel="z" data-stijl="onderbouw"></div>
+    <div class="probeer" data-niveau="4"></div>
+  `
+},
+{
+  badge:'Zelf doen',
+  title:'Alles door elkaar',
+  html:`
+    <p>Kies een som en maak zelf vrij wat je zoekt. Zit je vast, dan kun je altijd een stap terug.</p>
+    <div class="keuze-rij" id="vrije-keuze"></div>
+    <div class="stapper" id="vrije-stapper" data-formule="10 = vlek+4" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+  `
+},
+{
+  badge:'Samenvatting',
+  title:'Aan de slag',
+  html:`
+    <p>Op een rijtje wat je nu weet:</p>
+    <ol class="rules-list">
+      <li>Een vlek, een woord of een letter staat voor een <strong>getal dat je nog niet weet</strong>.</li>
+      <li>Het isgelijkteken is een weegschaal: links staat evenveel als rechts.</li>
+      <li>Wat je links doet, doe je ook <strong>rechts</strong>.</li>
+      <li>Doe het <strong>tegenovergestelde</strong> met wat je al weet: erbij haal je weg met eraf, eraf haal je weg met erbij.</li>
+      <li>Wat je zoekt laat je met rust. Je haalt weg wat er <strong>bij</strong> staat.</li>
+      <li>Staat er min voor wat je zoekt, tel het dan eerst erbij.</li>
+      <li>Je bent klaar als wat je zoekt alleen staat.</li>
+    </ol>
+    <div class="cta-card">
+      <h3>Nu zelf oefenen</h3>
+      <p>Oefen met plus en min, van vlekkensommen tot losse letters.</p>
+      <a href="../oefenen/?soort=plusmin" class="cta-btn">Oefenen →</a>
+    </div>
+  `
+}
+];
+
+const steps=PM?STEPS_PM:STEPS_KD;
+
+/* ── Stap 1: de vlekpuzzel ─────────────────────────────────────────── */
+let puzzel=PM?{formule:'10 = vlek+4',doel:'vlek',goed:6,opties:[14,6,40,4]}
+              :{formule:'2 = 6/vlek',doel:'vlek',goed:3,opties:[12,3,4,8]};
+// Een nieuwe vleksom met vier getallen om uit te kiezen.
+function nieuwePuzzel(){
+  const o=maakOpgave(1,null,SOORT);
+  const g=(o.formule.match(/[0-9]+/g)||[]).map(Number);
+  o.opties=o.opties||getalOpties(o.goed,g[0],g[1]);
+  return o;
+}
+function tekenPuzzel(){
+  const som=document.getElementById('puzzel-som');
+  if(!som)return;
+  som.innerHTML=toonVergelijking(puzzel.formule,Object.assign({namen:NAAMSETS.vlek},OB));
+  const rij=document.getElementById('puzzel-keuze');
+  const ctl=document.getElementById('puzzel-controle');
+  ctl.className='controle';ctl.innerHTML='';
+  rij.innerHTML='';
+  puzzel.opties.forEach(g=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='keuze-btn';b.textContent=g;
+    b.onclick=()=>{
+      const c=invulControle(puzzel.formule,puzzel.doel,g);
+      ctl.innerHTML=c.html;
+      ctl.className='controle '+(c.klopt?'goed':'fout');
+      b.classList.add(c.klopt?'goed':'fout');
+    };
+    rij.appendChild(b);
+  });
+  document.getElementById('puzzel-nieuw').onclick=()=>{puzzel=nieuwePuzzel();tekenPuzzel();};
+}
+
+/* ── Stap 2: de rekenfamilie ───────────────────────────────────────── */
+const FAMILIES=PM?[[6,4,10],[7,5,12],[9,6,15],[13,8,21]]:[[2,3,6],[5,4,20],[3,7,21],[6,8,48]];
+let famNr=0,famVlek=null;
+function tekenFamilie(){
+  const rijen=document.getElementById('fam-rijen');
+  if(!rijen)return;
+  const [a,b,p]=FAMILIES[famNr];
+  const sommen=PM?[`${p} = ${a}+${b}`,`${a} = ${p}-${b}`,`${b} = ${p}-${a}`]
+               :[`${a} = ${p}/${b}`,`${p} = ${a}*${b}`,`${b} = ${p}/${a}`];
+  const keuze=document.getElementById('fam-keuze');
+  keuze.innerHTML='';
+  [a,b,p].forEach(g=>{
+    const k=document.createElement('button');
+    k.type='button';k.className='keuze-btn'+(famVlek===g?' actief':'');
+    k.innerHTML='vlek op '+g;
+    k.onclick=()=>{famVlek=famVlek===g?null:g;tekenFamilie();};
+    keuze.appendChild(k);
+  });
+  rijen.innerHTML='';
+  sommen.forEach(s=>{
+    const metVlek=famVlek===null?s:s.replace(new RegExp('\\b'+famVlek+'\\b','g'),'vlek');
+    const raak=famVlek!==null&&metVlek.split('=')[0].trim()==='vlek';
+    const d=document.createElement('div');
+    d.className='familie-rij'+(raak?' raak':'');
+    d.innerHTML=toonVergelijking(metVlek,Object.assign({namen:NAAMSETS.vlek},OB))+
+      (raak?'<span class="familie-label">vlek = '+famVlek+'</span>':'');
+    rijen.appendChild(d);
+  });
+  document.getElementById('fam-nieuw').onclick=()=>{famNr=(famNr+1)%FAMILIES.length;famVlek=null;tekenFamilie();};
+}
+
+/* ── Stap 3: de weegschaal met getallen ────────────────────────────── */
+const BALANS_STANDEN={
+  start:  {l:'2',   r:'6/3',   tekst:'Links 2, rechts 6 gedeeld door 3. Dat is ook 2: in evenwicht.'},
+  links:  {l:'2*3', r:'6/3',   tekst:'Alleen links keer 3: nu is links zwaarder. De som klopt niet meer.'},
+  rechts: {l:'2',   r:'6/3*3', tekst:'Alleen rechts keer 3: nu is rechts zwaarder. De som klopt niet meer.'},
+  beide:  {l:'2*3', r:'6/3*3', tekst:'Allebei keer 3: links 6 en rechts 6. Nog steeds in evenwicht.'},
+};
+const BALANS_STANDEN_PM={
+  start:  {l:'2+3',   r:'5',   tekst:'Links 2 plus 3, rechts 5. Dat is evenveel: in evenwicht.'},
+  links:  {l:'2+3+4', r:'5',   tekst:'Alleen links 4 erbij: nu is links zwaarder. De som klopt niet meer.'},
+  rechts: {l:'2+3',   r:'5+4', tekst:'Alleen rechts 4 erbij: nu is rechts zwaarder. De som klopt niet meer.'},
+  beide:  {l:'2+3+4', r:'5+4', tekst:'Allebei 4 erbij: links 9 en rechts 9. Nog steeds in evenwicht.'},
+};
+function tekenBalans(stand){
+  if(!document.getElementById('bal-arm'))return;
+  const s=(PM?BALANS_STANDEN_PM:BALANS_STANDEN)[stand];
+  const w=PM?'+ 4':'× 3';
+  const hoek=zetBalans('bal',toonUitdrukking(s.l,OB),toonUitdrukking(s.r,OB),
+    rekenWaarde(parse(s.l)),rekenWaarde(parse(s.r)));
+  const m=document.getElementById('bal-melding');
+  m.textContent=s.tekst;
+  m.className='balans-melding '+(hoek===0?'goed':'scheef');
+  zetBalansKnoppen('bal',[['links',w+' alleen links',()=>tekenBalans('links')],
+    ['rechts',w+' alleen rechts',()=>tekenBalans('rechts')],
+    ['beide',w+' aan allebei de kanten',()=>tekenBalans('beide')],
+    ['start','opnieuw',()=>tekenBalans('start')]],stand);
+}
+
+/* ── Stap 4: het tegenovergestelde, met de vlek op de weegschaal ───── */
+// Eerst staat er 3 × vlek tegen 12. Delen door 3 aan allebei de kanten: de
+// drieën worden weggestreept en de vlek blijft alleen over.
+let tegenTimer=null;
+function tekenTegen(fase){
+  if(!document.getElementById('tegen-arm'))return;
+  clearTimeout(tegenTimer);
+  const m=document.getElementById('tegen-melding');
+  m.className='balans-melding goed';
+  if(fase==='start'){
+    zetBalans('tegen',U(PM?'vlek+4':'3*vlek'),U(PM?'10':'12'),NaN,NaN);
+    m.innerHTML=PM?'Wat staat er nog bij de vlek? <b>Plus 4</b>.':'Wat staat er nog bij de vlek? <b>Keer 3</b>.';
+    zetBalansKnoppen('tegen',[['deel',PM?'haal van allebei de kanten 4 af':'deel allebei de kanten door 3',()=>tekenTegen('deel')]],null);
+  }else if(fase==='deel'){
+    zetBalans('tegen','<span class="f">'+(PM?metStreep('vlek+4-4',4):metStreep('3*vlek/3',3))+'</span>',U(PM?'10-4':'12/3'),NaN,NaN);
+    m.textContent=PM?'Links: 4 erbij en daarna 4 eraf. Die twee heffen elkaar op.':'Links: keer 3 en daarna delen door 3. Die twee heffen elkaar op.';
+    zetBalansKnoppen('tegen',[],null);
+    // Eerst de amberkleur tonen, dan pas de streep, net als in de stapper.
+    tegenTimer=setTimeout(()=>{
+      document.querySelectorAll('#tegen-bak-l .is-weg').forEach(e=>e.classList.add('streep'));
+      tegenTimer=setTimeout(()=>tekenTegen('klaar'),1300);
+    },450);
+  }else{
+    zetBalans('tegen',U('vlek'),U(PM?'6':'4'),NaN,NaN);
+    m.innerHTML=PM?'De vlek ligt alleen. Rechts is 10 min 4: de vlek is <b>6</b>.':'De vlek ligt alleen. Rechts is 12 gedeeld door 3: de vlek is <b>4</b>.';
+    zetBalansKnoppen('tegen',[['start','opnieuw',()=>tekenTegen('start')]],null);
+  }
+}
+
+/* ── Stap 6: woordformule ──────────────────────────────────────────── */
+function tekenWoordformule(){
+  const el=document.getElementById('woordformule');
+  if(!el)return;
+  el.innerHTML=PM
+    ?toonVergelijking('aankomst = vertrek+reistijd',Object.assign({namen:{
+      aankomst:woordNaam('aankomsttijd'),vertrek:woordNaam('vertrektijd'),reistijd:woordNaam('reistijd')}},OB))
+    :toonVergelijking('snelheid = afstand/tijd',Object.assign({namen:{
+      snelheid:woordNaam('snelheid'),afstand:woordNaam('afstand'),tijd:woordNaam('tijd')}},OB));
+}
+
+/* ── Stap 9: vrije keuze ───────────────────────────────────────────── */
+const VRIJE_SOMMEN=[
+  {f:'2 = 6/vlek',     d:'vlek',    namen:'vlek',    uit:true},
+  {f:'4 = vlek/5',     d:'vlek',    namen:'vlek',    uit:true},
+  {f:'vlek*3 = 21',    d:'vlek',    namen:'vlek',    uit:true},
+  {f:'5 = afstand/20', d:'afstand', namen:'afstand', uit:true},
+  {f:'v = s/t',        d:'s',       namen:'svt'},
+  {f:'v = s/t',        d:'t',       namen:''},
+  {f:'s = v*t',        d:'v',       namen:''},
+  {f:'A = l*b',        d:'b',       namen:''},
+];
+const VRIJE_SOMMEN_PM=[
+  {f:'10 = vlek+4',      d:'vlek',    namen:'vlek',    uit:true},
+  {f:'vlek-5 = 12',      d:'vlek',    namen:'vlek',    uit:true},
+  {f:'20 = 30-vlek',     d:'vlek',    namen:'vlek',    uit:true},
+  {f:'900 = vertrek+28', d:'vertrek', namen:'vertrek', uit:true, klok:true},
+  {f:'s = s_1+s_2',      d:'s_2',     namen:'stukken'},
+  {f:'a = b+c',          d:'c',       namen:''},
+  {f:'x = y-z',          d:'y',       namen:''},
+  {f:'x = y-z',          d:'z',       namen:''},
+];
+function bouwVrijeKeuze(){
+  const rij=document.getElementById('vrije-keuze');
+  if(!rij)return;
+  rij.innerHTML='';
+  (PM?VRIJE_SOMMEN_PM:VRIJE_SOMMEN).forEach((v,i)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='keuze-btn'+(i===0?' actief':'');
+    b.style.fontSize='15px';
+    const namen=NAAMSETS[v.namen]||null;
+    b.innerHTML='<span class="f" style="font-size:15px">'+toonVergelijking(v.f,Object.assign({namen:namen,getal:v.klok?klok:null},OB))+'</span>'+
+      (v.uit?'':'<span style="font-size:12px;opacity:.75">zoek '+toonNaam(v.d)+'</span>');
+    b.onclick=()=>{
+      rij.querySelectorAll('.keuze-btn').forEach(x=>x.classList.remove('actief'));
+      b.classList.add('actief');
+      const st=document.getElementById('vrije-stapper');
+      st.dataset.formule=v.f;st.dataset.doel=v.d;
+      st.dataset.namen=v.namen;
+      if(v.uit)st.dataset.uitrekenen='1';else delete st.dataset.uitrekenen;
+      if(v.klok)st.dataset.klok='1';else delete st.dataset.klok;
+      startStapper(st);
+    };
+    rij.appendChild(b);
+  });
+}
+
+function startStapper(el){
+  el.stapperNamen=NAAMSETS[el.dataset.namen]||null;
+  el.stapperGetal=el.dataset.klok?klok:null;
+  if(PM&&!el.dataset.bewerkingen)el.dataset.bewerkingen='plus,min,wissel';
+  initStapper(el);
+}
+
+let current=0;
+
+function renderChips(){
+  const row=document.getElementById('stepsRow');
+  row.innerHTML='';
+  steps.forEach((s,i)=>{
+    const chip=document.createElement('button');
+    chip.className='step-chip'+(i===current?' active':(i<current?' done':''));
+    chip.textContent=(i+1)+'. '+s.badge;
+    chip.onclick=()=>{current=i;render();};
+    row.appendChild(chip);
+  });
+}
+
+function render(){
+  const s=steps[current], last=current===steps.length-1;
+  document.getElementById('badgeSlot').innerHTML='<span class="badge">'+s.badge+'</span>';
+  document.getElementById('stepTitle').textContent=s.title;
+  const content=document.getElementById('stepContent');
+  content.innerHTML=s.html;
+  content.querySelectorAll(':scope > .stapper[data-formule]').forEach(startStapper);
+  content.querySelectorAll('.probeer[data-keuze]').forEach(tekenKeuze);
+  content.querySelectorAll('.probeer[data-niveau]').forEach(tekenProbeerStapper);
+  tekenPuzzel();
+  tekenFamilie();
+  tekenBalans('start');
+  tekenTegen('start');
+  tekenWoordformule();
+  bouwVrijeKeuze();
+  document.getElementById('progressFill').style.width=((current+1)/steps.length*100)+'%';
+  document.getElementById('stepCount').textContent='Stap '+(current+1)+' van '+steps.length;
+  document.getElementById('prevBtn').disabled=current===0;
+  document.getElementById('nextBtn').textContent=last?'Naar oefenen →':'Volgende →';
+  renderChips();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').onclick=()=>{if(current>0){current--;render();}};
+document.getElementById('nextBtn').onclick=()=>{
+  if(current<steps.length-1){current++;render();}
+  else{window.location=PM?'../oefenen/?soort=plusmin':'../oefenen/';}
+};
+
+document.addEventListener('keydown',(e)=>{
+  if(e.target.closest('.stapper')) return;
+  if(e.key==='ArrowRight'&&current<steps.length-1){current++;render();}
+  if(e.key==='ArrowLeft'&&current>0){current--;render();}
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oefenen onderbouw · Formules omschrijven · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/logo/JK_dark.svg" id="favicon">
+<link rel="stylesheet" href="../../css/stapper.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.1);
+  --orange:#d97706;--orange-dim:rgba(217,119,6,0.1);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --orange:#f59e0b;--orange-dim:rgba(245,158,11,0.1);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+[hidden]{display:none!important}
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 20px;position:relative;z-index:1}
+.main{max-width:760px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
+
+/* Instellingen */
+.section-title{font-size:15px;font-weight:700;color:var(--accent);padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px}
+.section-title.amber{color:var(--accent-amber);border-left-color:var(--accent-amber)}
+.intro{font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6}
+.level-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.level-toggle{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:12px;cursor:pointer;transition:all .15s}
+.level-toggle:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.level-toggle.active{border-color:var(--accent);background:var(--accent-dim)}
+.level-toggle input{display:none}
+.level-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border-solid);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px}
+.level-toggle.active .level-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.level-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.level-desc{font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.level-voorbeeld{margin-left:auto;font-size:15px;color:var(--text);display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.level-voorbeeld .kant{display:inline-flex;align-items:center}
+.soort-keuze{display:flex;gap:8px;margin-bottom:26px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:6px}
+.soort-btn{flex:1;padding:12px;border-radius:9px;border:none;background:transparent;color:var(--text-secondary);font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.soort-btn:hover{color:var(--accent)}
+.soort-btn.actief{background:var(--accent);color:#fff}
+.uitleg-link{font-size:14px;color:var(--text-secondary);margin:-12px 0 26px;text-align:center}
+.uitleg-link a{color:var(--accent);font-weight:700;text-decoration:none}
+.uitleg-link a:hover{text-decoration:underline}
+.start-btn{width:100%;padding:14px;background:var(--accent-amber);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;letter-spacing:-0.2px}
+.start-btn:hover:not(:disabled){background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.start-btn:disabled{opacity:0.4;cursor:default}
+
+/* Oefening: kop en statusbalk (zoals bij Voorvoegsels) */
+.ex-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.terug-btn{font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--text-muted);background:transparent;border:none;padding:4px 0;cursor:pointer;transition:color .15s}
+.terug-btn:hover{color:var(--accent)}
+.ex-counter{font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.status-links{display:flex;align-items:baseline;gap:9px;min-width:0}
+.status-level{font-size:20px;font-weight:700;letter-spacing:-.4px;color:var(--accent)}
+.status-soort{font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted)}
+.status-midden{display:flex;align-items:center;gap:9px;flex:1;justify-content:center;min-width:120px}
+.klim-dots{display:inline-flex;gap:5px}
+.klim-dot{width:9px;height:9px;border-radius:50%;background:var(--border-solid);transition:background .25s,transform .25s}
+.klim-dot.vol{background:var(--accent);transform:scale(1.15)}
+.klim-tekst{font-size:11.5px;color:var(--text-muted);white-space:nowrap}
+.status-rechts{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-score{white-space:nowrap}
+.streak{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.streak .flame{font-size:14px;filter:grayscale(1);opacity:.4;transition:all .2s}
+.streak.hot .flame{filter:none;opacity:1}
+.streak.hot{color:var(--accent-amber)}
+
+/* Opgave */
+.q-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:26px 24px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.q-opdracht{font-size:15px;color:var(--text-secondary);text-align:center;margin-bottom:10px;line-height:1.5}
+.q-opdracht b{color:var(--text)}
+.q-formule{display:flex;align-items:center;justify-content:center;gap:12px;font-size:30px;color:var(--text);padding:12px 0 18px;flex-wrap:wrap}
+.q-formule .kant{display:inline-flex;align-items:center}
+.woordsom{display:flex;flex-direction:column;gap:10px;margin:4px auto 16px;max-width:520px}
+.ws-rij{display:flex;align-items:center;gap:14px;padding:10px 14px;border:1px solid var(--border-solid);border-radius:10px;background:var(--bg-secondary)}
+.ws-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);width:74px;flex-shrink:0}
+.ws-inhoud{display:flex;align-items:center;gap:8px;font-size:20px;color:var(--text);flex-wrap:wrap}
+.ws-inhoud .kant{display:inline-flex;align-items:center}
+.ws-bekend{font-size:16px;line-height:1.7}
+.ws-rij.invullen{border-color:var(--accent-amber);background:var(--amber-dim,rgba(212,146,58,0.06))}
+.q-opties{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding-top:14px;border-top:1px solid var(--border-solid)}
+.optie{min-width:74px;padding:12px 18px;border-radius:12px;border:2px solid var(--border-solid);background:var(--bg-secondary);color:var(--text);font-family:var(--font);font-size:19px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.optie:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+.optie .kant{display:inline-flex;align-items:center}
+.optie .eenheid{font-size:14px;color:var(--text-muted)}
+.optie.goed{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.optie.fout{border-color:var(--red);background:var(--red-dim);opacity:.65;cursor:default}
+.optie:disabled{cursor:default}
+
+.feedback{font-size:14px;line-height:1.9;padding:10px 16px;border-radius:10px;margin-bottom:12px;border-left:4px solid;display:none}
+.feedback.goed{display:block;background:var(--green-dim);color:var(--green);border-color:var(--green)}
+.feedback.fout{display:block;background:var(--orange-dim);color:var(--orange);border-color:var(--orange)}
+.feedback b{font-weight:700}
+.controle-som{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;font-size:17px;margin:0 3px;color:var(--text)}
+.controle-som .kant{display:inline-flex;align-items:center}
+
+.stapwerk{background:var(--bg-secondary);border:1px solid var(--accent-border);border-radius:10px;padding:14px 16px 4px;margin-bottom:12px;display:none}
+.stapwerk.open{display:block}
+.stapwerk-kop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.stapwerk-kop strong{font-size:14px;color:var(--accent)}
+.stapwerk-tekst{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px}
+.stapwerk .stapper{border:none;background:transparent;padding:0;margin:6px 0 10px}
+.stapwerk .stapper-kop{display:none}
+
+.btn-row{display:flex;gap:10px}
+.qbtn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);font-family:var(--font);font-weight:600;transition:all .15s}
+.qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
+.qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qbtn.primary:hover{background:#0999aa}
+
+.toast-laag{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:200;padding:0 16px}
+.toast{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:16px 30px;text-align:center;box-shadow:0 14px 44px rgba(11,181,200,0.28);animation:toastIn .28s cubic-bezier(.2,.9,.3,1.2) both}
+.toast.uit{animation:toastUit .22s ease-in both}
+.toast-titel{font-size:21px;font-weight:700;color:var(--accent);letter-spacing:-.4px}
+.toast-tekst{font-size:13px;color:var(--text-secondary);margin-top:3px}
+.toast--vuur{border-color:var(--accent-amber);box-shadow:0 14px 44px rgba(212,146,58,0.3)}
+.toast--vuur .toast-titel{color:var(--accent-amber)}
+@keyframes toastIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+@keyframes toastUit{to{opacity:0;transform:scale(.96)}}
+@media(prefers-reduced-motion:reduce){.toast,.toast.uit{animation:none}}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease-out}
+@media(max-width:560px){
+  .app-header{padding:0 12px}
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+  .main{padding:20px 12px 60px}
+  .q-card{padding:22px 14px}
+  .q-formule{font-size:24px}
+  .ws-rij{flex-direction:column;align-items:flex-start;gap:6px}
+  .level-voorbeeld{display:none}
+  .stapper-regel{font-size:18px;gap:8px}
+}
+</style>
+</head>
+<body>
+<div class="toast-laag" id="toast-laag" aria-live="polite"></div>
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../../#onderbouw" class="crumb">Formules omschrijven</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Oefenen onderbouw</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<div class="main">
+<h1 class="tool-name">Oefenen</h1>
+
+<!-- INSTELLINGEN -->
+<div class="panel active" id="panel-settings">
+  <div class="soort-keuze" role="tablist">
+    <button class="soort-btn actief" data-soort="keerdeel">× keer en delen</button>
+    <button class="soort-btn" data-soort="plusmin">+ plus en min</button>
+  </div>
+  <p class="uitleg-link">Nog niet zeker hoe het werkt? <a id="uitleg-link" href="../uitleg/">Bekijk eerst de uitleg keer en delen →</a></p>
+  <div class="section-title amber">Oplopende reeks</div>
+  <p class="intro">Begin bij de vlek en klim vanzelf omhoog tot level 4: na vijf keer goed op rij ga je een level verder. Goed betekent hier: via de kortste route. Met een omweg is het gelukt, maar dan klim je niet.</p>
+  <button class="start-btn" id="reeks-btn" style="margin-bottom:32px">Start oplopende reeks →</button>
+
+  <div class="section-title amber">Of kies zelf je level(s)</div>
+  <div class="level-grid" id="level-grid"></div>
+  <button class="start-btn" id="start-btn" disabled>Kies een level om te starten</button>
+</div>
+
+<!-- OEFENING -->
+<div class="panel" id="panel-exercise">
+  <div class="ex-top">
+    <button class="terug-btn" id="terug-btn">← Andere levels</button>
+    <span class="ex-counter" id="ex-counter">Opgave 1</span>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-links">
+      <span class="status-level" id="st-level">Level 1</span>
+      <span class="status-soort" id="st-soort">vlek</span>
+    </div>
+    <div class="status-midden">
+      <span class="klim-dots" id="klim-dots"></span>
+      <span class="klim-tekst" id="klim-tekst"></span>
+    </div>
+    <div class="status-rechts">
+      <span class="streak" id="streak"><span class="flame">🔥</span><span id="streak-num">0</span></span>
+      <span class="status-score" id="st-score" title="goed van totaal">0 / 0</span>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-opdracht" id="q-opdracht"></div>
+    <div id="q-inhoud"></div>
+    <div class="q-opties" id="q-opties"></div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stapwerk" id="stapwerk">
+    <div class="stapwerk-kop">
+      <strong>Stap voor stap</strong>
+      <button class="mini-btn" id="stap-verberg">verbergen</button>
+    </div>
+    <p class="stapwerk-tekst" id="stapwerk-tekst">Kies wat je met allebei de kanten doet. De stapper streept weg wat tegen elkaar wegvalt.</p>
+    <div class="stapper" id="oefen-stapper"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="qbtn" id="btn-stap">Stap voor stap</button>
+    <button class="qbtn" id="btn-skip">Sla over</button>
+    <button class="qbtn primary" id="btn-volgende" hidden>Volgende opgave</button>
+  </div>
+</div>
+</div>
+
+<footer>
+  <img src="../../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script src="../../js/stapper.js"></script>
+<script src="../../js/onderbouw.js"></script>
+<script>
+// ── THEMA ──
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../../assets/logo/JK_dark.svg';if(fl)fl.src='../../assets/logo/JK_white.svg';
+    if(fav)fav.href='../../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../../assets/logo/JK_light.svg';if(fl)fl.src='../../assets/logo/JK_black.svg';
+    if(fav)fav.href='../../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+const $=id=>document.getElementById(id);
+const OB={maal:'×'};
+const vgl=(tekst,namen)=>toonVergelijking(tekst,Object.assign({namen:namen||null},OB));
+
+// ── INSTELLINGEN ──
+// Level 1 t/m 4 zijn voor leerjaar 2 en vormen de oplopende reeks. Level 5
+// (losse letters, soms vier) is extra, voor klas 3.
+const LEVELS=[1,2,3,4,5];
+let SOORT=new URLSearchParams(location.search).get('soort')==='plusmin'?'plusmin':'keerdeel';
+const LEVEL_UITLEG_PM={
+  1:{tekst:'Een getal onder een vlek',                   voorbeeld:()=>vgl('10 = vlek+4',{vlek:VLEK_SVG})},
+  2:{tekst:'Woorden met getallen erin: tijd, geld, plaats', voorbeeld:()=>vgl('6 = 20-prijs',{prijs:vlekWoord('prijs')})},
+  3:{tekst:'De letter met het woord erbij',
+     voorbeeld:()=>vgl('s = s_1+s_2',{s:hybrideNaam('s','totaal'),s_1:hybrideNaam(toonNaam('s_1'),'stuk 1'),s_2:hybrideNaam(toonNaam('s_2'),'stuk 2')})},
+  4:{tekst:'Alleen letters, ook losse letters',          voorbeeld:()=>vgl('a = b+c')},
+};
+const LEVEL_UITLEG_KD={
+  1:{tekst:'Een getal onder een vlek',                   voorbeeld:()=>vgl('2 = 6/vlek',{vlek:VLEK_SVG})},
+  2:{tekst:'Woorden met getallen erin',                  voorbeeld:()=>vgl('3 = afstand/4',{afstand:vlekWoord('afstand')})},
+  3:{tekst:'De letter met het woord erbij',
+     voorbeeld:()=>vgl('v = s/t',{v:hybrideNaam('v','snelheid'),s:hybrideNaam('s','afstand'),t:hybrideNaam('t','tijd')})},
+  4:{tekst:'Alleen letters, ook losse letters',          voorbeeld:()=>vgl('a = b*c')},
+  5:{tekst:'Extra voor klas 3: losse letters, soms vier, kies de goede omschrijving', voorbeeld:()=>vgl('a = b*c/d')},
+};
+
+// Plus en min heeft geen level 5: vier grootheden bij plus en min is niet nodig.
+const levelsVanSoort=()=>SOORT==='plusmin'?[1,2,3,4]:LEVELS;
+function bouwLevels(){
+  const LEVEL_UITLEG=SOORT==='plusmin'?LEVEL_UITLEG_PM:LEVEL_UITLEG_KD;
+  const grid=$('level-grid');
+  grid.innerHTML='';
+  document.querySelectorAll('.soort-btn').forEach(b=>b.classList.toggle('actief',b.dataset.soort===SOORT));
+  // De uitleg die bij dit spoor hoort.
+  const link=$('uitleg-link');
+  link.href=SOORT==='plusmin'?'../uitleg/?spoor=plusmin':'../uitleg/';
+  link.textContent=SOORT==='plusmin'?'Bekijk eerst de uitleg plus en min →':'Bekijk eerst de uitleg keer en delen →';
+  for(const n of levelsVanSoort()){
+    const l=document.createElement('label');
+    l.className='level-toggle';l.id='lbl-'+n;
+    l.innerHTML='<input type="checkbox" value="'+n+'"><div class="level-check"></div>'+
+      '<div><div class="level-label">Level '+n+' · '+NIVEAUS[n].naam+'</div><div class="level-desc">'+LEVEL_UITLEG[n].tekst+'</div></div>'+
+      '<span class="level-voorbeeld">'+LEVEL_UITLEG[n].voorbeeld()+'</span>';
+    l.querySelector('input').onchange=updateToggles;
+    grid.appendChild(l);
+  }
+}
+function gekozenLevels(){return levelsVanSoort().filter(n=>document.querySelector('#lbl-'+n+' input').checked);}
+function updateToggles(){
+  for(const n of levelsVanSoort()){
+    const aan=document.querySelector('#lbl-'+n+' input').checked;
+    $('lbl-'+n).classList.toggle('active',aan);
+    $('lbl-'+n).querySelector('.level-check').textContent=aan?'✓':'';
+  }
+  const any=gekozenLevels().length>0;
+  $('start-btn').disabled=!any;
+  $('start-btn').textContent=any?'Start oefenen →':'Kies een level om te starten';
+}
+
+// ── STAAT ──
+// Vijf goed op rij om een level te stijgen; een fout kost één stapje.
+const REEKS_DOEL=5, MAX_LEVEL=4;
+let st={modus:'reeks',levels:[],level:1,klim:0,opRij:0,goed:0,totaal:0,teller:0,
+        opgave:null,pogingen:0,klaar:false,stapperUit:false,recent:[]};
+
+function start(modus){
+  st.modus=modus;
+  st.levels=gekozenLevels();
+  st.level=1;st.klim=0;st.opRij=0;st.goed=0;st.totaal=0;st.teller=0;st.stapperUit=false;st.recent=[];
+  $('panel-settings').classList.remove('active');
+  $('panel-exercise').classList.add('active');
+  volgende();
+}
+
+function tekenStatus(){
+  const o=st.opgave;
+  $('st-level').textContent='Level '+o.niveau;
+  $('st-soort').textContent=NIVEAUS[o.niveau].kort;
+  $('ex-counter').textContent='Opgave '+st.teller;
+  const dots=$('klim-dots'),tekst=$('klim-tekst');
+  if(st.modus==='reeks'){
+    dots.innerHTML='';
+    for(let i=0;i<REEKS_DOEL;i++){const d=document.createElement('span');d.className='klim-dot'+(i<st.klim?' vol':'');dots.appendChild(d);}
+    tekst.textContent=st.level<MAX_LEVEL?'naar level '+(st.level+1):'hoogste level';
+  }else{dots.innerHTML='';tekst.textContent='';}
+  $('streak-num').textContent=st.opRij;
+  $('streak').classList.toggle('hot',st.opRij>=3);
+  $('st-score').textContent=st.goed+' / '+st.totaal;
+}
+
+// Bij level 1 t/m 4 is de stapper de opgave: het gaat om het omschrijven, niet
+// om het getal zien. Level 5 is een keuzevraag, met de stapper als hulp.
+const metKeuze=o=>o.niveau===5;
+
+// ── OPGAVE TONEN ──
+function volgende(){
+  st.teller++;st.pogingen=0;st.klaar=false;
+  const niveau=st.modus==='reeks'?st.level:kies(st.levels);
+  const o=maakOpgave(niveau,st.recent.slice(-4),SOORT);
+  st.recent.push(o.sleutel);
+  st.opgave=o;
+  o.kortste=(kortsteRoute(o.formule,o.doel,niveau<=2,5,o.bewerkingen)||{}).stappen;
+  tekenStatus();
+
+  const opdracht=$('q-opdracht'),inhoud=$('q-inhoud'),opties=$('q-opties');
+  opties.innerHTML='';opties.hidden=!metKeuze(o);
+  if(niveau===1){
+    opdracht.innerHTML='Maak de vlek vrij met de stapper. Wat zit eronder?';
+    inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule,o.namen)+'</div>';
+  }else if(niveau===2){
+    opdracht.innerHTML=o.vraag+' Maak <b>'+o.ctx.woorden[o.doel]+'</b> vrij met de stapper.';
+    const fmt=o.getal||getalTekst;
+    const bekend=Object.keys(o.bekend).map(n=>o.ctx.woorden[n]+' = '+fmt(o.bekend[n])+(o.ctx.eenheden[n]?' '+o.ctx.eenheden[n]:'')).join('<br>');
+    inhoud.innerHTML='<div class="woordsom">'+
+      '<div class="ws-rij"><span class="ws-label">Formule</span><span class="ws-inhoud">'+vgl(o.formuleWoorden,o.woordWeergave)+'</span></div>'+
+      '<div class="ws-rij"><span class="ws-label">Je weet</span><span class="ws-inhoud ws-bekend">'+bekend+'</span></div>'+
+      '<div class="ws-rij invullen"><span class="ws-label">Invullen</span><span class="ws-inhoud">'+toonVergelijking(o.formule,Object.assign({namen:o.namen,getal:o.getal},OB))+'</span></div>'+
+      '</div>';
+  }else if(niveau===3){
+    opdracht.innerHTML='Maak <b>'+o.woorden[o.doel]+' ('+o.doel+')</b> vrij met de stapper.';
+    inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule,o.namen)+'</div>';
+  }else if(niveau===4){
+    opdracht.innerHTML='Maak <b>'+o.doel+'</b> vrij met de stapper.';
+    inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule)+'</div>';
+  }else{
+    opdracht.innerHTML='Schrijf om naar <b>'+o.doel+'</b>. Welke is goed?';
+    inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule)+'</div>';
+    o.opties.forEach(x=>opties.appendChild(optieKnop(vgl(o.doel+' = '+x.tekst),x.goed,x.tekst)));
+  }
+
+  $('feedback').className='feedback';$('feedback').innerHTML='';
+  $('btn-volgende').hidden=true;
+  $('btn-skip').hidden=false;
+  $('btn-stap').hidden=!metKeuze(o);
+  $('stap-verberg').hidden=!metKeuze(o);
+  $('stapwerk-tekst').textContent=niveau<=2
+    ?'Kies wat je met allebei de kanten doet. Staat het onbekende getal alleen, reken dan de andere kant uit.'
+    :'Kies wat je met allebei de kanten doet. De stapper streept weg wat tegen elkaar wegvalt.';
+  $('oefen-stapper').innerHTML='';
+  sluitStapper();
+  if(!metKeuze(o)||!st.stapperUit)openStapper(false);
+}
+
+function optieKnop(html,goed,waarde){
+  const b=document.createElement('button');
+  b.type='button';b.className='optie';b.innerHTML=html;
+  b.dataset.goed=goed?'1':'';
+  b.onclick=()=>kiesOptie(b,goed,waarde);
+  return b;
+}
+
+// ── NAKIJKEN ──
+function kiesOptie(knop,goed,waarde){
+  if(st.klaar||knop.disabled)return;
+  if(goed){knop.classList.add('goed');goedAntwoord('');return;}
+  knop.classList.add('fout');knop.disabled=true;
+  foutAntwoord(waarde);
+}
+
+// Wat er onder "Goed!" staat: bij getallen de controle door invullen, bij
+// letters de formule die eruit kwam.
+function uitkomstTekst(o){
+  if(o.niveau<=2)return invulControle(o.formule,o.doel,o.goed,o.getal).html;
+  const naam=o.woorden?o.woorden[o.doel]:o.doel;
+  return 'Zo reken je '+naam+' uit: <span class="controle-som">'+vgl(o.goedTekst)+'</span>';
+}
+
+function goedAntwoord(extra){
+  const o=st.opgave;
+  st.klaar=true;st.totaal++;st.goed++;st.opRij++;
+  document.querySelectorAll('.optie').forEach(b=>{b.disabled=true;if(b.dataset.goed)b.classList.add('goed');});
+  $('feedback').innerHTML='<b>Goed!</b> '+uitkomstTekst(o)+(extra||'');
+  $('feedback').className='feedback goed';
+
+  let levelToast=false;
+  if(st.modus==='reeks'){
+    st.klim++;
+    if(st.klim>=REEKS_DOEL){
+      st.klim=0;
+      if(st.level<MAX_LEVEL){
+        st.level++;
+        toonToast('Level '+st.level,NIVEAUS[st.level].naam);
+      }else toonToast('Hoogste level','Je blijft op level '+MAX_LEVEL+'.');
+      levelToast=true;
+    }
+  }
+  if(!levelToast&&st.opRij>=5&&st.opRij%5===0)toonToast(st.opRij+' op rij','Mooie reeks.','vuur');
+  afronden();
+}
+
+// Gelukt, maar met een omweg. Telt als goed in de score, maar de reeks gaat
+// er niet door omhoog: het doel is de korte route leren zien.
+function omwegAntwoord(stappen){
+  const o=st.opgave;
+  st.klaar=true;st.totaal++;st.goed++;
+  $('feedback').innerHTML='<b>Gelukt</b> in '+stappen+' stappen. '+uitkomstTekst(o)+
+    '<br>Het kan ook in '+o.kortste+(o.kortste===1?' stap':' stappen')+'. Klik op <b>opnieuw</b> in de stapper als je dat wilt proberen.';
+  $('feedback').className='feedback fout';
+  afronden();
+}
+
+function foutAntwoord(waarde){
+  const o=st.opgave;
+  st.pogingen++;st.opRij=0;
+  let tekst=getalProef(o.formule,o.doel,waarde)||'Dat klopt niet.';
+  if(st.pogingen>=2){
+    // Tweede fout: het goede antwoord aanwijzen en de stapper laten zien.
+    st.klaar=true;st.totaal++;
+    if(st.modus==='reeks')st.klim=Math.max(0,st.klim-1);
+    document.querySelectorAll('.optie').forEach(b=>{b.disabled=true;if(b.dataset.goed)b.classList.add('goed');});
+    tekst+='<br>Het goede antwoord is groen gemaakt. Kijk in de stapper hoe je er komt.';
+    afronden();
+  }else{
+    tekst+='<br>Probeer het nog eens, of doe het stap voor stap hieronder.';
+  }
+  $('feedback').innerHTML=tekst;
+  $('feedback').className='feedback fout';
+  tekenStatus();
+  openStapper(true);
+}
+
+function afronden(){
+  $('btn-volgende').hidden=false;
+  $('btn-skip').hidden=true;
+  tekenStatus();
+}
+
+function slaOver(){
+  if(st.klaar){volgende();return;}
+  st.klaar=true;st.totaal++;st.opRij=0;
+  if(st.modus==='reeks')st.klim=Math.max(0,st.klim-1);
+  document.querySelectorAll('.optie').forEach(b=>{b.disabled=true;if(b.dataset.goed)b.classList.add('goed');});
+  const o=st.opgave;
+  $('feedback').innerHTML='Overgeslagen. '+(o.niveau<=2
+    ?'Het goede getal is '+(o.getal||getalTekst)(o.goed)+'.'
+    :'Het antwoord is <span class="controle-som">'+vgl(o.goedTekst)+'</span>');
+  $('feedback').className='feedback fout';
+  afronden();
+}
+
+// ── TOASTS ──
+function toonToast(titel,tekst,soort){
+  const laag=$('toast-laag');
+  const t=document.createElement('div');
+  t.className='toast'+(soort?' toast--'+soort:'');
+  t.innerHTML='<div class="toast-titel">'+titel+'</div>'+(tekst?'<div class="toast-tekst">'+tekst+'</div>':'');
+  laag.appendChild(t);
+  setTimeout(()=>{t.classList.add('uit');setTimeout(()=>t.remove(),220);},1100);
+}
+
+// ── STAPPER ──
+function openStapper(automatisch){
+  const o=st.opgave;
+  const el=$('oefen-stapper');
+  // Niet opnieuw beginnen als hij al open staat: dan ben je je stappen kwijt.
+  if(!$('stapwerk').classList.contains('open')||!el.childElementCount){
+    el.dataset.formule=o.formule;
+    el.dataset.doel=o.doel;
+    el.dataset.stijl='onderbouw';
+    if(o.niveau<=2)el.dataset.uitrekenen='1';else delete el.dataset.uitrekenen;
+    el.dataset.bewerkingen=(o.soort==='plusmin'?['plus','min']:['maal','deel']).concat(['wissel']).join(',');
+    el.stapperNamen=o.namen;
+    el.stapperGetal=o.getal||null;
+    initStapper(el);
+  }
+  $('stapwerk').classList.add('open');
+  $('btn-stap').textContent='Verberg stappen';
+  if(automatisch)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),60);
+}
+function sluitStapper(){
+  $('stapwerk').classList.remove('open');
+  $('btn-stap').textContent='Stap voor stap';
+}
+function toggleStapper(){
+  if($('stapwerk').classList.contains('open')){sluitStapper();st.stapperUit=true;}
+  else{st.stapperUit=false;openStapper(false);}
+}
+
+// De stapper is klaar. Bij de keuzevraag telt dat als het goede antwoord; bij
+// de andere levels kijken we of het via de korte route ging.
+function onStapperKlaar(detail){
+  if(st.klaar)return;
+  const o=st.opgave;
+  if(metKeuze(o)){
+    if(zelfdeMonoom(monoomVan(detail.antwoord),o.goed))goedAntwoord('<br>De stapper kwam uit op het goede antwoord.');
+    return;
+  }
+  if(o.kortste&&detail.stappen>o.kortste)omwegAntwoord(detail.stappen);
+  else goedAntwoord('');
+}
+
+// ── KNOPPEN ──
+bouwLevels();
+document.querySelectorAll('.soort-btn').forEach(b=>b.onclick=()=>{
+  SOORT=b.dataset.soort;
+  history.replaceState(null,'',SOORT==='plusmin'?'?soort=plusmin':location.pathname);
+  bouwLevels();updateToggles();
+});
+$('reeks-btn').onclick=()=>start('reeks');
+$('start-btn').onclick=()=>start('zelf');
+$('terug-btn').onclick=()=>{$('panel-exercise').classList.remove('active');$('panel-settings').classList.add('active');};
+$('btn-stap').onclick=toggleStapper;
+$('stap-verberg').onclick=toggleStapper;
+$('btn-skip').onclick=slaOver;
+$('btn-volgende').onclick=volgende;
+$('oefen-stapper').addEventListener('stapper-klaar',e=>onStapperKlaar(e.detail));
+</script>
+</body>
+</html>
