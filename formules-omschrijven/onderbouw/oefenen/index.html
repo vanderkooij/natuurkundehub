@@ -79,6 +79,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ex-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .terug-btn{font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--text-muted);background:transparent;border:none;padding:4px 0;cursor:pointer;transition:color .15s}
 .terug-btn:hover{color:var(--accent)}
+.uitleg-klaar{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:var(--green-dim);border:2px solid var(--green);border-radius:12px;padding:16px;margin-bottom:16px;color:var(--text-secondary);font-size:14px}
+.uitleg-klaar strong{color:var(--green);font-size:17px}
+.terug-link{display:inline-block;margin-top:4px;padding:10px 18px;border-radius:10px;background:var(--green);color:#fff;font-weight:700;text-decoration:none}
+.terug-link:hover{filter:brightness(1.08)}
 .ex-counter{font-family:var(--mono);font-size:12px;color:var(--text-muted)}
 .status-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:12px 16px;margin-bottom:16px}
 .status-links{display:flex;align-items:baseline;gap:9px;min-width:0}
@@ -224,6 +228,11 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     </div>
   </div>
 
+  <div class="uitleg-klaar" id="uitleg-klaar" hidden>
+    <strong>Vijf goed op rij. Klaar met dit level!</strong>
+    <span>Ga terug naar de uitleg voor het volgende hoofdstuk, of oefen nog even door.</span>
+    <a class="terug-link" id="uitleg-klaar-link" href="../uitleg/">Terug naar de uitleg →</a>
+  </div>
   <div class="q-card">
     <div class="q-opdracht" id="q-opdracht"></div>
     <div id="q-inhoud"></div>
@@ -338,9 +347,9 @@ const REEKS_DOEL=5, MAX_LEVEL=4;
 let st={modus:'reeks',levels:[],level:1,klim:0,opRij:0,goed:0,totaal:0,teller:0,
         opgave:null,pogingen:0,klaar:false,stapperUit:false,recent:[]};
 
-function start(modus){
+function start(modus,levels){
   st.modus=modus;
-  st.levels=gekozenLevels();
+  st.levels=levels||gekozenLevels();
   st.level=1;st.klim=0;st.opRij=0;st.goed=0;st.totaal=0;st.teller=0;st.stapperUit=false;st.recent=[];
   $('panel-settings').classList.remove('active');
   $('panel-exercise').classList.add('active');
@@ -460,6 +469,8 @@ function goedAntwoord(extra){
     }
   }
   if(!levelToast&&st.opRij>=5&&st.opRij%5===0)toonToast(st.opRij+' op rij','Mooie reeks.','vuur');
+  // Vanuit de uitleg: na vijf goed op rij mag je terug. Doorgaan mag ook.
+  if(TERUG&&st.opRij===5)$('uitleg-klaar').hidden=false;
   afronden();
 }
 
@@ -572,8 +583,25 @@ document.querySelectorAll('.soort-btn').forEach(b=>b.onclick=()=>{
   bouwLevels();updateToggles();
 });
 $('reeks-btn').onclick=()=>start('reeks');
+
+// Vanuit de uitleg (?level=2&terug=...): meteen dat level, met een weg terug.
+// Alleen een terugweg binnen de uitleg wordt geaccepteerd.
+const PARAMS=new URLSearchParams(location.search);
+const TERUG=(()=>{
+  const t=PARAMS.get('terug')||'';
+  return /^\.\.\/uitleg\/(\?spoor=plusmin)?(#p=\d+)?$/.test(t)?t:null;
+})();
+const START_LEVEL=Number(PARAMS.get('level'));
+if(levelsVanSoort().includes(START_LEVEL)){
+  if(TERUG){
+    $('terug-btn').textContent='← Terug naar de uitleg';
+    $('terug-btn').onclick=()=>{location.href=TERUG;};
+    $('uitleg-klaar-link').href=TERUG;
+  }
+  start('zelf',[START_LEVEL]);
+}
 $('start-btn').onclick=()=>start('zelf');
-$('terug-btn').onclick=()=>{$('panel-exercise').classList.remove('active');$('panel-settings').classList.add('active');};
+if(!TERUG)$('terug-btn').onclick=()=>{$('panel-exercise').classList.remove('active');$('panel-settings').classList.add('active');};
 $('btn-stap').onclick=toggleStapper;
 $('stap-verberg').onclick=toggleStapper;
 $('btn-skip').onclick=slaOver;

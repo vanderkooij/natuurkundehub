@@ -130,6 +130,19 @@ ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px
 .paar{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border:1px solid var(--border-solid);border-radius:10px;background:var(--bg-card);font-size:15px;font-weight:600;color:var(--text)}
 .paar .pijl{color:var(--accent-amber)}
 
+/* Gegeven waarden bij een woordensom, elk op een eigen regel */
+.gegeven{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 8px 8px 0;font-size:16px;color:var(--text)}
+.gegeven-kop{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent)}
+
+/* Tussenkopje als twee korte stappen op één pagina staan */
+.hoofdstuk-hint{margin:26px 0 0;padding:10px 14px;border:1px dashed var(--accent-border);border-radius:10px;font-size:13.5px;color:var(--text-secondary);text-align:center}
+.hoofdstuk-hint b{color:var(--accent)}
+.sub-titel{font-size:19px;font-weight:700;letter-spacing:-0.4px;margin:34px 0 14px;padding-top:24px;border-top:1px solid var(--border-solid)}
+/* Oefen nu: einde van een hoofdstuk */
+.oefen-kaart{background:var(--bg-card);border:2px solid var(--accent);border-radius:12px;padding:20px 22px;margin:26px 0 8px;text-align:center}
+.oefen-kop{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.oefen-kaart p{margin:0 0 14px}
+
 /* Rekenfamilie: drie sommen die bij elkaar horen */
 .familie{display:flex;flex-direction:column;gap:6px;align-items:center;margin:8px 0 6px}
 .familie-rij{display:flex;align-items:center;justify-content:center;gap:10px;font-size:22px;color:var(--text);padding:6px 18px;border-radius:10px;border:1.5px solid transparent;transition:all .25s;min-width:220px}
@@ -220,6 +233,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <div id="badgeSlot"></div>
   <h2 class="step-title" id="stepTitle"></h2>
   <div class="content" id="stepContent"></div>
+  <p class="hoofdstuk-hint" id="hoofdstukHint" hidden></p>
 
   <div class="nav-bar">
     <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
@@ -330,13 +344,6 @@ const KEUZES={
       {html:()=>F('5 = 4/20'),goed:false,uitleg:'4 gedeeld door 20 is 0,2, en geen 5. Het grote getal hoort boven de deelstreep.'},
       {html:()=>F('20 = 4/5'),goed:false,uitleg:'4 gedeeld door 5 is 0,8, en geen 20. Om 20 te krijgen doe je 4 keer 5.'},
     ]},
-  balans:{
-    vraag:()=>'Op de weegschaal ligt links '+U('4*3')+' en rechts '+U('12')+'. Je deelt links door 3. Wat moet je rechts doen?',
-    opties:[
-      {html:()=>'ook delen door 3',goed:true, uitleg:'Ja: links wordt 4 en rechts ook 4. De weegschaal blijft recht.'},
-      {html:()=>'niets',          goed:false,uitleg:'Dan is links 4 en rechts nog 12. De weegschaal gaat scheef.'},
-      {html:()=>'keer 3',stap:['maal','3'],         goed:false,uitleg:'Dan is links 4 en rechts 36. Je moet aan allebei de kanten hetzelfde doen.'},
-    ]},
   tegen1:{
     eenStap:true,som:'vlek/5 = 3',doel:'vlek',namen:'vlek',bew:'maal,deel,wissel',
     vraag:()=>F('vlek/5 = 3')+'<br>Wat doe je met allebei de kanten om de vlek vrij te maken?',
@@ -357,7 +364,7 @@ const KEUZES={
     som:'v = s/t',doel:'t',namen:'',bew:'maal,deel,wissel',
     vraag:()=>F('v = s/t',null)+'<br>Je zoekt <b>t</b>. Wat doe je als eerste?',
     opties:[
-      {html:()=>'keer t',stap:['maal','t'],        goed:true, uitleg:'Ja. Bij t staat nu "gedeeld door t": t staat onder de deelstreep. Het tegenovergestelde is keer t. Dan valt de t onder de streep weg en staat t links boven.'},
+      {html:()=>'keer t',stap:['maal','t'],        goed:true, uitleg:'Ja. De t staat onder de deelstreep: s wordt gedeeld door t. Het tegenovergestelde van delen door t is keer t. Doe je allebei de kanten keer t, dan vallen rechts de t onder en de t boven tegen elkaar weg. Links staat dan v × t: de t staat niet meer onder een deelstreep.'},
       {html:()=>'delen door v',stap:['deel','v'],  goed:false,uitleg:'Dan verdwijnt de v links, maar t staat rechts nog steeds onder de deelstreep. Je bent nog niet verder.'},
       {html:()=>'delen door s',stap:['deel','s'],  goed:false,uitleg:'De s staat niet in de weg van t. En s gedeeld door s is 1, dus je krijgt een 1 erbij. Dat maakt het alleen lastiger.'},
     ]},
@@ -393,46 +400,6 @@ function tekenKeuze(el){
     };
     rij.appendChild(b);
   });
-}
-
-/* ── Probeer zelf: sommen met de stapper ───────────────────────────── */
-// Een nieuwe som van hetzelfde level als in het oefenen, steeds opnieuw.
-const PROBEER_TEKST={
-  1:o=>'Maak de vlek vrij en reken uit wat eronder zit.',
-  2:o=>o.vraag,
-  3:o=>'Maak <b>'+o.woorden[o.doel]+' ('+o.doel+')</b> vrij.',
-  4:o=>'Maak <b>'+o.doel+'</b> vrij.',
-};
-function tekenProbeerStapper(el){
-  const n=Number(el.dataset.niveau);
-  let gelukt=0,recent=[];
-  el.innerHTML='<div class="probeer-kop">Probeer zelf<span class="teller"></span></div>'+
-    '<div class="probeer-vraag"></div><div class="stapper"></div><div class="probeer-uitleg"></div>'+
-    '<div class="probeer-voet"><button class="klein-btn">nieuwe som</button></div>';
-  const vraag=el.querySelector('.probeer-vraag'),st=el.querySelector('.stapper'),
-        uitleg=el.querySelector('.probeer-uitleg'),teller=el.querySelector('.teller');
-  let o;
-  function nieuw(){
-    o=maakOpgave(n,recent.slice(-3),SOORT);recent.push(o.sleutel);
-    vraag.innerHTML=PROBEER_TEKST[n](o);
-    st.dataset.formule=o.formule;st.dataset.doel=o.doel;st.dataset.stijl='onderbouw';
-    st.dataset.bewerkingen=(PM?'plus,min':'maal,deel')+',wissel';
-    if(n<=2)st.dataset.uitrekenen='1';else delete st.dataset.uitrekenen;
-    st.stapperNamen=o.namen;
-    st.stapperGetal=o.getal||null;
-    initStapper(st);
-    uitleg.textContent='';uitleg.className='probeer-uitleg';
-  }
-  st.addEventListener('stapper-klaar',e=>{
-    gelukt++;
-    teller.textContent=gelukt+' gelukt';
-    const kort=(kortsteRoute(o.formule,o.doel,n<=2,5,o.bewerkingen)||{}).stappen;
-    uitleg.innerHTML=(n<=2?invulControle(o.formule,o.doel,o.goed,o.getal).html:'Goed zo.')+
-      (kort&&e.detail.stappen>kort?' Het kan ook in '+kort+' stappen.':'');
-    uitleg.className='probeer-uitleg goed';
-  });
-  el.querySelector('.probeer-voet button').onclick=nieuw;
-  nieuw();
 }
 
 const STEPS_KD=[
@@ -485,7 +452,6 @@ const STEPS_KD=[
     <p>Links van het isgelijkteken staat evenveel als rechts. Je kunt het zien als een <strong>weegschaal in evenwicht</strong>.</p>
     <div class="kaart">${balansHTML('bal')}</div>
     <p>Doe je aan één kant iets, dan raakt de weegschaal uit evenwicht. Doe je <strong>aan allebei de kanten hetzelfde</strong>, dan blijft hij recht.</p>
-    <div class="probeer" data-keuze="balans"></div>
     <div class="info-box info-box--accent">
       <div class="info-title">De regel</div>
       <p>Wat je links doet, doe je ook rechts. Dan blijft de som kloppen.</p>
@@ -525,7 +491,7 @@ const STEPS_KD=[
       <div class="info-title">Twee stappen</div>
       <p>Staat wat je zoekt onder de deelstreep, dan heb je twee stappen nodig: eerst naar boven halen met keer, daarna weghalen wat er nog bij staat.</p>
     </div>
-    <div class="probeer" data-niveau="1"></div>
+    <div class="oefen-kaart" data-level="1"></div>
   `
 },
 {
@@ -535,13 +501,14 @@ const STEPS_KD=[
     <p>Bij natuurkunde ken je al een som met woorden erin:</p>
     <div class="f-groot" id="woordformule"></div>
     <p>Een fietser rijdt 20 seconden lang met een snelheid van 5 m/s. Hoe groot is de afstand?</p>
+    <div class="gegeven"><span class="gegeven-kop">Je weet</span><span>snelheid = 5 m/s</span><span>tijd = 20 s</span></div>
     <p>Vul in wat je weet. De afstand weet je niet: dat is de vlek. Alleen heeft de vlek nu een <strong>naam</strong>. De afstand staat boven de deelstreep, met "gedeeld door 20" erbij. Wat is daar het tegenovergestelde van?</p>
     <div class="stapper" data-formule="5 = afstand/20" data-doel="afstand" data-stijl="onderbouw" data-uitrekenen="1" data-namen="afstand"></div>
     <div class="info-box info-box--accent">
       <div class="info-title">Onthoud</div>
       <p>Een woord in een formule staat voor een getal. Als je het getal weet, vul je het in. Weet je het niet, dan is het de vlek die je gaat uitzoeken.</p>
     </div>
-    <div class="probeer" data-niveau="2"></div>
+    <div class="oefen-kaart" data-level="2"></div>
   `
 },
 {
@@ -562,7 +529,7 @@ const STEPS_KD=[
     <p>Hieronder staan de letter en het woord nog samen. Zoek de afstand. Wat staat er bij de s? "Gedeeld door t". Het tegenovergestelde daarvan ken je.</p>
     <div class="stapper" data-formule="v = s/t" data-doel="s" data-stijl="onderbouw" data-namen="svt"></div>
     <p class="small">Er staan nu geen getallen meer in. Het antwoord is dus geen getal, maar een nieuwe formule: zo reken je de afstand uit als je de snelheid en de tijd weet.</p>
-    <div class="probeer" data-niveau="3"></div>
+    <div class="oefen-kaart" data-level="3"></div>
   `
 },
 {
@@ -578,16 +545,7 @@ const STEPS_KD=[
       <div class="info-title">Net als bij de vlek</div>
       <p>Staat wat je zoekt onder de deelstreep, haal het dan eerst naar boven: doe allebei de kanten keer die letter. Daarna deel je weg wat er nog naast staat.</p>
     </div>
-    <div class="probeer" data-niveau="4"></div>
-  `
-},
-{
-  badge:'Zelf doen',
-  title:'Alles door elkaar',
-  html:`
-    <p>Kies een som en maak zelf vrij wat je zoekt. Zit je vast, dan kun je altijd een stap terug.</p>
-    <div class="keuze-rij" id="vrije-keuze"></div>
-    <div class="stapper" id="vrije-stapper" data-formule="2 = 6/vlek" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+    <div class="oefen-kaart" data-level="4"></div>
   `
 },
 {
@@ -622,13 +580,6 @@ Object.assign(KEUZES,{
       {html:()=>F('7 = 12-5'),goed:true, uitleg:'Klopt: 12 min 5 is 7. Dezelfde familie.'},
       {html:()=>F('5 = 7-12'),goed:false,uitleg:'7 min 12 kan niet zomaar: dan kom je onder de nul uit. Het totaal, 12, staat vooraan.'},
       {html:()=>F('12 = 7-5'),goed:false,uitleg:'7 min 5 is 2, en geen 12. Om 12 te krijgen tel je 7 en 5 op.'},
-    ]},
-  balans_pm:{
-    vraag:()=>'Op de weegschaal ligt links '+U('8+2')+' en rechts '+U('10')+'. Je haalt links 2 eraf. Wat moet je rechts doen?',
-    opties:[
-      {html:()=>'ook 2 eraf',goed:true, uitleg:'Ja: links wordt 8 en rechts ook 8. De weegschaal blijft recht.'},
-      {html:()=>'niets',     goed:false,uitleg:'Dan is links 8 en rechts nog 10. De weegschaal gaat scheef.'},
-      {html:()=>'2 erbij',   goed:false,uitleg:'Dan is links 8 en rechts 12. Je moet aan allebei de kanten hetzelfde doen.'},
     ]},
   tegen_pm1:{
     eenStap:true,som:'vlek-5 = 12',doel:'vlek',namen:'vlek',bew:'plus,min,wissel',
@@ -702,7 +653,6 @@ const STEPS_PM=[
     <p>Links van het isgelijkteken staat evenveel als rechts. Je kunt het zien als een <strong>weegschaal in evenwicht</strong>.</p>
     <div class="kaart">${balansHTML('bal')}</div>
     <p>Leg je aan één kant iets bij, dan raakt de weegschaal uit evenwicht. Doe je <strong>aan allebei de kanten hetzelfde</strong>, dan blijft hij recht.</p>
-    <div class="probeer" data-keuze="balans_pm"></div>
     <div class="info-box info-box--accent">
       <div class="info-title">De regel</div>
       <p>Wat je links doet, doe je ook rechts. Dan blijft de som kloppen.</p>
@@ -743,7 +693,7 @@ const STEPS_PM=[
       <div class="info-title">Twee stappen</div>
       <p>Staat er min voor wat je zoekt, dan heb je twee stappen nodig: eerst erbij tellen zodat de min weg is, daarna weghalen wat er nog bij staat.</p>
     </div>
-    <div class="probeer" data-niveau="1"></div>
+    <div class="oefen-kaart" data-level="1"></div>
   `
 },
 {
@@ -753,13 +703,14 @@ const STEPS_PM=[
     <p>Met tijden reken je ook met plus en min:</p>
     <div class="f-groot" id="woordformule"></div>
     <p>Je wilt om 15:00 bij de sportclub zijn. Je fietst er 28 minuten over. Hoe laat moet je weg?</p>
+    <div class="gegeven"><span class="gegeven-kop">Je weet</span><span>aankomsttijd = 15:00</span><span>reistijd = 28 minuten</span></div>
     <p>Vul in wat je weet. De vertrektijd weet je niet: dat is de vlek. Alleen heeft de vlek nu een <strong>naam</strong>. Wat staat er bij de vertrektijd? "Plus 28". Wat is daar het tegenovergestelde van?</p>
     <div class="stapper" data-formule="900 = vertrek+28" data-doel="vertrek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vertrek" data-klok="1"></div>
     <div class="info-box info-box--accent">
       <div class="info-title">Onthoud</div>
       <p>Een woord in een formule staat voor een getal, of hier voor een tijd. Weet je het niet, dan is het de vlek die je gaat uitzoeken.</p>
     </div>
-    <div class="probeer" data-niveau="2"></div>
+    <div class="oefen-kaart" data-level="2"></div>
   `
 },
 {
@@ -773,7 +724,7 @@ const STEPS_PM=[
     </div>
     <p>Hieronder staan de letter en het woord nog samen. Zoek het tweede stuk:</p>
     <div class="stapper" data-formule="s = s_1+s_2" data-doel="s_2" data-stijl="onderbouw" data-namen="stukken"></div>
-    <div class="probeer" data-niveau="3"></div>
+    <div class="oefen-kaart" data-level="3"></div>
   `
 },
 {
@@ -783,16 +734,7 @@ const STEPS_PM=[
     <p>Nu laten we de woorden weg. Er verandert niets: elke letter is nog steeds een getal dat je (nog) niet weet. Ook als het een letter is die nergens voor staat.</p>
     <p>Zoek de <strong>z</strong>. Die staat met een min ervoor, net als de vlek in ${F('20 = 30-vlek')}.</p>
     <div class="stapper" data-formule="x = y-z" data-doel="z" data-stijl="onderbouw"></div>
-    <div class="probeer" data-niveau="4"></div>
-  `
-},
-{
-  badge:'Zelf doen',
-  title:'Alles door elkaar',
-  html:`
-    <p>Kies een som en maak zelf vrij wat je zoekt. Zit je vast, dan kun je altijd een stap terug.</p>
-    <div class="keuze-rij" id="vrije-keuze"></div>
-    <div class="stapper" id="vrije-stapper" data-formule="10 = vlek+4" data-doel="vlek" data-stijl="onderbouw" data-uitrekenen="1" data-namen="vlek"></div>
+    <div class="oefen-kaart" data-level="4"></div>
   `
 },
 {
@@ -818,7 +760,35 @@ const STEPS_PM=[
 }
 ];
 
-const steps=PM?STEPS_PM:STEPS_KD;
+const STAPPEN=PM?STEPS_PM:STEPS_KD;
+
+/* ── Hoofdstukken ──────────────────────────────────────────────────────
+   De uitleg is ingedeeld in vier hoofdstukken die precies bij de levels van
+   het oefenen horen. Na elk hoofdstuk oefen je eerst dat level (tot vijf goed
+   op rij) en kom je dan terug voor het volgende. Korte stappen die bij elkaar
+   horen staan op één pagina, met een tussenkopje. */
+const INDELING=[
+  {titel:'De vlek', level:1, paginas:[
+    {titel:'Een vlek op je som', delen:['De vlek','Familie']},
+    {titel:'Het isgelijkteken is een weegschaal', delen:['Weegschaal','Tegenovergestelde']},
+    {delen:['Stapper']}]},
+  {titel:'Woorden', level:2, paginas:[{delen:['Woorden']}]},
+  {titel:'Woord en letter', level:3, paginas:[{delen:['Letters']}]},
+  {titel:'Alleen letters', level:4, paginas:[{delen:['Alleen letters']}]},
+  {titel:'Samenvatting', paginas:[{delen:['Samenvatting']}]},
+];
+
+const steps=[];
+INDELING.forEach((h,hi)=>{
+  h.paginas.forEach((p,pi)=>{
+    const delen=p.delen.map(b=>STAPPEN.find(x=>x.badge===b));
+    // Bij een samengevoegde pagina krijgt het tweede deel zijn eigen kopje.
+    const html=delen.map((d,i)=>(i?'<h3 class="sub-titel">'+d.title+'</h3>':'')+d.html).join('');
+    steps.push({hoofdstuk:hi,pagina:pi,aantal:h.paginas.length,badge:h.titel,
+                title:p.titel||delen[0].title,html:html});
+  });
+});
+const eersteVan=hi=>steps.findIndex(s=>s.hoofdstuk===hi);
 
 /* ── Stap 1: de vlekpuzzel ─────────────────────────────────────────── */
 let puzzel=PM?{formule:'10 = vlek+4',doel:'vlek',goed:6,opties:[14,6,40,4]}
@@ -951,51 +921,16 @@ function tekenWoordformule(){
       snelheid:woordNaam('snelheid'),afstand:woordNaam('afstand'),tijd:woordNaam('tijd')}},OB));
 }
 
-/* ── Stap 9: vrije keuze ───────────────────────────────────────────── */
-const VRIJE_SOMMEN=[
-  {f:'2 = 6/vlek',     d:'vlek',    namen:'vlek',    uit:true},
-  {f:'4 = vlek/5',     d:'vlek',    namen:'vlek',    uit:true},
-  {f:'vlek*3 = 21',    d:'vlek',    namen:'vlek',    uit:true},
-  {f:'5 = afstand/20', d:'afstand', namen:'afstand', uit:true},
-  {f:'v = s/t',        d:'s',       namen:'svt'},
-  {f:'v = s/t',        d:'t',       namen:''},
-  {f:'s = v*t',        d:'v',       namen:''},
-  {f:'A = l*b',        d:'b',       namen:''},
-];
-const VRIJE_SOMMEN_PM=[
-  {f:'10 = vlek+4',      d:'vlek',    namen:'vlek',    uit:true},
-  {f:'vlek-5 = 12',      d:'vlek',    namen:'vlek',    uit:true},
-  {f:'20 = 30-vlek',     d:'vlek',    namen:'vlek',    uit:true},
-  {f:'900 = vertrek+28', d:'vertrek', namen:'vertrek', uit:true, klok:true},
-  {f:'s = s_1+s_2',      d:'s_2',     namen:'stukken'},
-  {f:'a = b+c',          d:'c',       namen:''},
-  {f:'x = y-z',          d:'y',       namen:''},
-  {f:'x = y-z',          d:'z',       namen:''},
-];
-function bouwVrijeKeuze(){
-  const rij=document.getElementById('vrije-keuze');
-  if(!rij)return;
-  rij.innerHTML='';
-  (PM?VRIJE_SOMMEN_PM:VRIJE_SOMMEN).forEach((v,i)=>{
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='keuze-btn'+(i===0?' actief':'');
-    b.style.fontSize='15px';
-    const namen=NAAMSETS[v.namen]||null;
-    b.innerHTML='<span class="f" style="font-size:15px">'+toonVergelijking(v.f,Object.assign({namen:namen,getal:v.klok?klok:null},OB))+'</span>'+
-      (v.uit?'':'<span style="font-size:12px;opacity:.75">zoek '+toonNaam(v.d)+'</span>');
-    b.onclick=()=>{
-      rij.querySelectorAll('.keuze-btn').forEach(x=>x.classList.remove('actief'));
-      b.classList.add('actief');
-      const st=document.getElementById('vrije-stapper');
-      st.dataset.formule=v.f;st.dataset.doel=v.d;
-      st.dataset.namen=v.namen;
-      if(v.uit)st.dataset.uitrekenen='1';else delete st.dataset.uitrekenen;
-      if(v.klok)st.dataset.klok='1';else delete st.dataset.klok;
-      startStapper(st);
-    };
-    rij.appendChild(b);
-  });
+function tekenOefenKaart(el){
+  const n=Number(el.dataset.level);
+  const s=steps[current];
+  const volgende=eersteVan(s.hoofdstuk+1);
+  const terug='../uitleg/'+(PM?'?spoor=plusmin':'')+'#p='+(volgende<0?current:volgende);
+  const href='../oefenen/?level='+n+(PM?'&soort=plusmin':'')+'&terug='+encodeURIComponent(terug);
+  const naam=INDELING[s.hoofdstuk].titel.toLowerCase();
+  el.innerHTML='<div class="oefen-kop">Oefen nu · level '+n+'</div>'+
+    '<p>Oefen met '+naam+' tot je <strong>vijf keer goed op rij</strong> hebt. Daarna ga je hier verder met het volgende hoofdstuk.</p>'+
+    '<a class="cta-btn" href="'+href+'">Oefen level '+n+' →</a>';
 }
 
 function startStapper(el){
@@ -1005,16 +940,22 @@ function startStapper(el){
   initStapper(el);
 }
 
-let current=0;
+// Startpagina uit de adresbalk (#p=3): zo kom je na het oefenen terug op de goede plek.
+let current=(()=>{
+  const m=location.hash.match(/p=(\d+)/);
+  const p=m?Number(m[1]):0;
+  return p>=0&&p<steps.length?p:0;
+})();
 
 function renderChips(){
   const row=document.getElementById('stepsRow');
   row.innerHTML='';
-  steps.forEach((s,i)=>{
+  const nu=steps[current].hoofdstuk;
+  INDELING.forEach((h,hi)=>{
     const chip=document.createElement('button');
-    chip.className='step-chip'+(i===current?' active':(i<current?' done':''));
-    chip.textContent=(i+1)+'. '+s.badge;
-    chip.onclick=()=>{current=i;render();};
+    chip.className='step-chip'+(hi===nu?' active':(hi<nu?' done':''));
+    chip.textContent=h.level?h.level+'. '+h.titel:h.titel;
+    chip.onclick=()=>{current=eersteVan(hi);render();};
     row.appendChild(chip);
   });
 }
@@ -1027,15 +968,24 @@ function render(){
   content.innerHTML=s.html;
   content.querySelectorAll(':scope > .stapper[data-formule]').forEach(startStapper);
   content.querySelectorAll('.probeer[data-keuze]').forEach(tekenKeuze);
-  content.querySelectorAll('.probeer[data-niveau]').forEach(tekenProbeerStapper);
+  content.querySelectorAll('.oefen-kaart').forEach(tekenOefenKaart);
   tekenPuzzel();
   tekenFamilie();
   tekenBalans('start');
   tekenTegen('start');
   tekenWoordformule();
-  bouwVrijeKeuze();
   document.getElementById('progressFill').style.width=((current+1)/steps.length*100)+'%';
-  document.getElementById('stepCount').textContent='Stap '+(current+1)+' van '+steps.length;
+  const h=INDELING[s.hoofdstuk];
+  // Vóór de oefenkaart: laat zien dat het oefenen aan het eind van dit hoofdstuk komt.
+  const hint=document.getElementById('hoofdstukHint');
+  const nogTe=s.aantal-1-s.pagina;
+  hint.hidden=!(h.level&&nogTe>0);
+  if(!hint.hidden)hint.innerHTML='Nog '+nogTe+(nogTe===1?' pagina':" pagina's")+
+    ' in dit hoofdstuk. Daarna oefen je <b>level '+h.level+'</b>.';
+  document.getElementById('stepCount').textContent=h.level
+    ?'Hoofdstuk '+h.level+' van 4'+(s.aantal>1?' · pagina '+(s.pagina+1)+' van '+s.aantal:'')
+    :'Samenvatting';
+  history.replaceState(null,'',location.pathname+location.search+'#p='+current);
   document.getElementById('prevBtn').disabled=current===0;
   document.getElementById('nextBtn').textContent=last?'Naar oefenen →':'Volgende →';
   renderChips();
