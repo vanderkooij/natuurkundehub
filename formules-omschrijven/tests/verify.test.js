@@ -203,3 +203,24 @@ test('preprocess vertaalt superscript naar een gewone macht', () => {
   assert.equal(preprocess('t⁻³'), 't^(-3)');
   assert.equal(preprocess('v^2'), 'v^2');
 });
+
+// ── Binas 7 (2026-10): nieuwe samengestelde namen zoals leerlingen ze typen ──
+test('E_ch en r_V als losse grootheden', () => {
+  assert.equal(checkAnswer('V = E_ch/r_V', 'Ech/rV', true), true);
+  assert.equal(checkAnswer('V = E_ch*r_V', 'Ech/rV', true), false);
+});
+test('Φ (flux) wordt als één grootheid gelezen', () => {
+  assert.equal(checkAnswer('B = Φ/A', 'Phi/A', true), true);
+  assert.equal(checkAnswer('B = Φ*A', 'Phi/A', true), false);
+});
+test('σ en P_bron in de wet van Stefan-Boltzmann', () => {
+  assert.equal(checkAnswer('T = (P_bron/(σ*A))^(1/4)', '(Pbron/(sigma*A))^(1/4)', true), true);
+});
+test('Δλ en Δφ als één grootheid', () => {
+  assert.equal(checkAnswer('Δλ = v*λ/c', '(v*lambda)/c', true), true);
+  assert.equal(checkAnswer('T = Δt/Δφ', 'dt/Deltaphi', true), true);
+});
+test('ΔE_el en F_L', () => {
+  assert.equal(checkAnswer('U = ΔE_el/q', 'dEel/q', true), true);
+  assert.equal(checkAnswer('l = F_L/(B*I)', 'FL/(B*I)', true), true);
+});

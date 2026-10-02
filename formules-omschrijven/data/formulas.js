@@ -5,6 +5,11 @@
 //     display: LaTeX-string voor weergave aan de leerling
 //   answers: object met key → rechterlid van het correcte antwoord (genormaliseerde notatie)
 
+// niveau (volgens de kolommen van Binas 7e editie, tabel 35):
+//   'beide' = kolom havo/vwo · 'havo' = havo/vwo met ▶ (hoort niet bij vwo)
+//   'vwo'   = kolom vwo      · 'extra' = kolom overige (buiten het examenprogramma)
+// Optica (thema F) staat in Binas onder 'overige' en is daarom een optioneel thema.
+
 const FORMULAS = [
 
   // ── A MECHANICA ──────────────────────────────────────────────
@@ -106,7 +111,7 @@ const FORMULAS = [
       { key: 'a', display: 'a' },
       { key: 't', display: 't' },
     ],
-    niveau: 'beide', thema: 'mechanica',
+    niveau: 'extra', thema: 'mechanica',
     answers: { a: '(2*s)/t^2', t: 'sqrt((2*s)/a)' },
   },
   {
@@ -117,7 +122,7 @@ const FORMULAS = [
       { key: 'F', display: 'F' },
       { key: 'A', display: 'A' },
     ],
-    niveau: 'beide', thema: 'mechanica',
+    niveau: 'extra', thema: 'mechanica',
     answers: { F: 'p*A', A: 'F/p' },
   },
   {
@@ -128,7 +133,7 @@ const FORMULAS = [
       { key: 'm', display: 'm' },
       { key: 'v', display: 'v' },
     ],
-    niveau: 'vwo', thema: 'mechanica',
+    niveau: 'extra', thema: 'mechanica',
     answers: { m: 'p/v', v: 'p/m' },
   },
   {
@@ -161,7 +166,7 @@ const FORMULAS = [
       { key: 'C', display: 'C' },
       { key: 'u', display: 'u' },
     ],
-    niveau: 'beide', thema: 'mechanica',
+    niveau: 'vwo', thema: 'mechanica',
     answers: { C: '(2*Ev)/u^2', u: 'sqrt((2*Ev)/C)' },
   },
   {
@@ -200,14 +205,25 @@ const FORMULAS = [
   },
   {
     id: 'rendement',
-    display: '\\eta = \\dfrac{P_{uit}}{P_{in}}',
-    variables: { '\\eta': 'rendement', 'P_{uit}': 'nuttig vermogen', 'P_{in}': 'opgenomen vermogen' },
+    display: '\\eta = \\dfrac{P_{nuttig}}{P_{in}}',
+    variables: { '\\eta': 'rendement', 'P_{nuttig}': 'nuttig vermogen', 'P_{in}': 'opgenomen vermogen' },
     solveFor: [
-      { key: 'Puit', display: 'P_{uit}' },
+      { key: 'Pnuttig', display: 'P_{nuttig}' },
       { key: 'Pin', display: 'P_{in}' },
     ],
     niveau: 'beide', thema: 'mechanica',
-    answers: { Puit: 'eta*Pin', Pin: 'Puit/eta' },
+    answers: { Pnuttig: 'eta*Pin', Pin: 'Pnuttig/eta' },
+  },
+  {
+    id: 'rendement_e',
+    display: '\\eta = \\dfrac{E_{nuttig}}{E_{in}}',
+    variables: { '\\eta': 'rendement', 'E_{nuttig}': 'nuttige energie', 'E_{in}': 'opgenomen energie' },
+    solveFor: [
+      { key: 'Enuttig', display: 'E_{nuttig}' },
+      { key: 'Ein', display: 'E_{in}' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { Enuttig: 'eta*Ein', Ein: 'Enuttig/eta' },
   },
   {
     id: 'gravitatie',
@@ -231,7 +247,7 @@ const FORMULAS = [
       { key: 'F2', display: 'F_2' },
       { key: 'r2', display: 'r_2' },
     ],
-    niveau: 'beide', thema: 'mechanica',
+    niveau: 'havo', thema: 'mechanica',
     answers: { F1: '(F2*r2)/r1', r1: '(F2*r2)/F1', F2: '(F1*r1)/r2', r2: '(F1*r1)/F2' },
   },
   {
@@ -253,8 +269,76 @@ const FORMULAS = [
       { key: 'l', display: 'l' },
       { key: 'g', display: 'g' },
     ],
-    niveau: 'beide', thema: 'mechanica',
+    niveau: 'extra', thema: 'mechanica',
     answers: { l: '(g*T^2)/(4*pi^2)', g: '(4*pi^2*l)/T^2' },
+  },
+
+  {
+    id: 'ech_v',
+    display: 'E_{ch} = r_V \\cdot V',
+    variables: { 'E_{ch}': 'chemische energie', 'r_V': 'stookwaarde per volume', V: 'volume' },
+    solveFor: [
+      { key: 'rV', display: 'r_V' },
+      { key: 'V', display: 'V' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { rV: 'Ech/V', V: 'Ech/rV' },
+  },
+  {
+    id: 'ech_m',
+    display: 'E_{ch} = r_m \\cdot m',
+    variables: { 'E_{ch}': 'chemische energie', 'r_m': 'stookwaarde per massa', m: 'massa' },
+    solveFor: [
+      { key: 'rm', display: 'r_m' },
+      { key: 'm', display: 'm' },
+    ],
+    niveau: 'beide', thema: 'mechanica',
+    answers: { rm: 'Ech/m', m: 'Ech/rm' },
+  },
+  {
+    id: 'arbeid_cos',
+    display: 'W = F \\cdot s \\cdot \\cos \\alpha',
+    variables: { W: 'arbeid', F: 'kracht', s: 'verplaatsing', '\\alpha': 'hoek tussen kracht en verplaatsing' },
+    solveFor: [
+      { key: 'F', display: 'F' },
+      { key: 's', display: 's' },
+    ],
+    niveau: 'vwo', thema: 'mechanica',
+    answers: { F: 'W/(s*cos(alpha))', s: 'W/(F*cos(alpha))' },
+  },
+  {
+    id: 'wrijving',
+    display: 'F_{w,s,max} = f \\cdot F_n',
+    variables: { 'F_{w,s,max}': 'maximale schuifwrijvingskracht', f: 'wrijvingscoëfficiënt', 'F_n': 'normaalkracht' },
+    solveFor: [
+      { key: 'f', display: 'f' },
+      { key: 'Fn', display: 'F_n' },
+    ],
+    niveau: 'vwo', thema: 'mechanica',
+    answers: { f: 'Fwsmax/Fn', Fn: 'Fwsmax/f' },
+  },
+  {
+    id: 'luchtweerstand',
+    display: 'F_{w,l} = \\tfrac{1}{2} \\rho \\cdot C_w \\cdot A \\cdot v^2',
+    variables: { 'F_{w,l}': 'luchtweerstandskracht', '\\rho': 'dichtheid van de lucht', 'C_w': 'luchtweerstandscoëfficiënt', A: 'frontale oppervlakte', v: 'snelheid' },
+    solveFor: [
+      { key: 'Cw', display: 'C_w' },
+      { key: 'A', display: 'A' },
+      { key: 'v', display: 'v' },
+    ],
+    niveau: 'vwo', thema: 'mechanica',
+    answers: { Cw: '(2*Fwl)/(rho*A*v^2)', A: '(2*Fwl)/(rho*Cw*v^2)', v: 'sqrt((2*Fwl)/(rho*Cw*A))' },
+  },
+  {
+    id: 'gravitatie_energie',
+    display: 'E_g = -G \\cdot \\dfrac{mM}{r}',
+    variables: { 'E_g': 'gravitatie-energie', G: 'gravitatieconstante', m: 'massa 1', M: 'massa 2', r: 'afstand' },
+    solveFor: [
+      { key: 'm', display: 'm' },
+      { key: 'r', display: 'r' },
+    ],
+    niveau: 'vwo', thema: 'mechanica',
+    answers: { m: '-(Eg*r)/(G*M)', r: '-(G*m*M)/Eg' },
   },
 
   // ── B TRILLINGEN & GOLVEN ─────────────────────────────────────
@@ -282,14 +366,103 @@ const FORMULAS = [
   },
   {
     id: 'vmax',
-    display: 'v_{max} = 2\\pi \\cdot f \\cdot A',
-    variables: { 'v_{max}': 'maximale snelheid', f: 'frequentie', A: 'amplitude' },
+    display: 'v_{max} = \\dfrac{2\\pi A}{T}',
+    variables: { 'v_{max}': 'maximale snelheid', A: 'amplitude', T: 'trillingstijd' },
     solveFor: [
-      { key: 'f', display: 'f' },
+      { key: 'A', display: 'A' },
+      { key: 'T', display: 'T' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { A: '(vmax*T)/(2*pi)', T: '(2*pi*A)/vmax' },
+  },
+
+  {
+    id: 'fase_t',
+    display: '\\Delta \\phi = \\dfrac{\\Delta t}{T}',
+    variables: { '\\Delta \\phi': 'faseverschil', '\\Delta t': 'tijdsverschil', T: 'trillingstijd' },
+    solveFor: [
+      { key: 'dt', display: '\\Delta t' },
+      { key: 'T', display: 'T' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { dt: 'Deltaphi*T', T: 'dt/Deltaphi' },
+  },
+  {
+    id: 'fase_x',
+    display: '\\Delta \\phi = \\dfrac{\\Delta x}{\\lambda}',
+    variables: { '\\Delta \\phi': 'faseverschil', '\\Delta x': 'afstand tussen de punten', '\\lambda': 'golflengte' },
+    solveFor: [
+      { key: 'dx', display: '\\Delta x' },
+      { key: 'lambda', display: '\\lambda' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { dx: 'Deltaphi*lambda', lambda: 'dx/Deltaphi' },
+  },
+  {
+    id: 'uitwijking',
+    display: 'u = A \\cdot \\sin\\left(\\dfrac{2\\pi}{T} \\cdot t\\right)',
+    variables: { u: 'uitwijking', A: 'amplitude', T: 'trillingstijd', t: 'tijd' },
+    solveFor: [
       { key: 'A', display: 'A' },
     ],
     niveau: 'vwo', thema: 'trillingen',
-    answers: { f: 'vmax/(2*pi*A)', A: 'vmax/(2*pi*f)' },
+    answers: { A: 'u/sin((2*pi*t)/T)' },
+  },
+  {
+    id: 'harmonische_kracht',
+    display: 'F_{res} = -C \\cdot u',
+    variables: { 'F_{res}': 'terugdrijvende kracht', C: 'veerconstante', u: 'uitwijking' },
+    solveFor: [
+      { key: 'C', display: 'C' },
+      { key: 'u', display: 'u' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { C: '-Fres/u', u: '-Fres/C' },
+  },
+  {
+    id: 'staande_golf_dicht',
+    display: 'l = n \\cdot \\tfrac{1}{2} \\lambda',
+    variables: { l: 'lengte (twee vaste of twee open uiteinden)', n: 'rangnummer', '\\lambda': 'golflengte' },
+    solveFor: [
+      { key: 'n', display: 'n' },
+      { key: 'lambda', display: '\\lambda' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { n: '(2*l)/lambda', lambda: '(2*l)/n' },
+  },
+  {
+    id: 'staande_golf_open',
+    display: 'l = (2n - 1) \\cdot \\tfrac{1}{4} \\lambda',
+    variables: { l: 'lengte (een open en een gesloten uiteinde)', n: 'rangnummer', '\\lambda': 'golflengte' },
+    solveFor: [
+      { key: 'lambda', display: '\\lambda' },
+      { key: 'n', display: 'n' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { lambda: '(4*l)/(2*n-1)', n: '((4*l)/lambda+1)/2' },
+  },
+  {
+    id: 'kwadratenwet',
+    display: 'I = \\dfrac{P_{bron}}{4\\pi r^2}',
+    variables: { I: 'intensiteit', 'P_{bron}': 'vermogen van de bron', r: 'afstand tot de bron' },
+    solveFor: [
+      { key: 'Pbron', display: 'P_{bron}' },
+      { key: 'r', display: 'r' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { Pbron: '4*pi*r^2*I', r: 'sqrt(Pbron/(4*pi*I))' },
+  },
+  {
+    id: 'tralie',
+    display: 'd \\cdot \\sin \\alpha = n \\cdot \\lambda',
+    variables: { d: 'tralieconstante', '\\alpha': 'hoek van het maximum', n: 'orde', '\\lambda': 'golflengte' },
+    solveFor: [
+      { key: 'd', display: 'd' },
+      { key: 'n', display: 'n' },
+      { key: 'lambda', display: '\\lambda' },
+    ],
+    niveau: 'vwo', thema: 'trillingen',
+    answers: { d: '(n*lambda)/sin(alpha)', n: '(d*sin(alpha))/lambda', lambda: '(d*sin(alpha))/n' },
   },
 
   // ── C VLOEISTOFFEN & WARMTE ───────────────────────────────────
@@ -313,7 +486,7 @@ const FORMULAS = [
       { key: 'dV', display: '\\Delta V' },
       { key: 'dt', display: '\\Delta t' },
     ],
-    niveau: 'beide', thema: 'warmte',
+    niveau: 'havo', thema: 'warmte',
     answers: { dV: 'Q*dt', dt: 'dV/Q' },
   },
   {
@@ -338,8 +511,20 @@ const FORMULAS = [
       { key: 'dT', display: '\\Delta T' },
       { key: 'd', display: 'd' },
     ],
-    niveau: 'beide', thema: 'warmte',
+    niveau: 'havo', thema: 'warmte',
     answers: { lambda: '(P*d)/(A*dT)', A: '(P*d)/(lambda*dT)', dT: '(P*d)/(lambda*A)', d: '(lambda*A*dT)/P' },
+  },
+
+  {
+    id: 'debiet_av',
+    display: 'Q = A \\cdot v',
+    variables: { Q: 'debiet', A: 'oppervlakte van de doorsnede', v: 'stroomsnelheid' },
+    solveFor: [
+      { key: 'A', display: 'A' },
+      { key: 'v', display: 'v' },
+    ],
+    niveau: 'havo', thema: 'warmte',
+    answers: { A: 'Q/v', v: 'Q/A' },
   },
 
   // ── D ELEKTRICITEIT ───────────────────────────────────────────
@@ -424,6 +609,86 @@ const FORMULAS = [
     answers: { Rtot: '(R1*R2)/(R1+R2)', R1: '(Rtot*R2)/(R2-Rtot)', R2: '(Rtot*R1)/(R1-Rtot)' },
   },
 
+  {
+    id: 'spanning_energie',
+    display: 'U = \\dfrac{\\Delta E}{Q}',
+    variables: { U: 'spanning', '\\Delta E': 'energie per lading', Q: 'lading' },
+    solveFor: [
+      { key: 'dE', display: '\\Delta E' },
+      { key: 'Q', display: 'Q' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { dE: 'U*Q', Q: 'dE/U' },
+  },
+  {
+    id: 'coulomb',
+    display: 'F_{el} = f \\cdot \\dfrac{q \\cdot Q}{r^2}',
+    variables: { 'F_{el}': 'elektrische kracht', f: 'constante van Coulomb', q: 'lading 1', Q: 'lading 2', r: 'afstand' },
+    solveFor: [
+      { key: 'q', display: 'q' },
+      { key: 'r', display: 'r' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { q: '(Fel*r^2)/(f*Q)', r: 'sqrt((f*q*Q)/Fel)' },
+  },
+  {
+    id: 'veldkracht',
+    display: 'F_{el} = q \\cdot E',
+    variables: { 'F_{el}': 'elektrische kracht', q: 'lading', E: 'elektrische veldsterkte' },
+    solveFor: [
+      { key: 'q', display: 'q' },
+      { key: 'E', display: 'E' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { q: 'Fel/E', E: 'Fel/q' },
+  },
+  {
+    id: 'elektrische_energie',
+    display: '\\Delta E_{el} = q \\cdot U',
+    variables: { '\\Delta E_{el}': 'toename elektrische energie', q: 'lading', U: 'spanning' },
+    solveFor: [
+      { key: 'q', display: 'q' },
+      { key: 'U', display: 'U' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { q: 'dEel/U', U: 'dEel/q' },
+  },
+  {
+    id: 'lorentz_draad',
+    display: 'F_L = B \\cdot I \\cdot l',
+    variables: { 'F_L': 'lorentzkracht', B: 'magnetische inductie', I: 'stroomsterkte', l: 'lengte van de draad in het veld' },
+    solveFor: [
+      { key: 'B', display: 'B' },
+      { key: 'I', display: 'I' },
+      { key: 'l', display: 'l' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { B: 'FL/(I*l)', I: 'FL/(B*l)', l: 'FL/(B*I)' },
+  },
+  {
+    id: 'lorentz_deeltje',
+    display: 'F_L = B \\cdot q \\cdot v',
+    variables: { 'F_L': 'lorentzkracht', B: 'magnetische inductie', q: 'lading', v: 'snelheid' },
+    solveFor: [
+      { key: 'B', display: 'B' },
+      { key: 'q', display: 'q' },
+      { key: 'v', display: 'v' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { B: 'FL/(q*v)', q: 'FL/(B*v)', v: 'FL/(B*q)' },
+  },
+  {
+    id: 'flux',
+    display: '\\Phi = B \\cdot A',
+    variables: { '\\Phi': 'magnetische flux', B: 'magnetische inductie (loodrecht)', A: 'oppervlakte' },
+    solveFor: [
+      { key: 'B', display: 'B' },
+      { key: 'A', display: 'A' },
+    ],
+    niveau: 'vwo', thema: 'elektriciteit',
+    answers: { B: 'Phi/A', A: 'Phi/B' },
+  },
+
   // ── E OVERIGE ─────────────────────────────────────────────────
 
   {
@@ -456,7 +721,7 @@ const FORMULAS = [
       { key: 'lambda', display: '\\lambda' },
       { key: 'h', display: 'h' },
     ],
-    niveau: 'beide', thema: 'overige',
+    niveau: 'vwo', thema: 'overige',
     answers: { lambda: '(h*c)/E', h: '(E*lambda)/c' },
   },
   {
@@ -503,16 +768,6 @@ const FORMULAS = [
     answers: { N0: 'N/0.5^n' },
   },
   {
-    id: 'halvering_n',
-    display: 'N = N_0 \\cdot \\left(\\tfrac{1}{2}\\right)^{n}',
-    variables: { N: 'aantal kernen na n halveringstijden', 'N_0': 'beginhoeveelheid', n: 'aantal halveringstijden' },
-    solveFor: [
-      { key: 'n', display: 'n' },
-    ],
-    niveau: 'vwo', thema: 'overige',
-    answers: { n: 'log(N/N0)/log(0.5)' },
-  },
-  {
     id: 'einstein',
     display: 'E = m \\cdot c^2',
     variables: { E: 'energie', m: 'massa', c: 'lichtsnelheid' },
@@ -521,6 +776,83 @@ const FORMULAS = [
     ],
     niveau: 'vwo', thema: 'overige',
     answers: { m: 'E/c^2' },
+  },
+
+  {
+    id: 'stefan_boltzmann',
+    display: 'P_{bron} = \\sigma \\cdot A \\cdot T^4',
+    variables: { 'P_{bron}': 'uitgestraald vermogen', '\\sigma': 'constante van Stefan-Boltzmann', A: 'oppervlakte', T: 'temperatuur' },
+    solveFor: [
+      { key: 'A', display: 'A' },
+      { key: 'T', display: 'T' },
+    ],
+    niveau: 'vwo', thema: 'overige',
+    answers: { A: 'Pbron/(sigma*T^4)', T: '(Pbron/(sigma*A))^(1/4)' },
+  },
+  {
+    id: 'dopplerverschuiving',
+    display: 'v = \\dfrac{\\Delta \\lambda}{\\lambda} \\cdot c',
+    variables: { v: 'snelheid van de bron', '\\Delta \\lambda': 'verschuiving van de golflengte', '\\lambda': 'golflengte', c: 'lichtsnelheid' },
+    solveFor: [
+      { key: 'Deltalambda', display: '\\Delta \\lambda' },
+      { key: 'lambda', display: '\\lambda' },
+    ],
+    niveau: 'vwo', thema: 'overige',
+    answers: { Deltalambda: '(v*lambda)/c', lambda: '(Deltalambda*c)/v' },
+  },
+  {
+    id: 'debroglie',
+    display: '\\lambda = \\dfrac{h}{m \\cdot v}',
+    variables: { '\\lambda': 'debroglie-golflengte', h: 'constante van Planck', m: 'massa', v: 'snelheid' },
+    solveFor: [
+      { key: 'm', display: 'm' },
+      { key: 'v', display: 'v' },
+    ],
+    niveau: 'vwo', thema: 'overige',
+    answers: { m: 'h/(lambda*v)', v: 'h/(lambda*m)' },
+  },
+  {
+    id: 'deeltje_doosje',
+    display: 'E_n = \\dfrac{n^2 h^2}{8 m L^2}',
+    variables: { 'E_n': 'energie van niveau n', n: 'kwantumgetal', h: 'constante van Planck', m: 'massa', L: 'lengte van het doosje' },
+    solveFor: [
+      { key: 'm', display: 'm' },
+      { key: 'L', display: 'L' },
+      { key: 'n', display: 'n' },
+    ],
+    niveau: 'vwo', thema: 'overige',
+    answers: { m: '(n^2*h^2)/(8*En*L^2)', L: 'sqrt((n^2*h^2)/(8*En*m))', n: 'sqrt(8*m*L^2*En)/h' },
+  },
+  {
+    id: 'dosisequivalent',
+    display: 'H = w_R \\cdot D',
+    variables: { H: 'dosisequivalent', 'w_R': 'stralingsweegfactor', D: 'stralingsdosis' },
+    solveFor: [
+      { key: 'wR', display: 'w_R' },
+      { key: 'D', display: 'D' },
+    ],
+    niveau: 'beide', thema: 'overige',
+    answers: { wR: 'H/D', D: 'H/wR' },
+  },
+  {
+    id: 'activiteit_halvering',
+    display: 'A = A_0 \\cdot \\left(\\tfrac{1}{2}\\right)^{n}',
+    variables: { A: 'activiteit na n halveringstijden', 'A_0': 'beginactiviteit', n: 'aantal halveringstijden' },
+    solveFor: [
+      { key: 'A0', display: 'A_0' },
+    ],
+    niveau: 'beide', thema: 'overige',
+    answers: { A0: 'A/0.5^n' },
+  },
+  {
+    id: 'verzwakking',
+    display: 'I = I_0 \\cdot \\left(\\tfrac{1}{2}\\right)^{n}',
+    variables: { I: 'doorgelaten intensiteit', 'I_0': 'opvallende intensiteit', n: 'aantal halveringsdiktes (d gedeeld door d½)' },
+    solveFor: [
+      { key: 'I0', display: 'I_0' },
+    ],
+    niveau: 'beide', thema: 'overige',
+    answers: { I0: 'I/0.5^n' },
   },
 
   // ── F OPTICA ──────────────────────────────────────────────────

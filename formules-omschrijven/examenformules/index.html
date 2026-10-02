@@ -227,6 +227,11 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       <button class="cat-toggle-btn" onclick="selectAllThemas(false)">Alles uit</button>
     </div>
     <div class="cat-check-grid" id="thema-checks"></div>
+    <label class="check-row" style="margin-top:12px">
+      <input type="checkbox" id="extra-chk">
+      Ook formules buiten het examenprogramma
+      <span class="optica-badge">Binas: overige</span>
+    </label>
   </div>
   <p style="text-align:center;font-size:13px;margin:-8px 0 18px"><a href="overzicht/" style="color:var(--accent);font-weight:600;text-decoration:none">Welke formules zijn dit? Bekijk het overzicht per thema →</a></p>
 
@@ -336,13 +341,13 @@ function toggleTheme(){const c=document.documentElement.getAttribute('data-theme
 math.config({implicit:'multiply'});
 
 // ── GREEK MAPS ──
-const GREEK_TO_LATEX={'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta','η':'\\eta','λ':'\\lambda','ρ':'\\rho','ω':'\\omega','φ':'\\phi','Δ':'\\Delta','π':'\\pi'};
+const GREEK_TO_LATEX={'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta','η':'\\eta','λ':'\\lambda','ρ':'\\rho','ω':'\\omega','φ':'\\phi','Δ':'\\Delta','π':'\\pi','σ':'\\sigma','Φ':'\\Phi'};
 
 // ── CALC BAR ──
 const CALC_GROUPS=[
   {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('},{l:'log(',v:'log('}]},
   {label:'Bewerkingen',btns:[{l:'×',v:'*'},{l:'÷',v:'/'},{l:'+',v:'+'},{l:'−',v:'-'}]},
-  {label:'Grieks',btns:[{l:'Δ',v:'Δ'},{l:'λ',v:'λ'},{l:'π',v:'π'},{l:'ρ',v:'ρ'},{l:'φ',v:'φ'},{l:'η',v:'η'},{l:'ω',v:'ω'}]},
+  {label:'Grieks',btns:[{l:'Δ',v:'Δ'},{l:'λ',v:'λ'},{l:'π',v:'π'},{l:'ρ',v:'ρ'},{l:'φ',v:'φ'},{l:'η',v:'η'},{l:'ω',v:'ω'},{l:'α',v:'α'},{l:'σ',v:'σ'},{l:'Φ',v:'Φ'}]},
   {label:'Subscript',btns:[{l:'x_n',v:'_',id:'btn-sub'},{l:'↑',v:null,id:'btn-sub-end'}]},
 ];
 
@@ -378,7 +383,9 @@ function getFilteredFormulas(){
   const themas=getActiveThemas();
   return FORMULAS.filter(f=>{
     const themaOk=themas.includes(f.thema);
-    const niveauOk=(f.niveau==='beide')||(currentNiveau==='vwo')||(f.niveau==='havo');
+    // Binas 7: beide = havo/vwo, havo = alleen havo (▶), vwo = alleen vwo, extra = overige (buiten het examen)
+    const extraAan=document.getElementById('extra-chk')?.checked;
+    const niveauOk=f.niveau==='beide'||f.niveau===currentNiveau||(f.niveau==='extra'&&extraAan);
     return themaOk&&niveauOk;
   });
 }

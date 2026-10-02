@@ -513,6 +513,12 @@ function formuleUitLatex(latex){
           const gelezen = leesNaam(i + m[0].length + los[0].length, 'Delta_' + los[1]);
           zetWaarde(gelezen.naam); i = gelezen.eind; continue;
         }
+        // Idem met een Griekse letter erachter: \Delta \lambda, \Delta \phi.
+        const grieks = na.match(/^\s*\\([A-Za-z]+)/);
+        if(m[1] === 'Delta' && grieks && GRIEKSE_NAMEN.indexOf(grieks[1]) >= 0){
+          const gelezen = leesNaam(i + m[0].length + grieks[0].length, 'Delta_' + grieks[1]);
+          zetWaarde(gelezen.naam); i = gelezen.eind; continue;
+        }
         const gelezen = leesNaam(i + m[0].length, m[1]);
         zetWaarde(gelezen.naam); i = gelezen.eind; continue;
       }

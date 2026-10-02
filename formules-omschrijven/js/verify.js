@@ -42,7 +42,7 @@ const COMPOUND_NAMES = {
   'dT':        'Delta_T',
 };
 const GREEK_NAMES = ['lambda','Delta','alpha','beta','gamma','delta',
-                     'omega','sigma','theta','phi','eta','rho','pi'];
+                     'omega','sigma','theta','phi','Phi','eta','rho','pi'];
 
 // Alle notatievarianten van een samengestelde naam → één atomaire vorm met
 // underscore, zodat de tokenizer hem als één token leest. Wordt toegepast op
@@ -76,6 +76,29 @@ const COMPOUND_ATOMS = {
   'dv':     'Delta_v',
   'dV':     'Delta_V',
   'dT':     'Delta_T',
+  // Binas 7, tabel 35 (toegevoegd 2026-10)
+  'Pnuttig': 'P_nuttig',
+  'Enuttig': 'E_nuttig',
+  'Ein':    'E_in',
+  'Ech':    'E_ch',
+  'rV':     'r_V',
+  'rm':     'r_m',
+  'Fwsmax': 'F_wsmax',
+  'Fwl':    'F_wl',
+  'Fn':     'F_n',
+  'Cw':     'C_w',
+  'Eg':     'E_g',
+  'Deltaphi': 'Delta_phi',
+  'Pbron':  'P_bron',
+  'DeltaEel': 'Delta_Eel',
+  'dEel':   'Delta_Eel',
+  'DeltaE': 'Delta_E',
+  'dE':     'Delta_E',
+  'Fel':    'F_el',
+  'FL':     'F_L',
+  'Deltalambda': 'Delta_lambda',
+  'En':     'E_n',
+  'wR':     'w_R',
 };
 const COMPOUND_ATOM_KEYS = Object.keys(COMPOUND_ATOMS).sort((a, b) => b.length - a.length);
 
@@ -94,9 +117,9 @@ function preprocess(expr) {
   // wie v^2 typt houdt v² over. Terugvertalen, anders wordt een goed antwoord afgekeurd.
   s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, run =>
     '^(' + run.split('').map(c => SUPERSCRIPT_CHARS[c]).join('') + ')');
-  const greekMap ={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi','σ':'sigma'};
+  const greekMap ={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi','σ':'sigma','Φ':'Phi'};
   for (const [sym, name] of Object.entries(greekMap)) s = s.split(sym).join(name);
-  const latexMap = {'\\alpha':'alpha','\\beta':'beta','\\gamma':'gamma','\\delta':'delta','\\eta':'eta','\\lambda':'lambda','\\rho':'rho','\\omega':'omega','\\phi':'phi','\\Delta':'Delta','\\pi':'pi','\\cdot':'*','\\times':'*'};
+  const latexMap = {'\\alpha':'alpha','\\beta':'beta','\\gamma':'gamma','\\delta':'delta','\\eta':'eta','\\lambda':'lambda','\\rho':'rho','\\omega':'omega','\\phi':'phi','\\Delta':'Delta','\\Phi':'Phi','\\sigma':'sigma','\\pi':'pi','\\cdot':'*','\\times':'*'};
   for (const [cmd, repl] of Object.entries(latexMap)) s = s.split(cmd).join(repl);
   s = s.replace(/\\/g, '').replace(/\{([^}]*)\}/g, '$1');
   return s;

@@ -90,7 +90,7 @@ a.crumb:hover{color:var(--accent)}
 .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:auto;padding-top:4px;border-top:1px dashed var(--border-solid)}
 .solve{font-size:12px;color:var(--text-muted)}
 .badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(212,146,58,0.12);color:var(--accent-amber);border:1px solid rgba(212,146,58,0.3)}
-.vwo-note{font-size:12px;color:var(--accent-amber)}
+.badge--extra{background:var(--bg-secondary);color:var(--text-muted);border-color:var(--border-solid)}
 .empty{font-size:14px;color:var(--text-muted);font-style:italic}
 
 footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
@@ -151,8 +151,9 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     <details>
       <summary><h2>Over dit overzicht</h2></summary>
       <div class="about-body">
-        <p>Dit overzicht bevat de natuurkundeformules uit het examenprogramma van havo en vwo die in de oefenmodus Examenformules voorkomen. Ze zijn ingedeeld in dezelfde thema's als daar: mechanica, trillingen en golven, vloeistoffen en warmte, elektriciteit en overige onderwerpen. Optica staat er als extra bij, maar valt buiten het examen.</p>
-        <p>Met de knop <strong>Havo</strong> of <strong>Vwo</strong> bovenaan zie je alleen de formules voor jouw niveau. Formules die alleen op het vwo voorkomen, hebben een label <em>alleen vwo</em>. Bij elk thema kun je meteen gaan oefenen: de oefenmodus start dan met precies dat thema en het niveau dat je hier kiest.</p>
+        <p>Dit overzicht bevat de natuurkundeformules uit Binas tabel 35 die in de oefenmodus Examenformules voorkomen. Ze zijn ingedeeld in dezelfde thema's als daar: mechanica, trillingen en golven, vloeistoffen en warmte, elektriciteit en overige onderwerpen. Optica staat er als extra bij, maar valt buiten het examen.</p>
+        <p>De indeling en de niveaus volgen Binas (7e editie), tabel 35. Daar staat bij elke formule of hij bij het examenprogramma van havo en vwo hoort, alleen bij vwo, of erbuiten valt. Met de knop <strong>Havo</strong> of <strong>Vwo</strong> bovenaan zie je alleen de formules voor jouw niveau. Formules die maar bij één niveau horen, hebben een label <em>alleen havo</em> of <em>alleen vwo</em>. Formules met het label <em>buiten examen</em> staan in Binas wel, maar horen niet bij het examenprogramma.</p>
+        <p>Bij elk thema kun je meteen gaan oefenen: de oefenmodus start dan met precies dat thema en het niveau dat je hier kiest.</p>
         <p>Weet je nog niet hoe omschrijven werkt? <a href="/formules-omschrijven/uitleg/">Bekijk eerst de uitleg</a>.</p>
       </div>
     </details>
@@ -198,25 +199,15 @@ function toggleTheme(){
   else applyTheme('light');
 })();
 
-// ── Formules samenvoegen ──────────────────────────────────────────────
-// Eén kaart per formule. Staat dezelfde formule er twee keer in (zoals de
-// halveringsformule: havo naar N₀, vwo ook naar n met een logaritme), dan
-// wordt dat één kaart met een notitie voor vwo.
-function groepeer(){
-  const perDisplay=new Map();
-  for(const f of FORMULAS){
-    const k=f.thema+'|'+f.display;
-    if(!perDisplay.has(k)) perDisplay.set(k,{thema:f.thema,display:f.display,variables:f.variables,beide:[],vwo:[]});
-    const g=perDisplay.get(k);
-    for(const s of f.solveFor) (f.niveau==='vwo'?g.vwo:g.beide).push(s.display);
-  }
-  for(const g of perDisplay.values()){
-    g.vwo=g.vwo.filter(d=>!g.beide.includes(d));
-    g.alleenVwo=g.beide.length===0;
-  }
-  return [...perDisplay.values()];
-}
-const GROEPEN=groepeer();
+// ── Niveaus (Binas 7e editie, tabel 35) ───────────────────────────────
+// beide = kolom havo/vwo · havo = alleen havo (▶) · vwo = alleen vwo ·
+// extra = kolom overige, buiten het examenprogramma
+const BADGE={
+  havo:'<span class="badge">alleen havo</span>',
+  vwo:'<span class="badge">alleen vwo</span>',
+  extra:'<span class="badge badge--extra">buiten examen</span>',
+};
+const zichtbaar=f=>niveau==='alle'||f.niveau==='beide'||f.niveau===niveau;
 let niveau='alle';
 
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -231,19 +222,18 @@ function render(){
   const jump=document.getElementById('jump');
   doms.innerHTML='';jump.innerHTML='';
   for(const [key,t] of Object.entries(THEMAS)){
-    const items=GROEPEN.filter(g=>g.thema===key && !(niveau==='havo' && g.alleenVwo));
+    const items=FORMULAS.filter(g=>g.thema===key && zichtbaar(g));
     const label=t.label.replace(' (optioneel)','');
     jump.insertAdjacentHTML('beforeend',`<a href="#${key}" style="color:${t.kleur}" title="${esc(label)}">${t.letter}</a>`);
     const oefenNiveau=niveau==='alle'?'havo':niveau;
     const kaarten=items.map(g=>{
       const legenda=Object.entries(g.variables).map(([sym,bet])=>`<li><span class="sym">${tex(sym)}</span><span>${esc(bet)}</span></li>`).join('');
-      const naar=g.beide.length?`<span class="solve">Omschrijven naar ${lijst(g.beide)}</span>`:`<span class="solve">Omschrijven naar ${lijst(g.vwo)}</span>`;
-      const vwoExtra=(!g.alleenVwo && g.vwo.length && niveau!=='havo')?`<span class="vwo-note">vwo: ook naar ${lijst(g.vwo)}</span>`:'';
-      const badge=g.alleenVwo?'<span class="badge">alleen vwo</span>':'';
+      const naar=`<span class="solve">Omschrijven naar ${lijst(g.solveFor.map(x=>x.display))}</span>`;
+      const badge=BADGE[g.niveau]||'';
       return `<div class="fcard" style="--domain-color:${t.kleur}">
         <div class="fformula">${tex(g.display,true)}</div>
         <ul class="legend">${legenda}</ul>
-        <div class="meta">${badge}${naar}${vwoExtra}</div>
+        <div class="meta">${badge}${naar}</div>
       </div>`;
     }).join('');
     doms.insertAdjacentHTML('beforeend',`<section class="domain" id="${key}">
