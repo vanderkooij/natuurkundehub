@@ -53,6 +53,18 @@ function ResistorIcon() {
     </svg>
   );
 }
+function VarResistorIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#000" strokeWidth="1.3" strokeLinecap="round">
+      <line x1="1" y1="10" x2="5" y2="10" />
+      <line x1="15" y1="10" x2="19" y2="10" />
+      <rect x="5" y="7" width="10" height="6" />
+      {/* Schuine pijl door het lichaam: regelbaar */}
+      <line x1="4" y1="16" x2="14.5" y2="4.5" />
+      <polygon points="16.5,2.5 12.2,4.0 14.9,6.5" fill="#000" stroke="none" />
+    </svg>
+  );
+}
 function LEDIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#000" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -332,6 +344,7 @@ const sources: ToolDef[] = [
 ];
 const loads: ToolDef[] = [
   { id: 'resistor', key: 'tool.resistor', icon: <ResistorIcon /> },
+  { id: 'varresistor', key: 'tool.varresistor', icon: <VarResistorIcon /> },
   { id: 'led', key: 'tool.led', icon: <LEDIcon /> },
   { id: 'switch', key: 'tool.switch', icon: <SwitchIcon /> },
   { id: 'lamp', key: 'tool.lamp', icon: <LampIcon /> },
@@ -364,7 +377,7 @@ const advanced: ToolDef[] = [
 ];
 
 const componentTools = new Set<Tool>([
-  'voltage', 'voltage_ac', 'resistor', 'led', 'motor', 'lamp',
+  'voltage', 'voltage_ac', 'resistor', 'varresistor', 'led', 'motor', 'lamp',
   'ammeter', 'voltmeter', 'capacitor', 'inductor', 'switch', 'diode', 'ground', 'potentiometer',
   'fuse', 'transformer', 'transistor', 'transistor_pnp',
   'ntc', 'ptc', 'ldr', 'pushbutton', 'buzzer', 'relay',

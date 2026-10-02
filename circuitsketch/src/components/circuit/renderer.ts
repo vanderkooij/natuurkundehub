@@ -1,5 +1,5 @@
 import type { CircuitComponent, Wire, TextLabel, Point, WireAttachment, LRouteOrientation, ChipPreset } from './types';
-import { GRID, snap, orthogonalRoute, LABEL_FONT, CHIP_PRESETS, isChipType, chipTerminalLocal } from './types';
+import { GRID, LEAD, OLD_LEAD, snap, orthogonalRoute, LABEL_FONT, CHIP_PRESETS, isChipType, chipTerminalLocal } from './types';
 
 export function clearCanvas(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillStyle = '#fff';
@@ -17,10 +17,10 @@ function drawVoltageSource(ctx: CanvasRenderingContext2D, c: CircuitComponent, s
   // Plates closer together
   const gap = GRID * 0.18;
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-gap, 0);
   ctx.moveTo(gap, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   // Short plate (negative)
@@ -43,7 +43,7 @@ function drawVoltageSource(ctx: CanvasRenderingContext2D, c: CircuitComponent, s
   ctx.fillText('+', gap + GRID * 0.34, -GRID * 0.38);
   ctx.fillText('−', -gap - GRID * 0.34, -GRID * 0.38);
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.8);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.8);
   ctx.restore();
 }
 
@@ -59,10 +59,10 @@ function drawACVoltageSource(ctx: CanvasRenderingContext2D, c: CircuitComponent,
 
   // Leads
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-r, 0);
   ctx.moveTo(r, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   // Circle
@@ -84,7 +84,7 @@ function drawACVoltageSource(ctx: CanvasRenderingContext2D, c: CircuitComponent,
   }
   ctx.stroke();
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID);
   ctx.restore();
 }
 
@@ -97,15 +97,54 @@ function drawResistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, select
   ctx.lineCap = 'round';
 
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-GRID, 0);
   ctx.moveTo(GRID, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   ctx.strokeRect(-GRID, -GRID * 0.4, GRID * 2, GRID * 0.8);
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.7);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.7);
+  ctx.restore();
+}
+
+// Variabele (regelbare) weerstand: weerstand met een schuine pijl erdoor.
+function drawVarResistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: boolean) {
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate((c.rotation * Math.PI) / 180);
+  const color = selected ? '#555' : '#000';
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = selected ? 2.5 : 1.5;
+  ctx.lineCap = 'round';
+
+  ctx.beginPath();
+  ctx.moveTo(-LEAD, 0);
+  ctx.lineTo(-GRID, 0);
+  ctx.moveTo(GRID, 0);
+  ctx.lineTo(LEAD, 0);
+  ctx.stroke();
+  ctx.strokeRect(-GRID, -GRID * 0.4, GRID * 2, GRID * 0.8);
+
+  // Pijl van linksonder naar rechtsboven, met de punt buiten het lichaam
+  const x1 = -GRID * 0.95, y1 = GRID * 0.75, x2 = GRID * 0.95, y2 = -GRID * 0.75;
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+  const aLen = 7, aW = 3.5;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2 - ux * aLen * 0.6, y2 - uy * aLen * 0.6);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * aLen - uy * aW, y2 - uy * aLen + ux * aW);
+  ctx.lineTo(x2 - ux * aLen + uy * aW, y2 - uy * aLen - ux * aW);
+  ctx.closePath();
+  ctx.fill();
+
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.9);
   ctx.restore();
 }
 
@@ -120,10 +159,10 @@ function drawLED(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: b
   ctx.lineJoin = 'round';
 
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-GRID * 0.6, 0);
   ctx.moveTo(GRID * 0.6, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   ctx.beginPath();
@@ -153,7 +192,7 @@ function drawLED(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: b
     ctx.stroke();
   }
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.1);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 1.1);
   ctx.restore();
 }
 
@@ -168,10 +207,10 @@ function drawMotor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
   const r = GRID * 0.7;
 
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-r, 0);
   ctx.moveTo(r, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   ctx.beginPath();
@@ -187,7 +226,7 @@ function drawMotor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
 
   if (selected) {
     ctx.rotate((c.rotation * Math.PI) / 180);
-    drawSelectionBox(ctx, GRID * 2.2, GRID);
+    drawSelectionBox(ctx, GRID * 1.7, GRID);
   }
   ctx.restore();
 }
@@ -203,10 +242,10 @@ function drawLamp(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: 
   const r = GRID * 0.7;
 
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-r, 0);
   ctx.moveTo(r, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   ctx.beginPath();
@@ -221,7 +260,7 @@ function drawLamp(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: 
   ctx.lineTo(-d, d);
   ctx.stroke();
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID);
   ctx.restore();
 }
 
@@ -238,6 +277,7 @@ export function drawComponent(ctx: CanvasRenderingContext2D, c: CircuitComponent
     case 'voltage': return drawVoltageSource(ctx, c, selected);
     case 'voltage_ac': return drawACVoltageSource(ctx, c, selected);
     case 'resistor': return drawResistor(ctx, c, selected);
+    case 'varresistor': return drawVarResistor(ctx, c, selected);
     case 'led': return drawLED(ctx, c, selected);
     case 'motor': return drawMotor(ctx, c, selected);
     case 'lamp': return drawLamp(ctx, c, selected);
@@ -326,8 +366,8 @@ function drawMeter(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
   ctx.lineCap = 'round';
   const r = GRID * 0.7;
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-r, 0);
-  ctx.moveTo(r, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-r, 0);
+  ctx.moveTo(r, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
@@ -338,7 +378,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
   ctx.textBaseline = 'middle';
   ctx.rotate((-c.rotation * Math.PI) / 180);
   ctx.fillText(letter, 0, 0);
-  if (selected) { ctx.rotate((c.rotation * Math.PI) / 180); drawSelectionBox(ctx, GRID * 2.2, GRID); }
+  if (selected) { ctx.rotate((c.rotation * Math.PI) / 180); drawSelectionBox(ctx, GRID * 1.7, GRID); }
   ctx.restore();
 }
 
@@ -352,8 +392,8 @@ function drawCapacitor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selec
   const gap = GRID * 0.16; // plates closer together
   // Leads
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-gap, 0);
-  ctx.moveTo(gap, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-gap, 0);
+  ctx.moveTo(gap, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   // Plates: thicker than the leads
   ctx.lineWidth = selected ? 4 : 3;
@@ -361,7 +401,7 @@ function drawCapacitor(ctx: CanvasRenderingContext2D, c: CircuitComponent, selec
   ctx.moveTo(-gap, -GRID * 0.6); ctx.lineTo(-gap, GRID * 0.6);
   ctx.moveTo(gap, -GRID * 0.6); ctx.lineTo(gap, GRID * 0.6);
   ctx.stroke();
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.8);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.8);
   ctx.restore();
 }
 
@@ -376,15 +416,15 @@ function drawInductor(ctx: CanvasRenderingContext2D, c: CircuitComponent, select
   const w = GRID * 2; // total bumps span -w/2..w/2 = GRID
   const r = GRID * 0.25;
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-bumps * r, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-bumps * r, 0);
   for (let i = 0; i < bumps; i++) {
     const cx = -bumps * r + r + i * 2 * r;
     ctx.arc(cx, 0, r, Math.PI, 0, false);
   }
-  ctx.moveTo(bumps * r, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(bumps * r, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   void w;
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.6);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.6);
   ctx.restore();
 }
 
@@ -398,8 +438,8 @@ function drawSwitch(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected
   ctx.lineCap = 'round';
   const a = GRID * 0.6; // hinge points
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-a, 0);
-  ctx.moveTo(a, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-a, 0);
+  ctx.moveTo(a, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   // Hinge dots
   ctx.beginPath(); ctx.arc(-a, 0, 2.5, 0, Math.PI * 2); ctx.fill();
@@ -412,7 +452,7 @@ function drawSwitch(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected
     ctx.moveTo(-a, 0); ctx.lineTo(a - GRID * 0.2, -GRID * 0.7);
   }
   ctx.stroke();
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.9);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.9);
   ctx.restore();
 }
 
@@ -426,8 +466,8 @@ function drawDiode(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-GRID * 0.6, 0);
-  ctx.moveTo(GRID * 0.6, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-GRID * 0.6, 0);
+  ctx.moveTo(GRID * 0.6, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(-GRID * 0.6, -GRID * 0.6);
@@ -439,7 +479,7 @@ function drawDiode(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
   ctx.moveTo(GRID * 0.6, -GRID * 0.6);
   ctx.lineTo(GRID * 0.6, GRID * 0.6);
   ctx.stroke();
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.9);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.9);
   ctx.restore();
 }
 
@@ -452,7 +492,7 @@ function drawGround(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected
   ctx.lineCap = 'round';
   // Lead from terminal (top, at 0,-GRID*2) down to first bar
   ctx.beginPath();
-  ctx.moveTo(0, -GRID * 2); ctx.lineTo(0, -GRID * 0.3);
+  ctx.moveTo(0, -LEAD); ctx.lineTo(0, -GRID * 0.3);
   ctx.stroke();
   // Three bars of decreasing width
   ctx.beginPath();
@@ -460,7 +500,7 @@ function drawGround(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected
   ctx.moveTo(-GRID * 0.4,  GRID * 0.1); ctx.lineTo(GRID * 0.4,  GRID * 0.1);
   ctx.moveTo(-GRID * 0.2,  GRID * 0.5); ctx.lineTo(GRID * 0.2,  GRID * 0.5);
   ctx.stroke();
-  if (selected) drawSelectionBox(ctx, GRID * 0.8, GRID * 2.2);
+  if (selected) drawSelectionBox(ctx, GRID * 0.8, GRID * 1.7);
   ctx.restore();
 }
 
@@ -474,8 +514,8 @@ function drawPotentiometer(ctx: CanvasRenderingContext2D, c: CircuitComponent, s
   ctx.lineCap = 'round';
   // Resistor body
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-GRID, 0);
-  ctx.moveTo(GRID, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-GRID, 0);
+  ctx.moveTo(GRID, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   ctx.strokeRect(-GRID, -GRID * 0.4, GRID * 2, GRID * 0.8);
   // Wiper: lead from terminal (0, -GRID*1.1) down to arrowhead at body top
@@ -492,7 +532,7 @@ function drawPotentiometer(ctx: CanvasRenderingContext2D, c: CircuitComponent, s
   ctx.beginPath();
   ctx.arc(0, -GRID * 1.1, 2.5, 0, Math.PI * 2);
   ctx.fill();
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.3);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 1.3);
   ctx.restore();
 }
 
@@ -506,10 +546,10 @@ function drawFuse(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: 
 
   // Leads
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0);
   ctx.lineTo(-GRID * 0.8, 0);
   ctx.moveTo(GRID * 0.8, 0);
-  ctx.lineTo(GRID * 2, 0);
+  ctx.lineTo(LEAD, 0);
   ctx.stroke();
 
   // Fuse body: narrow rectangle (smaller than resistor)
@@ -521,7 +561,7 @@ function drawFuse(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: 
   ctx.lineTo(GRID * 0.8, 0);
   ctx.stroke();
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.6);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.6);
   ctx.restore();
 }
 
@@ -540,8 +580,8 @@ function drawTransformer(ctx: CanvasRenderingContext2D, c: CircuitComponent, sel
 
   // Primary leads (top and bottom left)
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, -GRID); ctx.lineTo(-spine, -GRID);
-  ctx.moveTo(-GRID * 2, GRID);  ctx.lineTo(-spine, GRID);
+  ctx.moveTo(-OLD_LEAD, -GRID); ctx.lineTo(-spine, -GRID);
+  ctx.moveTo(-OLD_LEAD, GRID);  ctx.lineTo(-spine, GRID);
   ctx.stroke();
 
   // Primary coil: vertical, bumps face right (inward toward core)
@@ -570,8 +610,8 @@ function drawTransformer(ctx: CanvasRenderingContext2D, c: CircuitComponent, sel
 
   // Secondary leads (top and bottom right)
   ctx.beginPath();
-  ctx.moveTo(GRID * 2, -GRID); ctx.lineTo(spine, -GRID);
-  ctx.moveTo(GRID * 2, GRID);  ctx.lineTo(spine, GRID);
+  ctx.moveTo(OLD_LEAD, -GRID); ctx.lineTo(spine, -GRID);
+  ctx.moveTo(OLD_LEAD, GRID);  ctx.lineTo(spine, GRID);
   ctx.stroke();
 
   if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.2);
@@ -633,7 +673,7 @@ function drawTransistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
 
   // Base lead: terminal 0 (-GRID*2, 0) → base bar
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-GRID * 0.5, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-GRID * 0.5, 0);
   ctx.stroke();
 
   // Base bar (vertical)
@@ -643,12 +683,12 @@ function drawTransistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
 
   // Collector: base bar → terminal 1 (GRID*2, -GRID*1.5)
   ctx.beginPath();
-  ctx.moveTo(-GRID * 0.5, -GRID * 0.45); ctx.lineTo(GRID * 2, -GRID * 1.5);
+  ctx.moveTo(-GRID * 0.5, -GRID * 0.45); ctx.lineTo(LEAD, -GRID * 1.5);
   ctx.stroke();
 
   // Emitter: base bar → terminal 2 (GRID*2, GRID*1.5)
   const ex1 = -GRID * 0.5, ey1 = GRID * 0.45;
-  const ex2 = GRID * 2, ey2 = GRID * 1.5;
+  const ex2 = LEAD, ey2 = GRID * 1.5;
   ctx.beginPath();
   ctx.moveTo(ex1, ey1); ctx.lineTo(ex2, ey2);
   ctx.stroke();
@@ -664,7 +704,7 @@ function drawTransistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
   drawUprightText(ctx, c.rotation, GRID * 1.2, -GRID * 1.6, 'C');
   drawUprightText(ctx, c.rotation, GRID * 1.2, GRID * 1.6, 'E');
 
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.7);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 1.7);
   ctx.restore();
 }
 
@@ -679,8 +719,8 @@ function drawThermistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
   ctx.lineCap = 'round';
   // Leads + body
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-GRID, 0);
-  ctx.moveTo(GRID, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-GRID, 0);
+  ctx.moveTo(GRID, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   ctx.strokeRect(-GRID, -GRID * 0.4, GRID * 2, GRID * 0.8);
   // Diagonal line extending from lower-left through body to upper-right, exiting the body
@@ -701,7 +741,7 @@ function drawThermistor(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(label === 'NTC' ? '−' : '+', cx, cy + 0.5);
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 0.9);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 0.9);
   ctx.restore();
 }
 
@@ -715,8 +755,8 @@ function drawLDR(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: b
   ctx.lineCap = 'round';
   // Leads + body
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-GRID, 0);
-  ctx.moveTo(GRID, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-GRID, 0);
+  ctx.moveTo(GRID, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   ctx.strokeRect(-GRID, -GRID * 0.4, GRID * 2, GRID * 0.8);
   // Two parallel arrows from upper-right at 45°, tips landing on top edge of body
@@ -742,7 +782,7 @@ function drawLDR(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected: b
     ctx.closePath();
     ctx.fill();
   }
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.2);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 1.2);
   ctx.restore();
 }
 
@@ -757,8 +797,8 @@ function drawPushButton(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
   const a = GRID * 0.6;
   // Leads
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-a, 0);
-  ctx.moveTo(a, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-a, 0);
+  ctx.moveTo(a, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   // Contact dots
   ctx.beginPath(); ctx.arc(-a, 0, 2.5, 0, Math.PI * 2); ctx.fill();
@@ -778,7 +818,7 @@ function drawPushButton(ctx: CanvasRenderingContext2D, c: CircuitComponent, sele
     ctx.arc(0, -GRID * 1.25, GRID * 0.18, 0, Math.PI * 2);
     ctx.stroke();
   }
-  if (selected) drawSelectionBox(ctx, GRID * 2.2, GRID * 1.4);
+  if (selected) drawSelectionBox(ctx, GRID * 1.7, GRID * 1.4);
   ctx.restore();
 }
 
@@ -792,8 +832,8 @@ function drawBuzzer(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected
   const r = GRID * 0.65;
   // Leads
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, 0); ctx.lineTo(-r, 0);
-  ctx.moveTo(r, 0); ctx.lineTo(GRID * 2, 0);
+  ctx.moveTo(-LEAD, 0); ctx.lineTo(-r, 0);
+  ctx.moveTo(r, 0); ctx.lineTo(LEAD, 0);
   ctx.stroke();
   // Circle body
   ctx.beginPath();
@@ -806,7 +846,7 @@ function drawBuzzer(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected
   ctx.textBaseline = 'middle';
   ctx.rotate((-c.rotation * Math.PI) / 180);
   ctx.fillText('Bz', 0, 0);
-  if (selected) { ctx.rotate((c.rotation * Math.PI) / 180); drawSelectionBox(ctx, GRID * 2.2, GRID); }
+  if (selected) { ctx.rotate((c.rotation * Math.PI) / 180); drawSelectionBox(ctx, GRID * 1.7, GRID); }
   ctx.restore();
 }
 
@@ -824,8 +864,8 @@ function drawRelay(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
 
   // Coil leads
   ctx.beginPath();
-  ctx.moveTo(-GRID * 2, -GRID); ctx.lineTo(coilX, -GRID);
-  ctx.moveTo(-GRID * 2,  GRID); ctx.lineTo(coilX,  GRID);
+  ctx.moveTo(-OLD_LEAD, -GRID); ctx.lineTo(coilX, -GRID);
+  ctx.moveTo(-OLD_LEAD,  GRID); ctx.lineTo(coilX,  GRID);
   ctx.stroke();
 
   // Coil: 2 vertical bumps facing right (toward core)
@@ -848,8 +888,8 @@ function drawRelay(ctx: CanvasRenderingContext2D, c: CircuitComponent, selected:
   // Switch leads
   const contactX = GRID * 0.8;
   ctx.beginPath();
-  ctx.moveTo(GRID * 2, -GRID); ctx.lineTo(contactX, -GRID);
-  ctx.moveTo(GRID * 2,  GRID); ctx.lineTo(contactX,  GRID);
+  ctx.moveTo(OLD_LEAD, -GRID); ctx.lineTo(contactX, -GRID);
+  ctx.moveTo(OLD_LEAD,  GRID); ctx.lineTo(contactX,  GRID);
   ctx.stroke();
 
   // Contact dots
@@ -1095,8 +1135,8 @@ export function drawWireCrossings(
 }
 
 export function hitTestComponent(c: CircuitComponent, p: Point): boolean {
-  let dx = GRID * 2.2;
-  let dy = (c.type === 'transistor' || c.type === 'transistor_pnp') ? GRID * 1.7 : c.type === 'ground' ? GRID * 2.2 : GRID * 1.2;
+  let dx = (c.type === 'transformer' || c.type === 'relay') ? GRID * 2.2 : GRID * 1.7;
+  let dy = (c.type === 'transistor' || c.type === 'transistor_pnp') ? GRID * 1.7 : c.type === 'ground' ? GRID * 1.7 : GRID * 1.2;
   if (isChipType(c.type)) {
     const preset = CHIP_PRESETS[c.type];
     dx = (preset.halfW + 0.6) * GRID;
@@ -1121,32 +1161,32 @@ export function getTerminalCount(type: CircuitComponent['type']): number {
 }
 
 // Local (unrotated) position of a terminal relative to component center.
-function terminalLocalPos(type: CircuitComponent['type'], terminal: number): Point {
+export function terminalLocalPos(type: CircuitComponent['type'], terminal: number, lead = LEAD): Point {
   if (isChipType(type)) return chipTerminalLocal(CHIP_PRESETS[type], terminal);
   switch (type) {
     case 'potentiometer':
-      if (terminal === 0) return { x: -GRID * 2, y: 0 };
-      if (terminal === 1) return { x: GRID * 2, y: 0 };
+      if (terminal === 0) return { x: -lead, y: 0 };
+      if (terminal === 1) return { x: lead, y: 0 };
       return { x: 0, y: -GRID * 1.1 }; // wiper
     case 'transformer':
-      if (terminal === 0) return { x: -GRID * 2, y: -GRID };
-      if (terminal === 1) return { x: -GRID * 2, y: GRID };
-      if (terminal === 2) return { x: GRID * 2, y: -GRID };
-      return { x: GRID * 2, y: GRID };
+      if (terminal === 0) return { x: -OLD_LEAD, y: -GRID };
+      if (terminal === 1) return { x: -OLD_LEAD, y: GRID };
+      if (terminal === 2) return { x: OLD_LEAD, y: -GRID };
+      return { x: OLD_LEAD, y: GRID };
     case 'ground':
-      return { x: 0, y: -GRID * 2 };
+      return { x: 0, y: -lead };
     case 'relay':
-      if (terminal === 0) return { x: -GRID * 2, y: -GRID };
-      if (terminal === 1) return { x: -GRID * 2, y: GRID };
-      if (terminal === 2) return { x: GRID * 2, y: -GRID };
-      return { x: GRID * 2, y: GRID };
+      if (terminal === 0) return { x: -OLD_LEAD, y: -GRID };
+      if (terminal === 1) return { x: -OLD_LEAD, y: GRID };
+      if (terminal === 2) return { x: OLD_LEAD, y: -GRID };
+      return { x: OLD_LEAD, y: GRID };
     case 'transistor':
     case 'transistor_pnp':
-      if (terminal === 0) return { x: -GRID * 2, y: 0 };        // base
-      if (terminal === 1) return { x: GRID * 2, y: -GRID * 1.5 }; // collector
-      return { x: GRID * 2, y: GRID * 1.5 };                      // emitter
+      if (terminal === 0) return { x: -lead, y: 0 };        // base
+      if (terminal === 1) return { x: lead, y: -GRID * 1.5 }; // collector
+      return { x: lead, y: GRID * 1.5 };                      // emitter
     default:
-      return { x: terminal === 0 ? -GRID * 2 : GRID * 2, y: 0 };
+      return { x: terminal === 0 ? -lead : lead, y: 0 };
   }
 }
 

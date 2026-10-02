@@ -1,6 +1,6 @@
 import { useRef, useState, useReducer, useCallback, useEffect } from 'react';
 import type { CircuitState, Tool, Point, CircuitComponent, Wire, TextLabel, WireAttachment, ComponentType, LRouteOrientation } from './types';
-import { GRID, snap, snapPoint, uid, orthogonalRoute, inferOrientation, LABEL_FONT, CHIP_PRESETS, isChipType } from './types';
+import { GRID, LEAD, snap, snapPoint, uid, orthogonalRoute, inferOrientation, LABEL_FONT, CHIP_PRESETS, isChipType } from './types';
 import {
   clearCanvas, drawComponent, drawWire, drawLabel, drawPreviewWire, drawSnapHint,
   drawAlignmentGuides, drawDistanceLabels, drawWireCrossings, findWireCrossings,
@@ -22,7 +22,7 @@ const DISTRIBUTE_TOL = 8;
 const TOOLBAR_H = 52;
 
 const COMPONENT_TYPES = new Set<Tool>([
-  'voltage', 'voltage_ac', 'resistor', 'led', 'motor', 'lamp',
+  'voltage', 'voltage_ac', 'resistor', 'varresistor', 'led', 'motor', 'lamp',
   'ammeter', 'voltmeter', 'capacitor', 'inductor', 'switch', 'diode', 'ground',
   'potentiometer', 'fuse', 'transformer', 'transistor', 'transistor_pnp',
   'ntc', 'ptc', 'ldr', 'pushbutton', 'buzzer', 'relay',
@@ -470,14 +470,14 @@ function trySplitWire(
       const minX = Math.min(a.x, b.x), maxX = Math.max(a.x, b.x);
       const minY = Math.min(a.y, b.y), maxY = Math.max(a.y, b.y);
 
-      // Segment must be long enough to fit the component (terminal span = GRID*4)
-      if (isH && (maxX - minX) < GRID * 4) continue;
-      if (isV && (maxY - minY) < GRID * 4) continue;
+      // Segment must be long enough to fit the component (terminal span = LEAD*2)
+      if (isH && (maxX - minX) < LEAD * 2) continue;
+      if (isV && (maxY - minY) < LEAD * 2) continue;
 
       const rotation: 0 | 90 = isH ? 0 : 90;
       // Clamp center to valid range so terminals stay within segment bounds
-      const cx = isH ? Math.max(minX + GRID * 2, Math.min(maxX - GRID * 2, snap(p.x))) : a.x;
-      const cy = isH ? a.y : Math.max(minY + GRID * 2, Math.min(maxY - GRID * 2, snap(p.y)));
+      const cx = isH ? Math.max(minX + LEAD, Math.min(maxX - LEAD, snap(p.x))) : a.x;
+      const cy = isH ? a.y : Math.max(minY + LEAD, Math.min(maxY - LEAD, snap(p.y)));
       const newComp: CircuitComponent = { ...comp, x: cx, y: cy, rotation };
       const t0 = getTerminal(newComp, 0);
       const t1 = getTerminal(newComp, 1);

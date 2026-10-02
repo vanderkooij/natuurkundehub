@@ -1,5 +1,12 @@
 export const GRID = 20;
 
+// Afstand van het midden van een component tot het eind van een aansluitdraadje
+// (de aansluiting). Was GRID * 2; ingekort op verzoek van Jop (2026-10) zodat de
+// draadjes net zichtbaar blijven. Bestanden van vóór die tijd (versie 1) worden
+// bij het openen omgezet, zie migrateLeads in io.ts.
+export const LEAD = GRID * 1.5;
+export const OLD_LEAD = GRID * 2;
+
 // Text-label font. Clean sans-serif (not Arial); also used by PNG/SVG export and
 // the inline edit field so on-screen text matches what gets exported.
 export const LABEL_FONT_FAMILY = '"Segoe UI", system-ui, sans-serif';
@@ -8,9 +15,9 @@ export const LABEL_FONT = `${LABEL_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
 
 export type ChipType = 'chip_stepup' | 'chip_stepdown' | 'chip_esp' | 'chip_ic8';
 
-export type Tool = 'select' | 'voltage' | 'voltage_ac' | 'resistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'transistor_pnp' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | ChipType | 'wire' | 'text' | 'delete';
+export type Tool = 'select' | 'voltage' | 'voltage_ac' | 'resistor' | 'varresistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'transistor_pnp' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | ChipType | 'wire' | 'text' | 'delete';
 
-export type ComponentType = 'voltage' | 'voltage_ac' | 'resistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'transistor_pnp' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | ChipType;
+export type ComponentType = 'voltage' | 'voltage_ac' | 'resistor' | 'varresistor' | 'led' | 'motor' | 'lamp' | 'ammeter' | 'voltmeter' | 'capacitor' | 'inductor' | 'switch' | 'diode' | 'ground' | 'potentiometer' | 'fuse' | 'transformer' | 'transistor' | 'transistor_pnp' | 'ntc' | 'ptc' | 'ldr' | 'pushbutton' | 'buzzer' | 'relay' | ChipType;
 
 export type LRouteOrientation = 'HV' | 'VH';
 
