@@ -310,6 +310,7 @@ function routeAvoiding(
   orient: LRouteOrientation,
   wires: Wire[] = [],
   next?: Point,
+  exempt: Point[] = [],
 ): Point[] {
   if (from.x === to.x && from.y === to.y) return [from, to];
   const bboxes = components.map(c => getCompBodyBBox(c)).filter((b): b is BBox => b !== null);
@@ -333,7 +334,10 @@ function routeAvoiding(
   // eindpunt? Zonder verbindingsstippen ziet zo'n aanraking eruit als een
   // verbinding: door het einde of de hoek van een andere draad lopen, of met
   // een knik op een andere draad uitkomen. Haaks kruisen mag wel (boogje).
-  const isEnd = (p: Point) => (p.x === from.x && p.y === from.y) || (p.x === to.x && p.y === to.y);
+  // exempt: aftakpunten van draden die aan DEZE draad vastzitten; die schuiven
+  // na het leggen mee naar de nieuwe route en mogen dus geraakt worden.
+  const isEnd = (p: Point) => (p.x === from.x && p.y === from.y) || (p.x === to.x && p.y === to.y)
+    || exempt.some(e => e.x === p.x && e.y === p.y);
   const onSeg = (p: Point, a: Point, b: Point) =>
     (a.x === b.x && p.x === a.x && p.y >= Math.min(a.y, b.y) && p.y <= Math.max(a.y, b.y)) ||
     (a.y === b.y && p.y === a.y && p.x >= Math.min(a.x, b.x) && p.x <= Math.max(a.x, b.x));
@@ -463,6 +467,7 @@ function routeThroughWaypoints(
   components: CircuitComponent[],
   orient: LRouteOrientation,
   wires: Wire[] = [],
+  exempt: Point[] = [],
 ): Point[] {
   const pts = [start, ...waypoints, end];
   const result: Point[] = [];
@@ -470,7 +475,7 @@ function routeThroughWaypoints(
     // Het stuk dat al gelegd is telt mee als andere draad, zodat de draad niet
     // over zichzelf terugloopt.
     const soFar: Wire[] = result.length > 1 ? [{ id: '__self', nodes: result }] : [];
-    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, [...wires, ...soFar], pts[i + 2]);
+    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, [...wires, ...soFar], pts[i + 2], exempt);
     if (result.length === 0) result.push(...seg);
     else result.push(...seg.slice(1));
   }
@@ -614,7 +619,7 @@ function syncWires(s: CircuitState): CircuitState {
       // op de nieuwe route. De aftakkende draad legt zich in de volgende ronde
       // vanaf dat punt opnieuw. Voorheen moest de route door de oude, vaste
       // plek van het aftakpunt, wat lussen en stompjes gaf.
-      let route = routeThroughWaypoints(startStub, endStub, [], cur.components, orient, otherWires);
+      let route = routeThroughWaypoints(startStub, endStub, [], cur.components, orient, otherWires, junctionPositions);
       if (startStub !== newStart) route = [newStart, ...route];
       if (endStub !== newEnd) route = [...route, newEnd];
       const projected = junctions.map(j => nearestPointOnRoute(route, j.pos));
@@ -943,6 +948,10 @@ export default function CircuitEditor() {
   const clipboardRef = useRef<ClipboardData | null>(null);
   clipboardRef.current = clipboard;
   const stateRef = useRef<CircuitState>(state);
+  // Stand van de schakeling bij het begin van een sleepbeweging met een component.
+  // Elke tussenstand wordt hieruit opnieuw berekend, zodat het resultaat alleen
+  // afhangt van waar je loslaat en niet van de weg die de muis aflegde.
+  const dragBaseRef = useRef<CircuitState | null>(null);
   stateRef.current = state;
   const selectionRef = useRef<typeof selection>(null);
   selectionRef.current = selection;
@@ -1639,6 +1648,7 @@ export default function CircuitEditor() {
     for (const c of [...state.components].reverse()) {
       if (hitTestComponent(c, p)) {
         setSelection({ kind: 'component', id: c.id });
+        dragBaseRef.current = state;
         setDragging(true);
         setDragOffset({ x: p.x - c.x, y: p.y - c.y });
         // Start multi-drag if this component is part of multi-selection
@@ -1759,6 +1769,7 @@ export default function CircuitEditor() {
     }
 
     if (selection.kind === 'component') {
+      const base = dragBaseRef.current ?? stateRef.current;
       const rawX = snap(p.x - dragOffset.x);
       const rawY = snap(p.y - dragOffset.y);
       const others = state.components.filter(c => c.id !== selection.id);
@@ -1770,14 +1781,14 @@ export default function CircuitEditor() {
         const dx = aligned.pos.x - (multiDragPrimaryStart?.x ?? 0);
         const dy = aligned.pos.y - (multiDragPrimaryStart?.y ?? 0);
         dispatch({ type: 'SET_LIVE', payload: syncWires({
-          ...stateRef.current,
-          components: stateRef.current.components.map(c => {
+          ...base,
+          components: base.components.map(c => {
             if (c.id === selection.id) return { ...c, x: aligned.pos.x, y: aligned.pos.y };
             const off = multiDragOffsets.get(c.id);
             if (off) return { ...c, x: aligned.pos.x + off.dx, y: aligned.pos.y + off.dy };
             return c;
           }),
-          wires: stateRef.current.wires.map(w => {
+          wires: base.wires.map(w => {
             const startNodes = multiDragWireNodes.get(w.id);
             if (startNodes) return { ...w, nodes: startNodes.map(n => ({ x: n.x + dx, y: n.y + dy })) };
             return w;
@@ -1785,23 +1796,23 @@ export default function CircuitEditor() {
         }) });
       } else {
         // Vastklikken op een aansluiting of een los draadeinde in de buurt
-        const dragged = stateRef.current.components.find(c => c.id === selection.id);
+        const dragged = base.components.find(c => c.id === selection.id);
         let pos = aligned.pos;
         if (dragged) {
-          const attached = new Set(stateRef.current.wires
+          const attached = new Set(base.wires
             .filter(w => (w.startAttach?.kind === 'component' && w.startAttach.componentId === dragged.id)
               || (w.endAttach?.kind === 'component' && w.endAttach.componentId === dragged.id))
             .map(w => w.id));
           const res = snapCompToConnections(
             { ...dragged, x: aligned.pos.x, y: aligned.pos.y },
-            stateRef.current.components,
-            stateRef.current.wires.filter(w => !attached.has(w.id)),
+            base.components,
+            base.wires.filter(w => !attached.has(w.id)),
           );
           if (res.snapped) { pos = { x: res.comp.x, y: res.comp.y }; setAlignGuides([]); setDistLabels([]); }
         }
         dispatch({ type: 'SET_LIVE', payload: syncWires({
-          ...stateRef.current,
-          components: stateRef.current.components.map(c =>
+          ...base,
+          components: base.components.map(c =>
             c.id === selection.id ? { ...c, x: pos.x, y: pos.y } : c
           ),
         }) });
@@ -1898,6 +1909,7 @@ export default function CircuitEditor() {
       return;
     }
     if (dragging) {
+      dragBaseRef.current = null;
       setDragging(false);
       setAlignGuides([]);
       setDistLabels([]);
