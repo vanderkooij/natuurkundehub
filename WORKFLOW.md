@@ -25,7 +25,8 @@ natuurkundehub/
 │   ├── index.html                    # Keuzemenu: eerst onderbouw of bovenbouw (#onderbouw / #bovenbouw)
 │   ├── uitleg/index.html             # Bovenbouw: uitlegmodus (9 stappen, met de stapper)
 │   ├── oefenen/index.html            # Bovenbouw: letterformules (5 levels + oplopende reeks, met stapmodus)
-│   ├── examenformules/index.html     # Bovenbouw: formules uit het examenprogramma (met stapmodus)
+│   ├── examenformules/index.html     # Bovenbouw: formules uit het examenprogramma (met stapmodus; ?thema=…&niveau=… zet keuzes vooraf)
+│   ├── examenformules/overzicht/     # Formuleoverzicht: alle examenformules per thema, opgebouwd uit data/formulas.js
 │   ├── onderbouw/
 │   │   ├── uitleg/index.html         # Van vlek naar letter; ?spoor=plusmin geeft het plus-en-min-spoor
 │   │   └── oefenen/index.html        # Keer/delen of plus/min; 4 levels + extra level 5 (klas 3), met de stapper
@@ -139,6 +140,7 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/formules-omschrijven/uitleg/` | Leren omschrijven |
 | `/formules-omschrijven/oefenen/` | Oefenen |
 | `/formules-omschrijven/examenformules/` | Examenformules |
+| `/formules-omschrijven/examenformules/overzicht/` | Formuleoverzicht |
 | `/significantie/` | Significantie |
 | `/significantie/uitleg/` | Significantie |
 | `/voorvoegsels/` | Machten van 10 en voorvoegsels *(keuzepagina, hero)* |

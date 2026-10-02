@@ -228,6 +228,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     </div>
     <div class="cat-check-grid" id="thema-checks"></div>
   </div>
+  <p style="text-align:center;font-size:13px;margin:-8px 0 18px"><a href="overzicht/" style="color:var(--accent);font-weight:600;text-decoration:none">Welke formules zijn dit? Bekijk het overzicht per thema →</a></p>
 
   <button class="start-btn" id="start-btn" onclick="startExercise()">Start oefenen →</button>
 </div>
@@ -298,7 +299,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     <details>
       <summary><h2>Over deze tool: examenformules omschrijven</h2></summary>
       <div class="about-body">
-        <p>Hier oefen je het omschrijven met echte natuurkundeformules uit het examenprogramma van havo en vwo, zoals de formule voor kinetische energie, waaruit je de snelheid haalt. Kies je niveau en de thema's die je wilt oefenen: mechanica, trillingen en golven, vloeistoffen en warmte, elektriciteit en overige onderwerpen. Optica kun je als extra aanzetten.</p>
+        <p>Hier oefen je het omschrijven met echte natuurkundeformules uit het examenprogramma van havo en vwo, zoals de formule voor kinetische energie, waaruit je de snelheid haalt. Kies je niveau en de thema's die je wilt oefenen: mechanica, trillingen en golven, vloeistoffen en warmte, elektriciteit en overige onderwerpen. Optica kun je als extra aanzetten. In het <a href="overzicht/">formuleoverzicht</a> zie je alle formules per thema op een rij.</p>
         <h3>Waarom oefenen met examenformules?</h3>
         <p>In een opgave staat de formule bijna nooit in de vorm die je nodig hebt. Kun je vlot omschrijven, dan houd je je aandacht over voor de natuurkunde zelf. In examenformules komen machten, wortels en breuken vaak voor, dus dit is een goede oefening voor een toets of het examen.</p>
         <h3>Hulp nodig?</h3>
@@ -814,6 +815,18 @@ function showPanel(name){
 const kb=initKeyboard('answer-input',CALC_GROUPS);
 document.getElementById('oefen-stapper').addEventListener('stapper-klaar',e=>onStapperKlaar(e.detail));
 renderThemaChecks();
+
+// Vanaf het formuleoverzicht: ?thema=mechanica,elektriciteit&niveau=vwo zet de keuzes vooraf
+(function(){
+  const q=new URLSearchParams(location.search);
+  const n=q.get('niveau');
+  if(n==='havo'||n==='vwo') setNiveau(n);
+  const t=q.get('thema');
+  if(t){
+    const keuze=t.split(',');
+    document.querySelectorAll('.thema-chk').forEach(c=>{c.checked=keuze.includes(c.value);});
+  }
+})();
 </script>
 </body>
 </html>
