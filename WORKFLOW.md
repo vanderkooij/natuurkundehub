@@ -68,6 +68,8 @@ Elke pagina heeft in de `<head>`, direct na `<title>`:
 - `<link rel="canonical" href="https://natuurkundehub.nl/<pad>/">`, altijd met slash aan het eind;
 - de Open Graph-tags `og:type`, `og:site_name`, `og:locale`, `og:title`, `og:description` en `og:url` (kopieer ze van een bestaande pagina).
 
+Tool- en keuzepagina's krijgen onderaan in `.main` een inklapbaar blok **Over deze tool** (`<section class="about"><details>…`), met de opmaak uit `/assets/about.css`. Daarin staan in gewone taal wat je oefent, voor wie, de kern van de stof en een link naar de uitleg. De tool zelf blijft bovenaan en ongewijzigd; het blok geeft Google leesbare tekst zonder leerlingen af te leiden. Uitlegpagina's hebben al genoeg tekst en krijgen het blok niet. Kijk het voorbeeld na in `significantie/index.html`.
+
 Pagina's die niet in Google horen (admin, doorverwijzingen, 404) krijgen `<meta name="robots" content="noindex">`.
 
 `robots.txt` staat in de root. `dist/sitemap.xml` wordt aan het eind van `build.sh` gemaakt door `scripts/sitemap.mjs`: alle `index.html`-pagina's in `dist/`, behalve die met `noindex`. Interne links naar een tool schrijf je met slash aan het eind (`/overhoor/`), zodat er geen omleiding tussen zit. Logo- en faviconpaden in statische pagina's zijn absoluut (`/assets/logo/...`).
