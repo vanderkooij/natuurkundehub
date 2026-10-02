@@ -270,9 +270,13 @@ function segmentIntersectsBBox(a: Point, b: Point, bbox: BBox): boolean {
   return false;
 }
 
+// Gewichten voor routekeuze (zie score in routeAvoiding)
+const CROSS_COST = 1.5;
+const LEN_COST = 0.25;   // per rasterhok (20 px)
+
 // Padzoeker over een rooster van een half rasterhok (10 px), voor als de
 // simpele L-routes en omwegen allemaal afvallen. Dijkstra over (punt, richting):
-// lengte telt licht, een knik 1, een haakse kruising met een andere draad 4.
+// gewichten als de score: lengte, knikken en kruisingen (LEN_COST, 1, CROSS_COST).
 // Verboden: door een component, over een andere draad heen (zelfde lijn),
 // door een knoop van een andere draad, en knikken op een andere draad (dat zou
 // eruitzien als een verbinding). Knikken alleen op rasterlijnen of in lijn met
@@ -364,8 +368,8 @@ function gridRoute(
       if (nd === 2 && vEdge[idx(x, y)]) continue;
       if (nd === 3 && vEdge[ni]) continue;
       // Haaks een andere draad kruisen kost extra (boogje in de tekening)
-      const crosses = (nd < 2 ? onV[ni] : onH[ni]) && ni !== goal ? 4 : 0;
-      const cost = d + 0.025 + (dir !== 4 && nd !== dir ? 1 : 0) + crosses;
+      const crosses = (nd < 2 ? onV[ni] : onH[ni]) && ni !== goal ? CROSS_COST : 0;
+      const cost = d + LEN_COST / 2 + (dir !== 4 && nd !== dir ? 1 : 0) + crosses;
       const ns = ni * 5 + nd;
       if (cost < dist[ns]) { dist[ns] = cost; prev[ns] = s; push(cost, ns); }
     }
@@ -468,17 +472,35 @@ function routeAvoiding(
       for (const [c, d] of others) if (onSeg(nodes[i], c, d)) return true;
     return false;
   };
+  // Kruispunten als unieke punten: twee draden van hetzelfde net die op elkaar
+  // liggen, kruis je op één plek maar één keer.
+  const crossingPoints = (nodes: Point[]) => {
+    const pts = new Set<string>();
+    for (let i = 0; i < nodes.length - 1; i++) for (const [c, d] of others) {
+      if (!segmentsCross(nodes[i], nodes[i + 1], c, d)) continue;
+      const hor = nodes[i].y === nodes[i + 1].y;
+      pts.add(hor ? `${c.x},${nodes[i].y}` : `${nodes[i].x},${c.y}`);
+    }
+    return pts;
+  };
+  const countCrossings = (nodes: Point[]) => {
+    let n = 0;
+    return crossingPoints(nodes).size;
+  };
   const score = (nodes: Point[], preferred: boolean) => {
-    let crossings = 0, length = 0, jogs = 0;
+    const crossings = crossingPoints(nodes).size;
+    let length = 0, jogs = 0;
     for (let i = 0; i < nodes.length - 1; i++) {
       const len = Math.abs(nodes[i + 1].x - nodes[i].x) + Math.abs(nodes[i + 1].y - nodes[i].y);
       length += len;
       // Een stukje korter dan één rasterhok tussen twee knikken is een trapje
       // (meestal 10 px: aansluitingen liggen tussen de rasterlijnen).
       if (len > 0 && len < GRID && i > 0 && i < nodes.length - 2) jogs++;
-      for (const [c, d] of others) if (segmentsCross(nodes[i], nodes[i + 1], c, d)) crossings++;
     }
-    return crossings * 4 + jogs * 3 + (nodes.length - 2) + length / GRID * 0.05 + (preferred ? 0 : 0.5);
+    // Weging: een knik 1, een kruising (boogje) 1,5, een trapje 3, en elke 20 px
+    // lengte 0,25. Een kruising is in een schema heel gewoon; een lange omweg
+    // om er een te vermijden is juist lastiger te lezen.
+    return crossings * CROSS_COST + jogs * 3 + (nodes.length - 2) + length / GRID * LEN_COST + (preferred ? 0 : 0.5);
   };
 
   const r1 = orthogonalRoute(from, to, orient);
@@ -514,7 +536,7 @@ function routeAvoiding(
     if (sc < bestScore) { bestScore = sc; best = c.nodes; }
   }
   // Geen nette simpele route, of alleen met kruisingen: zoek over het raster.
-  if (!best || bestScore >= 4) {
+  if (!best || countCrossings(best) > 0 || best.length >= 5) {
     const g = gridRoute(from, to, bboxes, others, otherNodes, exempt);
     if (g && !hitsBody(g) && !overlapsWire(g) && !touchesWire(g)) {
       const sc = score(g, false);
@@ -614,6 +636,115 @@ function routeThroughWaypoints(
     else result.push(...seg.slice(1));
   }
   return result;
+}
+
+// Een verbinding als geheel bekijken (wens van Jop): als een draad opnieuw
+// gelegd moet worden omdat een component aan één kant bewoog, mag zijn ANDERE
+// einde naar elk punt van hetzelfde elektrische net verhuizen, zolang er
+// niets losraakt. Kies het aansluitpunt met de goedkoopste route. Voorbeeld:
+// een tweede draad die vanaf de aansluiting van R1 over de draad van de
+// minpool naar R2 loopt, takt na verslepen van R2 gewoon dichtbij R2 af van
+// die minpooldraad, in plaats van een boog terug naar R1 te maken.
+function reanchorToNet(st: CircuitState, moving: Map<string, 'start' | 'end'>): CircuitState {
+  let cur = st;
+  const termKey = (a: WireAttachment | undefined) => a?.kind === 'component' ? `${a.componentId}:${a.terminal}` : null;
+  const cost = (nodes: Point[]) => {
+    let len = 0;
+    for (let i = 0; i < nodes.length - 1; i++) len += Math.abs(nodes[i + 1].x - nodes[i].x) + Math.abs(nodes[i + 1].y - nodes[i].y);
+    return (nodes.length - 2) + len / GRID * LEN_COST;
+  };
+  for (const [id, mSide] of moving) {
+    const w = cur.wires.find(x => x.id === id);
+    if (!w || w.nodes.length < 2) continue;
+    for (const side of [mSide]) {
+      const mAtt = side === 'start' ? w.startAttach : w.endAttach;          // bewegende kant
+      const fAtt = side === 'start' ? w.endAttach : w.startAttach;          // vaste kant
+      if (mAtt?.kind !== 'component' || !fAtt) continue;
+      const M = resolveAttach(cur, mAtt);
+      if (!M) continue;
+      const F = resolveAttach(cur, fAtt);
+      if (!F) continue;
+      // De vaste kant moet zonder deze draad verbonden blijven
+      if (fAtt.kind === 'component') {
+        const k = termKey(fAtt);
+        const others = cur.wires.filter(x => x.id !== w.id && (termKey(x.startAttach) === k || termKey(x.endAttach) === k));
+        if (others.length === 0) continue;
+      }
+      // Draden die vanaf de vaste kant bereikbaar zijn zonder via w te gaan
+      const reach = new Set<string>();
+      const fKey = termKey(fAtt);
+      const seed = cur.wires.filter(x => x.id !== w.id && (
+        (fKey && (termKey(x.startAttach) === fKey || termKey(x.endAttach) === fKey)) ||
+        (fAtt.kind === 'wire' && x.id === fAtt.wireId)));
+      const queue = [...seed];
+      seed.forEach(x => reach.add(x.id));
+      while (queue.length) {
+        const x = queue.pop()!;
+        for (const y of cur.wires) {
+          if (y.id === w.id || reach.has(y.id)) continue;
+          const tx = [termKey(x.startAttach), termKey(x.endAttach)], ty = [termKey(y.startAttach), termKey(y.endAttach)];
+          const linked = (y.startAttach?.kind === 'wire' && y.startAttach.wireId === x.id) || (y.endAttach?.kind === 'wire' && y.endAttach.wireId === x.id)
+            || (x.startAttach?.kind === 'wire' && x.startAttach.wireId === y.id) || (x.endAttach?.kind === 'wire' && x.endAttach.wireId === y.id)
+            || tx.some(t => t && ty.includes(t));
+          if (linked) { reach.add(y.id); queue.push(y); }
+        }
+      }
+      if (!reach.size) continue;
+      // Kandidaat-aansluitpunten: projecties van M (en buurpunten) op die draden
+      const net = wireNet(cur, w.id);
+      const otherWires = cur.wires.filter(x => !net.wires.has(x.id));
+      const netTerms = netTerminalPoints(cur.components, net.terminals);
+      // Route naar P; een route die toch over of door een draad van een ander
+      // net loopt (de router valt daar soms op terug) telt als onbruikbaar.
+      const otherSegs: [Point, Point][] = [];
+      for (const x of otherWires) for (let i = 0; i < x.nodes.length - 1; i++) otherSegs.push([x.nodes[i], x.nodes[i + 1]]);
+      const onS = (p: Point, a: Point, b: Point) =>
+        (a.x === b.x && p.x === a.x && p.y >= Math.min(a.y, b.y) && p.y <= Math.max(a.y, b.y)) ||
+        (a.y === b.y && p.y === a.y && p.x >= Math.min(a.x, b.x) && p.x <= Math.max(a.x, b.x));
+      const routeTo = (P: Point) => {
+        const nodes = routeAvoiding(M, P, cur.components, 'HV', otherWires, undefined, [], netTerms);
+        let bad = false;
+        for (let i = 0; i < nodes.length - 1 && !bad; i++) for (const [a, b] of otherSegs) {
+          if (segmentsOverlap(nodes[i], nodes[i + 1], a, b) || onS(a, nodes[i], nodes[i + 1]) || onS(b, nodes[i], nodes[i + 1])) { bad = true; break; }
+        }
+        return bad ? null : nodes;
+      };
+      const costTo = (P: Point) => { const n = routeTo(P); return n ? cost(n) : Infinity; };
+      let best = { c: costTo(F), wireId: '', p: F };
+      for (const tid of reach) {
+        const tw = cur.wires.find(x => x.id === tid)!;
+        const probes = [M, { x: M.x + GRID, y: M.y }, { x: M.x - GRID, y: M.y }, { x: M.x, y: M.y + GRID }, { x: M.x, y: M.y - GRID }];
+        for (const pr of probes) {
+          const q = nearestPointOnRoute(tw.nodes, pr);
+          const c = costTo(q) + 0.3;      // kleine drempel: niet om niets verhuizen
+          if (c < best.c) best = { c, wireId: tid, p: q };
+        }
+      }
+      if (!best.wireId) continue;
+      // Aansluitpunt als knoop op die draad zetten en de vaste kant daarheen verhuizen
+      const tw = cur.wires.find(x => x.id === best.wireId)!;
+      let nodeIdx = tw.nodes.findIndex(n => n.x === best.p.x && n.y === best.p.y);
+      let wires = cur.wires;
+      if (nodeIdx < 0) {
+        let seg = -1;
+        for (let i = 0; i < tw.nodes.length - 1; i++) {
+          const a = tw.nodes[i], b = tw.nodes[i + 1], q = best.p;
+          if ((a.x === b.x && q.x === a.x && q.y > Math.min(a.y, b.y) && q.y < Math.max(a.y, b.y))
+            || (a.y === b.y && q.y === a.y && q.x > Math.min(a.x, b.x) && q.x < Math.max(a.x, b.x))) { seg = i; break; }
+        }
+        if (seg < 0) continue;
+        const m = materializeAttach(wires, { kind: 'wire-segment', wireId: tw.id, segmentIndex: seg, point: best.p });
+        wires = m.wires;
+        if (m.attach?.kind !== 'wire') continue;
+        nodeIdx = m.attach.nodeIndex;
+      }
+      const na: WireAttachment = { kind: 'wire', wireId: tw.id, nodeIndex: nodeIdx };
+      wires = wires.map(x => x.id !== w.id ? x : side === 'start' ? { ...x, endAttach: na } : { ...x, startAttach: na });
+      cur = { ...cur, wires };
+      break;
+    }
+  }
+  return cur;
 }
 
 // Het elektrische net van een draad: alle draden die er via aftakkingen of een
@@ -779,7 +910,31 @@ function snapWirePoint(p: Point, components: CircuitComponent[]): Point {
 // Iterates to a fixed point so wire→wire chains propagate (up to 4 passes).
 // Junction nodes (intermediate nodes that other wires attach to) are treated as
 // mandatory waypoints so T-branches move correctly when components are dragged.
+// Eerst worden alle draden gelegd. Daarna mag een draad waarvan één kant
+// bewoog zijn andere einde naar een beter punt van zijn net verhuizen
+// (reanchorToNet), en dan wordt opnieuw gelegd. In die volgorde ziet het
+// kiezen van een aftakpunt waar de andere draden al liggen; anders kon een
+// aftakpunt precies in de natuurlijke route van een andere draad belanden.
 function syncWires(s: CircuitState): CircuitState {
+  const moving = new Map<string, 'start' | 'end'>();
+  for (const w of s.wires) {
+    if (w.nodes.length < 2) continue;
+    const sp = w.startAttach?.kind === 'component' ? resolveAttach(s, w.startAttach) : null;
+    const ep = w.endAttach?.kind === 'component' ? resolveAttach(s, w.endAttach) : null;
+    const sMoved = sp && (sp.x !== w.nodes[0].x || sp.y !== w.nodes[0].y);
+    const eMoved = ep && (ep.x !== w.nodes[w.nodes.length - 1].x || ep.y !== w.nodes[w.nodes.length - 1].y);
+    if (sMoved && !eMoved) moving.set(w.id, 'start');
+    else if (eMoved && !sMoved) moving.set(w.id, 'end');
+  }
+  let cur = syncWiresPass(s);
+  if (moving.size) {
+    const re = reanchorToNet(cur, moving);
+    if (re !== cur) cur = syncWiresPass(re);
+  }
+  return cur;
+}
+
+function syncWiresPass(s: CircuitState): CircuitState {
   let cur = s;
   for (let iter = 0; iter < 4; iter++) {
     let changed = false;
