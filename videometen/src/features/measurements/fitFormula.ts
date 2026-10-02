@@ -27,6 +27,22 @@ function fmtCoef(vAbs: number): string {
 export type FitDerivative = 0 | 1 | 2;
 
 /**
+ * Rekenruis wegpoetsen: een coëfficiënt die verwaarloosbaar klein is ten
+ * opzichte van de grootste coëfficiënt (bv. 2,96·10⁻¹⁶ naast 3,53) is in
+ * werkelijkheid 0. Zonder deze stap toont fmtCoef hem met 3 significante
+ * cijfers als "0,000000000000000296".
+ */
+const NOISE_RATIO = 1e-9;
+function cleanCoefficients<T extends readonly number[]>(c: T): T {
+  const max = Math.max(...c.map((v) => (Number.isFinite(v) ? Math.abs(v) : 0)));
+  return c.map((v) => (Math.abs(v) < max * NOISE_RATIO ? 0 : v)) as unknown as T;
+}
+
+function withCleanCoefficients<F extends Fit1D>(fit: F): F {
+  return { ...fit, coefficients: cleanCoefficients(fit.coefficients) };
+}
+
+/**
  * 07d: token-vorm voor de formule, zodat de FitInfoBar per coefficient
  * een hover-tooltip met fysische uitleg kan koppelen. Text-tokens zijn de
  * tussenstukken (operators, variabelen, haakjes); coef-tokens zijn de
@@ -49,6 +65,7 @@ export type FormulaAxis = "x" | "y";
  * van `fit` tonen.
  */
 export function formatFitFormula(fit: Fit1D, derivative: FitDerivative, varName: string): string {
+  fit = withCleanCoefficients(fit);
   switch (fit.type) {
     case "linear":
       return formatLinear(fit.coefficients, derivative, varName);
@@ -168,6 +185,7 @@ export function formatFitFormulaTokens(
   axis: FormulaAxis,
   unit: LengthUnit,
 ): FormulaToken[] {
+  fit = withCleanCoefficients(fit);
   switch (fit.type) {
     case "linear":
       return tokensLinear(fit.coefficients, derivative, varName, axis, unit);
