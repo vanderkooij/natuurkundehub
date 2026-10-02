@@ -167,65 +167,134 @@ function segmentIntersectsBBox(a: Point, b: Point, bbox: BBox): boolean {
   return false;
 }
 
-// Route from → to avoiding all component bodies.
-// Tries user's orient (spacebar), then the other, then a grid-search detour.
+// Liggen twee assen-parallelle stukken draad over elkaar (een overlap met
+// lengte > 0)? Elkaar raken in één punt (T-splitsing, aansluiten) mag wel.
+function segmentsOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
+  if (a.y === b.y && c.y === d.y && a.y === c.y) {
+    const lo = Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x));
+    const hi = Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x));
+    return hi - lo > 0;
+  }
+  if (a.x === b.x && c.x === d.x && a.x === c.x) {
+    const lo = Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y));
+    const hi = Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y));
+    return hi - lo > 0;
+  }
+  return false;
+}
+
+// Kruisen twee stukken draad elkaar haaks, ergens midden op beide stukken?
+function segmentsCross(a: Point, b: Point, c: Point, d: Point): boolean {
+  let h1: Point, h2: Point, v1: Point, v2: Point;
+  if (a.y === b.y && c.x === d.x) { h1 = a; h2 = b; v1 = c; v2 = d; }
+  else if (a.x === b.x && c.y === d.y) { h1 = c; h2 = d; v1 = a; v2 = b; }
+  else return false;
+  const x = v1.x, y = h1.y;
+  return x > Math.min(h1.x, h2.x) && x < Math.max(h1.x, h2.x)
+    && y > Math.min(v1.y, v2.y) && y < Math.max(v1.y, v2.y);
+}
+
+// Route from → to. Alle kandidaat-routes (L-vormen en omwegen) die niet door
+// een component lopen en niet over een andere draad heen vallen, krijgen een
+// score: kruisingen tellen zwaar, knikken en lengte licht, en de L-vorm in de
+// richting die de gebruiker koos krijgt een kleine voorkeur. De beste wint.
+// Lukt dat niet zonder overlap, dan valt hij terug op alleen componenten
+// vermijden (oude gedrag).
 function routeAvoiding(
   from: Point,
   to: Point,
   components: CircuitComponent[],
   orient: LRouteOrientation,
+  wires: Wire[] = [],
 ): Point[] {
   if (from.x === to.x && from.y === to.y) return [from, to];
   const bboxes = components.map(c => getCompBodyBBox(c)).filter((b): b is BBox => b !== null);
+  const others: [Point, Point][] = [];
+  for (const w of wires) for (let i = 0; i < w.nodes.length - 1; i++) others.push([w.nodes[i], w.nodes[i + 1]]);
 
-  const routeOk = (nodes: Point[]) => {
+  const hitsBody = (nodes: Point[]) => {
+    for (let i = 0; i < nodes.length - 1; i++)
+      for (const bbox of bboxes) if (segmentIntersectsBBox(nodes[i], nodes[i + 1], bbox)) return true;
+    return false;
+  };
+  const overlapsWire = (nodes: Point[]) => {
+    for (let i = 0; i < nodes.length - 1; i++)
+      for (const [c, d] of others) if (segmentsOverlap(nodes[i], nodes[i + 1], c, d)) return true;
+    return false;
+  };
+  const score = (nodes: Point[], preferred: boolean) => {
+    let crossings = 0, length = 0;
     for (let i = 0; i < nodes.length - 1; i++) {
-      for (const bbox of bboxes) {
-        if (segmentIntersectsBBox(nodes[i], nodes[i + 1], bbox)) return false;
-      }
+      length += Math.abs(nodes[i + 1].x - nodes[i].x) + Math.abs(nodes[i + 1].y - nodes[i].y);
+      for (const [c, d] of others) if (segmentsCross(nodes[i], nodes[i + 1], c, d)) crossings++;
     }
-    return true;
+    return crossings * 4 + (nodes.length - 2) + length / GRID * 0.05 + (preferred ? 0 : 0.5);
   };
 
   const r1 = orthogonalRoute(from, to, orient);
-  if (routeOk(r1)) return r1;
-
   const r2 = orthogonalRoute(from, to, orient === 'HV' ? 'VH' : 'HV');
-  if (routeOk(r2)) return r2;
-
-  // Search for a detour by trying waypoints offset from the midpoint
+  const candidates: { nodes: Point[]; preferred: boolean }[] = [
+    { nodes: r1, preferred: true },
+    { nodes: r2, preferred: false },
+  ];
+  // Omwegen via een tussenpunt, rond het midden en rond begin en eind
   const mid = { x: snap((from.x + to.x) / 2), y: snap((from.y + to.y) / 2) };
-  for (let d = 1; d <= 6; d++) {
-    for (const [wdx, wdy] of [[0, GRID * d], [0, -GRID * d], [GRID * d, 0], [-GRID * d, 0]] as [number, number][]) {
-      const wp = { x: mid.x + wdx, y: mid.y + wdy };
-      for (const o of ['HV', 'VH'] as LRouteOrientation[]) {
-        const s1 = orthogonalRoute(from, wp, o);
-        const s2 = orthogonalRoute(wp, to, o);
-        const candidate = cleanupWireNodes([...s1, ...s2.slice(1)]);
-        if (routeOk(candidate)) return candidate;
+  for (const base of [mid, from, to]) {
+    for (let d = 1; d <= 8; d++) {
+      for (const [wdx, wdy] of [[0, GRID * d], [0, -GRID * d], [GRID * d, 0], [-GRID * d, 0]] as [number, number][]) {
+        // Rond begin en eind exact vanaf het punt zelf (aansluitingen liggen tussen
+        // de rasterlijnen), rond het midden op het raster.
+        const wp = { x: base.x + wdx, y: base.y + wdy };
+        for (const o of ['HV', 'VH'] as LRouteOrientation[]) {
+          const s1 = orthogonalRoute(from, wp, o);
+          const s2 = orthogonalRoute(wp, to, o);
+          candidates.push({ nodes: cleanupWireNodes([...s1, ...s2.slice(1)]), preferred: false });
+        }
       }
     }
   }
+
+  let best: Point[] | null = null, bestScore = Infinity;
+  for (const c of candidates) {
+    if (hitsBody(c.nodes) || overlapsWire(c.nodes)) continue;
+    const sc = score(c.nodes, c.preferred);
+    if (sc < bestScore) { bestScore = sc; best = c.nodes; }
+  }
+  if (best) return best;
+  // Geen route zonder overlap: dan in elk geval niet door componenten
+  for (const c of candidates) if (!hitsBody(c.nodes)) return c.nodes;
   return r1; // best effort
 }
 
-// Snap a newly-placed component so that a terminal aligns with a nearby component terminal.
-function snapCompToTerminals(comp: CircuitComponent, others: CircuitComponent[]): CircuitComponent {
-  const count = getTerminalCount(comp.type);
-  let best: { dist: number; dx: number; dy: number } | null = null;
-  for (let t = 0; t < count; t++) {
-    const tp = getTerminal(comp, t);
-    for (const other of others) {
-      const otherCount = getTerminalCount(other.type);
-      for (let ot = 0; ot < otherCount; ot++) {
-        const otp = getTerminal(other, ot);
-        const d = Math.hypot(tp.x - otp.x, tp.y - otp.y);
-        if (d > 0 && d <= SNAP_TOL && (!best || d < best.dist))
-          best = { dist: d, dx: otp.x - tp.x, dy: otp.y - tp.y };
-      }
+// Schuif een component zo dat een van zijn aansluitingen precies op een
+// aansluiting van een ander component of op een los draadeinde valt, als die
+// binnen tol ligt. Draden die al aan dit component vastzitten tellen niet mee.
+function snapCompToConnections(
+  comp: CircuitComponent, others: CircuitComponent[], wires: Wire[], tol = SNAP_TOL,
+): { comp: CircuitComponent; snapped: boolean } {
+  const targets: Point[] = [];
+  for (const o of others) {
+    if (o.id === comp.id) continue;
+    for (let t = 0; t < getTerminalCount(o.type); t++) {
+      const p = getTerminal(o, t);
+      targets.push({ x: Math.round(p.x), y: Math.round(p.y) });
     }
   }
-  return best ? { ...comp, x: comp.x + best.dx, y: comp.y + best.dy } : comp;
+  for (const w of wires) {
+    if (w.nodes.length < 2) continue;
+    if (!w.startAttach) targets.push(w.nodes[0]);
+    if (!w.endAttach) targets.push(w.nodes[w.nodes.length - 1]);
+  }
+  let best: { dist: number; dx: number; dy: number } | null = null;
+  for (let t = 0; t < getTerminalCount(comp.type); t++) {
+    const tp = getTerminal(comp, t);
+    for (const q of targets) {
+      const d = Math.hypot(tp.x - q.x, tp.y - q.y);
+      if (d <= tol && (!best || d < best.dist)) best = { dist: d, dx: q.x - tp.x, dy: q.y - tp.y };
+    }
+  }
+  if (!best) return { comp, snapped: false };
+  return { comp: { ...comp, x: Math.round(comp.x + best.dx), y: Math.round(comp.y + best.dy) }, snapped: true };
 }
 
 // Resolve the world-space point an attachment refers to
@@ -262,11 +331,12 @@ function routeThroughWaypoints(
   waypoints: Point[],
   components: CircuitComponent[],
   orient: LRouteOrientation,
+  wires: Wire[] = [],
 ): Point[] {
   const pts = [start, ...waypoints, end];
   const result: Point[] = [];
   for (let i = 0; i < pts.length - 1; i++) {
-    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient);
+    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, wires);
     if (result.length === 0) result.push(...seg);
     else result.push(...seg.slice(1));
   }
@@ -351,7 +421,10 @@ function syncWires(s: CircuitState): CircuitState {
     // Track how junction indices change after rerouting (wireId → oldIdx → newIdx)
     const junctionNewIdx = new Map<string, Map<number, number>>();
 
-    const wires = cur.wires.map(w => {
+    // Draden worden één voor één opnieuw gelegd; elke volgende draad ziet de
+    // nieuwe ligging van de vorige, zodat twee draden niet op elkaar vallen.
+    const placed: Wire[] = [...cur.wires];
+    const wires = cur.wires.map((w, wi) => {
       const junctions = (wireJunctions.get(w.id) ?? []).sort((a, b) => a.oldIdx - b.oldIdx);
       const junctionPositions = junctions.map(j => j.pos);
 
@@ -371,7 +444,8 @@ function syncWires(s: CircuitState): CircuitState {
       // Approach chip pins via an outward stub so the turn lands beside the pin column.
       const startStub = attachStub(cur.components, w.startAttach) ?? newStart;
       const endStub   = attachStub(cur.components, w.endAttach)   ?? newEnd;
-      let route = routeThroughWaypoints(startStub, endStub, junctionPositions, cur.components, orient);
+      const otherWires = placed.filter(x => x.id !== w.id);
+      let route = routeThroughWaypoints(startStub, endStub, junctionPositions, cur.components, orient, otherWires);
       if (startStub !== newStart) route = [newStart, ...route];
       if (endStub !== newEnd) route = [...route, newEnd];
       route = cleanupWireNodes(route);
@@ -387,7 +461,8 @@ function syncWires(s: CircuitState): CircuitState {
       }
 
       changed = true;
-      return { ...w, nodes: route };
+      placed[wi] = { ...w, nodes: route };
+      return placed[wi];
     });
 
     // Update nodeIndex references in wires that attach to rerouted wires' junctions
@@ -949,7 +1024,7 @@ export default function CircuitEditor() {
 
     if (tool === 'wire' && wireStart) {
       const endPoint = hoverSnap ?? snapWirePoint(mousePos, state.components);
-      const previewRoute = routeAvoiding(wireStart.point, endPoint, state.components, wireOrient);
+      const previewRoute = routeAvoiding(wireStart.point, endPoint, state.components, wireOrient, state.wires);
       drawPreviewWire(ctx, wireStart.point, endPoint, wireOrient, previewRoute);
     }
     if (hoverSnap && (tool === 'wire' || (dragging && selection?.kind === 'wire'))) {
@@ -1273,7 +1348,7 @@ export default function CircuitEditor() {
         return;
       }
 
-      comp = snapCompToTerminals(comp, state.components);
+      comp = snapCompToConnections(comp, state.components, state.wires).comp;
       let next = autoConnect({ ...state, components: [...state.components, comp] }, comp);
       next = wireOverlappingTerminals(next, comp);
       commit(next);
@@ -1306,7 +1381,7 @@ export default function CircuitEditor() {
         // Approach chip pins via an outward stub so the turn lands beside the pin column.
         const startStub = attachStub(state.components, realSa) ?? wireStart.point;
         const endStub = attachStub(state.components, realEa) ?? point;
-        let nodes = routeThroughWaypoints(startStub, endStub, [], state.components, wireOrient);
+        let nodes = routeThroughWaypoints(startStub, endStub, [], state.components, wireOrient, curWires);
         if (startStub !== wireStart.point) nodes = [wireStart.point, ...nodes];
         if (endStub !== point) nodes = [...nodes, point];
         nodes = cleanupWireNodes(nodes);
@@ -1531,10 +1606,25 @@ export default function CircuitEditor() {
           }),
         }) });
       } else {
+        // Vastklikken op een aansluiting of een los draadeinde in de buurt
+        const dragged = stateRef.current.components.find(c => c.id === selection.id);
+        let pos = aligned.pos;
+        if (dragged) {
+          const attached = new Set(stateRef.current.wires
+            .filter(w => (w.startAttach?.kind === 'component' && w.startAttach.componentId === dragged.id)
+              || (w.endAttach?.kind === 'component' && w.endAttach.componentId === dragged.id))
+            .map(w => w.id));
+          const res = snapCompToConnections(
+            { ...dragged, x: aligned.pos.x, y: aligned.pos.y },
+            stateRef.current.components,
+            stateRef.current.wires.filter(w => !attached.has(w.id)),
+          );
+          if (res.snapped) { pos = { x: res.comp.x, y: res.comp.y }; setAlignGuides([]); setDistLabels([]); }
+        }
         dispatch({ type: 'SET_LIVE', payload: syncWires({
           ...stateRef.current,
           components: stateRef.current.components.map(c =>
-            c.id === selection.id ? { ...c, x: aligned.pos.x, y: aligned.pos.y } : c
+            c.id === selection.id ? { ...c, x: pos.x, y: pos.y } : c
           ),
         }) });
       }
@@ -1641,9 +1731,15 @@ export default function CircuitEditor() {
         || snap(mousePosRef.current.x - wireMoveStart.start.x) !== 0
         || snap(mousePosRef.current.y - wireMoveStart.start.y) !== 0;
       if (moved) {
+        let next: CircuitState = state;
+        // Losgelaten component: draadeinden en aansluitingen die erop liggen vastmaken
+        if (selection?.kind === 'component' && multiDragOffsets.size === 0) {
+          const comp = state.components.find(c => c.id === selection.id);
+          if (comp) next = syncWires(wireOverlappingTerminals(autoConnect(next, comp), comp));
+        }
         const cleaned: CircuitState = {
-          ...state,
-          wires: state.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
+          ...next,
+          wires: next.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
         };
         commit(cleaned);
       }
@@ -1652,7 +1748,7 @@ export default function CircuitEditor() {
         setSelection({ kind: 'wire', id: selection.id, node: null, segment: null });
       }
     }
-  }, [dragging, state, commit, panning, selection, rubberBand, wireMoveStart]);
+  }, [dragging, state, commit, panning, selection, rubberBand, wireMoveStart, multiDragOffsets]);
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     if (isMobileRef.current) return;
@@ -1773,7 +1869,7 @@ export default function CircuitEditor() {
     }
 
     // Otherwise snap to nearby terminals, then auto-connect
-    const snapped = snapCompToTerminals(comp, state.components);
+    const snapped = snapCompToConnections(comp, state.components, state.wires).comp;
     let next = autoConnect({ ...state, components: [...state.components, snapped] }, snapped);
     next = wireOverlappingTerminals(next, snapped);
     commit(next);
