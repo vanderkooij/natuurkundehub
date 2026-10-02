@@ -309,7 +309,7 @@ const RANG = { add: 1, sub: 1, mul: 2, div: 2, pow: 3, sqrt: 4, var: 5, num: 5 }
 const SYMBOLEN = { Delta:'Δ', Omega:'Ω', Sigma:'Σ', Phi:'Φ', Lambda:'Λ', Gamma:'Γ', Theta:'Θ',
   alpha:'α', beta:'β', gamma:'γ', delta:'δ', epsilon:'ε', zeta:'ζ', eta:'η', theta:'θ',
   kappa:'κ', lambda:'λ', mu:'μ', nu:'ν', xi:'ξ', pi:'π', rho:'ρ', sigma:'σ', tau:'τ',
-  phi:'φ', chi:'χ', psi:'ψ', omega:'ω' };
+  phi:'φ', chi:'χ', psi:'ψ', omega:'ω', half:'½' };
 
 // Hoe een formule getoond wordt. De onderbouw zet hier eigen weergaven per naam
 // (een vlek, een woord, woord en symbool samen) en een ×-teken in plaats van ·.
@@ -482,6 +482,7 @@ function formuleUitLatex(latex){
         let sub = '';
         if(s[i + 1] === '{'){ const g = inhoud(s, i + 1); sub = g.tekst; i = g.eind; }
         else { sub = s[i + 1] || ''; i += 2; }
+        sub = sub.replace(/\\[td]?frac\s*\{\s*1\s*\}\s*\{\s*2\s*\}/g, 'half');   // t_{\frac{1}{2}} → t_half
         sub = sub.replace(/\\[A-Za-z]+/g, '').replace(/[^A-Za-z0-9]/g, '');
         if(sub) naam += '_' + sub;
       }

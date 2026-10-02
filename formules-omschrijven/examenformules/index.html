@@ -345,7 +345,7 @@ const GREEK_TO_LATEX={'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta'
 
 // ── CALC BAR ──
 const CALC_GROUPS=[
-  {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('},{l:'log(',v:'log('}]},
+  {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('},{l:'ln(',v:'ln('},{l:'t½',v:'t½'}]},
   {label:'Bewerkingen',btns:[{l:'×',v:'*'},{l:'÷',v:'/'},{l:'+',v:'+'},{l:'−',v:'-'}]},
   {label:'Grieks',btns:[{l:'Δ',v:'Δ'},{l:'λ',v:'λ'},{l:'π',v:'π'},{l:'ρ',v:'ρ'},{l:'φ',v:'φ'},{l:'η',v:'η'},{l:'ω',v:'ω'},{l:'α',v:'α'},{l:'σ',v:'σ'},{l:'Φ',v:'Φ'}]},
   {label:'Subscript',btns:[{l:'x_n',v:'_',id:'btn-sub'},{l:'↑',v:null,id:'btn-sub-end'}]},
@@ -516,8 +516,18 @@ function exprToLatex(expr){
   const nameMap={'alpha':'\\alpha','beta':'\\beta','gamma':'\\gamma','delta':'\\delta',
                  'eta':'\\eta','lambda':'\\lambda','rho':'\\rho','omega':'\\omega',
                  'phi':'\\phi','pi':'\\pi'};
-  for(const[n,l]of Object.entries(nameMap))s=s.replace(new RegExp('\\b'+n+'\\b','g'),l);
-  for(const[u,l]of Object.entries(GREEK_TO_LATEX))s=s.split(u).join(l);
+  // LaTeX-opdrachten (\lambda, \Delta, \frac, ...) worden tijdelijk een code
+  // zonder backslash (QQ0QQ). De breukregels hieronder kennen de backslash niet
+  // als deel van een naam en knipten hem anders los: Δλ*c/v werd dan
+  // \Delta\\dfrac{lambda...}, en \\ is in LaTeX een nieuwe regel.
+  const cmdStore=[];
+  const code=l=>{cmdStore.push(l);return 'QQ'+(cmdStore.length-1)+'QQ';};
+  for(const[n,l]of Object.entries(nameMap))s=s.replace(new RegExp('\\b'+n+'\\b','g'),()=>code(l));
+  for(const[u,l]of Object.entries(GREEK_TO_LATEX))s=s.split(u).join(code(l));
+  s=s.split('½').join('_{'+code('\\frac')+'{1}{2}}');
+  s=s.replace(/\bln\(([^()]+)\)/g,(m,a)=>code('\\ln '+a));   // ln(2) is één geheel
+  s=s.replace(/\bln(\d+(?:\.\d+)?)/g,(m,a)=>code('\\ln '+a));  // ln2 ook
+  s=s.replace(/\bln\(/g,()=>code('\\ln')+'(');
   s=s.replace(/\^(-?\d+(?:\.\d+)?)/g,'^{$1}');
   s=s.replace(/\^([a-zA-Z_][a-zA-Z0-9_]*)/g,'^{$1}');
   s=s.replace(/_([a-zA-Z0-9]+)/g,'_{$1}');
@@ -557,6 +567,7 @@ const dfracStore = [];
   dfracStore.forEach((v,i) => { s = s.split(`__DF${i}__`).join(v); });
   dfracStore.forEach((v,i) => { s = s.split(`__DF${i}__`).join(v); });
   s=s.replace(/\*/g,'\\cdot ');
+  for(let k=0;k<3&&/QQ\d+QQ/.test(s);k++) s=s.replace(/QQ(\d+)QQ/g,(m,i)=>cmdStore[+i]+' ');
   return s;
 }
 

@@ -224,3 +224,9 @@ test('ΔE_el en F_L', () => {
   assert.equal(checkAnswer('U = ΔE_el/q', 'dEel/q', true), true);
   assert.equal(checkAnswer('l = F_L/(B*I)', 'FL/(B*I)', true), true);
 });
+test('ln2 en t½ in A = ln2/t½ · N', () => {
+  assert.equal(checkAnswer('N = A*t½/ln(2)', '(A*thalf)/ln(2)', true), true);
+  assert.equal(checkAnswer('N = A*t_½/ln2', '(A*thalf)/ln(2)', true), true);
+  assert.equal(checkAnswer('t½ = ln(2)*N/A', '(ln(2)*N)/A', true), true);
+  assert.equal(checkAnswer('t½ = N/(ln(2)*A)', '(ln(2)*N)/A', true), false);
+});

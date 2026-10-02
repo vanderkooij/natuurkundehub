@@ -99,6 +99,7 @@ const COMPOUND_ATOMS = {
   'Deltalambda': 'Delta_lambda',
   'En':     'E_n',
   'wR':     'w_R',
+  'thalf':  't_half',
 };
 const COMPOUND_ATOM_KEYS = Object.keys(COMPOUND_ATOMS).sort((a, b) => b.length - a.length);
 
@@ -117,11 +118,13 @@ function preprocess(expr) {
   // wie v^2 typt houdt v² over. Terugvertalen, anders wordt een goed antwoord afgekeurd.
   s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, run =>
     '^(' + run.split('').map(c => SUPERSCRIPT_CHARS[c]).join('') + ')');
-  const greekMap ={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi','σ':'sigma','Φ':'Phi'};
+  const greekMap ={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi','σ':'sigma','Φ':'Phi','½':'half'};
   for (const [sym, name] of Object.entries(greekMap)) s = s.split(sym).join(name);
   const latexMap = {'\\alpha':'alpha','\\beta':'beta','\\gamma':'gamma','\\delta':'delta','\\eta':'eta','\\lambda':'lambda','\\rho':'rho','\\omega':'omega','\\phi':'phi','\\Delta':'Delta','\\Phi':'Phi','\\sigma':'sigma','\\pi':'pi','\\cdot':'*','\\times':'*'};
   for (const [cmd, repl] of Object.entries(latexMap)) s = s.split(cmd).join(repl);
   s = s.replace(/\\/g, '').replace(/\{([^}]*)\}/g, '$1');
+  // ln2 (zonder haakjes) is ln(2), zoals op de rekenmachine
+  s = s.replace(/(^|[^a-zA-Z])ln(\d+(?:\.\d+)?)/g, '$1ln($2)');
   return s;
 }
 

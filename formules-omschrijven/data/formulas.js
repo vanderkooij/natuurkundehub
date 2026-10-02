@@ -855,6 +855,18 @@ const FORMULAS = [
     answers: { I0: 'I/0.5^n' },
   },
 
+  {
+    id: 'activiteit_ln2',
+    display: 'A = \\dfrac{\\ln 2}{t_{\\frac{1}{2}}} \\cdot N',
+    variables: { A: 'activiteit', 't_{\\frac{1}{2}}': 'halveringstijd', N: 'aantal radioactieve kernen' },
+    solveFor: [
+      { key: 'N', display: 'N' },
+      { key: 'thalf', display: 't_{\\frac{1}{2}}' },
+    ],
+    niveau: 'vwo', thema: 'overige',
+    answers: { N: '(A*thalf)/ln(2)', thalf: '(ln(2)*N)/A' },
+  },
+
   // ── F OPTICA ──────────────────────────────────────────────────
 
   {
