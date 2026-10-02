@@ -34,6 +34,7 @@ mkdir -p dist
 # Kopieer de hub en statische bestanden
 cp index.html dist/
 cp 404.html dist/
+cp robots.txt dist/
 cp -r assets dist/assets
 
 # Kopieer het Overhoorprogramma (statische HTML)
@@ -62,3 +63,6 @@ cp -r videometen/dist dist/videometen
 
 # Kopieer de gebouwde CircuitFlow app
 cp -r circuitflow/dist dist/circuitflow
+
+# Genereer de sitemap uit alle pagina's in dist/ (moet als laatste)
+node scripts/sitemap.mjs

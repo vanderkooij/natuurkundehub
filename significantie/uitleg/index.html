@@ -3,8 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uitleg · Significantie · NatuurkundeHub</title>
-<link rel="icon" type="image/svg+xml" href="../../assets/logo/JK_dark.svg" id="favicon">
+<title>Significante cijfers: uitleg · NatuurkundeHub</title>
+<meta name="description" content="Uitleg over significante cijfers: welke cijfers tellen mee, hoe rond je af en hoeveel cijfers geef je in de uitkomst van een berekening.">
+<link rel="canonical" href="https://natuurkundehub.nl/significantie/uitleg/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Significante cijfers: uitleg">
+<meta property="og:description" content="Uitleg over significante cijfers: welke cijfers tellen mee, hoe rond je af en hoeveel cijfers geef je in de uitkomst van een berekening.">
+<meta property="og:url" content="https://natuurkundehub.nl/significantie/uitleg/">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -194,7 +202,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 <div class="app-header">
   <div class="header-left">
     <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-      <img src="../../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <img src="/assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
       <span class="app-title">Natuurkunde<span>Hub</span></span>
     </a>
     <span class="crumb-sep">›</span>
@@ -226,7 +234,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 </div>
 
 <footer>
-  <img src="../../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  <img src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
   Jop van der Kooij · NatuurkundeHub · © 2026
   <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
@@ -237,11 +245,11 @@ function applyTheme(t){
   const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
         btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
   if(t==='dark'){
-    if(logo)logo.src='../../assets/logo/JK_dark.svg';if(fl)fl.src='../../assets/logo/JK_white.svg';
-    if(fav)fav.href='../../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+    if(logo)logo.src='/assets/logo/JK_dark.svg';if(fl)fl.src='/assets/logo/JK_white.svg';
+    if(fav)fav.href='/assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
   }else{
-    if(logo)logo.src='../../assets/logo/JK_light.svg';if(fl)fl.src='../../assets/logo/JK_black.svg';
-    if(fav)fav.href='../../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+    if(logo)logo.src='/assets/logo/JK_light.svg';if(fl)fl.src='/assets/logo/JK_black.svg';
+    if(fav)fav.href='/assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
   }
 }
 function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}

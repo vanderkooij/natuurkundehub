@@ -56,7 +56,21 @@ natuurkundehub/
 2. Bouw de tool volgens de geldende conventies (header, thema, paginapresentatie, ontwerpprincipes — zie hieronder).
 3. Voeg een tegel toe in `index.html` (de homepage).
 4. Voeg een `cp -r <toolnaam> dist/<toolnaam>` regel toe in `build.sh` (of een eigen build-stap bij een Vite-project).
-5. Werk dit bestand bij: tool in de mapstructuur, naam in de tabel onder Paginapresentatie, en eventueel de status in `ideeen.md`.
+5. Geef elke pagina de vindbaarheidskoppen (zie **Vindbaarheid** hieronder). De sitemap neemt de pagina daarna vanzelf mee.
+6. Werk dit bestand bij: tool in de mapstructuur, naam in de tabel onder Paginapresentatie, en eventueel de status in `ideeen.md`.
+
+## Vindbaarheid (SEO)
+
+Elke pagina heeft in de `<head>`, direct na `<title>`:
+
+- een `<title>` met de zoekterm waarop een leerling zoekt, eindigend op `· NatuurkundeHub` (bijv. `Significante cijfers oefenen · NatuurkundeHub`);
+- `<meta name="description">`: een of twee zinnen (max. ca. 155 tekens) over wat je er kunt doen;
+- `<link rel="canonical" href="https://natuurkundehub.nl/<pad>/">`, altijd met slash aan het eind;
+- de Open Graph-tags `og:type`, `og:site_name`, `og:locale`, `og:title`, `og:description` en `og:url` (kopieer ze van een bestaande pagina).
+
+Pagina's die niet in Google horen (admin, doorverwijzingen, 404) krijgen `<meta name="robots" content="noindex">`.
+
+`robots.txt` staat in de root. `dist/sitemap.xml` wordt aan het eind van `build.sh` gemaakt door `scripts/sitemap.mjs`: alle `index.html`-pagina's in `dist/`, behalve die met `noindex`. Interne links naar een tool schrijf je met slash aan het eind (`/overhoor/`), zodat er geen omleiding tussen zit. Logo- en faviconpaden in statische pagina's zijn absoluut (`/assets/logo/...`).
 
 ## Ontwerpprincipes
 
