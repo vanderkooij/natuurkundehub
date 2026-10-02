@@ -103,23 +103,126 @@ function alignToOthers(
 }
 
 // Remove redundant nodes from a wire: collapse consecutive collinear nodes
-// and drop exact duplicates. Endpoints are preserved.
-function cleanupWireNodes(nodes: Point[]): Point[] {
-  if (nodes.length <= 2) return nodes;
+// and drop exact duplicates. Endpoints are preserved, and so are nodes at a
+// `keep` position (T-junctions: another wire is attached there).
+function cleanupWireNodes(nodes: Point[], keep: Point[] = []): Point[] {
+  return cleanupWireNodesIdx(nodes, new Set(nodes.map((n, i) => keep.some(k => k.x === n.x && k.y === n.y) ? i : -1).filter(i => i >= 0))).nodes;
+}
+
+// Idem, met de te bewaren knopen als index. Geeft ook old → new index terug.
+function cleanupWireNodesIdx(nodes: Point[], keepIdx: Set<number>): { nodes: Point[]; map: Map<number, number> } {
+  const map = new Map<number, number>();
+  if (nodes.length <= 2) { nodes.forEach((_, i) => map.set(i, i)); return { nodes, map }; }
   const out: Point[] = [nodes[0]];
+  map.set(0, 0);
   for (let i = 1; i < nodes.length - 1; i++) {
     const prev = out[out.length - 1];
     const cur = nodes[i];
     const next = nodes[i + 1];
-    if (cur.x === prev.x && cur.y === prev.y) continue;
-    if (prev.x === cur.x && cur.x === next.x) continue;
-    if (prev.y === cur.y && cur.y === next.y) continue;
+    const same = cur.x === prev.x && cur.y === prev.y;
+    if (!keepIdx.has(i)) {
+      if (same) { map.set(i, out.length - 1); continue; }
+      if (prev.x === cur.x && cur.x === next.x) continue;
+      if (prev.y === cur.y && cur.y === next.y) continue;
+    } else if (same) { map.set(i, out.length - 1); continue; }
+    map.set(i, out.length);
     out.push(cur);
   }
   const last = nodes[nodes.length - 1];
   const tail = out[out.length - 1];
   if (last.x !== tail.x || last.y !== tail.y) out.push(last);
-  return out;
+  map.set(nodes.length - 1, out.length - 1);
+  return { nodes: out, map };
+}
+
+// Twee draden die eind op eind aan elkaar vastzitten (de ene begint op het
+// losse einde van de andere, en verder hangt daar niets) worden één draad.
+// Zo is een lijn tussen twee componenten altijd één draad, en ligt er bij het
+// slepen geen vast tussenpunt meer waar de route naartoe moet (dat gaf haakjes
+// en stompjes). Verwijzingen van andere draden naar knopen worden omgenummerd.
+function mergeChainedWires(input: Wire[]): Wire[] {
+  let wires = input;
+  for (let guard = 0; guard < 50; guard++) {
+    let merged = false;
+    outer: for (const A of wires) {
+      if (A.nodes.length < 2) continue;
+      for (const side of ['end', 'start'] as const) {
+        if ((side === 'end' ? A.endAttach : A.startAttach) !== undefined) continue;
+        const jointIdx = side === 'end' ? A.nodes.length - 1 : 0;
+        const refs: { w: Wire; which: 'start' | 'end' }[] = [];
+        for (const w of wires) {
+          if (w.startAttach?.kind === 'wire' && w.startAttach.wireId === A.id && w.startAttach.nodeIndex === jointIdx) refs.push({ w, which: 'start' });
+          if (w.endAttach?.kind === 'wire' && w.endAttach.wireId === A.id && w.endAttach.nodeIndex === jointIdx) refs.push({ w, which: 'end' });
+        }
+        if (refs.length !== 1) continue;
+        const { w: B, which } = refs[0];
+        if (B.id === A.id || B.nodes.length < 2) continue;
+        // De andere kant van B mag niet aan A vastzitten (lus)
+        const bOther = which === 'start' ? B.endAttach : B.startAttach;
+        if (bOther?.kind === 'wire' && bOther.wireId === A.id) continue;
+
+        // A zo draaien dat het las-punt achteraan zit, B zo dat het vooraan zit
+        const aRev = side === 'start';
+        const bRev = which === 'end';
+        const aNodes = aRev ? [...A.nodes].reverse() : A.nodes;
+        const bNodes = bRev ? [...B.nodes].reverse() : B.nodes;
+        const aStart = aRev ? A.endAttach : A.startAttach;
+        const bEnd = bRev ? B.startAttach : B.endAttach;
+        const nA = A.nodes.length, nB = B.nodes.length;
+        const mapA = (i: number) => (aRev ? nA - 1 - i : i);
+        const mapB = (j: number) => nA - 1 + (bRev ? nB - 1 - j : j);
+        const joined: Wire = { ...A, nodes: [...aNodes, ...bNodes.slice(1)], startAttach: aStart, endAttach: bEnd };
+        const fix = (a: WireAttachment | undefined): WireAttachment | undefined => {
+          if (a?.kind !== 'wire') return a;
+          if (a.wireId === A.id) return { ...a, nodeIndex: mapA(a.nodeIndex) };
+          if (a.wireId === B.id) return { ...a, wireId: A.id, nodeIndex: mapB(a.nodeIndex) };
+          return a;
+        };
+        joined.startAttach = fix(joined.startAttach);
+        joined.endAttach = fix(joined.endAttach);
+        wires = wires.filter(w => w.id !== B.id).map(w => {
+          if (w.id === A.id) return joined;
+          const s = fix(w.startAttach), e = fix(w.endAttach);
+          return s === w.startAttach && e === w.endAttach ? w : { ...w, startAttach: s, endAttach: e };
+        });
+        merged = true;
+        break outer;
+      }
+    }
+    if (!merged) break;
+  }
+  return wires;
+}
+
+// Ruim alle draden op zonder T-splitsingen te breken: een knoop waar een
+// andere draad aan vastzit blijft staan, en de verwijzingen (nodeIndex) naar
+// knopen die verschuiven worden bijgewerkt. Voorheen haalde het opruimen zo'n
+// knoop weg als hij op een rechte lijn lag, waarna de aftakking naar een
+// verkeerde knoop van de draad sprong.
+function cleanupAllWires(wiresIn: Wire[]): Wire[] {
+  const wires = mergeChainedWires(wiresIn);
+  const refs = new Map<string, Set<number>>();
+  for (const w of wires) for (const a of [w.startAttach, w.endAttach]) {
+    if (a?.kind !== 'wire') continue;
+    if (!refs.has(a.wireId)) refs.set(a.wireId, new Set());
+    refs.get(a.wireId)!.add(a.nodeIndex);
+  }
+  const maps = new Map<string, Map<number, number>>();
+  const cleaned = wires.map(w => {
+    const r = cleanupWireNodesIdx(w.nodes, refs.get(w.id) ?? new Set());
+    maps.set(w.id, r.map);
+    return { ...w, nodes: r.nodes };
+  });
+  const remap = (a: WireAttachment | undefined): WireAttachment | undefined => {
+    if (a?.kind !== 'wire') return a;
+    const m = maps.get(a.wireId);
+    const ni = m?.get(a.nodeIndex);
+    return ni === undefined || ni === a.nodeIndex ? a : { ...a, nodeIndex: ni };
+  };
+  return cleaned.map(w => {
+    const s = remap(w.startAttach), e = remap(w.endAttach);
+    return s === w.startAttach && e === w.endAttach ? w : { ...w, startAttach: s, endAttach: e };
+  });
 }
 
 // Approximate body bounding box for a component — the physical part wires must avoid.
@@ -206,6 +309,7 @@ function routeAvoiding(
   components: CircuitComponent[],
   orient: LRouteOrientation,
   wires: Wire[] = [],
+  next?: Point,
 ): Point[] {
   if (from.x === to.x && from.y === to.y) return [from, to];
   const bboxes = components.map(c => getCompBodyBBox(c)).filter((b): b is BBox => b !== null);
@@ -217,9 +321,29 @@ function routeAvoiding(
       for (const bbox of bboxes) if (segmentIntersectsBBox(nodes[i], nodes[i + 1], bbox)) return true;
     return false;
   };
+  // Loopt de draad hierna recht door naar next (volgend tussenpunt), dan mag
+  // dit stuk daar niet over terug liggen: dan keert de draad om in zichzelf.
+  if (next && (next.x === to.x || next.y === to.y)) others.push([to, next]);
   const overlapsWire = (nodes: Point[]) => {
     for (let i = 0; i < nodes.length - 1; i++)
       for (const [c, d] of others) if (segmentsOverlap(nodes[i], nodes[i + 1], c, d)) return true;
+    return false;
+  };
+  // Raakt de route een andere draad ergens anders dan in zijn eigen begin- of
+  // eindpunt? Zonder verbindingsstippen ziet zo'n aanraking eruit als een
+  // verbinding: door het einde of de hoek van een andere draad lopen, of met
+  // een knik op een andere draad uitkomen. Haaks kruisen mag wel (boogje).
+  const isEnd = (p: Point) => (p.x === from.x && p.y === from.y) || (p.x === to.x && p.y === to.y);
+  const onSeg = (p: Point, a: Point, b: Point) =>
+    (a.x === b.x && p.x === a.x && p.y >= Math.min(a.y, b.y) && p.y <= Math.max(a.y, b.y)) ||
+    (a.y === b.y && p.y === a.y && p.x >= Math.min(a.x, b.x) && p.x <= Math.max(a.x, b.x));
+  const otherNodes: Point[] = [];
+  for (const w of wires) for (const n of w.nodes) otherNodes.push(n);
+  const touchesWire = (nodes: Point[]) => {
+    for (let i = 0; i < nodes.length - 1; i++)
+      for (const q of otherNodes) if (!isEnd(q) && onSeg(q, nodes[i], nodes[i + 1])) return true;
+    for (let i = 1; i < nodes.length - 1; i++)
+      for (const [c, d] of others) if (onSeg(nodes[i], c, d)) return true;
     return false;
   };
   const score = (nodes: Point[], preferred: boolean) => {
@@ -255,6 +379,13 @@ function routeAvoiding(
   }
 
   let best: Point[] | null = null, bestScore = Infinity;
+  for (const c of candidates) {
+    if (hitsBody(c.nodes) || overlapsWire(c.nodes) || touchesWire(c.nodes)) continue;
+    const sc = score(c.nodes, c.preferred);
+    if (sc < bestScore) { bestScore = sc; best = c.nodes; }
+  }
+  if (best) return best;
+  // Geen route zonder aanraking: dan in elk geval zonder overlap
   for (const c of candidates) {
     if (hitsBody(c.nodes) || overlapsWire(c.nodes)) continue;
     const sc = score(c.nodes, c.preferred);
@@ -336,11 +467,44 @@ function routeThroughWaypoints(
   const pts = [start, ...waypoints, end];
   const result: Point[] = [];
   for (let i = 0; i < pts.length - 1; i++) {
-    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, wires);
+    // Het stuk dat al gelegd is telt mee als andere draad, zodat de draad niet
+    // over zichzelf terugloopt.
+    const soFar: Wire[] = result.length > 1 ? [{ id: '__self', nodes: result }] : [];
+    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, [...wires, ...soFar], pts[i + 2]);
     if (result.length === 0) result.push(...seg);
     else result.push(...seg.slice(1));
   }
   return result;
+}
+
+// Dichtstbijzijnde punt op een (assen-parallelle) route. Begin- en eindpunt
+// krijgen een kleine strafafstand: een aftakking hoort liefst midden op de
+// draad, niet precies op een aansluiting.
+function nearestPointOnRoute(route: Point[], p: Point): Point {
+  let best = route[0], bestD = Infinity;
+  for (let i = 0; i < route.length - 1; i++) {
+    const a = route[i], b = route[i + 1];
+    const q = {
+      x: Math.round(Math.max(Math.min(a.x, b.x), Math.min(Math.max(a.x, b.x), p.x))),
+      y: Math.round(Math.max(Math.min(a.y, b.y), Math.min(Math.max(a.y, b.y), p.y))),
+    };
+    const end = (q.x === route[0].x && q.y === route[0].y) || (q.x === route[route.length - 1].x && q.y === route[route.length - 1].y);
+    const d = Math.hypot(q.x - p.x, q.y - p.y) + (end ? GRID : 0);
+    if (d < bestD) { bestD = d; best = q; }
+  }
+  return best;
+}
+
+// Voeg p als knoop in op het stuk van de route waar hij op ligt.
+function insertPointOnRoute(route: Point[], p: Point): Point[] {
+  if (route.some(n => n.x === p.x && n.y === p.y)) return route;
+  for (let i = 0; i < route.length - 1; i++) {
+    const a = route[i], b = route[i + 1];
+    const on = (a.x === b.x && p.x === a.x && p.y > Math.min(a.y, b.y) && p.y < Math.max(a.y, b.y))
+      || (a.y === b.y && p.y === a.y && p.x > Math.min(a.x, b.x) && p.x < Math.max(a.x, b.x));
+    if (on) return [...route.slice(0, i + 1), { ...p }, ...route.slice(i + 1)];
+  }
+  return route;
 }
 
 // Convert a transient wire-segment attachment into a real wire-node attachment by
@@ -445,20 +609,34 @@ function syncWires(s: CircuitState): CircuitState {
       const startStub = attachStub(cur.components, w.startAttach) ?? newStart;
       const endStub   = attachStub(cur.components, w.endAttach)   ?? newEnd;
       const otherWires = placed.filter(x => x.id !== w.id);
-      let route = routeThroughWaypoints(startStub, endStub, junctionPositions, cur.components, orient, otherWires);
+      // Aftakpunten (T-splitsingen) schuiven mee: de draad wordt eerst zelf
+      // netjes gelegd, daarna krijgt elke aftakking het dichtstbijzijnde punt
+      // op de nieuwe route. De aftakkende draad legt zich in de volgende ronde
+      // vanaf dat punt opnieuw. Voorheen moest de route door de oude, vaste
+      // plek van het aftakpunt, wat lussen en stompjes gaf.
+      let route = routeThroughWaypoints(startStub, endStub, [], cur.components, orient, otherWires);
       if (startStub !== newStart) route = [newStart, ...route];
       if (endStub !== newEnd) route = [...route, newEnd];
-      route = cleanupWireNodes(route);
+      const projected = junctions.map(j => nearestPointOnRoute(route, j.pos));
+      for (const p of projected) route = insertPointOnRoute(route, p);
+      route = cleanupWireNodes(route, projected);
 
-      // Record new nodeIndex for each junction so dependent wires can be updated
-      if (junctions.length > 0) {
+      // Record new nodeIndex for each junction so dependent wires can be updated.
+      // Ook begin- en eindpunt: een draad die aan het EINDE van deze draad vastzit
+      // verwijst naar de laatste knoop, en dat nummer verandert als de route meer
+      // of minder knopen krijgt (anders bleef het echte einde los als stompje).
+      {
         if (!junctionNewIdx.has(w.id)) junctionNewIdx.set(w.id, new Map());
         const idxMap = junctionNewIdx.get(w.id)!;
-        for (const j of junctions) {
-          const newIdx = route.findIndex(n => n.x === j.pos.x && n.y === j.pos.y);
+        idxMap.set(0, 0);
+        idxMap.set(w.nodes.length - 1, route.length - 1);
+        junctions.forEach((j, k) => {
+          const p = projected[k];
+          const newIdx = route.findIndex(n => n.x === p.x && n.y === p.y);
           if (newIdx !== -1) idxMap.set(j.oldIdx, newIdx);
-        }
+        });
       }
+      void junctionPositions;
 
       changed = true;
       placed[wi] = { ...w, nodes: route };
@@ -687,7 +865,7 @@ function historyReducer(s: HistoryState, action: HistoryAction): HistoryState {
   switch (action.type) {
     case 'COMMIT': {
       const past = [...s.past, s.circuit].slice(-MAX_HIST);
-      return { circuit: action.payload, past, future: [] };
+      return { circuit: { ...action.payload, wires: cleanupAllWires(action.payload.wires ?? []) }, past, future: [] };
     }
     case 'SET_LIVE':
       return { ...s, circuit: action.payload };
@@ -1392,7 +1570,7 @@ export default function CircuitEditor() {
           startAttach: realSa,
           endAttach: realEa,
         };
-        commit({ ...state, wires: [...curWires, wire] });
+        commit({ ...state, wires: cleanupAllWires([...curWires, wire]) });
         setWireStart(null);
         setWireOrientLocked(false);
       }
@@ -1739,7 +1917,7 @@ export default function CircuitEditor() {
         }
         const cleaned: CircuitState = {
           ...next,
-          wires: next.wires.map(w => ({ ...w, nodes: cleanupWireNodes(w.nodes) })),
+          wires: cleanupAllWires(next.wires),
         };
         commit(cleaned);
       }
