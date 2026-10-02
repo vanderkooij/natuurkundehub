@@ -351,12 +351,16 @@ function routeAvoiding(
     return false;
   };
   const score = (nodes: Point[], preferred: boolean) => {
-    let crossings = 0, length = 0;
+    let crossings = 0, length = 0, jogs = 0;
     for (let i = 0; i < nodes.length - 1; i++) {
-      length += Math.abs(nodes[i + 1].x - nodes[i].x) + Math.abs(nodes[i + 1].y - nodes[i].y);
+      const len = Math.abs(nodes[i + 1].x - nodes[i].x) + Math.abs(nodes[i + 1].y - nodes[i].y);
+      length += len;
+      // Een stukje korter dan één rasterhok tussen twee knikken is een trapje
+      // (meestal 10 px: aansluitingen liggen tussen de rasterlijnen).
+      if (len > 0 && len < GRID && i > 0 && i < nodes.length - 2) jogs++;
       for (const [c, d] of others) if (segmentsCross(nodes[i], nodes[i + 1], c, d)) crossings++;
     }
-    return crossings * 4 + (nodes.length - 2) + length / GRID * 0.05 + (preferred ? 0 : 0.5);
+    return crossings * 4 + jogs * 3 + (nodes.length - 2) + length / GRID * 0.05 + (preferred ? 0 : 0.5);
   };
 
   const r1 = orthogonalRoute(from, to, orient);
@@ -367,7 +371,10 @@ function routeAvoiding(
   ];
   // Omwegen via een tussenpunt, rond het midden en rond begin en eind
   const mid = { x: snap((from.x + to.x) / 2), y: snap((from.y + to.y) / 2) };
-  for (const base of [mid, from, to]) {
+  // Tussenpunten ook in lijn met begin of eind, zodat een omweg geen trapje
+  // van een half rasterhok krijgt.
+  const bases = [mid, from, to, { x: from.x, y: mid.y }, { x: to.x, y: mid.y }, { x: mid.x, y: from.y }, { x: mid.x, y: to.y }];
+  for (const base of bases) {
     for (let d = 1; d <= 8; d++) {
       for (const [wdx, wdy] of [[0, GRID * d], [0, -GRID * d], [GRID * d, 0], [-GRID * d, 0]] as [number, number][]) {
         // Rond begin en eind exact vanaf het punt zelf (aansluitingen liggen tussen
