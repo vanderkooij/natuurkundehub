@@ -1352,7 +1352,7 @@ export default function CircuitEditor() {
       return;
     }
 
-    // Toggle wire crossing (connected dot ↔ arc) when clicking near a crossing point
+    // Toggle wire crossing (verbonden kruis ↔ boogje) when clicking near a crossing point
     for (const cr of findWireCrossings(state.wires)) {
       if (Math.hypot(p.x - cr.p.x, p.y - cr.p.y) < 8) {
         const key = `${cr.p.x},${cr.p.y}`;

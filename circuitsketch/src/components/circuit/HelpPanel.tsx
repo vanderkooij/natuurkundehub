@@ -32,9 +32,9 @@ const sections: Record<Lang, Section[]> = {
         { term: 'Draw', desc: 'Click a start point, move the cursor to the endpoint, then click to finish.' },
         { term: 'L-shape', desc: 'Wires route as L-shapes (one bend). Press Spacebar while drawing to flip between horizontal-first and vertical-first.' },
         { term: 'Snap', desc: 'Wire endpoints snap automatically to component terminals, wire nodes, and wire segment midpoints. A snap indicator circle appears.' },
-        { term: 'T-junction', desc: 'End a wire on the interior of another wire to create a T-junction. A filled dot marks the connection.' },
+        { term: 'T-junction', desc: 'End a wire on the interior of another wire to create a T-junction. Wires that touch are connected; no dot is drawn.' },
         { term: 'Reshape', desc: 'Drag a wire endpoint to move it. Drag a wire segment sideways to push it perpendicular. Double-click a selected wire to insert a new node.' },
-        { term: 'Crossings', desc: 'When two wires cross, a hop arc is shown (not connected). Click the crossing point to toggle it to a filled dot (connected). Click again to revert.' },
+        { term: 'Crossings', desc: 'When two wires cross, a hop arc shows they are not connected. Click the crossing point to connect them: the arc disappears. Click again to revert.' },
       ],
     },
     {
@@ -96,9 +96,9 @@ const sections: Record<Lang, Section[]> = {
         { term: 'Tekenen', desc: 'Klik het startpunt, beweeg de cursor naar het eindpunt en klik om af te ronden.' },
         { term: 'L-vorm', desc: 'Draden lopen als L-vormen (één bocht). Druk Spatiebalk tijdens het tekenen om te wisselen tussen horizontaal-eerst en verticaal-eerst.' },
         { term: 'Snappen', desc: 'Draaduiteinden snappen automatisch op componentterminalen, draadknopen en segmentmidpunten. Een snap-indicator verschijnt als cirkel.' },
-        { term: 'T-verbinding', desc: 'Eindig een draad op het midden van een bestaande draad om een T-verbinding te maken. Een gevulde stip geeft de verbinding aan.' },
+        { term: 'T-verbinding', desc: 'Eindig een draad op het midden van een bestaande draad om een T-verbinding te maken. Draden die elkaar raken zijn verbonden; er komt geen stip.' },
         { term: 'Aanpassen', desc: 'Sleep een draaduiteinde om het te verplaatsen. Sleep een draadsegment opzij om het loodrecht te schuiven. Dubbelklik op een geselecteerde draad om een knoop toe te voegen.' },
-        { term: 'Kruisingen', desc: 'Als twee draden elkaar kruisen, wordt een bochtboog weergegeven (niet verbonden). Klik op het kruispunt om een gevulde stip te tonen (verbonden). Klik nogmaals om terug te keren.' },
+        { term: 'Kruisingen', desc: 'Als twee draden elkaar kruisen, laat een boogje zien dat ze niet verbonden zijn. Klik op het kruispunt om ze te verbinden: het boogje verdwijnt. Klik nogmaals om terug te keren.' },
       ],
     },
     {

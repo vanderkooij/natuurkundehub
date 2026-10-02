@@ -1055,84 +1055,43 @@ export function findWireCrossings(wires: Wire[]): { p: Point; hWireId: string; v
   return result;
 }
 
-// Draw crossings: arc (hop) when not connected, filled dot when connected.
-// Also draws junction dots at T-junctions (wire endpoints meeting another wire's interior).
+// Draw crossings. Afspraak (Jop, 2026-10): er worden nooit verbindingsstippen
+// getekend. Draden die elkaar raken (T-splitsing, eind-op-eind, meerdere draden
+// op één aansluitpunt) zijn gewoon doorlopende lijnen. Alleen een kruising van
+// twee draden die NIET verbonden zijn krijgt een boogje: de horizontale draad
+// springt over de verticale, die ononderbroken doorloopt. Een kruising die de
+// gebruiker heeft aangeklikt (connectedKeys) is verbonden en blijft een gewoon
+// kruis zonder boogje.
 export function drawWireCrossings(
   ctx: CanvasRenderingContext2D,
   wires: Wire[],
   connectedKeys: Set<string>,
 ) {
-  const crossings = findWireCrossings(wires);
-  const R = 5;
+  const R = 7;
 
-  for (const { p } of crossings) {
-    const key = `${p.x},${p.y}`;
-    if (connectedKeys.has(key)) {
-      // Connected: filled dot
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      // Not connected: white gap on horizontal wire, then arc over it
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(p.x - R, p.y);
-      ctx.lineTo(p.x + R, p.y);
-      ctx.stroke();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, R, Math.PI, 0, false);
-      ctx.stroke();
-    }
-  }
-
-  // Junction dots: a connection point where ≥3 wire strands meet and at least one
-  // wire actually ends there (T-junction, or 3+ wires meeting). A pure 4-way
-  // crossing (two wires passing through, none ending) is NOT auto-connected — it
-  // stays an arc unless the user clicks it (handled via connectedKeys above).
-  for (const p of collectJunctionDots(wires)) {
-    ctx.fillStyle = '#000';
+  for (const { p } of findWireCrossings(wires)) {
+    if (connectedKeys.has(`${p.x},${p.y}`)) continue;
+    ctx.lineCap = 'butt';
+    // Gat in de horizontale draad, iets breder dan het boogje
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(p.x - R, p.y);
+    ctx.lineTo(p.x + R, p.y);
+    ctx.stroke();
+    // Het gat raakt ook de verticale draad: dat stukje opnieuw tekenen
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y - 3);
+    ctx.lineTo(p.x, p.y + 3);
+    ctx.stroke();
+    // Boogje over de verticale draad heen
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, R, Math.PI, 0, false);
+    ctx.stroke();
   }
-}
-
-// Is P strictly interior to the axis-aligned segment a→b (not an endpoint)?
-function pointOnSegmentInterior(p: Point, a: Point, b: Point): boolean {
-  if (a.y === b.y && p.y === a.y) return p.x > Math.min(a.x, b.x) && p.x < Math.max(a.x, b.x);
-  if (a.x === b.x && p.x === a.x) return p.y > Math.min(a.y, b.y) && p.y < Math.max(a.y, b.y);
-  return false;
-}
-
-// Points that should be drawn as a connection dot. A point qualifies when the
-// total number of wire strands meeting there (segment-ends count 1, a segment
-// passing through counts 2) is ≥3 AND at least one wire ends there. That covers
-// T-junctions and 3+ wires meeting, but excludes plain crossings and the simple
-// end-to-end joint of two wires (degree 2 = a continuous line, no dot).
-export function collectJunctionDots(wires: Wire[]): Point[] {
-  const candidates = new Map<string, Point>();
-  for (const w of wires) for (const node of w.nodes) candidates.set(`${node.x},${node.y}`, node);
-
-  const dots: Point[] = [];
-  for (const P of candidates.values()) {
-    let ends = 0, through = 0;
-    for (const w of wires) {
-      for (let i = 0; i < w.nodes.length - 1; i++) {
-        const a = w.nodes[i], b = w.nodes[i + 1];
-        const aAt = a.x === P.x && a.y === P.y;
-        const bAt = b.x === P.x && b.y === P.y;
-        if (aAt) ends++;
-        if (bAt) ends++;
-        if (!aAt && !bAt && pointOnSegmentInterior(P, a, b)) through++;
-      }
-    }
-    if (ends >= 1 && ends + 2 * through >= 3) dots.push(P);
-  }
-  return dots;
 }
 
 export function hitTestComponent(c: CircuitComponent, p: Point): boolean {
