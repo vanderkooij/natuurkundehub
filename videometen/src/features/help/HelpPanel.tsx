@@ -621,6 +621,10 @@ export function HelpPanel({ isOpen, onClose, toolVersion }: HelpPanelProps) {
       title="Help — Videometen"
       footer={
         <span>
+          <a href="/videometen/over/" className="font-medium text-(--accent) hover:underline">
+            Meer over Videometen, ook voor docenten →
+          </a>
+          <br />
           Versie {toolVersion} ·{" "}
           <a
             href="https://natuurkundehub.nl"

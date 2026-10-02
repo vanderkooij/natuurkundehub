@@ -80,6 +80,12 @@ export function VideoDropZone() {
         <span className="font-semibold">Tip:</span> film met een stilstaande camera (geen pan, zoom
         of trilling) voor de meest precieze metingen.
       </p>
+      <a
+        href="/videometen/over/"
+        className="mt-2 text-xs text-(--text-muted) hover:text-(--accent) hover:underline"
+      >
+        Wat is Videometen?
+      </a>
     </div>
   );
 }

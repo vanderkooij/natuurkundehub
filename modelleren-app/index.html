@@ -12,6 +12,11 @@
     <meta property="og:title" content="Natuurkundig modelleren">
     <meta property="og:description" content="Bouw numerieke modellen voor natuurkunde, laat ze stap voor stap doorrekenen en bekijk het resultaat in grafieken. Met begeleide oefeningen.">
     <meta property="og:url" content="https://natuurkundehub.nl/modelleren/">
+    <meta property="og:image" content="https://natuurkundehub.nl/assets/og/modelleren.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Modelleren met een grafiek van een vallend voorwerp.">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_light.svg" id="favicon" />
     <link
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
@@ -39,6 +44,26 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Over deze tool: statische tekst onder de app (ook voor zoekmachines), opmaak uit /assets/about.css -->
+    <div class="page-wrap" style="padding-top: 0">
+      <section class="about" style="margin-top: 8px">
+        <details>
+          <summary><h2>Over deze tool: natuurkundig modelleren</h2></summary>
+          <div class="about-body">
+            <p>Met een numeriek model reken je een beweging of een ander natuurkundig proces stap voor stap door, met een kleine tijdstap <em>dt</em>. Zo kun je ook situaties doorrekenen waar geen eenvoudige formule voor is, zoals een val met luchtweerstand.</p>
+            <h3>Hoe werkt het?</h3>
+            <ul>
+              <li><strong>Startwaarden:</strong> de beginwaarden van alle grootheden, zoals <em>t</em>, <em>dt</em>, <em>h</em> en <em>v</em>, met hun eenheid.</li>
+              <li><strong>Modelregels:</strong> wat er in elke stap verandert, bijvoorbeeld <code>v = v + a*dt</code> en <code>h = h - v*dt</code>. Met een regel als <code>als h &lt;= 0 dan STOP</code> stopt het model.</li>
+              <li><strong>Simuleer:</strong> de tool herhaalt de regels en zet het resultaat in een tabel en in grafieken. Daarin kun je ook een raaklijn tekenen.</li>
+            </ul>
+            <h3>Leren en voorbeelden</h3>
+            <p>Nieuw met modelleren? Onder <strong>Leer modelleren</strong> staan dertien begeleide oefeningen, van je eerste model tot een beweging in twee dimensies. Bij <strong>Voorbeeldmodellen</strong> vind je onder andere de vrije val, een val met luchtweerstand, een stuiterende bal, een bungeejumper, een RC-schakeling, radioactief verval, een harmonische trilling en een planetenbaan.</p>
+            <p>Je kunt een model opslaan, als link delen of als bestand exporteren, en de resultaten downloaden als CSV.</p>
+          </div>
+        </details>
+      </section>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

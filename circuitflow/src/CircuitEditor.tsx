@@ -955,9 +955,17 @@ export function CircuitEditor() {
         <div ref={containerRef} className="relative min-w-0 flex-1 overflow-hidden cf-canvas">
           {doc.components.length === 0 && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center">
-              <p className="rounded-xl bg-card/80 px-4 py-2 text-sm text-(--text-muted)">
-                Sleep een component uit de balk hierboven om te beginnen
-              </p>
+              <div className="flex flex-col items-center gap-2">
+                <p className="rounded-xl bg-card/80 px-4 py-2 text-sm text-(--text-muted)">
+                  Sleep een component uit de balk hierboven om te beginnen
+                </p>
+                <a
+                  href="/circuitflow/over/"
+                  className="pointer-events-auto text-xs text-(--text-muted) hover:text-(--accent) hover:underline"
+                >
+                  Wat is CircuitFlow?
+                </a>
+              </div>
             </div>
           )}
           {banner && (

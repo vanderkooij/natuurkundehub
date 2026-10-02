@@ -70,6 +70,10 @@ Elke pagina heeft in de `<head>`, direct na `<title>`:
 
 Tool- en keuzepagina's krijgen onderaan in `.main` een inklapbaar blok **Over deze tool** (`<section class="about"><details>…`), met de opmaak uit `/assets/about.css`. Daarin staan in gewone taal wat je oefent, voor wie, de kern van de stof en een link naar de uitleg. De tool zelf blijft bovenaan en ongewijzigd; het blok geeft Google leesbare tekst zonder leerlingen af te leiden. Uitlegpagina's hebben al genoeg tekst en krijgen het blok niet. Kijk het voorbeeld na in `significantie/index.html`.
 
+Schermvullende apps (CircuitSketch, CircuitFlow, Videometen) kunnen geen blok onderaan hebben, want ze scrollen niet. Zij krijgen een **infopagina** op `/<app>/over/` (bron: `<app>/public/over/index.html`, Vite kopieert hem mee). De app zelf blijft op `/<app>/` staan, zodat bladwijzers en de tegel op de homepage direct naar de tool gaan; de infopagina is voor wie via Google binnenkomt. Vanuit de app linkt het helpvenster (en waar dat kan het lege startscherm) naar de infopagina. Modelleren scrollt wel en heeft het blok gewoon onder de app.
+
+Elke pagina heeft een **previewplaatje** (`og:image`, 1200×630) uit `assets/og/`: de apps hun eigen schermafbeelding, de overige pagina's `hub.jpg`. De infopagina's tonen dezelfde schermafbeelding als `.webp`.
+
 Pagina's die niet in Google horen (admin, doorverwijzingen, 404) krijgen `<meta name="robots" content="noindex">`.
 
 `robots.txt` staat in de root. `dist/sitemap.xml` wordt aan het eind van `build.sh` gemaakt door `scripts/sitemap.mjs`: alle `index.html`-pagina's in `dist/`, behalve die met `noindex`. Interne links naar een tool schrijf je met slash aan het eind (`/overhoor/`), zodat er geen omleiding tussen zit. Logo- en faviconpaden in statische pagina's zijn absoluut (`/assets/logo/...`).

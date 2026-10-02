@@ -325,6 +325,10 @@ export function HelpPanel({ open, onClose, lang }: HelpPanelProps) {
         flexShrink: 0, fontSize: 12, color: '#555',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}>
+        <a href="/circuitsketch/over/" style={{ color: '#0bb5c8', fontWeight: 600, textDecoration: 'none' }}>
+          {lang === 'nl' ? 'Meer over CircuitSketch →' : 'More about CircuitSketch →'}
+        </a>
+        <br />
         {lang === 'nl' ? 'Feedback of een bug gevonden? ' : 'Feedback or found a bug? '}
         <a href="/contact/" style={{ color: '#0bb5c8', fontWeight: 600, textDecoration: 'none' }}>
           {lang === 'nl' ? 'Laat het weten →' : 'Let us know →'}

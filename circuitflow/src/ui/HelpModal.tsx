@@ -66,6 +66,10 @@ export function HelpModal({ onClose }: Props) {
         </ul>
 
         <div className="mt-5 border-t border-(--border-solid) pt-4 text-sm text-(--text-secondary)">
+          <a href="/circuitflow/over/" className="font-medium text-(--accent) hover:underline">
+            Meer over CircuitFlow, ook voor docenten →
+          </a>
+          <br />
           Feedback of een bug gevonden?{" "}
           <a href="/contact/" className="font-medium text-(--accent) hover:underline">
             Laat het weten →
