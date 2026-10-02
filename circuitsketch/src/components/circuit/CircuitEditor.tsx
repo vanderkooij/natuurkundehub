@@ -270,6 +270,116 @@ function segmentIntersectsBBox(a: Point, b: Point, bbox: BBox): boolean {
   return false;
 }
 
+// Padzoeker over een rooster van een half rasterhok (10 px), voor als de
+// simpele L-routes en omwegen allemaal afvallen. Dijkstra over (punt, richting):
+// lengte telt licht, een knik 1, een haakse kruising met een andere draad 4.
+// Verboden: door een component, over een andere draad heen (zelfde lijn),
+// door een knoop van een andere draad, en knikken op een andere draad (dat zou
+// eruitzien als een verbinding). Knikken alleen op rasterlijnen of in lijn met
+// begin of eind, zodat er geen trapjes van 10 px ontstaan.
+function gridRoute(
+  from: Point, to: Point, bboxes: BBox[], others: [Point, Point][], otherNodes: Point[], exempt: Point[],
+): Point[] | null {
+  const S = GRID / 2, MARGIN = GRID * 10;
+  const onLattice = (p: Point) => p.x % S === 0 && p.y % S === 0;
+  if (!onLattice(from) || !onLattice(to)) return null;
+  const x0 = Math.min(from.x, to.x) - MARGIN, y0 = Math.min(from.y, to.y) - MARGIN;
+  const W = Math.round((Math.max(from.x, to.x) + MARGIN - x0) / S) + 1;
+  const H = Math.round((Math.max(from.y, to.y) + MARGIN - y0) / S) + 1;
+  const N = W * H;
+  const idx = (x: number, y: number) => ((y - y0) / S) * W + (x - x0) / S;
+  const inside = (x: number, y: number) => x >= x0 && y >= y0 && x <= x0 + (W - 1) * S && y <= y0 + (H - 1) * S;
+
+  const blocked = new Uint8Array(N);    // punt in een component of knoop van andere draad
+  const hEdge = new Uint8Array(N);      // stuk (x,y)→(x+S,y) is al draad
+  const vEdge = new Uint8Array(N);      // stuk (x,y)→(x,y+S) is al draad
+  const onH = new Uint8Array(N);        // punt ligt op een horizontale draad
+  const onV = new Uint8Array(N);        // punt ligt op een verticale draad
+  const free = (p: Point) => (p.x === from.x && p.y === from.y) || (p.x === to.x && p.y === to.y)
+    || exempt.some(e => e.x === p.x && e.y === p.y);
+
+  for (const b of bboxes) {
+    for (let x = Math.ceil(b.x1 / S) * S; x <= b.x2; x += S)
+      for (let y = Math.ceil(b.y1 / S) * S; y <= b.y2; y += S)
+        if (x > b.x1 && x < b.x2 && y > b.y1 && y < b.y2 && inside(x, y)) blocked[idx(x, y)] = 1;
+  }
+  for (const [a, b] of others) {
+    if (!onLattice(a) || !onLattice(b)) continue;
+    if (a.y === b.y) {
+      const lo = Math.min(a.x, b.x), hi = Math.max(a.x, b.x);
+      for (let x = lo; x <= hi; x += S) if (inside(x, a.y)) { onH[idx(x, a.y)] = 1; if (x < hi) hEdge[idx(x, a.y)] = 1; }
+    } else if (a.x === b.x) {
+      const lo = Math.min(a.y, b.y), hi = Math.max(a.y, b.y);
+      for (let y = lo; y <= hi; y += S) if (inside(a.x, y)) { onV[idx(a.x, y)] = 1; if (y < hi) vEdge[idx(a.x, y)] = 1; }
+    }
+  }
+  for (const n of otherNodes) if (onLattice(n) && inside(n.x, n.y) && !free(n)) blocked[idx(n.x, n.y)] = 1;
+  for (const p of [from, to]) blocked[idx(p.x, p.y)] = 0;
+
+  const turnOk = (x: number, y: number) => {
+    const p = { x, y };
+    if (!free(p) && (onH[idx(x, y)] || onV[idx(x, y)])) return false;
+    return (x % GRID === 0 || x === from.x || x === to.x) && (y % GRID === 0 || y === from.y || y === to.y);
+  };
+
+  // Dijkstra met een eenvoudige binaire heap. Richting 0=+x 1=-x 2=+y 3=-y 4=start.
+  const DX = [S, -S, 0, 0], DY = [0, 0, S, -S];
+  const dist = new Float64Array(N * 5).fill(Infinity);
+  const prev = new Int32Array(N * 5).fill(-1);
+  const heap: [number, number][] = [];
+  const push = (d: number, s: number) => {
+    heap.push([d, s]); let i = heap.length - 1;
+    while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; }
+  };
+  const pop = () => {
+    const top = heap[0], last = heap.pop()!;
+    if (heap.length) { heap[0] = last; let i = 0;
+      for (;;) { const l = 2 * i + 1, r = l + 1; let m = i;
+        if (l < heap.length && heap[l][0] < heap[m][0]) m = l;
+        if (r < heap.length && heap[r][0] < heap[m][0]) m = r;
+        if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } }
+    return top;
+  };
+  const start = idx(from.x, from.y) * 5 + 4, goal = idx(to.x, to.y);
+  dist[start] = 0; push(0, start);
+  let end = -1, visited = 0;
+  while (heap.length && visited < 200000) {
+    const [d, s] = pop(); visited++;
+    if (d > dist[s]) continue;
+    const cell = Math.floor(s / 5), dir = s % 5;
+    if (cell === goal) { end = s; break; }
+    const x = x0 + (cell % W) * S, y = y0 + Math.floor(cell / W) * S;
+    for (let nd = 0; nd < 4; nd++) {
+      if (dir !== 4 && nd !== dir) {
+        if ((dir ^ 1) === nd) continue;               // niet omkeren
+        if (!turnOk(x, y)) continue;
+      }
+      const nx = x + DX[nd], ny = y + DY[nd];
+      if (!inside(nx, ny)) continue;
+      const ni = idx(nx, ny);
+      if (blocked[ni]) continue;
+      // Over een bestaande draad heen lopen is verboden
+      if (nd === 0 && hEdge[idx(x, y)]) continue;
+      if (nd === 1 && hEdge[ni]) continue;
+      if (nd === 2 && vEdge[idx(x, y)]) continue;
+      if (nd === 3 && vEdge[ni]) continue;
+      // Haaks een andere draad kruisen kost extra (boogje in de tekening)
+      const crosses = (nd < 2 ? onV[ni] : onH[ni]) && ni !== goal ? 4 : 0;
+      const cost = d + 0.025 + (dir !== 4 && nd !== dir ? 1 : 0) + crosses;
+      const ns = ni * 5 + nd;
+      if (cost < dist[ns]) { dist[ns] = cost; prev[ns] = s; push(cost, ns); }
+    }
+  }
+  if (end < 0) return null;
+  const pts: Point[] = [];
+  for (let s = end; s >= 0; s = prev[s]) {
+    const cell = Math.floor(s / 5);
+    pts.push({ x: x0 + (cell % W) * S, y: y0 + Math.floor(cell / W) * S });
+  }
+  pts.reverse();
+  return cleanupWireNodes(pts);
+}
+
 // Liggen twee assen-parallelle stukken draad over elkaar (een overlap met
 // lengte > 0)? Elkaar raken in één punt (T-splitsing, aansluiten) mag wel.
 function segmentsOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
@@ -311,6 +421,7 @@ function routeAvoiding(
   wires: Wire[] = [],
   next?: Point,
   exempt: Point[] = [],
+  sameNetTerminals: Point[] = [],
 ): Point[] {
   if (from.x === to.x && from.y === to.y) return [from, to];
   const bboxes = components.map(c => getCompBodyBBox(c)).filter((b): b is BBox => b !== null);
@@ -343,6 +454,13 @@ function routeAvoiding(
     (a.y === b.y && p.y === a.y && p.x >= Math.min(a.x, b.x) && p.x <= Math.max(a.x, b.x));
   const otherNodes: Point[] = [];
   for (const w of wires) for (const n of w.nodes) otherNodes.push(n);
+  // Aansluitingen van componenten zijn ook obstakels: een draad die door een
+  // vrije aansluiting loopt, lijkt daarop aangesloten. Aansluitingen die
+  // elektrisch al bij deze draad horen (sameNetTerminals) mogen wel.
+  for (const c of components) for (let t = 0; t < getTerminalCount(c.type); t++) {
+    const tp = getTerminal(c, t), p = { x: Math.round(tp.x), y: Math.round(tp.y) };
+    if (!sameNetTerminals.some(q => q.x === p.x && q.y === p.y)) otherNodes.push(p);
+  }
   const touchesWire = (nodes: Point[]) => {
     for (let i = 0; i < nodes.length - 1; i++)
       for (const q of otherNodes) if (!isEnd(q) && onSeg(q, nodes[i], nodes[i + 1])) return true;
@@ -394,6 +512,14 @@ function routeAvoiding(
     if (hitsBody(c.nodes) || overlapsWire(c.nodes) || touchesWire(c.nodes)) continue;
     const sc = score(c.nodes, c.preferred);
     if (sc < bestScore) { bestScore = sc; best = c.nodes; }
+  }
+  // Geen nette simpele route, of alleen met kruisingen: zoek over het raster.
+  if (!best || bestScore >= 4) {
+    const g = gridRoute(from, to, bboxes, others, otherNodes, exempt);
+    if (g && !hitsBody(g) && !overlapsWire(g) && !touchesWire(g)) {
+      const sc = score(g, false);
+      if (sc < bestScore) { bestScore = sc; best = g; }
+    }
   }
   if (best) return best;
   // Geen route zonder aanraking: dan in elk geval zonder overlap
@@ -475,6 +601,7 @@ function routeThroughWaypoints(
   orient: LRouteOrientation,
   wires: Wire[] = [],
   exempt: Point[] = [],
+  sameNetTerminals: Point[] = [],
 ): Point[] {
   const pts = [start, ...waypoints, end];
   const result: Point[] = [];
@@ -482,11 +609,90 @@ function routeThroughWaypoints(
     // Het stuk dat al gelegd is telt mee als andere draad, zodat de draad niet
     // over zichzelf terugloopt.
     const soFar: Wire[] = result.length > 1 ? [{ id: '__self', nodes: result }] : [];
-    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, [...wires, ...soFar], pts[i + 2], exempt);
+    const seg = routeAvoiding(pts[i], pts[i + 1], components, orient, [...wires, ...soFar], pts[i + 2], exempt, sameNetTerminals);
     if (result.length === 0) result.push(...seg);
     else result.push(...seg.slice(1));
   }
   return result;
+}
+
+// Het elektrische net van een draad: alle draden die er via aftakkingen of een
+// gedeelde aansluiting mee verbonden zijn, en de aansluitingen daarvan
+// ("componentId:terminal").
+function wireNet(st: CircuitState, wireId: string): { wires: Set<string>; terminals: Set<string> } {
+  const wires = new Set<string>([wireId]);
+  const terminals = new Set<string>();
+  const termOf = (a: WireAttachment | undefined) => a?.kind === 'component' ? `${a.componentId}:${a.terminal}` : null;
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const w of st.wires) {
+      const tA = termOf(w.startAttach), tB = termOf(w.endAttach);
+      const linked = wires.has(w.id)
+        || (w.startAttach?.kind === 'wire' && wires.has(w.startAttach.wireId))
+        || (w.endAttach?.kind === 'wire' && wires.has(w.endAttach.wireId))
+        || st.wires.some(o => wires.has(o.id) && ((o.startAttach?.kind === 'wire' && o.startAttach.wireId === w.id) || (o.endAttach?.kind === 'wire' && o.endAttach.wireId === w.id)))
+        || (tA !== null && terminals.has(tA)) || (tB !== null && terminals.has(tB));
+      if (!linked) continue;
+      if (!wires.has(w.id)) { wires.add(w.id); grew = true; }
+      for (const t of [tA, tB]) if (t && !terminals.has(t)) { terminals.add(t); grew = true; }
+    }
+  }
+  return { wires, terminals };
+}
+
+function netTerminalPoints(components: CircuitComponent[], keys: Set<string>): Point[] {
+  const out: Point[] = [];
+  for (const c of components) for (let t = 0; t < getTerminalCount(c.type); t++) {
+    if (!keys.has(`${c.id}:${t}`)) continue;
+    const tp = getTerminal(c, t);
+    out.push({ x: Math.round(tp.x), y: Math.round(tp.y) });
+  }
+  return out;
+}
+
+// Zie syncWires: schuif het aftakpunt van elke aftakkende draad die opnieuw
+// gelegd moet worden over de bovenliggende draad naar het punt dat het
+// dichtst bij het andere einde van de aftakking ligt. Het nieuwe punt wordt
+// als knoop ingevoegd (materializeAttach nummert verwijzingen om); de oude
+// knoop blijft tot het opruimen na het slepen.
+function slideBranchPoints(st: CircuitState): CircuitState {
+  let wires = st.wires;
+  for (const id of st.wires.map(w => w.id)) {
+    const w = wires.find(x => x.id === id);
+    if (!w || w.nodes.length < 2) continue;
+    for (const side of ['start', 'end'] as const) {
+      const a = side === 'start' ? w.startAttach : w.endAttach;
+      if (a?.kind !== 'wire') continue;
+      const farAttach = side === 'start' ? w.endAttach : w.startAttach;
+      if (!farAttach || farAttach.kind === 'wire') continue;
+      const farNow = side === 'start' ? w.nodes[w.nodes.length - 1] : w.nodes[0];
+      const far = resolveAttach({ ...st, wires }, farAttach);
+      if (!far || (far.x === farNow.x && far.y === farNow.y)) continue;   // andere einde bewoog niet
+      const parent = wires.find(x => x.id === a.wireId);
+      if (!parent) continue;
+      const q = nearestPointOnRoute(parent.nodes, far);
+      const curP = parent.nodes[a.nodeIndex];
+      if (curP && curP.x === q.x && curP.y === q.y) continue;
+      let segIdx = -1, nodeIdx = parent.nodes.findIndex(n => n.x === q.x && n.y === q.y);
+      if (nodeIdx < 0) {
+        for (let i = 0; i < parent.nodes.length - 1; i++) {
+          const p0 = parent.nodes[i], p1 = parent.nodes[i + 1];
+          if ((p0.x === p1.x && q.x === p0.x && q.y > Math.min(p0.y, p1.y) && q.y < Math.max(p0.y, p1.y))
+            || (p0.y === p1.y && q.y === p0.y && q.x > Math.min(p0.x, p1.x) && q.x < Math.max(p0.x, p1.x))) { segIdx = i; break; }
+        }
+        if (segIdx < 0) continue;
+        const m = materializeAttach(wires, { kind: 'wire-segment', wireId: parent.id, segmentIndex: segIdx, point: q });
+        wires = m.wires;
+        if (m.attach?.kind !== 'wire') continue;
+        nodeIdx = m.attach.nodeIndex;
+      }
+      const ww = wires.find(x => x.id === id)!;
+      const na: WireAttachment = { kind: 'wire', wireId: parent.id, nodeIndex: nodeIdx };
+      wires = wires.map(x => x.id !== id ? x : side === 'start' ? { ...ww, startAttach: na } : { ...ww, endAttach: na });
+    }
+  }
+  return wires === st.wires ? st : { ...st, wires };
 }
 
 // Dichtstbijzijnde punt op een (assen-parallelle) route. Begin- en eindpunt
@@ -578,8 +784,15 @@ function syncWires(s: CircuitState): CircuitState {
   for (let iter = 0; iter < 4; iter++) {
     let changed = false;
 
+    // Aftakkende draden die opnieuw gelegd moeten worden (hun andere einde
+    // bewoog): eerst het aftakpunt op de bovenliggende draad laten schuiven
+    // naar het punt dat het dichtst bij dat andere einde ligt. Zo wordt de
+    // aftakking zo kort en recht mogelijk, in plaats van een U-bocht naar een
+    // aftakpunt dat net naast een hoek ligt.
+    cur = slideBranchPoints(cur);
+
     // Build junction map: for each wire, which of its intermediate nodes have branches
-    const wireJunctions = new Map<string, { oldIdx: number; pos: Point }[]>();
+    const wireJunctions = new Map<string, { oldIdx: number; pos: Point; far: Point | null }[]>();
     for (const w of cur.wires) {
       for (const a of [w.startAttach, w.endAttach] as (WireAttachment | undefined)[]) {
         if (a?.kind !== 'wire') continue;
@@ -589,8 +802,13 @@ function syncWires(s: CircuitState): CircuitState {
         if (idx <= 0 || idx >= parent.nodes.length - 1) continue; // skip endpoints
         if (!wireJunctions.has(a.wireId)) wireJunctions.set(a.wireId, []);
         const jArr = wireJunctions.get(a.wireId)!;
-        if (!jArr.some(j => j.oldIdx === idx))
-          jArr.push({ oldIdx: idx, pos: { ...parent.nodes[idx] } });
+        if (!jArr.some(j => j.oldIdx === idx)) {
+          // Het andere einde van de aftakkende draad: daar wil de aftakking heen
+          const farAttach = a === w.startAttach ? w.endAttach : w.startAttach;
+          const farNode = a === w.startAttach ? w.nodes[w.nodes.length - 1] : w.nodes[0];
+          const far = (farAttach && farAttach.kind !== 'wire' ? resolveAttach(cur, farAttach) : null) ?? farNode;
+          jArr.push({ oldIdx: idx, pos: { ...parent.nodes[idx] }, far });
+        }
       }
     }
 
@@ -620,16 +838,20 @@ function syncWires(s: CircuitState): CircuitState {
       // Approach chip pins via an outward stub so the turn lands beside the pin column.
       const startStub = attachStub(cur.components, w.startAttach) ?? newStart;
       const endStub   = attachStub(cur.components, w.endAttach)   ?? newEnd;
-      const otherWires = placed.filter(x => x.id !== w.id);
+      // Draden en aansluitingen die elektrisch al met deze draad verbonden zijn,
+      // mogen geraakt worden: dat legt geen verkeerde verbinding.
+      const net = wireNet({ ...cur, wires: placed }, w.id);
+      const otherWires = placed.filter(x => !net.wires.has(x.id));
+      const netTerminals = netTerminalPoints(cur.components, net.terminals);
       // Aftakpunten (T-splitsingen) schuiven mee: de draad wordt eerst zelf
       // netjes gelegd, daarna krijgt elke aftakking het dichtstbijzijnde punt
       // op de nieuwe route. De aftakkende draad legt zich in de volgende ronde
       // vanaf dat punt opnieuw. Voorheen moest de route door de oude, vaste
       // plek van het aftakpunt, wat lussen en stompjes gaf.
-      let route = routeThroughWaypoints(startStub, endStub, [], cur.components, orient, otherWires, junctionPositions);
+      let route = routeThroughWaypoints(startStub, endStub, [], cur.components, orient, otherWires, junctionPositions, netTerminals);
       if (startStub !== newStart) route = [newStart, ...route];
       if (endStub !== newEnd) route = [...route, newEnd];
-      const projected = junctions.map(j => nearestPointOnRoute(route, j.pos));
+      const projected = junctions.map(j => nearestPointOnRoute(route, j.far ?? j.pos));
       for (const p of projected) route = insertPointOnRoute(route, p);
       route = cleanupWireNodes(route, projected);
 
