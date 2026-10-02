@@ -304,6 +304,25 @@ function materializeAttach(
   return { wires: newWires, attach: { kind: 'wire', wireId, nodeIndex: insertIdx } };
 }
 
+// Vrij draadpunt vastzetten: op het raster, of op de rij/kolom van een
+// aansluiting als die dichterbij ligt. Aansluitingen liggen sinds de kortere
+// draadjes (LEAD = 1,5 raster) tussen de rasterlijnen; zo lijnt een losse draad
+// toch uit met een draad die van een aansluiting vertrekt.
+function snapWirePoint(p: Point, components: CircuitComponent[]): Point {
+  const g = snapPoint(p);
+  let x = g.x, y = g.y;
+  let bestX = Math.abs(p.x - g.x), bestY = Math.abs(p.y - g.y);
+  for (const c of components) {
+    for (let t = 0; t < getTerminalCount(c.type); t++) {
+      const tp = getTerminal(c, t);
+      const tx = Math.round(tp.x), ty = Math.round(tp.y);
+      if (Math.abs(p.x - tx) < bestX) { bestX = Math.abs(p.x - tx); x = tx; }
+      if (Math.abs(p.y - ty) < bestY) { bestY = Math.abs(p.y - ty); y = ty; }
+    }
+  }
+  return { x, y };
+}
+
 // Reconcile wire endpoints and propagate junction positions.
 // Iterates to a fixed point so wire→wire chains propagate (up to 4 passes).
 // Junction nodes (intermediate nodes that other wires attach to) are treated as
@@ -929,7 +948,7 @@ export default function CircuitEditor() {
     drawWireCrossings(ctx, state.wires, new Set(state.connectedCrossings));
 
     if (tool === 'wire' && wireStart) {
-      const endPoint = hoverSnap ?? snapPoint(mousePos);
+      const endPoint = hoverSnap ?? snapWirePoint(mousePos, state.components);
       const previewRoute = routeAvoiding(wireStart.point, endPoint, state.components, wireOrient);
       drawPreviewWire(ctx, wireStart.point, endPoint, wireOrient, previewRoute);
     }
@@ -1266,7 +1285,7 @@ export default function CircuitEditor() {
     if (tool === 'wire') {
       // Snap to terminal or wire-node, otherwise free point on grid
       const target = findSnapTarget(state.components, state.wires, p, SNAP_TOL);
-      const point = target ? target.point : sp;
+      const point = target ? target.point : snapWirePoint(p, state.components);
       const attach = target?.attach;
 
       if (!wireStart) {
@@ -1521,7 +1540,7 @@ export default function CircuitEditor() {
       }
     } else if (selection.kind === 'wire' && selection.node !== null) {
       const target = findSnapTarget(state.components, state.wires, p, SNAP_TOL, selection.id);
-      const newPos = target ? target.point : sp;
+      const newPos = target ? target.point : snapWirePoint(p, state.components);
       dispatch({ type: 'SET_LIVE', payload: {
         ...stateRef.current,
         wires: stateRef.current.wires.map(w => {
