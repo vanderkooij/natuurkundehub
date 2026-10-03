@@ -11,7 +11,8 @@
  * doen) — zodat de vertakking van de dichtheid bij een knoop klopt.
  */
 import { solveLinear, type SolveResult } from "@/sim";
-import { resolveVertex } from "./geometry";
+import { resolveVertex, type Pt } from "./geometry";
+import { POT_HALF } from "./componentDefs";
 import { activeRange } from "./meterSpec";
 import type { CircuitDoc } from "./types";
 
@@ -78,10 +79,20 @@ export function computeFlows(doc: CircuitDoc, result: SolveResult): FlowPath[] {
     if (c.type === "source") {
       add(c.v0, +Ie); // bron duwt stroom uit de +pool (v0)
       add(c.v1, -Ie);
+    } else if (c.type === "potmeter") {
+      const Ia = result.elementCurrents.get(`${c.id}:a`) ?? 0;
+      const Ib = result.elementCurrents.get(`${c.id}:b`) ?? 0;
+      if (Number.isFinite(Ia) && Number.isFinite(Ib)) {
+        add(c.v0, -Ia);
+        add(c.v1, +Ib);
+        if (c.v2) add(c.v2, Ia - Ib);
+      }
     } else if (
       c.type === "resistor" ||
+      c.type === "varresistor" ||
       c.type === "lamp" ||
       c.type === "led" ||
+      c.type === "diode" ||
       c.type === "ldr" ||
       c.type === "ntc"
     ) {
@@ -188,6 +199,25 @@ export function computeFlows(doc: CircuitDoc, result: SolveResult): FlowPath[] {
     const p0 = resolveVertex(doc, c.v0);
     const p1 = resolveVertex(doc, c.v1);
     if (!p0 || !p1) continue;
+    if (c.type === "potmeter") {
+      // Drie paden die in één punt op het lichaam samenkomen (onder de loper).
+      const Ia = result.elementCurrents.get(`${c.id}:a`) ?? 0;
+      const Ib = result.elementCurrents.get(`${c.id}:b`) ?? 0;
+      const p2 = c.v2 ? resolveVertex(doc, c.v2) : null;
+      if (!Number.isFinite(Ia) || !Number.isFinite(Ib)) continue;
+      const f = Math.min(1, Math.max(0, (c.values.wiper ?? 50) / 100));
+      // Punt op het lichaam onder de loper (zelfde plek als in de tekening).
+      const len = Math.hypot(p1.x - p0.x, p1.y - p0.y) || 1;
+      const off = (f - 0.5) * 2 * POT_HALF;
+      const m = { x: (p0.x + p1.x) / 2 + ((p1.x - p0.x) / len) * off, y: (p0.y + p1.y) / 2 + ((p1.y - p0.y) / len) * off };
+      const mk = `${c.id}:m`;
+      const seg = (key: string, aNode: string, a: Pt, bNode: string, b: Pt, current: number) =>
+        paths.push({ key, aNode, bNode, ax: a.x, ay: a.y, bx: b.x, by: b.y, current, hideRadius: 0 });
+      seg(`${c.id}:a`, c.v0, p0, mk, m, Ia);
+      seg(`${c.id}:b`, mk, m, c.v1, p1, Ib);
+      if (p2 && c.v2) seg(`${c.id}:w`, mk, m, c.v2, p2, Ia - Ib);
+      continue;
+    }
     const Ie = result.elementCurrents.get(c.id) ?? 0;
     if (!Number.isFinite(Ie)) continue;
     // Conventionele stroom v0→v1: weerstand/lamp = +Ie; bron = −Ie (binnenin − → +).

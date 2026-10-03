@@ -2,7 +2,7 @@ import { useRef, useState, useReducer, useCallback, useEffect } from 'react';
 import type { CircuitState, Tool, Point, CircuitComponent, Wire, TextLabel, WireAttachment, ComponentType, LRouteOrientation } from './types';
 import { GRID, LEAD, snap, snapPoint, uid, orthogonalRoute, inferOrientation, LABEL_FONT, CHIP_PRESETS, isChipType } from './types';
 import {
-  clearCanvas, drawComponent, drawWire, drawLabel, drawPreviewWire, drawSnapHint,
+  clearCanvas, drawComponent, drawComponentValue, valueAnchor, drawWire, drawLabel, drawPreviewWire, drawSnapHint,
   drawAlignmentGuides, drawDistanceLabels, drawWireCrossings, findWireCrossings,
   hitTestComponent, hitTestWire, hitTestWireNode, hitTestLabel,
   getTerminal, getTerminalCount, getTerminalStub, findSnapTarget,
@@ -11,8 +11,15 @@ import { Toolbar } from './Toolbar';
 import { HelpPanel } from './HelpPanel';
 import { MobileToolbar } from './MobileToolbar';
 import { t as tr, type Lang } from './i18n';
-import { downloadJSON, loadFromJSON, exportPNG } from './io';
+import { downloadJSON, loadFromJSON, exportPNG, flowFromHash, flowUrl, loadFromHash, loadHash, saveFileText } from './io';
 import { exportSVG } from './svgExport';
+
+/** Componenten waar een waarde bij past (niet: schakelaars, aarde, chips). */
+const VALUE_TYPES = new Set<string>([
+  'voltage', 'voltage_ac', 'resistor', 'varresistor', 'led', 'motor', 'lamp', 'ammeter', 'voltmeter',
+  'capacitor', 'inductor', 'diode', 'potentiometer', 'fuse', 'transformer', 'transistor', 'transistor_pnp',
+  'ntc', 'ptc', 'ldr', 'buzzer', 'relay',
+]);
 
 const EMPTY: CircuitState = { components: [], wires: [], labels: [], connectedCrossings: [] };
 
@@ -1241,24 +1248,35 @@ interface HistoryState {
   circuit: CircuitState;
   past: CircuitState[];
   future: CircuitState[];
+  // Stand vóór een sleepbeweging (eerste SET_LIVE). COMMIT zet díé in de
+  // geschiedenis, zodat ongedaan maken de hele sleep terugdraait en niet alleen
+  // het laatste tussenstandje.
+  liveBase?: CircuitState;
 }
 
 type HistoryAction =
   | { type: 'COMMIT'; payload: CircuitState }
   | { type: 'SET_LIVE'; payload: CircuitState }
+  | { type: 'END_LIVE' }
   | { type: 'UNDO' }
   | { type: 'REDO' }
-  | { type: 'LOAD'; payload: CircuitState };
+  | { type: 'LOAD'; payload: CircuitState }
+  // Hele geschiedenis terugzetten (na een uitstapje naar CircuitFlow).
+  | { type: 'RESTORE'; payload: HistoryState };
 
 function historyReducer(s: HistoryState, action: HistoryAction): HistoryState {
   switch (action.type) {
     case 'COMMIT': {
-      const past = [...s.past, s.circuit].slice(-MAX_HIST);
+      const past = [...s.past, s.liveBase ?? s.circuit].slice(-MAX_HIST);
       return { circuit: { ...action.payload, wires: cleanupAllWires(action.payload.wires ?? []) }, past, future: [] };
     }
     case 'SET_LIVE':
-      return { ...s, circuit: action.payload };
+      return { ...s, circuit: action.payload, liveBase: s.liveBase ?? s.circuit };
+    case 'END_LIVE':
+      // Sleep zonder wijziging (alleen een klik): terug naar de beginstand.
+      return s.liveBase ? { ...s, circuit: s.liveBase, liveBase: undefined } : s;
     case 'UNDO': {
+      if (s.liveBase) return { ...s, circuit: s.liveBase, liveBase: undefined };
       if (s.past.length === 0) return s;
       const past = s.past.slice(0, -1);
       const prev = s.past[s.past.length - 1];
@@ -1269,6 +1287,8 @@ function historyReducer(s: HistoryState, action: HistoryAction): HistoryState {
       const [next, ...future] = s.future;
       return { circuit: next, past: [...s.past, s.circuit], future };
     }
+    case 'RESTORE':
+      return action.payload;
     case 'LOAD': {
       const past = s.past.length > 0 || s.circuit !== EMPTY
         ? [...s.past, s.circuit].slice(-MAX_HIST)
@@ -1279,11 +1299,15 @@ function historyReducer(s: HistoryState, action: HistoryAction): HistoryState {
 }
 
 const INITIAL_HISTORY: HistoryState = { circuit: EMPTY, past: [], future: [] };
+/** sessionStorage-sleutel voor de geschiedenis tijdens een uitstapje naar CircuitFlow. */
+const HIST_KEY = 'cs-history';
 
 export default function CircuitEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tool, setTool] = useState<Tool>('select');
   const [hist, dispatch] = useReducer(historyReducer, INITIAL_HISTORY);
+  const histRef = useRef(hist);
+  histRef.current = hist;
   const state = hist.circuit;
   const canUndo = hist.past.length > 0;
   const canRedo = hist.future.length > 0;
@@ -1299,6 +1323,12 @@ export default function CircuitEditor() {
   const [mousePos, setMousePos] = useState<Point>({ x: 0, y: 0 });
   const [hoverSnap, setHoverSnap] = useState<Point | null>(null);
   const [editingLabel, setEditingLabel] = useState<string | null>(null);
+  // Waarde van een component bewerken (id), met hetzelfde invulvak als een label.
+  const [editingValue, setEditingValue] = useState<string | null>(null);
+  const editingValueRef = useRef<string | null>(null);
+  editingValueRef.current = editingValue;
+  // Alle waarden verbergen (bv. voor een opgave); geldt ook voor de export.
+  const [hideValues, setHideValues] = useState(false);
   const [editText, setEditText] = useState('');
   const [editPos, setEditPos] = useState<Point>({ x: 0, y: 0 });
   const [pan, setPan] = useState<Point>({ x: 0, y: 0 });
@@ -1318,6 +1348,8 @@ export default function CircuitEditor() {
   // Whole-wire move (req 4): drag a wire body to reposition it. Attached endpoints
   // stay anchored (re-routed via syncWires); a free wire translates as a whole.
   const [wireMoveStart, setWireMoveStart] = useState<{ id: string; nodes: Point[]; start: Point } | null>(null);
+  // Begin van het verschuiven van één draadstuk (om een klik van een sleep te onderscheiden).
+  const [segDragStart, setSegDragStart] = useState<Point | null>(null);
   const [clipboard, setClipboard] = useState<ClipboardData | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [isDirty, setIsDirty] = useState(false);
@@ -1383,6 +1415,8 @@ export default function CircuitEditor() {
     }
   }, [commit, lang]);
 
+  const hideValuesRef = useRef(hideValues);
+  hideValuesRef.current = hideValues;
   const filenameRef = useRef(filename);
   filenameRef.current = filename;
 
@@ -1430,11 +1464,67 @@ export default function CircuitEditor() {
   }, []);
 
   const handleExportPNG = useCallback(() => {
-    exportPNG(stateRef.current);
+    exportPNG(stateRef.current, hideValuesRef.current);
+  }, []);
+
+  // Naar CircuitFlow om de schakeling te simuleren. De tekening gaat mee in de
+  // link; in de geschiedenis zetten we hem ook bij onszelf, zodat de
+  // terugknop van de browser hem weer opent (CircuitSketch slaat niets op).
+  const handleSimulate = useCallback(() => {
+    const text = saveFileText(stateRef.current, zoomRef.current, panRef.current);
+    // De geschiedenis (ongedaan maken) bewaren voor als we terugkomen.
+    try {
+      const h = histRef.current;
+      sessionStorage.setItem(HIST_KEY, JSON.stringify({ past: h.past.slice(-MAX_HIST), circuit: h.circuit, future: h.future }));
+    } catch {
+      /* vol of geblokkeerd: dan zonder geschiedenis terug */
+    }
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + loadHash(text));
+    isDirtyRef.current = false; // niet waarschuwen: de tekening gaat mee
+    window.location.href = flowUrl(text);
+  }, []);
+
+  // Terug uit CircuitFlow (of via de terugknop): tekening uit de link openen.
+  useEffect(() => {
+    // Een schakeling uit CircuitFlow ("Openen in CircuitSketch"): zelf een tekening van maken.
+    // Geschiedenis van vóór het uitstapje naar CircuitFlow (zie handleSimulate).
+    let saved: HistoryState | null = null;
+    try {
+      const raw = sessionStorage.getItem(HIST_KEY);
+      if (raw) saved = JSON.parse(raw) as HistoryState;
+      sessionStorage.removeItem(HIST_KEY);
+    } catch {
+      saved = null;
+    }
+    const fromFlow = flowFromHash();
+    if (fromFlow) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      // Draden waarvan de aansluiting verschoof, opnieuw leggen.
+      const next = syncWires(fromFlow);
+      // Met geschiedenis: de wijzigingen uit CircuitFlow zijn één nieuwe stap,
+      // dus één keer ongedaan maken geeft de tekening van vóór CircuitFlow.
+      if (saved) dispatch({ type: 'RESTORE', payload: { past: [...saved.past, saved.circuit].slice(-MAX_HIST), circuit: next, future: [] } });
+      else dispatch({ type: 'LOAD', payload: next });
+      setIsDirty(true);
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+      return;
+    }
+    const file = loadFromHash();
+    if (!file) return;
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    // Dezelfde tekening als waarmee we vertrokken? Dan de hele geschiedenis terug.
+    if (saved && JSON.stringify(saved.circuit) === JSON.stringify(file.circuit)) dispatch({ type: 'RESTORE', payload: saved });
+    else dispatch({ type: 'LOAD', payload: file.circuit });
+    setIsDirty(true); // nog niet als bestand opgeslagen
+    if (file.viewport) {
+      setZoom(file.viewport.zoom);
+      setPan({ x: file.viewport.panX, y: file.viewport.panY });
+    }
   }, []);
 
   const handleExportSVG = useCallback(() => {
-    exportSVG(stateRef.current);
+    exportSVG(stateRef.current, hideValuesRef.current);
   }, []);
 
   // Clipboard helpers — read from refs so they stay stable across renders
@@ -1584,6 +1674,7 @@ export default function CircuitEditor() {
                   multiCompIds.has(comp.id) || (rbItems?.compIds.has(comp.id) ?? false);
       drawComponent(ctx, comp, sel);
     });
+    if (!hideValues) state.components.forEach(comp => { if (editingValue !== comp.id) drawComponentValue(ctx, comp); });
     state.labels.forEach(label => {
       const sel = (selection?.kind === 'label' && selection.id === label.id) ||
                   multiLabelIds.has(label.id) || (rbItems?.labelIds.has(label.id) ?? false);
@@ -1626,7 +1717,7 @@ export default function CircuitEditor() {
     }
 
     ctx.restore();
-  }, [state, selection, tool, wireStart, mousePos, hoverSnap, pan, zoom, editingLabel, dragging, wireOrient, alignGuides, distLabels, rubberBand, multiSel]);
+  }, [state, selection, tool, wireStart, mousePos, hoverSnap, pan, zoom, editingLabel, editingValue, hideValues, dragging, wireOrient, alignGuides, distLabels, rubberBand, multiSel]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1782,7 +1873,7 @@ export default function CircuitEditor() {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (isMobileRef.current) return;
-      if (editingLabel) return;
+      if (editingLabel || editingValueRef.current) return;
       if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
         e.preventDefault();
         if (e.shiftKey) redo(); else undo();
@@ -1839,7 +1930,7 @@ export default function CircuitEditor() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isMobileRef.current) return;
-      if (editingLabel) return;
+      if (editingLabel || editingValueRef.current) return;
       if (!(e.metaKey || e.ctrlKey)) return;
       const k = e.key.toLowerCase();
       if (k === 'c') { e.preventDefault(); handleCopy(); }
@@ -1853,7 +1944,7 @@ export default function CircuitEditor() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (editingLabel) return;
+      if (editingLabel || editingValueRef.current) return;
       if (e.key === 'F1') { e.preventDefault(); setHelpOpen(h => !h); }
       if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -1866,7 +1957,7 @@ export default function CircuitEditor() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (editingLabel) return;
+      if (editingLabel || editingValueRef.current) return;
       if (!(e.metaKey || e.ctrlKey)) return;
       const k = e.key.toLowerCase();
       if (k === 's') { e.preventDefault(); handleSave(); }
@@ -2073,11 +2164,36 @@ export default function CircuitEditor() {
         return;
       }
       if (hitTestWire(w, p)) {
-        setSelection({ kind: 'wire', id: w.id, node: null, segment: null });
         setMultiSel(null);
-        setWireMoveStart({ id: w.id, nodes: w.nodes.map(n => ({ ...n })), start: p });
         setDragging(true);
         setDragOffset({ x: 0, y: 0 });
+        // Vast aan iets? Dan verschuif je het stuk draad waar je op klikt
+        // (evenwijdig), zodat je zelf de route kunt kiezen. Een losse draad
+        // verplaats je als geheel.
+        const seg = nearestSegment(w, p);
+        if ((w.startAttach || w.endAttach) && seg !== null) {
+          const nodes = w.nodes.map(n => ({ ...n }));
+          let li = seg;
+          let ri = seg + 1;
+          let shift = 0;
+          // Het eerste of laatste stuk zit aan een aansluiting: daar komt een
+          // hulpknoop bij, zodat het uiteinde blijft zitten en er een dwarsstuk ontstaat.
+          if (li === 0) { nodes.unshift({ ...nodes[0] }); li++; ri++; shift = 1; }
+          if (ri === nodes.length - 1) nodes.push({ ...nodes[nodes.length - 1] });
+          const wires = state.wires.map(x => {
+            if (x.id === w.id) return { ...x, nodes };
+            if (!shift) return x;
+            const fix = (a: WireAttachment | undefined) =>
+              a?.kind === 'wire' && a.wireId === w.id ? { ...a, nodeIndex: a.nodeIndex + shift } : a;
+            return { ...x, startAttach: fix(x.startAttach), endAttach: fix(x.endAttach) };
+          });
+          dispatch({ type: 'SET_LIVE', payload: { ...state, wires } });
+          setSegDragStart(p);
+          setSelection({ kind: 'wire', id: w.id, node: null, segment: seg, segLeft: li, segRight: ri });
+          return;
+        }
+        setSelection({ kind: 'wire', id: w.id, node: null, segment: null });
+        setWireMoveStart({ id: w.id, nodes: w.nodes.map(n => ({ ...n })), start: p });
         return;
       }
     }
@@ -2230,7 +2346,7 @@ export default function CircuitEditor() {
       // so segLeft / segRight always point to free, movable nodes.
       const li = selection.segLeft;
       const ri = selection.segRight;
-      dispatch({ type: 'SET_LIVE', payload: {
+      const moved: CircuitState = {
         ...stateRef.current,
         wires: stateRef.current.wires.map(w => {
           if (w.id !== selection.id) return w;
@@ -2251,7 +2367,9 @@ export default function CircuitEditor() {
           }
           return { ...w, nodes };
         }),
-      } });
+      };
+      // Draden die aan de verschoven knopen aftakken, schuiven mee.
+      dispatch({ type: 'SET_LIVE', payload: syncWires(moved) });
     } else if (selection.kind === 'label') {
       dispatch({ type: 'SET_LIVE', payload: {
         ...stateRef.current,
@@ -2301,9 +2419,11 @@ export default function CircuitEditor() {
       setMultiDragPrimaryStart(null);
       setMultiDragWireNodes(new Map());
       // A bare click on a wire body only selects it — don't push an undo entry.
-      const moved = !wireMoveStart
-        || snap(mousePosRef.current.x - wireMoveStart.start.x) !== 0
-        || snap(mousePosRef.current.y - wireMoveStart.start.y) !== 0;
+      const from = wireMoveStart?.start ?? segDragStart;
+      const moved = !from
+        || snap(mousePosRef.current.x - from.x) !== 0
+        || snap(mousePosRef.current.y - from.y) !== 0;
+      if (!moved) dispatch({ type: 'END_LIVE' });
       if (moved) {
         let next: CircuitState = state;
         // Losgelaten component: draadeinden en aansluitingen die erop liggen vastmaken
@@ -2318,11 +2438,12 @@ export default function CircuitEditor() {
         commit(cleaned);
       }
       setWireMoveStart(null);
+      setSegDragStart(null);
       if (selection?.kind === 'wire' && selection.segment !== undefined) {
         setSelection({ kind: 'wire', id: selection.id, node: null, segment: null });
       }
     }
-  }, [dragging, state, commit, panning, selection, rubberBand, wireMoveStart, multiDragOffsets]);
+  }, [dragging, state, commit, panning, selection, rubberBand, wireMoveStart, segDragStart, multiDragOffsets]);
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     if (isMobileRef.current) return;
@@ -2349,6 +2470,14 @@ export default function CircuitEditor() {
         if (name !== null) {
           commit({ ...state, components: state.components.map(x => x.id === c.id ? { ...x, name } : x) });
         }
+        return;
+      }
+    }
+
+    // Overige componenten: dubbelklik = waarde invullen
+    for (const c of state.components) {
+      if (VALUE_TYPES.has(c.type) && hitTestComponent(c, p)) {
+        startValueEdit(c.id);
         return;
       }
     }
@@ -2451,6 +2580,30 @@ export default function CircuitEditor() {
     setSelection({ kind: 'component', id: snapped.id });
   }, [canvasCoords, commit, state]);
 
+  const startValueEdit = useCallback((id: string) => {
+    const c = stateRef.current.components.find(x => x.id === id);
+    if (!c) return;
+    const a = valueAnchor(c);
+    setEditingValue(id);
+    setEditText(c.value ?? '');
+    setEditPos({ x: a.align === 'center' ? a.x - 60 : a.x, y: a.y });
+  }, []);
+
+  const finishValueEdit = useCallback(() => {
+    const id = editingValueRef.current;
+    if (!id) return;
+    const v = editText.trim();
+    commit({
+      ...state,
+      components: state.components.map(c => {
+        if (c.id !== id) return c;
+        const { value: _old, ...rest } = c;
+        return v ? { ...rest, value: v } : rest;
+      }),
+    });
+    setEditingValue(null);
+  }, [editText, state, commit]);
+
   const finishLabelEdit = useCallback(() => {
     if (!editingLabel) return;
     commit({
@@ -2495,6 +2648,9 @@ export default function CircuitEditor() {
           onLoad={handleLoad}
           onExportPNG={handleExportPNG}
           onExportSVG={handleExportSVG}
+          onSimulate={handleSimulate}
+          hideValues={hideValues}
+          onToggleValues={() => setHideValues(h => !h)}
           isDirty={isDirty}
         />
       )}
@@ -2513,7 +2669,7 @@ export default function CircuitEditor() {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       />
-      {editingLabel && (
+      {(editingLabel || editingValue) && (
         <div
           style={{
             position: 'absolute',
@@ -2526,8 +2682,11 @@ export default function CircuitEditor() {
             autoFocus
             value={editText}
             onChange={e => setEditText(e.target.value)}
-            onBlur={() => setTimeout(finishLabelEdit, 150)}
-            onKeyDown={e => { if (e.key === 'Enter') finishLabelEdit(); if (e.key === 'Escape') { setEditingLabel(null); } }}
+            onBlur={() => setTimeout(editingValue ? finishValueEdit : finishLabelEdit, 150)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') (editingValue ? finishValueEdit : finishLabelEdit)();
+              if (e.key === 'Escape') { setEditingLabel(null); setEditingValue(null); }
+            }}
             style={{
               font: LABEL_FONT,
               border: '1px solid #000',
@@ -2537,8 +2696,14 @@ export default function CircuitEditor() {
               minWidth: 120,
               display: 'block',
             }}
-            placeholder={tr(lang, 'label.placeholder')}
+            placeholder={tr(lang, editingValue ? 'value.placeholder' : 'label.placeholder')}
           />
+          {editingValue && (
+            <div style={{ marginTop: 4, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 4,
+              padding: '6px 8px', fontSize: 11, color: '#666', fontFamily: 'system-ui, sans-serif', maxWidth: 260, lineHeight: 1.4 }}>
+              {tr(lang, 'value.hint')}
+            </div>
+          )}
           <div style={{
             marginTop: 4, background: '#fff', border: '1px solid #e0e0e0',
             borderRadius: 4, padding: '6px 8px', fontSize: 11, color: '#888',
@@ -2618,6 +2783,8 @@ export default function CircuitEditor() {
             }, !!clipboard)}
             {menuItem(tr(lang, 'menu.duplicate'), 'Ctrl+D', handleDuplicate, hasSelection)}
             {divider}
+            {menuItem(tr(lang, 'menu.value'), '', () => { if (selection?.kind === 'component') startValueEdit(selection.id); },
+              selection?.kind === 'component' && VALUE_TYPES.has(state.components.find(c => c.id === selection.id)?.type ?? 'ground'))}
             {menuItem(tr(lang, 'menu.rotate'), 'R', rotateSelection, selection?.kind === 'component')}
             {menuItem(tr(lang, 'menu.delete'), 'Delete', deleteSelection, hasSelection)}
           </div>
@@ -2693,6 +2860,7 @@ export default function CircuitEditor() {
           onLoad={handleLoad}
           onExportPNG={handleExportPNG}
           onExportSVG={handleExportSVG}
+          onSimulate={handleSimulate}
         />
       )}
     </div>
@@ -2706,6 +2874,20 @@ function getCursor(tool: Tool, dragging: boolean, panning: boolean): string {
   if (COMPONENT_TYPES.has(tool)) return 'crosshair';
   if (tool === 'delete') return 'crosshair';
   return 'crosshair';
+}
+
+/** Index van het draadstuk dat het dichtst bij p ligt (alleen rechte stukken). */
+function nearestSegment(w: Wire, p: Point): number | null {
+  let best: number | null = null;
+  let bestD = Infinity;
+  for (let i = 0; i < w.nodes.length - 1; i++) {
+    const a = w.nodes[i], b = w.nodes[i + 1];
+    if (a.x !== b.x && a.y !== b.y) continue;
+    if (a.x === b.x && a.y === b.y) continue;
+    const d = distToSegmentFull(p, a, b);
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
 }
 
 function distToSegmentFull(p: Point, a: Point, b: Point): number {

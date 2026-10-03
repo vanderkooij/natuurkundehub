@@ -10,22 +10,22 @@ const deler = () => PRESETS.find((p) => p.key === "deler")!.build();
 describe("voltmeter met meetpennen", () => {
   it("pen op een aansluitpunt pakt die knoop", () => {
     const doc = deler();
-    const c = probeContact(doc, { x: 424, y: 268 }, 18); // vlak bij de middenknoop (420, 270)
+    const c = probeContact(doc, { x: 424, y: 278 }, 18); // vlak bij de middenknoop (420, 280)
     expect(c).not.toBeNull();
     expect(c!.x).toBe(420);
-    expect(c!.y).toBe(270);
+    expect(c!.y).toBe(280);
   });
 
   it("pen midden op een draad pakt de knoop van die draad, precies op de draad", () => {
     const doc = deler();
-    const c = probeContact(doc, { x: 300, y: 156 }, 18); // draad van (180,150) naar (420,150)
+    const c = probeContact(doc, { x: 300, y: 166 }, 18); // draad van (180,160) naar (420,160)
     expect(c).not.toBeNull();
-    expect(c!.y).toBe(150);
+    expect(c!.y).toBe(160);
     expect(c!.x).toBeCloseTo(300, 6);
   });
 
   it("pen op het aansluitdraadje of een pool van de batterij pakt die terminal", () => {
-    const doc = deler(); // bron van (180,150) = + naar (180,390) = −
+    const doc = deler(); // bron van (180,160) = + naar (180,400) = −
     const r = solve(toNetlist(doc));
     const plus = probeContact(doc, { x: 184, y: 190 }, 18);
     const min = probeContact(doc, { x: 176, y: 350 }, 18);
@@ -35,8 +35,8 @@ describe("voltmeter met meetpennen", () => {
   });
 
   it("midden op een weerstand: geen contact (daar zit geen knoop)", () => {
-    const doc = deler(); // R1 van (420,150) naar (420,270): midden (420,210)
-    expect(probeContact(doc, { x: 424, y: 210 }, 18)).toBeNull();
+    const doc = deler(); // R1 van (420,160) naar (420,280): midden (420,220)
+    expect(probeContact(doc, { x: 424, y: 220 }, 18)).toBeNull();
   });
 
   it("pen in het niets: geen contact", () => {
@@ -46,9 +46,9 @@ describe("voltmeter met meetpennen", () => {
   it("meet 8 V over de onderste weerstand en 12 V over de bron", () => {
     const doc = deler();
     const r = solve(toNetlist(doc));
-    const midden = probeContact(doc, { x: 420, y: 270 }, 18);
-    const onder = probeContact(doc, { x: 300, y: 390 }, 18); // op de onderste draad
-    const boven = probeContact(doc, { x: 300, y: 150 }, 18);
+    const midden = probeContact(doc, { x: 420, y: 280 }, 18);
+    const onder = probeContact(doc, { x: 300, y: 400 }, 18); // op de onderste draad
+    const boven = probeContact(doc, { x: 300, y: 160 }, 18);
     expect(probeVoltage(r, midden, onder)).toBeCloseTo(8, 6);
     expect(probeVoltage(r, boven, onder)).toBeCloseTo(12, 6);
     // Pennen omgedraaid: dan is het teken negatief, net als bij een echte meter.
@@ -59,7 +59,7 @@ describe("voltmeter met meetpennen", () => {
     const doc = deler();
     const r = solve(toNetlist(doc));
     expect(
-      probeVoltage(r, probeContact(doc, { x: 420, y: 270 }, 18), null),
+      probeVoltage(r, probeContact(doc, { x: 420, y: 280 }, 18), null),
     ).toBeNull();
   });
 });

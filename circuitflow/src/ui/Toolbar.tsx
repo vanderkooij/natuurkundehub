@@ -4,12 +4,28 @@ import { cn } from "@/lib/cn";
 import { COMPONENT_DEFS, PALETTE } from "@/model/componentDefs";
 import type { CircuitDoc, ComponentType } from "@/model/types";
 import type { FlowMode } from "@/render/CanvasOverlay";
-import { ComponentSymbol } from "@/render/svg/Symbols";
+import { ComponentSymbol, SCHEM_ATTACH } from "@/render/svg/Symbols";
 import { FileMenu } from "./FileMenu";
 
 function PaletteIcon({ type, schematic }: { type: ComponentType; schematic: boolean }) {
+  // Schematische symbolen tekenen hun aansluitdraadjes niet zelf (dat doet
+  // CircuitSvg); hier zetten we ze er even bij.
+  const a = SCHEM_ATTACH[type] ?? 0;
   return (
-    <svg viewBox="-72 -30 144 60" width={60} height={26} className="pointer-events-none">
+    <svg
+      viewBox={schematic ? "-66 -46 150 80" : "-72 -30 144 60"}
+      width={60}
+      height={schematic ? 32 : 26}
+      className="pointer-events-none"
+    >
+      {schematic && (
+        <path
+          d={`M -60 0 H ${-a} M ${a} 0 H 60`}
+          stroke="var(--text-primary)"
+          strokeWidth={3}
+          strokeLinecap="round"
+        />
+      )}
       <ComponentSymbol type={type} brightness={0.6} schematic={schematic} />
     </svg>
   );
@@ -33,6 +49,8 @@ interface Props {
   onAddLabel: () => void;
   doc: CircuitDoc;
   onLoad: (doc: CircuitDoc) => void;
+  /** Probeert de tekst als CircuitSketch-tekening te openen. */
+  onLoadSketch: (text: string) => boolean;
   onExportPng: () => void;
   onNotify: (msg: string) => void;
 }
@@ -60,6 +78,7 @@ export function Toolbar({
   onAddLabel,
   doc,
   onLoad,
+  onLoadSketch,
   onExportPng,
   onNotify,
 }: Props) {
@@ -82,7 +101,7 @@ export function Toolbar({
           style={{ cursor: "grab" }}
         >
           <PaletteIcon type={type} schematic={schematic} />
-          <span className="text-[11px] text-(--text-secondary)">{COMPONENT_DEFS[type].label}</span>
+          <span className="text-[11px] text-(--text-secondary)">{COMPONENT_DEFS[type].short ?? COMPONENT_DEFS[type].label}</span>
         </button>
       ))}
       <div className="ml-auto flex items-center rounded-lg border border-(--border-solid) p-0.5 text-sm">
@@ -147,7 +166,7 @@ export function Toolbar({
       >
         <Table2 size={16} />
       </button>
-      <FileMenu doc={doc} onLoad={onLoad} onExportPng={onExportPng} onNotify={onNotify} />
+      <FileMenu doc={doc} onLoad={onLoad} onLoadSketch={onLoadSketch} onExportPng={onExportPng} onNotify={onNotify} />
       <button
         type="button"
         onClick={onUndo}

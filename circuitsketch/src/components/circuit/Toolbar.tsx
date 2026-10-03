@@ -19,6 +19,9 @@ interface ToolbarProps {
   onLoad: () => void;
   onExportPNG: () => void;
   onExportSVG: () => void;
+  onSimulate: () => void;
+  hideValues: boolean;
+  onToggleValues: () => void;
   isDirty: boolean;
 }
 
@@ -338,35 +341,37 @@ const basic: ToolDef[] = [
   { id: 'text', key: 'tool.text', icon: <span style={{ fontFamily: 'serif', fontStyle: 'italic', fontSize: 14 }}>A</span> },
   { id: 'delete', key: 'tool.delete', icon: <span style={{ fontSize: 14 }}>✕</span> },
 ];
+// In de werkbalk staat alles wat ook in CircuitFlow zit (en dus te simuleren is);
+// de rest staat onder Geavanceerd.
 const sources: ToolDef[] = [
   { id: 'voltage', key: 'tool.voltage', icon: <VoltageIcon /> },
-  { id: 'voltage_ac', key: 'tool.voltage_ac', icon: <VoltageACIcon /> },
 ];
 const loads: ToolDef[] = [
   { id: 'resistor', key: 'tool.resistor', icon: <ResistorIcon /> },
   { id: 'varresistor', key: 'tool.varresistor', icon: <VarResistorIcon /> },
-  { id: 'led', key: 'tool.led', icon: <LEDIcon /> },
-  { id: 'switch', key: 'tool.switch', icon: <SwitchIcon /> },
+  { id: 'potentiometer', key: 'tool.potentiometer', icon: <PotmeterIcon /> },
   { id: 'lamp', key: 'tool.lamp', icon: <LampIcon /> },
+  { id: 'led', key: 'tool.led', icon: <LEDIcon /> },
+  { id: 'diode', key: 'tool.diode', icon: <DiodeIcon /> },
+  { id: 'fuse', key: 'tool.fuse', icon: <FuseIcon /> },
+  { id: 'ldr', key: 'tool.ldr', icon: <LDRIcon /> },
+  { id: 'ntc', key: 'tool.ntc', icon: <NTCIcon /> },
+  { id: 'switch', key: 'tool.switch', icon: <SwitchIcon /> },
 ];
 const meters: ToolDef[] = [
   { id: 'ammeter', key: 'tool.ammeter', icon: <MeterIcon letter="A" /> },
   { id: 'voltmeter', key: 'tool.voltmeter', icon: <MeterIcon letter="V" /> },
 ];
 const advanced: ToolDef[] = [
+  { id: 'voltage_ac', key: 'tool.voltage_ac', icon: <VoltageACIcon /> },
   { id: 'capacitor', key: 'tool.capacitor', icon: <CapacitorIcon /> },
   { id: 'inductor', key: 'tool.inductor', icon: <InductorIcon /> },
-  { id: 'diode', key: 'tool.diode', icon: <DiodeIcon /> },
   { id: 'motor', key: 'tool.motor', icon: <MotorIcon /> },
-  { id: 'fuse', key: 'tool.fuse', icon: <FuseIcon /> },
   { id: 'transformer', key: 'tool.transformer', icon: <TransformerIcon /> },
   { id: 'transistor', key: 'tool.transistor', icon: <TransistorIcon /> },
   { id: 'transistor_pnp', key: 'tool.transistor_pnp', icon: <TransistorPNPIcon /> },
   { id: 'ground', key: 'tool.ground', icon: <GroundIcon /> },
-  { id: 'potentiometer', key: 'tool.potentiometer', icon: <PotmeterIcon /> },
-  { id: 'ntc', key: 'tool.ntc', icon: <NTCIcon /> },
   { id: 'ptc', key: 'tool.ptc', icon: <PTCIcon /> },
-  { id: 'ldr', key: 'tool.ldr', icon: <LDRIcon /> },
   { id: 'pushbutton', key: 'tool.pushbutton', icon: <PushButtonIcon /> },
   { id: 'buzzer', key: 'tool.buzzer', icon: <BuzzerIcon /> },
   { id: 'relay', key: 'tool.relay', icon: <RelayIcon /> },
@@ -418,7 +423,7 @@ function GroupSep() {
   return <div style={{ width: 1, height: 28, background: '#e0e0e0', margin: '0 6px' }} />;
 }
 
-export function Toolbar({ tool, setTool, onUndo, onRedo, onReset, canUndo, canRedo, lang, setLang, helpOpen, onHelpToggle, onSave, onLoad, onExportPNG, onExportSVG, isDirty }: ToolbarProps) {
+export function Toolbar({ tool, setTool, onUndo, onRedo, onReset, canUndo, canRedo, lang, setLang, helpOpen, onHelpToggle, onSave, onLoad, onExportPNG, onExportSVG, onSimulate, hideValues, onToggleValues, isDirty }: ToolbarProps) {
   const [advOpen, setAdvOpen] = useState(false);
   const [fileOpen, setFileOpen] = useState(false);
   const renderGroup = (defs: ToolDef[]) => defs.map(d => (
@@ -490,6 +495,31 @@ export function Toolbar({ tool, setTool, onUndo, onRedo, onReset, canUndo, canRe
 
       <div style={{ flex: 1 }} />
 
+      {/* Waarden verbergen (opgave) */}
+      <button onClick={onToggleValues} title={t(lang, hideValues ? 'btn.showValues' : 'btn.hideValues')}
+        aria-pressed={hideValues}
+        style={{ height: 34, width: 34, border: hideValues ? '1.5px solid #000' : '1px solid #e0e0e0', borderRadius: 4,
+          background: hideValues ? '#f0f0f0' : '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center', color: '#333' }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+          <circle cx="12" cy="12" r="3" />
+          {hideValues && <line x1="3" y1="3" x2="21" y2="21" />}
+        </svg>
+      </button>
+
+      <div style={{ width: 6 }} />
+
+      {/* Naar de simulator */}
+      <button onClick={onSimulate} title={t(lang, 'btn.simulateTitle')}
+        style={{ height: 34, padding: '0 12px', border: '1px solid #0e7490', borderRadius: 4,
+          background: '#ecfeff', cursor: 'pointer', fontSize: 13, color: '#0e7490', fontWeight: 600,
+          display: 'flex', alignItems: 'center', gap: 6 }}>
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>
+        {t(lang, 'btn.simulate')}
+      </button>
+
+      <div style={{ width: 6 }} />
+
       {/* File submenu */}
       <div style={{ position: 'relative' }}>
         <button
@@ -500,7 +530,7 @@ export function Toolbar({ tool, setTool, onUndo, onRedo, onReset, canUndo, canRe
             border: fileOpen ? '1.5px solid #000' : '1px solid #e0e0e0',
             borderRadius: 4, background: fileOpen ? '#f0f0f0' : '#fff',
             cursor: 'pointer', fontSize: 13, color: isDirty ? '#c05000' : '#000',
-            display: 'flex', alignItems: 'center', gap: 4, fontWeight: isDirty ? 600 : 400,
+            display: 'flex', alignItems: 'center', gap: 4, fontWeight: isDirty ? 600 : 400, whiteSpace: 'nowrap', flexShrink: 0,
           }}
         >
           {t(lang, 'btn.file')}{isDirty ? ' ●' : ''} <span style={{ fontSize: 9 }}>▼</span>

@@ -75,6 +75,14 @@ const sections: Record<Lang, Section[]> = {
         { term: 'Context menu', desc: 'Right-click a component to access Copy, Cut, Paste, Duplicate, Rotate and Delete.' },
       ],
     },
+    {
+      title: 'Simulate',
+      items: [
+        { term: 'Simulate', desc: 'Opens your circuit in CircuitFlow, where you can see current and voltage. Parts CircuitFlow cannot simulate (such as a capacitor or motor) are left out. The values you typed come along; parts without a value get a default.' },
+        { term: 'Back', desc: 'In CircuitFlow, "Terug naar CircuitSketch" brings the circuit back here, including your changes. If you changed nothing, your drawing comes back exactly as it was. A circuit built in CircuitFlow opens here as a drawing via "Openen in CircuitSketch".' },
+        { term: 'Values', desc: 'Double-click a component (or right-click > Value) to type a value, e.g. 100 Ω or R1 = 4.7 kΩ. CircuitFlow simulates with it. The eye button hides all values, for an exercise. Text in [ ] always stays hidden: R2 = ? [30 Ω].' },
+      ],
+    },
   ],
   nl: [
     {
@@ -138,6 +146,14 @@ const sections: Record<Lang, Section[]> = {
         { term: 'Plakken', desc: 'Ctrl+V plakt op de huidige cursorpositie. Meerdere keren plakken van hetzelfde klembord is mogelijk.' },
         { term: 'Dupliceren', desc: 'Ctrl+D dupliceert de selectie direct, met een kleine verschuiving.' },
         { term: 'Contextmenu', desc: 'Rechtermuisklik op een component voor Kopiëren, Knippen, Plakken, Dupliceren, Roteren en Verwijderen.' },
+      ],
+    },
+    {
+      title: 'Simuleren',
+      items: [
+        { term: 'Simuleren', desc: 'Opent je schakeling in CircuitFlow, waar je de stroom en spanning ziet. Onderdelen die CircuitFlow niet kan simuleren (zoals een condensator of motor) vallen weg. De waarden die je hebt ingevuld gaan mee; onderdelen zonder waarde krijgen een standaardwaarde.' },
+        { term: 'Terug', desc: 'In CircuitFlow brengt "Terug naar CircuitSketch" de schakeling hier terug, met je wijzigingen. Heb je niets veranderd, dan komt je tekening precies zo terug. Een schakeling die in CircuitFlow gebouwd is, opent hier als tekening via "Openen in CircuitSketch".' },
+        { term: 'Waarden', desc: 'Dubbelklik een onderdeel (of rechtermuisknop > Waarde) en typ een waarde, bijvoorbeeld 100 Ω of R1 = 4,7 kΩ. CircuitFlow rekent ermee. Met het oogje verberg je alle waarden, bijvoorbeeld voor een opgave. Tekst tussen [ ] blijft altijd onzichtbaar: R2 = ? [30 Ω].' },
       ],
     },
   ],

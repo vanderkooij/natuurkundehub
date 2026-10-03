@@ -1,16 +1,19 @@
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { COMPONENT_DEFS } from "@/model/componentDefs";
+import { COMPONENT_DEFS, POT_HALF } from "@/model/componentDefs";
 import { GRID, componentGeom, dist, nearestSnap, resolveVertex, snapToGrid, type Pt } from "@/model/geometry";
 import { computeFlows } from "@/model/flows";
-import { LED_IMAX } from "@/model/ledSpec";
+import { DIODE_IMAX, LED_IMAX } from "@/model/ledSpec";
 import { activeRange, ANALOG_H, ANALOG_SPEC, ANALOG_W, isAnalog } from "@/model/meterSpec";
 import { toNetlist } from "@/model/netlist";
 import { probeContact, probeVoltage, type ProbeState } from "@/model/probe";
 import { sweepIU, sweepLedColors } from "@/model/sweep";
 import type { CircuitDoc, ComponentType } from "@/model/types";
-import { docToJson, exportPng, jsonToDoc, sharePayloadFromHash } from "@/lib/io";
+import { importNotice, parseSketch, sketchToDoc } from "@/lib/fromSketch";
+import { niceStep } from "@/lib/values";
+import { docToJson, exportPng, jsonToDoc, sharePayloadFromHash, sketchBackUrl, sketchFlowUrl, sketchFromHash } from "@/lib/io";
+import { docSignature, docToSketchExport } from "@/lib/toSketch";
 import { GraphPanel } from "@/ui/GraphPanel";
 import { ValuesTable } from "@/ui/ValuesTable";
 import { CanvasOverlay, type FlowMode } from "@/render/CanvasOverlay";
@@ -50,6 +53,7 @@ type Drag =
   | { type: "pan"; startX: number; startY: number; startTx: number; startTy: number }
   | { type: "place"; ctype: ComponentType }
   | { type: "labelmove"; id: string; startW: Pt; ox: number; oy: number }
+  | { type: "wiper"; id: string }
   | { type: "marquee"; startW: Pt }
   | {
       type: "groupmove";
@@ -109,6 +113,8 @@ export function CircuitEditor() {
       if (!Number.isFinite(i)) continue;
       if (c.type === "led" && !c.values.burned && Math.abs(i) > LED_IMAX) {
         timers.push(setTimeout(() => circuit.setValue(c.id, { burned: true }), 260));
+      } else if (c.type === "diode" && !c.values.burned && Math.abs(i) > DIODE_IMAX) {
+        timers.push(setTimeout(() => circuit.setValue(c.id, { burned: true }), 260));
       } else if (c.type === "fuse" && !c.values.blown && Math.abs(i) > (c.values.imax ?? 1)) {
         timers.push(setTimeout(() => circuit.setValue(c.id, { blown: true }), 220));
       }
@@ -122,6 +128,29 @@ export function CircuitEditor() {
   const [showTable, setShowTable] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [task, setTask] = useState<string | null>(null);
+  // Melding na het overnemen van een CircuitSketch-tekening.
+  const [notice, setNotice] = useState<string | null>(null);
+  // De oorspronkelijke CircuitSketch-tekening (voor "Terug naar je tekening").
+  // Vingerafdruk direct na het overnemen (is er daarna iets veranderd?) en wat
+  // er toen wegviel; samen bepalen ze wat "Terug naar CircuitSketch" doet.
+  const fromSessionJson = <T,>(key: string, fallback: T): T => {
+    try {
+      const raw = sessionStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as T) : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+  const sketchSnapRef = useRef<string | null>(fromSessionJson<string | null>("cf-sketch-snap", null));
+  const [sketchSkipped, setSketchSkipped] = useState<string[]>(() => fromSessionJson<string[]>("cf-sketch-skipped", []));
+  const [backChoice, setBackChoice] = useState(false);
+  const [sketchOrigin, setSketchOrigin] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem("cf-sketch-origin");
+    } catch {
+      return null;
+    }
+  });
   const [graphId, setGraphId] = useState<string | null>(null);
   // Voltmeter met meetpennen: los instrument, geen deel van de schakeling.
   const [probe, setProbe] = useState<ProbeState | null>(null);
@@ -260,7 +289,7 @@ export function CircuitEditor() {
             if (v) vertices[p] = { x: v.x, y: v.y };
           }
         } else {
-          for (const vid of [c.v0, c.v1]) {
+          for (const vid of [c.v0, c.v1, ...(c.v2 ? [c.v2] : [])]) {
             const v = d.vertices[vid];
             if (v) vertices[vid] = { x: v.x, y: v.y };
           }
@@ -397,6 +426,15 @@ export function CircuitEditor() {
           const s1 = nearestSnap(docRef.current, p1, ex);
           setSnapTargetId(s0?.id ?? s1?.id ?? null);
         }
+      } else if (drag.type === "wiper") {
+        // Loper volgt de muis langs de as van de potmeter.
+        const comp = docRef.current.components.find((c) => c.id === drag.id);
+        const g = comp && componentGeom(docRef.current, comp);
+        if (comp && g) {
+          const t = (w.x - g.center.x) * g.ux + (w.y - g.center.y) * g.uy;
+          const pct = Math.round(Math.min(100, Math.max(0, (t / (2 * POT_HALF) + 0.5) * 100)));
+          if (pct !== (comp.values.wiper ?? 50)) circuitRef.current.setValue(comp.id, { wiper: pct });
+        }
       } else if (drag.type === "labelmove") {
         circuitRef.current.moveLabel(drag.id, drag.ox + (w.x - drag.startW.x), drag.oy + (w.y - drag.startW.y));
       } else if (drag.type === "groupmove") {
@@ -471,6 +509,15 @@ export function CircuitEditor() {
           const s1 = nearestSnap(docRef.current, p1, ex);
           if (s0) circuitRef.current.mergeVertex(s0.id, drag.v0);
           if (s1 && s1.id !== drag.v0) circuitRef.current.mergeVertex(s1.id, drag.v1);
+          // Potmeter: ook de loper klikt vast op een draadeinde of aansluiting.
+          const v2 = docRef.current.components.find((c) => c.id === drag.id)?.v2;
+          const p2 = v2 ? resolveVertex(docRef.current, v2) : null;
+          if (v2 && p2) {
+            if (s1) ex.add(s1.id);
+            ex.add(v2);
+            const s2 = nearestSnap(docRef.current, p2, ex);
+            if (s2) circuitRef.current.mergeVertex(s2.id, v2);
+          }
         } else {
           // Tik (geen sleep) op een schakelaar → open/dicht togglen.
           const comp = docRef.current.components.find((c) => c.id === drag.id);
@@ -625,7 +672,8 @@ export function CircuitEditor() {
         const def = comp && COMPONENT_DEFS[comp.type];
         if (!comp || !def || !def.valueKey) return;
         e.preventDefault();
-        const step = (def.step ?? 1) * (e.shiftKey ? 10 : 1);
+        const base = def.log ? niceStep(comp.values[def.valueKey] ?? 1) : (def.step ?? 1);
+        const step = base * (e.shiftKey ? 10 : 1);
         const min = def.min ?? 0;
         const max = def.max ?? 0;
         const cur = comp.values[def.valueKey] ?? 0;
@@ -739,6 +787,12 @@ export function CircuitEditor() {
     },
     [screenToWorld, startGroupMove],
   );
+  const onWiperPointerDown = useCallback((id: string, e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setSelection({ kind: "component", id });
+    dragRef.current = { type: "wiper", id };
+  }, []);
   const onLabelDoubleClick = useCallback((id: string) => setEditingLabel(id), []);
   const onAddLabel = useCallback(() => {
     // Plaats in het midden van het zichtbare canvas en open direct de editor.
@@ -848,6 +902,89 @@ export function CircuitEditor() {
     },
     [applyView, circuit],
   );
+
+  // CircuitSketch-tekening overnemen (via de knop in CircuitSketch of als bestand).
+  // Geeft false als de tekst geen CircuitSketch-tekening is.
+  const importSketch = useCallback(
+    (text: string, fromLink: boolean): boolean => {
+      let parsed: ReturnType<typeof parseSketch> = null;
+      try {
+        parsed = parseSketch(JSON.parse(text));
+      } catch {
+        parsed = null;
+      }
+      if (!parsed) return false;
+      const r = sketchToDoc(parsed.state, parsed.version);
+      onLoadDoc(r.doc);
+      // Passend in beeld: een tekening is hier twee keer zo groot als in
+      // CircuitSketch, dus zo nodig uitzoomen en centreren.
+      const rect = containerRef.current?.getBoundingClientRect();
+      const vs = [...Object.values(r.doc.vertices), ...(r.doc.labels ?? [])];
+      if (rect && rect.width > 0 && vs.length) {
+        const minX = Math.min(...vs.map((v) => v.x)) - 80;
+        const maxX = Math.max(...vs.map((v) => v.x)) + 80;
+        const minY = Math.min(...vs.map((v) => v.y)) - 80;
+        const maxY = Math.max(...vs.map((v) => v.y)) + 80;
+        const h = rect.height - 60; // ruimte voor de knoppen onderin
+        const s = Math.max(MIN_S, Math.min(1, rect.width / (maxX - minX), h / (maxY - minY)));
+        applyView({ s, tx: (rect.width - (minX + maxX) * s) / 2, ty: (h - (minY + maxY) * s) / 2 });
+      }
+      // Meteen bewaren: wordt het herstel-effect nog eens gedraaid (React
+      // StrictMode, of een snelle refresh), dan opent het deze schakeling.
+      try {
+        localStorage.setItem("cf-doc", docToJson(r.doc));
+      } catch {
+        /* geblokkeerd */
+      }
+      setSchematic(true);
+      setTask(null);
+      setNotice(importNotice(r));
+      if (fromLink) {
+        const skipped = r.skipped.map((x) => (x.count > 1 ? `${x.count}× ${x.label}` : x.label));
+        setSketchOrigin(text);
+        setSketchSkipped(skipped);
+        sketchSnapRef.current = docSignature(r.doc);
+        try {
+          sessionStorage.setItem("cf-sketch-origin", text);
+          sessionStorage.setItem("cf-sketch-skipped", JSON.stringify(skipped));
+          sessionStorage.setItem("cf-sketch-snap", JSON.stringify(sketchSnapRef.current));
+        } catch {
+          /* geblokkeerd: dan alleen deze sessie in het geheugen */
+        }
+      }
+      return true;
+    },
+    [applyView, onLoadDoc],
+  );
+  // Naar CircuitSketch. Kwam de schakeling daarvandaan en is er niets veranderd,
+  // dan gaat de oorspronkelijke tekening terug (verliesvrij). Anders gaan de
+  // wijzigingen mee; vielen er bij het overnemen onderdelen weg, dan kiest de
+  // leerling eerst.
+  const openInSketch = useCallback(
+    (choice?: "origin" | "changes") => {
+      const unchanged = sketchOrigin && sketchSnapRef.current === docSignature(doc);
+      if (sketchOrigin && (unchanged || choice === "origin")) {
+        location.href = sketchBackUrl(sketchOrigin);
+        return;
+      }
+      if (sketchOrigin && sketchSkipped.length && choice !== "changes") {
+        setBackChoice(true);
+        return;
+      }
+      location.href = sketchFlowUrl(docToSketchExport(doc));
+    },
+    [doc, sketchOrigin, sketchSkipped],
+  );
+
+  useEffect(() => {
+    const text = sketchFromHash();
+    if (!text) return;
+    // Hash weghalen: anders neemt een refresh de tekening opnieuw over.
+    history.replaceState(null, "", location.pathname + location.search);
+    if (!importSketch(text, true)) setToast("Deze tekening kon niet worden overgenomen.");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onExportPng = useCallback(() => {
     setSelection(null); // selectie-UI niet in de export
     setTimeout(() => {
@@ -867,17 +1004,6 @@ export function CircuitEditor() {
     selection?.kind === "component"
       ? doc.components.find((c) => c.id === selection.id) ?? null
       : null;
-  const panelPos = (() => {
-    if (!selectedComp) return null;
-    const g = componentGeom(doc, selectedComp);
-    if (!g) return null;
-    // Klem binnen het canvas zodat het paneel (304 breed, ±270 hoog) niet
-    // buiten beeld valt bij componenten langs de rand.
-    const x = Math.min(Math.max(g.center.x * view.s + view.tx, 160), Math.max(160, size.w - 160));
-    const y = Math.min(Math.max(g.center.y * view.s + view.ty + 64, 8), Math.max(8, size.h - 280));
-    return { x, y };
-  })();
-
   // Voltmeter met pennen aan/uit. Verschijnt midden in beeld: kastje rechtsboven,
   // pennen eronder, klaar om ergens op te zetten.
   const toggleProbe = () => {
@@ -948,11 +1074,13 @@ export function CircuitEditor() {
         onAddLabel={onAddLabel}
         doc={doc}
         onLoad={onLoadDoc}
+        onLoadSketch={(text) => importSketch(text, false)}
         onExportPng={onExportPng}
         onNotify={setToast}
       />
       <div className="flex min-h-0 flex-1">
-        <div ref={containerRef} className="relative min-w-0 flex-1 overflow-hidden cf-canvas">
+        <div className="flex min-w-0 flex-1 flex-col">
+        <div ref={containerRef} className="relative min-h-0 min-w-0 flex-1 overflow-hidden cf-canvas">
           {doc.components.length === 0 && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center">
               <div className="flex flex-col items-center gap-2">
@@ -1006,6 +1134,7 @@ export function CircuitEditor() {
                 onCutNode={onCutNode}
                 onLabelPointerDown={onLabelPointerDown}
                 onLabelDoubleClick={onLabelDoubleClick}
+                onWiperPointerDown={onWiperPointerDown}
               />
               {probe && (
                 <ProbeMeter
@@ -1114,50 +1243,6 @@ export function CircuitEditor() {
             </button>
           </div>
 
-          {selectedComp && panelPos && (
-            <ContextPanel
-              comp={selectedComp}
-              x={panelPos.x}
-              y={panelPos.y}
-              onValue={(v) => {
-                const key = COMPONENT_DEFS[selectedComp.type].valueKey;
-                if (key) circuit.setValue(selectedComp.id, { [key]: v });
-              }}
-              onToggleClosed={() =>
-                circuit.setValue(selectedComp.id, { closed: !(selectedComp.values.closed ?? true) })
-              }
-              onSetColor={(color) => circuit.setValue(selectedComp.id, { color })}
-              onReplace={() =>
-                circuit.setValue(
-                  selectedComp.id,
-                  selectedComp.type === "fuse" ? { blown: false } : { burned: false },
-                )
-              }
-              onReverse={() => circuit.reversePolarity(selectedComp.id)}
-              analogActiveIndex={
-                isAnalog(selectedComp.type) ? (activeRange(doc, selectedComp)?.index ?? null) : null
-              }
-              onSetRange={(i) => circuit.setAnalogRange(selectedComp.id, i)}
-              onRotate={() => circuit.rotateComponent(selectedComp.id)}
-              onDetach={() => circuit.detachComponent(selectedComp.id)}
-              onDelete={() => {
-                circuit.deleteComponent(selectedComp.id);
-                setSelection(null);
-              }}
-              onDuplicate={() => {
-                const nid = circuit.duplicateComponent(selectedComp.id);
-                setSelection({ kind: "component", id: nid });
-              }}
-              onGraph={() => setGraphId(selectedComp.id)}
-              onToggleNonOhmic={() =>
-                circuit.setValue(selectedComp.id, {
-                  nonOhmic: !(selectedComp.values.nonOhmic ?? false),
-                })
-              }
-              measureMode={measureMode}
-            />
-          )}
-
           {selectedWire && wireBarPos && (
             <div
               className="absolute z-20 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-(--border-solid) bg-card px-2.5 py-1.5 shadow-xl"
@@ -1205,6 +1290,75 @@ export function CircuitEditor() {
                 </button>
               </div>
               <p className="whitespace-pre-wrap text-sm text-(--text-secondary)">{task}</p>
+            </div>
+          )}
+
+          {notice && !task && (
+            <div className="absolute bottom-16 left-3 z-20 w-[320px] rounded-xl border border-(--accent) bg-card p-3 shadow-xl">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-sm font-semibold text-(--accent)">Overgenomen uit CircuitSketch</span>
+                <button
+                  type="button"
+                  onClick={() => setNotice(null)}
+                  aria-label="Melding sluiten"
+                  className="grid h-6 w-6 place-items-center rounded-md text-(--text-muted) hover:bg-(--bg-card-hover)"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="whitespace-pre-wrap text-sm text-(--text-secondary)">{notice}</p>
+            </div>
+          )}
+
+          {(sketchOrigin || doc.components.length > 0) && (
+            <button
+              type="button"
+              onClick={() => openInSketch()}
+              title="Open deze schakeling als tekening in CircuitSketch"
+              className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-lg border border-(--border-solid) bg-card px-3 py-2 text-sm font-medium text-(--text-primary) shadow-md hover:bg-(--bg-card-hover)"
+            >
+              <ArrowLeft size={15} />
+              {sketchOrigin ? "Terug naar CircuitSketch" : "Openen in CircuitSketch"}
+            </button>
+          )}
+
+          {backChoice && (
+            <div
+              className="absolute inset-0 z-40 grid place-items-center bg-black/30"
+              onPointerDown={(e) => {
+                if (e.target === e.currentTarget) setBackChoice(false);
+              }}
+            >
+              <div className="w-[360px] rounded-xl border border-(--border-solid) bg-card p-4 shadow-xl">
+                <div className="mb-1 text-sm font-semibold text-(--text-primary)">Terug naar CircuitSketch</div>
+                <p className="mb-3 text-sm text-(--text-secondary)">
+                  Je tekening had onderdelen die hier niet meedoen ({sketchSkipped.join(", ")}). Neem je je
+                  wijzigingen mee, dan zijn die onderdelen weg.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openInSketch("changes")}
+                    className="rounded-md bg-(--accent) px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+                  >
+                    Mijn wijzigingen meenemen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openInSketch("origin")}
+                    className="rounded-md border border-(--border-solid) px-3 py-2 text-sm font-medium text-(--text-primary) hover:bg-(--bg-card-hover)"
+                  >
+                    Mijn oorspronkelijke tekening
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBackChoice(false)}
+                    className="px-3 py-1 text-sm text-(--text-muted) hover:text-(--text-primary)"
+                  >
+                    Annuleren
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1264,6 +1418,52 @@ export function CircuitEditor() {
               );
             })()}
         </div>
+          {/* Instellingen van het geselecteerde onderdeel: vaste balk onder het
+              canvas, zodat hij nooit over de schakeling valt. */}
+            {selectedComp && (
+              <ContextPanel
+                comp={selectedComp}
+                onClose={() => setSelection(null)}
+                onValue={(v) => {
+                  const key = COMPONENT_DEFS[selectedComp.type].valueKey;
+                  if (key) circuit.setValue(selectedComp.id, { [key]: v });
+                }}
+                onToggleClosed={() =>
+                  circuit.setValue(selectedComp.id, { closed: !(selectedComp.values.closed ?? true) })
+                }
+                onSetColor={(color) => circuit.setValue(selectedComp.id, { color })}
+                onReplace={() =>
+                  circuit.setValue(
+                    selectedComp.id,
+                    selectedComp.type === "fuse" ? { blown: false } : { burned: false },
+                  )
+                }
+                onReverse={() => circuit.reversePolarity(selectedComp.id)}
+                analogActiveIndex={
+                  isAnalog(selectedComp.type) ? (activeRange(doc, selectedComp)?.index ?? null) : null
+                }
+                onSetRange={(i) => circuit.setAnalogRange(selectedComp.id, i)}
+                onRotate={() => circuit.rotateComponent(selectedComp.id)}
+                onDetach={() => circuit.detachComponent(selectedComp.id)}
+                onDelete={() => {
+                  circuit.deleteComponent(selectedComp.id);
+                  setSelection(null);
+                }}
+                onDuplicate={() => {
+                  const nid = circuit.duplicateComponent(selectedComp.id);
+                  setSelection({ kind: "component", id: nid });
+                }}
+                onGraph={() => setGraphId(selectedComp.id)}
+                onWiper={(w) => circuit.setValue(selectedComp.id, { wiper: w })}
+                onToggleNonOhmic={() =>
+                  circuit.setValue(selectedComp.id, {
+                    nonOhmic: !(selectedComp.values.nonOhmic ?? false),
+                  })
+                }
+                measureMode={measureMode}
+              />
+            )}
+        </div>
         <InstrumentRail onInstrumentPointerDown={onPalettePointerDown} probeOn={!!probe} onToggleProbe={toggleProbe} />
       </div>
 
@@ -1286,8 +1486,8 @@ export function CircuitEditor() {
               />
             </svg>
           ) : (
-            <svg viewBox="-40 -30 80 60" width={70} height={52}>
-              <ComponentSymbol type={placing.type} brightness={0.6} />
+            <svg viewBox="-40 -30 80 60" width={70} height={52} overflow="visible">
+              <ComponentSymbol type={placing.type} brightness={0.6} schematic={schematic} />
             </svg>
           )}
         </div>

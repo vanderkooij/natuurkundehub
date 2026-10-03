@@ -1,0 +1,251 @@
+{
+  "version": 2,
+  "circuit": {
+    "components": [
+      {
+        "id": "el_1790972143449_0",
+        "type": "voltage",
+        "x": 220,
+        "y": 120,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790972144190_1",
+        "type": "resistor",
+        "x": 260,
+        "y": 400,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790972145075_2",
+        "type": "resistor",
+        "x": 340,
+        "y": 200,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790972145923_3",
+        "type": "varresistor",
+        "x": 360,
+        "y": 320,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790972146748_4",
+        "type": "resistor",
+        "x": 140,
+        "y": 300,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790972147746_5",
+        "type": "varresistor",
+        "x": 420,
+        "y": 260,
+        "rotation": 0
+      }
+    ],
+    "wires": [
+      {
+        "id": "el_1790972148595_6",
+        "nodes": [
+          {
+            "x": 170,
+            "y": 300
+          },
+          {
+            "x": 170,
+            "y": 420
+          },
+          {
+            "x": 330,
+            "y": 420
+          },
+          {
+            "x": 330,
+            "y": 320
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972146748_4",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972145923_3",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790972150648_7",
+        "nodes": [
+          {
+            "x": 390,
+            "y": 260
+          },
+          {
+            "x": 390,
+            "y": 320
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972147746_5",
+          "terminal": 0
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972145923_3",
+          "terminal": 1
+        }
+      },
+      {
+        "id": "el_1790972152373_8",
+        "nodes": [
+          {
+            "x": 370,
+            "y": 200
+          },
+          {
+            "x": 390,
+            "y": 200
+          },
+          {
+            "x": 390,
+            "y": 260
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972145075_2",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972147746_5",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790972153887_9",
+        "nodes": [
+          {
+            "x": 290,
+            "y": 400
+          },
+          {
+            "x": 310,
+            "y": 400
+          },
+          {
+            "x": 310,
+            "y": 200
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972144190_1",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972145075_2",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790972161125_10",
+        "nodes": [
+          {
+            "x": 190,
+            "y": 120
+          },
+          {
+            "x": 190,
+            "y": 400
+          },
+          {
+            "x": 230,
+            "y": 400
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972143449_0",
+          "terminal": 0
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972144190_1",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790972162002_11",
+        "nodes": [
+          {
+            "x": 230,
+            "y": 400
+          },
+          {
+            "x": 230,
+            "y": 280
+          },
+          {
+            "x": 110,
+            "y": 280
+          },
+          {
+            "x": 110,
+            "y": 300
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972144190_1",
+          "terminal": 0
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972146748_4",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790972163720_12",
+        "nodes": [
+          {
+            "x": 250,
+            "y": 120
+          },
+          {
+            "x": 450,
+            "y": 120
+          },
+          {
+            "x": 450,
+            "y": 260
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790972143449_0",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790972147746_5",
+          "terminal": 1
+        }
+      }
+    ],
+    "labels": [],
+    "connectedCrossings": []
+  },
+  "viewport": {
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0
+  }
+}

@@ -74,46 +74,46 @@ function parallel(): CircuitDoc {
 // ── Combischakeling: R1 en R2 parallel, samen in serie met R3 ────────────────
 function combiParallelSerie(): CircuitDoc {
   const b = new Build();
-  const sPlus = b.v(150, 150);
-  const sMin = b.v(150, 390);
-  const links = b.v(300, 150);
-  const rechts = b.v(480, 150);
-  const r1l = b.v(330, 90);
-  const r1r = b.v(450, 90);
-  const r2l = b.v(330, 210);
-  const r2r = b.v(450, 210);
-  const r3t = b.v(600, 210);
-  const r3b = b.v(600, 330);
+  const sPlus = b.v(160, 160);
+  const sMin = b.v(160, 400);
+  const links = b.v(300, 160);
+  const rechts = b.v(480, 160);
+  const r1l = b.v(340, 100);
+  const r1r = b.v(460, 100);
+  const r2l = b.v(340, 220);
+  const r2r = b.v(460, 220);
+  const r3t = b.v(600, 220);
+  const r3b = b.v(600, 340);
   b.comp("source", sPlus, sMin, { emf: 6 });
   b.comp("resistor", r1l, r1r, { resistance: 20 });
   b.comp("resistor", r2l, r2r, { resistance: 30 });
   b.comp("resistor", r3t, r3b, { resistance: 10 });
   b.wire(sPlus, links);
-  b.wire(r1l, b.v(300, 90), links, b.v(300, 210), r2l);
-  b.wire(r1r, b.v(480, 90), rechts, b.v(480, 210), r2r);
-  b.wire(rechts, b.v(600, 150), r3t);
-  b.wire(r3b, b.v(600, 390), sMin);
-  b.label(150, 30, "R1 en R2 parallel, samen in serie met R3.", true);
+  b.wire(r1l, b.v(300, 100), links, b.v(300, 220), r2l);
+  b.wire(r1r, b.v(480, 100), rechts, b.v(480, 220), r2r);
+  b.wire(rechts, b.v(600, 160), r3t);
+  b.wire(r3b, b.v(600, 400), sMin);
+  b.label(160, 40, "R1 en R2 parallel, samen in serie met R3.", true);
   return b.doc();
 }
 
 // ── Combischakeling: R1 en R2 in serie, samen parallel aan R3 ────────────────
 function combiSerieParallel(): CircuitDoc {
   const b = new Build();
-  const sPlus = b.v(150, 150);
-  const sMin = b.v(150, 390);
-  const r1t = b.v(360, 150);
-  const mid = b.v(360, 270);
-  const r2b = b.v(360, 390);
-  const r3t = b.v(540, 210);
-  const r3b = b.v(540, 330);
+  const sPlus = b.v(160, 160);
+  const sMin = b.v(160, 400);
+  const r1t = b.v(360, 160);
+  const mid = b.v(360, 280);
+  const r2b = b.v(360, 400);
+  const r3t = b.v(540, 220);
+  const r3b = b.v(540, 340);
   b.comp("source", sPlus, sMin, { emf: 6 });
   b.comp("resistor", r1t, mid, { resistance: 10 });
   b.comp("resistor", mid, r2b, { resistance: 20 });
   b.comp("resistor", r3t, r3b, { resistance: 20 });
-  b.wire(sPlus, r1t, b.v(540, 150), r3t);
-  b.wire(sMin, r2b, b.v(540, 390), r3b);
-  b.label(150, 60, "R1 en R2 in serie, samen parallel aan R3.", true);
+  b.wire(sPlus, r1t, b.v(540, 160), r3t);
+  b.wire(sMin, r2b, b.v(540, 400), r3b);
+  b.label(160, 60, "R1 en R2 in serie, samen parallel aan R3.", true);
   return b.doc();
 }
 
@@ -138,19 +138,19 @@ function ledCircuit(): CircuitDoc {
 // ── Spanningsdeler: 2 weerstanden + voltmeter over de onderste ───────────────
 function spanningsdeler(): CircuitDoc {
   const b = new Build();
-  const sPlus = b.v(180, 150);
-  const sMin = b.v(180, 390);
-  const r1t = b.v(420, 150);
-  const mid = b.v(420, 270);
-  const r2b = b.v(420, 390);
+  const sPlus = b.v(180, 160);
+  const sMin = b.v(180, 400);
+  const r1t = b.v(420, 160);
+  const mid = b.v(420, 280);
+  const r2b = b.v(420, 400);
   b.comp("source", sPlus, sMin, { emf: 12 });
   b.comp("resistor", r1t, mid, { resistance: 10 });
   b.comp("resistor", mid, r2b, { resistance: 20 });
   b.wire(sPlus, r1t);
   b.wire(sMin, r2b);
   // voltmeter parallel over R2 (van middenknoop naar min)
-  const vmA = b.v(600, 270);
-  const vmB = b.v(600, 390);
+  const vmA = b.v(600, 280);
+  const vmB = b.v(600, 400);
   b.comp("voltmeter", vmA, vmB);
   b.wire(mid, vmA);
   b.wire(r2b, vmB);
@@ -186,8 +186,8 @@ function zekering(): CircuitDoc {
   const fR = b.v(420, 180);
   const lampT = b.v(540, 180);
   const lampB = b.v(540, 300);
-  const swT = b.v(690, 180);
-  const swB = b.v(690, 300);
+  const swT = b.v(700, 180);
+  const swB = b.v(700, 300);
   b.comp("source", sPlus, sMin, { emf: 6 });
   b.comp("fuse", fL, fR, { imax: 1 });
   b.comp("lamp", lampT, lampB, { resistance: 12 });
@@ -202,22 +202,22 @@ function zekering(): CircuitDoc {
 // Minder licht → hogere R_LDR → hogere spanning over de LDR (de "sensorspanning").
 function schemer(): CircuitDoc {
   const b = new Build();
-  const sPlus = b.v(180, 150);
-  const sMin = b.v(180, 390);
-  const rT = b.v(420, 150);
-  const mid = b.v(420, 270);
-  const ldrB = b.v(420, 390);
+  const sPlus = b.v(180, 160);
+  const sMin = b.v(180, 400);
+  const rT = b.v(420, 160);
+  const mid = b.v(420, 280);
+  const ldrB = b.v(420, 400);
   b.comp("source", sPlus, sMin, { emf: 6 });
   b.comp("resistor", rT, mid, { resistance: 1000 });
   b.comp("ldr", mid, ldrB, { env: 30 });
   b.wire(sPlus, rT);
   b.wire(sMin, ldrB);
-  const vmA = b.v(600, 270);
-  const vmB = b.v(600, 390);
+  const vmA = b.v(600, 280);
+  const vmB = b.v(600, 400);
   b.comp("voltmeter", vmA, vmB);
   b.wire(mid, vmA);
   b.wire(ldrB, vmB);
-  b.label(180, 90, "Schemerschakelaar: klik de LDR en draai aan het licht.", true);
+  b.label(180, 100, "Schemerschakelaar: klik de LDR en draai aan het licht.", true);
   return b.doc();
 }
 
@@ -225,22 +225,22 @@ function schemer(): CircuitDoc {
 // Warmer → lagere R_NTC → hogere spanning over de vaste weerstand.
 function ntcSensor(): CircuitDoc {
   const b = new Build();
-  const sPlus = b.v(180, 150);
-  const sMin = b.v(180, 390);
-  const ntcT = b.v(420, 150);
-  const mid = b.v(420, 270);
-  const rB = b.v(420, 390);
+  const sPlus = b.v(180, 160);
+  const sMin = b.v(180, 400);
+  const ntcT = b.v(420, 160);
+  const mid = b.v(420, 280);
+  const rB = b.v(420, 400);
   b.comp("source", sPlus, sMin, { emf: 6 });
   b.comp("ntc", ntcT, mid, { env: 20 });
   b.comp("resistor", mid, rB, { resistance: 1000 });
   b.wire(sPlus, ntcT);
   b.wire(sMin, rB);
-  const vmA = b.v(600, 270);
-  const vmB = b.v(600, 390);
+  const vmA = b.v(600, 280);
+  const vmB = b.v(600, 400);
   b.comp("voltmeter", vmA, vmB);
   b.wire(mid, vmA);
   b.wire(rB, vmB);
-  b.label(180, 90, "Temperatuursensor: klik de NTC en verwarm 'm.", true);
+  b.label(180, 100, "Temperatuursensor: klik de NTC en verwarm 'm.", true);
   return b.doc();
 }
 

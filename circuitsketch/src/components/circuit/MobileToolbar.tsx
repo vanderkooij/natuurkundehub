@@ -7,6 +7,7 @@ interface MobileToolbarProps {
   onLoad: () => void;
   onExportPNG: () => void;
   onExportSVG: () => void;
+  onSimulate: () => void;
 }
 
 const btnStyle: React.CSSProperties = {
@@ -19,7 +20,7 @@ const btnStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', gap: 6,
 };
 
-export function MobileToolbar({ lang, setLang, onLoad, onExportPNG, onExportSVG }: MobileToolbarProps) {
+export function MobileToolbar({ lang, setLang, onLoad, onExportPNG, onExportSVG, onSimulate }: MobileToolbarProps) {
   return (
     <div style={{
       position: 'fixed', bottom: 0, left: 0, right: 0,
@@ -29,6 +30,11 @@ export function MobileToolbar({ lang, setLang, onLoad, onExportPNG, onExportSVG 
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       overflowX: 'auto',
     }}>
+      <button onClick={onSimulate} style={{ ...btnStyle, borderColor: '#0e7490', color: '#0e7490', background: '#ecfeff', fontWeight: 600 }}>
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>
+        {t(lang, 'btn.simulate')}
+      </button>
+
       <button onClick={onLoad} style={btnStyle}>
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
           <rect x="2" y="4" width="12" height="10" rx="1"/>

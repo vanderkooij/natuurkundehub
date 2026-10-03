@@ -6,9 +6,10 @@ export const SNAP_RADIUS = 22;
  * Rasterafstand (wereld-px). Terminals, knikpunten en meters snappen hierop
  * bij slepen, zodat onderdelen vanzelf uitgelijnd staan. TERMINAL_SPAN (120)
  * is een veelvoud, dus beide terminals van een vers geplaatst component
- * liggen op het raster.
+ * liggen op het raster. 20 is het raster van CircuitSketch keer twee, zodat een
+ * daaruit geïmporteerde tekening (×2 geschaald) precies op het raster valt.
  */
-export const GRID = 30;
+export const GRID = 20;
 
 export interface Pt {
   x: number;
@@ -88,6 +89,7 @@ export function incidentCount(doc: CircuitDoc, vid: string): number {
     } else {
       if (c.v0 === vid) n++;
       if (c.v1 === vid) n++;
+      if (c.v2 === vid) n++;
     }
   }
   for (const w of doc.wires) {
@@ -100,5 +102,5 @@ export function incidentCount(doc: CircuitDoc, vid: string): number {
 }
 
 export function isComponentTerminal(doc: CircuitDoc, vid: string): boolean {
-  return doc.components.some((c) => c.v0 === vid || c.v1 === vid);
+  return doc.components.some((c) => c.v0 === vid || c.v1 === vid || c.v2 === vid);
 }

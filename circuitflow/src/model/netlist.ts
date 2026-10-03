@@ -1,5 +1,5 @@
 import type { Netlist, SimElement } from "@/sim";
-import { ledVf } from "./ledSpec";
+import { DIODE_VF, ledVf } from "./ledSpec";
 import { activeRange } from "./meterSpec";
 import { isSensor, sensorR } from "./sensorSpec";
 import type { CircuitDoc } from "./types";
@@ -31,6 +31,16 @@ export function toNetlist(doc: CircuitDoc): Netlist {
         vf: ledVf(c.values.color),
         burned: c.values.burned ?? false,
       });
+    } else if (c.type === "diode") {
+      // Zelfde diodemodel als de LED (anode = v0), met de drempel van silicium.
+      elements.push({
+        id: c.id,
+        type: "led",
+        a: c.v0,
+        b: c.v1,
+        vf: DIODE_VF,
+        burned: c.values.burned ?? false,
+      });
     } else if (c.type === "fuse") {
       // Intacte zekering = bijna-ideale geleider (mini-weerstand → geeft stroom,
       // brandt door op een kortsluiting); doorgebrand = open.
@@ -58,6 +68,13 @@ export function toNetlist(doc: CircuitDoc): Netlist {
     } else if (c.type === "voltmeter") {
       // Ideale voltmeter = ∞ Ω → geen element; de UI leest het potentiaalverschil.
       continue;
+    } else if (c.type === "potmeter") {
+      // Twee weerstanden die samen R zijn, met de loper ertussen.
+      const R = c.values.resistance ?? 100;
+      const f = Math.min(1, Math.max(0, (c.values.wiper ?? 50) / 100));
+      const mid = c.v2 ?? `${c.id}:loper`;
+      elements.push({ id: `${c.id}:a`, type: "resistor", a: c.v0, b: mid, resistance: Math.max(1e-3, R * f) });
+      elements.push({ id: `${c.id}:b`, type: "resistor", a: mid, b: c.v1, resistance: Math.max(1e-3, R * (1 - f)) });
     } else if (c.type === "analogAmmeter") {
       // 0 Ω tussen common en de aangesloten rode poort (= 0 V-bron).
       const act = activeRange(doc, c);

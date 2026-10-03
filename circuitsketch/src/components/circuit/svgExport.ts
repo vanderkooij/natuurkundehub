@@ -1,6 +1,6 @@
 import type { CircuitState } from './types';
 import { computeBoundingBox } from './io';
-import { drawComponent, drawWire, drawLabel, drawWireCrossings } from './renderer';
+import { drawComponent, drawComponentValue, drawWire, drawLabel, drawWireCrossings } from './renderer';
 
 function n(v: number): string {
   return (Math.round(v * 100) / 100).toString();
@@ -200,7 +200,7 @@ class SVGContext {
   getResult(): string { return this._els.join('\n'); }
 }
 
-export function exportSVG(state: CircuitState): void {
+export function exportSVG(state: CircuitState, hideValues = false): void {
   const bb = computeBoundingBox(state);
   if (!bb) return;
 
@@ -209,6 +209,7 @@ export function exportSVG(state: CircuitState): void {
 
   state.wires.forEach(w => drawWire(ctx as unknown as CanvasRenderingContext2D, w, false, null));
   state.components.forEach(c => drawComponent(ctx as unknown as CanvasRenderingContext2D, c, false));
+  if (!hideValues) state.components.forEach(c => drawComponentValue(ctx as unknown as CanvasRenderingContext2D, c));
   state.labels.forEach(l => drawLabel(ctx as unknown as CanvasRenderingContext2D, l, false));
   drawWireCrossings(ctx as unknown as CanvasRenderingContext2D, state.wires, new Set(state.connectedCrossings));
 

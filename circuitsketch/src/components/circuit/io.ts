@@ -1,6 +1,7 @@
 import type { CircuitState, Point } from './types';
+import { flowToState, isFlowExport } from './fromFlow';
 import { GRID, OLD_LEAD, CHIP_PRESETS, CHIP_LEAD, isChipType } from './types';
-import { drawComponent, drawWire, drawLabel, drawWireCrossings, getTerminal, getTerminalCount, terminalLocalPos } from './renderer';
+import { drawComponent, drawComponentValue, drawWire, drawLabel, drawWireCrossings, getTerminal, getTerminalCount, terminalLocalPos } from './renderer';
 
 /**
  * Versie 2 (2026-10): aansluitdraadjes ingekort van GRID*2 naar LEAD (GRID*1.5).
@@ -40,6 +41,63 @@ export function computeBoundingBox(state: CircuitState, padding = 40): BBox | nu
   const x2 = Math.max(...xs) + padding;
   const y2 = Math.max(...ys) + padding;
   return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+}
+
+// ── Koppeling met CircuitFlow ────────────────────────────────────────────────
+// "Simuleren in CircuitFlow" stuurt de tekening mee in de URL-hash (#sketch=…).
+// CircuitFlow zet hem om en stuurt bij "Terug naar je tekening" het origineel
+// onveranderd terug (#load=…). Er wordt niets op een server opgeslagen.
+
+const FLOW_URL = import.meta.env.DEV ? 'http://localhost:5177/circuitflow/' : '/circuitflow/';
+
+function b64urlEncode(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function b64urlDecode(s: string): string {
+  const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+}
+
+export function saveFileText(state: CircuitState, zoom: number, pan: { x: number; y: number }): string {
+  const file: SaveFile = { version: SAVE_VERSION, circuit: state, viewport: { zoom, panX: pan.x, panY: pan.y } };
+  return JSON.stringify(file);
+}
+
+/** Hash met deze tekening, zodat CircuitSketch hem bij het (terug)komen weer opent. */
+export function loadHash(text: string): string {
+  return '#load=' + b64urlEncode(text);
+}
+
+export function flowUrl(text: string): string {
+  return FLOW_URL + '#sketch=' + b64urlEncode(text);
+}
+
+/** Een schakeling die CircuitFlow meestuurt (`#flow=…`), omgezet naar een tekening. */
+export function flowFromHash(): CircuitState | null {
+  const m = /[#&]flow=([A-Za-z0-9_-]+)/.exec(window.location.hash);
+  if (!m) return null;
+  try {
+    const obj = JSON.parse(b64urlDecode(m[1]));
+    return isFlowExport(obj) ? flowToState(obj) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** De tekening uit `#load=…` (terug uit CircuitFlow), of null. */
+export function loadFromHash(): SaveFile | null {
+  const m = /[#&]load=([A-Za-z0-9_-]+)/.exec(window.location.hash);
+  if (!m) return null;
+  try {
+    const result = loadFromJSON(b64urlDecode(m[1]));
+    return 'error' in result ? null : result;
+  } catch {
+    return null;
+  }
 }
 
 function triggerDownload(blob: Blob, filename: string) {
@@ -127,7 +185,7 @@ export function migrateLeads(state: CircuitState): CircuitState {
   return { ...state, wires };
 }
 
-export function exportPNG(state: CircuitState): void {
+export function exportPNG(state: CircuitState, hideValues = false): void {
   const bb = computeBoundingBox(state);
   if (!bb) return;
   const scale = 2;
@@ -141,6 +199,7 @@ export function exportPNG(state: CircuitState): void {
   ctx.translate(-bb.x, -bb.y);
   state.wires.forEach(w => drawWire(ctx, w, false, null));
   state.components.forEach(c => drawComponent(ctx, c, false));
+  if (!hideValues) state.components.forEach(c => drawComponentValue(ctx, c));
   state.labels.forEach(l => drawLabel(ctx, l, false));
   drawWireCrossings(ctx, state.wires, new Set(state.connectedCrossings));
   canvas.toBlob(blob => {

@@ -1,6 +1,11 @@
 import { DEFAULT_LED_COLOR } from "./ledSpec";
 import type { ComponentType } from "./types";
 
+/** Afstand van de loper (derde aansluiting van een potmeter) tot de as. */
+export const WIPER_OFFSET = 40;
+/** Halve lengte waarover de loper van een potmeter langs het lichaam schuift. */
+export const POT_HALF = 26;
+
 /** Standaard-afstand (wereld-px) tussen de twee terminals bij het plaatsen. */
 export const TERMINAL_SPAN = 120;
 
@@ -11,8 +16,11 @@ export const TERMINAL_SPAN = 120;
 export const LEAD_ATTACH: Record<ComponentType, number> = {
   source: 26,
   resistor: 30,
+  varresistor: 30,
+  potmeter: 30,
   lamp: 21,
   led: 20,
+  diode: 20,
   fuse: 24,
   ldr: 30,
   ntc: 30,
@@ -25,6 +33,8 @@ export const LEAD_ATTACH: Record<ComponentType, number> = {
 
 export interface ComponentDef {
   label: string;
+  /** Kortere naam voor de werkbalk (als label te lang is). */
+  short?: string;
   /** Contextueel bewerkbare waarde; ontbreekt bij de schakelaar (die toggelt). */
   valueKey?: "emf" | "resistance" | "imax" | "env";
   unit?: string;
@@ -38,10 +48,13 @@ export interface ComponentDef {
     blown?: boolean;
     env?: number;
     nonOhmic?: boolean;
+    wiper?: number;
   };
   min?: number;
   max?: number;
   step?: number;
+  /** Logaritmische schuif (1 Ω tot 10 kΩ is anders niet te bedienen). */
+  log?: boolean;
 }
 
 export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
@@ -60,8 +73,30 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
     unit: "Ω",
     defaults: { resistance: 10 },
     min: 1,
-    max: 1000,
+    max: 10000,
     step: 1,
+    log: true,
+  },
+  varresistor: {
+    label: "Variabele weerstand",
+    short: "Var. weerstand",
+    valueKey: "resistance",
+    unit: "Ω",
+    defaults: { resistance: 50 },
+    min: 1,
+    max: 10000,
+    step: 1,
+    log: true,
+  },
+  potmeter: {
+    label: "Potmeter",
+    valueKey: "resistance",
+    unit: "Ω",
+    defaults: { resistance: 100, wiper: 50 },
+    min: 1,
+    max: 10000,
+    step: 1,
+    log: true,
   },
   lamp: {
     label: "Lamp",
@@ -76,6 +111,11 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
     label: "LED",
     // Geen numerieke waarde: de kleur bepaalt de drempelspanning (zie ledSpec).
     defaults: { color: DEFAULT_LED_COLOR },
+  },
+  diode: {
+    label: "Diode",
+    // Geen instelbare waarde: vaste drempelspanning (zie ledSpec, DIODE_VF).
+    defaults: {},
   },
   fuse: {
     label: "Zekering",
@@ -129,8 +169,11 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
 export const PALETTE: ComponentType[] = [
   "source",
   "resistor",
+  "varresistor",
+  "potmeter",
   "lamp",
   "led",
+  "diode",
   "fuse",
   "ldr",
   "ntc",

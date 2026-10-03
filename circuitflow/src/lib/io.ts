@@ -78,6 +78,34 @@ export function sharePayloadFromHash(): SharePayload | null {
   }
 }
 
+// ── Koppeling met CircuitSketch ──────────────────────────────────────────────
+// CircuitSketch opent ons met `#sketch=<base64url van zijn bestand>`. Terug gaat
+// het origineel onveranderd mee in `#load=…`; CircuitSketch slaat zelf niets op.
+
+/** CircuitSketch draait lokaal op een eigen poort; online staat het naast ons. */
+const SKETCH_URL = import.meta.env.DEV ? "http://localhost:5176/circuitsketch/" : "/circuitsketch/";
+
+/** De meegestuurde CircuitSketch-tekening (JSON-tekst) uit de URL-hash, of null. */
+export function sketchFromHash(): string | null {
+  const m = /[#&]sketch=([A-Za-z0-9_-]+)/.exec(location.hash);
+  if (!m) return null;
+  try {
+    return b64decode(m[1]);
+  } catch {
+    return null;
+  }
+}
+
+/** Link naar CircuitSketch met deze schakeling (CircuitSketch maakt er een tekening van). */
+export function sketchFlowUrl(payload: unknown): string {
+  return `${SKETCH_URL}#flow=${b64encode(JSON.stringify(payload))}`;
+}
+
+/** Link terug naar CircuitSketch met de oorspronkelijke tekening. */
+export function sketchBackUrl(sketchJson: string): string {
+  return `${SKETCH_URL}#load=${b64encode(sketchJson)}`;
+}
+
 function download(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -105,6 +133,7 @@ const STYLE_PROPS = [
   "font-weight",
   "text-anchor",
   "color",
+  "r",
 ];
 
 /** Kopieert de berekende stijlen van het origineel naar de kloon (zodat de losse

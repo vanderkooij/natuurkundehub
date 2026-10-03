@@ -1,6 +1,6 @@
 import { useCallback, useReducer } from "react";
 
-import { COMPONENT_DEFS, TERMINAL_SPAN } from "@/model/componentDefs";
+import { COMPONENT_DEFS, TERMINAL_SPAN, WIPER_OFFSET } from "@/model/componentDefs";
 import { activeRange, analogPortOffsets, isAnalog } from "@/model/meterSpec";
 import type { CircuitComponent, CircuitDoc, ComponentType, Vertex } from "@/model/types";
 import { EMPTY_DOC } from "@/model/types";
@@ -25,7 +25,7 @@ interface Pt {
 }
 
 export type Action =
-  | { t: "addComponent"; id: string; type: ComponentType; v0: string; v1: string; cx: number; cy: number }
+  | { t: "addComponent"; id: string; type: ComponentType; v0: string; v1: string; v2?: string; cx: number; cy: number }
   | { t: "addAnalogMeter"; id: string; type: ComponentType; cx: number; cy: number; portIds: string[] }
   | { t: "moveAnalogMeter"; id: string; cx: number; cy: number }
   | { t: "moveComponent"; id: string; p0: Pt; p1: Pt }
@@ -34,7 +34,7 @@ export type Action =
   | { t: "mirrorComponent"; id: string }
   | { t: "reversePolarity"; id: string }
   | { t: "setValue"; id: string; patch: Partial<CircuitComponent["values"]> }
-  | { t: "duplicateComponent"; id: string; newId: string; newV0: string; newV1: string; newPortIds?: string[] }
+  | { t: "duplicateComponent"; id: string; newId: string; newV0: string; newV1: string; newV2?: string; newPortIds?: string[] }
   | { t: "deleteComponent"; id: string }
   | { t: "addWire"; wireId: string; from: string; newVid: string; x: number; y: number }
   | { t: "insertWaypoint"; wireId: string; segIndex: number; newVid: string; x: number; y: number }
@@ -71,6 +71,7 @@ function pruneVertices(doc: CircuitDoc): CircuitDoc {
   for (const c of doc.components) {
     used.add(c.v0);
     used.add(c.v1);
+    if (c.v2) used.add(c.v2);
     if (c.ports) for (const p of c.ports) used.add(p);
   }
   for (const w of doc.wires) for (const n of w.nodes) used.add(n);
@@ -95,7 +96,7 @@ function setVertex(doc: CircuitDoc, vid: string, x: number, y: number): CircuitD
 function referencedElsewhere(doc: CircuitDoc, vid: string, exceptComp: string): boolean {
   for (const c of doc.components) {
     if (c.id === exceptComp) continue;
-    if (c.v0 === vid || c.v1 === vid) return true;
+    if (c.v0 === vid || c.v1 === vid || c.v2 === vid) return true;
   }
   for (const w of doc.wires) if (w.nodes.includes(vid)) return true;
   return false;
@@ -136,16 +137,19 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
     case "addComponent": {
       const def = COMPONENT_DEFS[action.type];
       const half = TERMINAL_SPAN / 2;
-      const vertices = {
+      const vertices: Record<string, Vertex> = {
         ...doc.vertices,
         [action.v0]: { id: action.v0, x: action.cx - half, y: action.cy },
         [action.v1]: { id: action.v1, x: action.cx + half, y: action.cy },
       };
+      // Potmeter: de loper boven het midden.
+      if (action.v2) vertices[action.v2] = { id: action.v2, x: action.cx, y: action.cy - WIPER_OFFSET };
       const comp: CircuitComponent = {
         id: action.id,
         type: action.type,
         v0: action.v0,
         v1: action.v1,
+        ...(action.v2 ? { v2: action.v2 } : {}),
         mirrored: false,
         values: { ...def.defaults },
       };
@@ -190,6 +194,15 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
       if (!comp) return doc;
       let next = setVertex(doc, comp.v0, action.p0.x, action.p0.y);
       next = setVertex(next, comp.v1, action.p1.x, action.p1.y);
+      const a = doc.vertices[comp.v0];
+      const b = doc.vertices[comp.v1];
+      const w = comp.v2 ? doc.vertices[comp.v2] : undefined;
+      if (comp.v2 && a && b && w) {
+        // De loper gaat mee met het midden van het component.
+        const dx = (action.p0.x + action.p1.x - a.x - b.x) / 2;
+        const dy = (action.p0.y + action.p1.y - a.y - b.y) / 2;
+        next = setVertex(next, comp.v2, w.x + dx, w.y + dy);
+      }
       return next;
     }
     case "moveVertex":
@@ -205,14 +218,14 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
       const rot = (p: Vertex) => ({ x: cx - (p.y - cy), y: cy + (p.x - cx) }); // 90°
       const na = rot(a);
       const nb = rot(b);
-      return {
-        ...doc,
-        vertices: {
-          ...doc.vertices,
-          [comp.v0]: { ...a, x: na.x, y: na.y },
-          [comp.v1]: { ...b, x: nb.x, y: nb.y },
-        },
+      const vertices = {
+        ...doc.vertices,
+        [comp.v0]: { ...a, x: na.x, y: na.y },
+        [comp.v1]: { ...b, x: nb.x, y: nb.y },
       };
+      const w = comp.v2 ? doc.vertices[comp.v2] : undefined;
+      if (comp.v2 && w) vertices[comp.v2] = { ...w, ...rot(w) };
+      return { ...doc, vertices };
     }
     case "mirrorComponent":
       return {
@@ -249,7 +262,11 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
       return {
         ...doc,
         components: doc.components.map((c) =>
-          c.id === action.id ? { ...c, v0: c.v1, v1: c.v0 } : c,
+          c.id !== action.id
+            ? c
+            : c.type === "potmeter"
+              ? { ...c, v0: c.v1, v1: c.v0, values: { ...c.values, wiper: 100 - (c.values.wiper ?? 50) } }
+              : { ...c, v0: c.v1, v1: c.v0 },
         ),
       };
     }
@@ -297,6 +314,11 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
           v1: action.newV1,
           values: { ...src.values },
         };
+        const w = src.v2 ? doc.vertices[src.v2] : undefined;
+        if (w && action.newV2) {
+          vertices[action.newV2] = { id: action.newV2, x: w.x + OFF, y: w.y + OFF };
+          copy.v2 = action.newV2;
+        }
       }
       return { ...doc, vertices, components: [...doc.components, copy] };
     }
@@ -336,6 +358,7 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
         ...c,
         v0: c.v0 === action.drop ? action.keep : c.v0,
         v1: c.v1 === action.drop ? action.keep : c.v1,
+        ...(c.v2 ? { v2: c.v2 === action.drop ? action.keep : c.v2 } : {}),
         ports: c.ports?.map((p) => (p === action.drop ? action.keep : p)),
       }));
       const wires = doc.wires
@@ -355,7 +378,7 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
       const vertices = { ...doc.vertices };
       const ids = action.newVertexIds;
       const otherTerminal = (vid: string) =>
-        doc.components.some((c) => c.id !== comp.id && (c.v0 === vid || c.v1 === vid || c.ports?.includes(vid)));
+        doc.components.some((c) => c.id !== comp.id && (c.v0 === vid || c.v1 === vid || c.v2 === vid || c.ports?.includes(vid)));
       const nudge = (vid: string, center: Pt) => {
         if (otherTerminal(vid)) return;
         const p = detachedWireEnd(doc, vid, center);
@@ -406,7 +429,18 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
         v1 = ids[1];
         nudge(comp.v1, center);
       }
-      const components = doc.components.map((c) => (c.id === comp.id ? { ...c, v0, v1 } : c));
+      let v2 = comp.v2;
+      const w = comp.v2 ? doc.vertices[comp.v2] : undefined;
+      if (comp.v2 && w && ids[2] && referencedElsewhere(doc, comp.v2, comp.id)) {
+        vertices[ids[2]] = otherTerminal(comp.v2)
+          ? { id: ids[2], x: w.x + DETACH_SIDE, y: w.y }
+          : { id: ids[2], x: w.x, y: w.y };
+        v2 = ids[2];
+        nudge(comp.v2, center);
+      }
+      const components = doc.components.map((c) =>
+        c.id === comp.id ? { ...c, v0, v1, ...(v2 ? { v2 } : {}) } : c,
+      );
       return { ...doc, vertices, components };
     }
     case "setAnalogRange": {
@@ -477,9 +511,11 @@ export function reducer(doc: CircuitDoc, action: Action): CircuitDoc {
         if (c.id === portOwner?.id) return c; // rigide meter: houdt zijn poort op vid
         let v0 = c.v0;
         let v1 = c.v1;
+        let v2 = c.v2;
         if (v0 === vid) v0 = next();
         if (v1 === vid) v1 = next();
-        return v0 === c.v0 && v1 === c.v1 ? c : { ...c, v0, v1 };
+        if (v2 === vid) v2 = next();
+        return v0 === c.v0 && v1 === c.v1 && v2 === c.v2 ? c : { ...c, v0, v1, ...(v2 ? { v2 } : {}) };
       });
       const wires = splitWires.map((w) =>
         w.nodes.includes(vid)
@@ -581,6 +617,7 @@ export function remapDoc(doc: CircuitDoc): CircuitDoc {
     id: makeId("c"),
     v0: id(c.v0),
     v1: id(c.v1),
+    ...(c.v2 ? { v2: id(c.v2) } : {}),
     ports: c.ports?.map((p) => id(p)),
   }));
   const wires = doc.wires.map((w) => ({ id: makeId("w"), nodes: w.nodes.map((n) => id(n)) }));
@@ -673,7 +710,16 @@ export function useCircuit() {
       const portIds = [makeId("v"), makeId("v"), makeId("v"), makeId("v")];
       dispatch({ t: "addAnalogMeter", id, type, cx, cy, portIds });
     } else {
-      dispatch({ t: "addComponent", id, type, v0: makeId("v"), v1: makeId("v"), cx, cy });
+      dispatch({
+        t: "addComponent",
+        id,
+        type,
+        v0: makeId("v"),
+        v1: makeId("v"),
+        v2: type === "potmeter" ? makeId("v") : undefined,
+        cx,
+        cy,
+      });
     }
     return id;
   }, []);
@@ -707,6 +753,7 @@ export function useCircuit() {
         newId,
         newV0: makeId("v"),
         newV1: makeId("v"),
+        newV2: src?.v2 ? makeId("v") : undefined,
         newPortIds: src?.ports ? src.ports.map(() => makeId("v")) : undefined,
       });
       return newId;
@@ -735,7 +782,7 @@ export function useCircuit() {
   const detachComponent = useCallback(
     (id: string) => {
       const comp = doc.components.find((c) => c.id === id);
-      const n = comp?.ports ? comp.ports.length : 2;
+      const n = comp?.ports ? comp.ports.length : comp?.v2 ? 3 : 2;
       const newVertexIds = Array.from({ length: n }, () => makeId("v"));
       dispatch({ t: "detachComponent", id, newVertexIds });
     },
@@ -760,6 +807,7 @@ export function useCircuit() {
         if (c.id === portOwner?.id) continue; // rigide meter blijft op vid
         if (c.v0 === vid) stubs++;
         if (c.v1 === vid) stubs++;
+        if (c.v2 === vid) stubs++;
       }
       for (const w of doc.wires) {
         for (let i = 0; i < w.nodes.length; i++) {
@@ -797,6 +845,7 @@ export function useCircuit() {
       for (const c of comps) {
         used.add(c.v0);
         used.add(c.v1);
+        if (c.v2) used.add(c.v2);
         c.ports?.forEach((p) => used.add(p));
       }
       for (const w of wires) w.nodes.forEach((n) => used.add(n));

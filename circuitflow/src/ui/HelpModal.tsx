@@ -57,10 +57,14 @@ export function HelpModal({ onClose }: Props) {
           <Row k="✂">Selecteer een knoop met een draad en klik het schaartje om die aansluiting los te maken.</Row>
           <Row k="meters">Voltmeter meet parallel (over een onderdeel), ampèremeter in serie. De analoge VOS-meters hebben een zwarte poort (0) en drie rode bereik-poorten.</Row>
           <Row k="grafiek">Klik een weerstand, lamp, LED of sensor en kies "Toon I‑U‑grafiek" (bij een LED: alle kleuren naast elkaar; een gloeidraadlamp geeft een kromme).</Row>
-          <Row k="schema">De toggle Pictoriaal/Schema wisselt tussen plaatjes en schoolboek-symbolen. Exporteer via het map-icoon als afbeelding voor een werkblad.</Row>
+          <Row k="schema">De toggle Pictoriaal/Schema wisselt tussen plaatjes en schoolboek-symbolen (dezelfde als in CircuitSketch). Exporteer via het map-icoon als afbeelding voor een werkblad.</Row>
+          <Row k="CircuitSketch">Teken je schakeling in CircuitSketch en klik daar op Simuleren: hij opent hier. Onderdelen die niet te simuleren zijn (zoals een condensator of motor) vallen weg. Waarden die je in CircuitSketch typte (zoals 100 Ω of 6 V) gaan mee; de rest krijgt een standaardwaarde. Met "Terug naar CircuitSketch" gaat de schakeling weer naar CircuitSketch, met je wijzigingen (heb je niets veranderd, dan komt je tekening precies zo terug). Een schakeling die je hier bouwt, open je met "Openen in CircuitSketch" als tekening. Een opgeslagen CircuitSketch-bestand kun je ook via het map-icoon openen.</Row>
           <Row k="oog">De oog-knop verbergt de stroomwaarden (meetopdracht): leerlingen meten zelf. De tabel-knop toont U, I en P per component + de vervangingsweerstand.</Row>
           <Row k="T">De T-knop (of toets T) zet een tekstlabel op het canvas; dubbelklik om te bewerken, slepen om te verplaatsen.</Row>
           <Row k="map">Via het map-icoon: voorbeeldschakelingen, opslaan/openen (JSON), afbeelding exporteren en een deellink maken — desgewenst met een opdracht en meetmodus voor de leerling. Je werk wordt automatisch lokaal bewaard.</Row>
+          <Row k="variabele R">Een variabele weerstand rekent als een gewone weerstand; klik hem aan en schuif aan de waarde om te zien wat er verandert.</Row>
+          <Row k="potmeter">Een weerstand met een derde aansluiting: de loper. Klik hem aan en schuif de stand van de loper; het pijltje schuift mee. Zo maak je een regelbare spanningsdeler.</Row>
+          <Row k="diode">Een diode laat alleen stroom door in de richting van de driehoek, vanaf 0,7 V. Hetzelfde als een LED, maar zonder licht.</Row>
           <Row k="let op">Een LED zonder voorschakelweerstand of een zekering boven z'n nominale stroom brandt door — vervang via het paneel.</Row>
           <Row k="Ctrl+Z">Ongedaan maken · Ctrl+Y opnieuw · Ctrl+D dupliceren · Esc deselecteert · zoomen met scrollwiel of de knoppen rechtsonder.</Row>
         </ul>

@@ -1,0 +1,233 @@
+{
+  "version": 2,
+  "circuit": {
+    "components": [
+      {
+        "id": "el_1790971340573_0",
+        "type": "resistor",
+        "x": 320,
+        "y": 120,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790971341241_1",
+        "type": "varresistor",
+        "x": 240,
+        "y": 260,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790971342681_2",
+        "type": "varresistor",
+        "x": 360,
+        "y": 160,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790971343378_3",
+        "type": "led",
+        "x": 420,
+        "y": 120,
+        "rotation": 0
+      },
+      {
+        "id": "el_1790971353375_8",
+        "type": "resistor",
+        "x": 380,
+        "y": 260,
+        "rotation": 0
+      }
+    ],
+    "wires": [
+      {
+        "id": "el_1790971345814_4",
+        "nodes": [
+          {
+            "x": 390,
+            "y": 160
+          },
+          {
+            "x": 390,
+            "y": 120
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790971342681_2",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790971343378_3",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790971348627_5",
+        "nodes": [
+          {
+            "x": 450,
+            "y": 120
+          },
+          {
+            "x": 450,
+            "y": 100
+          },
+          {
+            "x": 410,
+            "y": 100
+          },
+          {
+            "x": 350,
+            "y": 100
+          },
+          {
+            "x": 350,
+            "y": 120
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790971343378_3",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790971340573_0",
+          "terminal": 1
+        }
+      },
+      {
+        "id": "el_1790971350674_6",
+        "nodes": [
+          {
+            "x": 290,
+            "y": 120
+          },
+          {
+            "x": 210,
+            "y": 120
+          },
+          {
+            "x": 210,
+            "y": 260
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790971340573_0",
+          "terminal": 0
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790971341241_1",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790971351709_7",
+        "nodes": [
+          {
+            "x": 270,
+            "y": 260
+          },
+          {
+            "x": 320,
+            "y": 260
+          },
+          {
+            "x": 330,
+            "y": 260
+          },
+          {
+            "x": 330,
+            "y": 160
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790971341241_1",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "component",
+          "componentId": "el_1790971342681_2",
+          "terminal": 0
+        }
+      },
+      {
+        "id": "el_1790971355714_9",
+        "nodes": [
+          {
+            "x": 350,
+            "y": 260
+          },
+          {
+            "x": 350,
+            "y": 280
+          },
+          {
+            "x": 320,
+            "y": 280
+          },
+          {
+            "x": 320,
+            "y": 260
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790971353375_8",
+          "terminal": 0
+        },
+        "endAttach": {
+          "kind": "wire",
+          "wireId": "el_1790971351709_7",
+          "nodeIndex": 1
+        }
+      },
+      {
+        "id": "el_1790971357207_10",
+        "nodes": [
+          {
+            "x": 410,
+            "y": 260
+          },
+          {
+            "x": 410,
+            "y": 180
+          },
+          {
+            "x": 460,
+            "y": 180
+          },
+          {
+            "x": 460,
+            "y": 100
+          },
+          {
+            "x": 410,
+            "y": 100
+          }
+        ],
+        "startAttach": {
+          "kind": "component",
+          "componentId": "el_1790971353375_8",
+          "terminal": 1
+        },
+        "endAttach": {
+          "kind": "wire",
+          "wireId": "el_1790971348627_5",
+          "nodeIndex": 2
+        }
+      }
+    ],
+    "labels": [],
+    "connectedCrossings": []
+  },
+  "viewport": {
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0
+  }
+}

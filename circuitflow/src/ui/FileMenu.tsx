@@ -8,6 +8,7 @@ import type { CircuitDoc } from "@/model/types";
 interface Props {
   doc: CircuitDoc;
   onLoad: (doc: CircuitDoc) => void;
+  onLoadSketch: (text: string) => boolean;
   onExportPng: () => void;
   /** Korte melding aan de gebruiker (toast in de editor). */
   onNotify: (msg: string) => void;
@@ -110,7 +111,7 @@ function ShareDialog({
   );
 }
 
-export function FileMenu({ doc, onLoad, onExportPng, onNotify }: Props) {
+export function FileMenu({ doc, onLoad, onLoadSketch, onExportPng, onNotify }: Props) {
   const [open, setOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -129,7 +130,7 @@ export function FileMenu({ doc, onLoad, onExportPng, onNotify }: Props) {
     f.text().then((text) => {
       const d = jsonToDoc(text);
       if (d) onLoad(d);
-      else onNotify("Dit lijkt geen geldige CircuitFlow-schakeling.");
+      else if (!onLoadSketch(text)) onNotify("Dit lijkt geen geldige CircuitFlow- of CircuitSketch-schakeling.");
     });
   };
 

@@ -248,4 +248,34 @@
     font-size: 13px;
     font-weight: 700;
   }
+
+  /* Schemaweergave: dunne lijnen in de tekstkleur, zoals in CircuitSketch.
+     Knikpunten en aftakkingen krijgen geen stip (alleen bij aanwijzen). */
+  .cf-schem {
+    --cf-wire: var(--text-primary);
+    --cf-lead: var(--text-primary);
+  }
+  .cf-schem .cf-wire,
+  .cf-schem .cf-lead {
+    stroke-width: 3;
+  }
+  .cf-schem .cf-lead-thin {
+    stroke-width: 2;
+  }
+  .cf-schem .cf-terminal {
+    r: 4.5;
+  }
+  .cf-schem .cf-junction,
+  .cf-schem .cf-vertex {
+    r: 0;
+  }
+  .cf-schem g:hover > .cf-vertex {
+    r: 5;
+  }
+  .cf-schem-letter {
+    fill: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+  }
 }

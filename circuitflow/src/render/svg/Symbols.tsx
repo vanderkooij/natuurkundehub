@@ -92,6 +92,50 @@ function Resistor({ resistance, power = 0 }: { resistance: number; power?: numbe
   );
 }
 
+/** Regelbare weerstand: weerstand met een schuine pijl erdoorheen. */
+function VarResistor({ resistance, power = 0 }: { resistance: number; power?: number }) {
+  return (
+    <g>
+      <Resistor resistance={resistance} power={power} />
+      <path d="M -26 18 L 22 -15" stroke="#2d3a48" strokeWidth={2.4} strokeLinecap="round" />
+      <path d="M 30 -20.5 L 17.5 -17.5 L 23.5 -8.5 Z" fill="#2d3a48" />
+    </g>
+  );
+}
+
+/**
+ * Potmeter (pictoriaal) als schuifweerstand, zoals op het practicum: een
+ * keramische buis met draadwindingen, een metalen stang erlangs (kant side) en
+ * een schuifcontact op de plek van de loper (wx langs de as). De draad naar de
+ * loper tekent CircuitSvg; het schuifje kun je op het canvas verslepen.
+ */
+function Pot({ power = 0, wx, side }: { power?: number; wx: number; side: 1 | -1 }) {
+  const h = heat(power);
+  const rail = side * 17; // hartlijn van de stang
+  const windings = Array.from({ length: 17 }, (_, i) => -24 + i * 3);
+  return (
+    <g>
+      {h > 0 && (
+        <circle cx={0} cy={0} r={24 + 12 * h} fill="#ff5a2a" opacity={0.1 + 0.4 * h} filter="url(#cf-glow)" />
+      )}
+      {/* steuntjes aan de uiteinden, van buis naar stang */}
+      <rect x={-31} y={Math.min(rail, 0) - 2} width={5} height={Math.abs(rail) + 4} rx={1.5} fill="#7b8794" />
+      <rect x={26} y={Math.min(rail, 0) - 2} width={5} height={Math.abs(rail) + 4} rx={1.5} fill="#7b8794" />
+      {/* keramische buis met windingen */}
+      <rect x={-28} y={-9} width={56} height={18} rx={4} fill="#efe6d2" stroke="#b9a77f" strokeWidth={1.3} />
+      {windings.map((x) => (
+        <line key={x} x1={x} y1={-8} x2={x + 1.4} y2={8} stroke="#9a7b45" strokeWidth={1.1} />
+      ))}
+      {/* metalen stang */}
+      <rect x={-30} y={rail - 2} width={60} height={4} rx={2} fill="#c3c9d1" stroke="#8a929c" strokeWidth={0.8} />
+      {/* schuifcontact: blokje op de stang met een veertje naar de windingen */}
+      <line x1={wx} y1={rail} x2={wx} y2={side * 8} stroke="#6b7280" strokeWidth={2.2} strokeLinecap="round" />
+      <rect x={wx - 6} y={rail - 6} width={12} height={12} rx={2.5} fill="#3f4a5a" stroke="#222932" strokeWidth={1} />
+      <rect x={wx - 3.5} y={rail - 3.5} width={7} height={2} rx={1} fill="rgba(255,255,255,0.35)" />
+    </g>
+  );
+}
+
 function Lamp({ brightness }: { brightness: number }) {
   const b = Math.max(0, Math.min(1, brightness));
   const lit = b > 0.02;
@@ -226,22 +270,6 @@ function Fuse({ blown }: { blown: boolean }) {
   );
 }
 
-function SchemFuse({ blown }: { blown: boolean }) {
-  return (
-    <g>
-      <rect x={-20} y={-8} width={40} height={16} fill="none" stroke={SYM} strokeWidth={2} />
-      {blown ? (
-        <>
-          <line x1={-20} y1={0} x2={-5} y2={0} stroke={SYM} strokeWidth={2} strokeLinecap="round" />
-          <line x1={5} y1={0} x2={20} y2={0} stroke={SYM} strokeWidth={2} strokeLinecap="round" />
-        </>
-      ) : (
-        <line x1={-20} y1={0} x2={20} y2={0} stroke={SYM} strokeWidth={2} />
-      )}
-    </g>
-  );
-}
-
 /** Pijltjes die op een sensor "invallen" (licht op de LDR). */
 function LightArrows({ color }: { color: string }) {
   return (
@@ -286,24 +314,16 @@ function Ntc() {
   );
 }
 
-function SchemLdr() {
+/** Gewone diode: zwart cilindertje met een zilveren ring aan de kathodekant (v1). */
+function Diode({ burned }: { burned: boolean }) {
   return (
     <g>
-      <rect x={-26} y={-9} width={52} height={18} fill="none" stroke={SYM} strokeWidth={2} />
-      <LightArrows color={SYM} />
-    </g>
-  );
-}
-
-function SchemNtc() {
-  return (
-    <g>
-      <rect x={-26} y={-9} width={52} height={18} fill="none" stroke={SYM} strokeWidth={2} />
-      {/* schuine −ϑ-lijn met horizontale voet (IEC) */}
-      <path d="M -34 20 H -26 L 22 -16" fill="none" stroke={SYM} strokeWidth={1.8} strokeLinejoin="round" />
-      <text x={-14} y={22} fontSize={9.5} fontWeight={600} fill={SYM}>
-        −ϑ
-      </text>
+      <rect x={-20} y={-10} width={40} height={20} rx={4} fill={burned ? "#26262c" : "#2a2d33"} stroke="#15171b" strokeWidth={1.5} />
+      <rect x={-17} y={-8} width={34} height={4} rx={2} fill="rgba(255,255,255,0.14)" />
+      <rect x={9} y={-10} width={6} height={20} fill="#c7ccd1" />
+      {burned && (
+        <path d="M -10 -7 L -4 -1 L -8 3 L -1 8" fill="none" stroke="#c5543a" strokeWidth={1.6} strokeLinejoin="round" />
+      )}
     </g>
   );
 }
@@ -337,20 +357,53 @@ function DigitalMeter({ letter }: { letter: string }) {
 }
 
 // ── Schematische (schoolboek) symbolen ──────────────────────────────────────
-// Lijnkleur past zich aan het thema aan; leads tekent CircuitSvg zoals altijd.
+// Precies de symbolen van CircuitSketch, twee keer zo groot (raster 20 → 40,
+// aansluitingen op ±60 = TERMINAL_SPAN / 2). Zo ziet een schakeling die uit
+// CircuitSketch komt er hier hetzelfde uit. De lijnkleur volgt het thema; de
+// leads vanaf ±SCHEM_ATTACH naar de terminals tekent CircuitSvg.
 const SYM = "var(--text-primary)";
+const G = 40;
+const SW = 3;
+const line = { stroke: SYM, strokeWidth: SW, strokeLinecap: "round" as const, fill: "none" };
 
-function SchemSource() {
+/** Gevulde pijlpunt die bij (x2,y2) eindigt, van (x1,y1) af gezien. */
+function ArrowHead({ x1, y1, x2, y2, len, w }: { x1: number; y1: number; x2: number; y2: number; len: number; w: number }) {
+  const d = Math.hypot(x2 - x1, y2 - y1) || 1;
+  const ux = (x2 - x1) / d;
+  const uy = (y2 - y1) / d;
+  const bx = x2 - ux * len;
+  const by = y2 - uy * len;
+  return <path d={`M ${x2} ${y2} L ${bx - uy * w} ${by + ux * w} L ${bx + uy * w} ${by - ux * w} Z`} fill={SYM} />;
+}
+
+/**
+ * Bron: lange dunne plaat = + (v0, links), korte plaat = −. `side` kiest de
+ * kant (lokale y) van de +/−-tekens; CircuitSvg legt ze tegenover de waarde.
+ */
+function SchemSource({ side, angle }: { side: 1 | -1; angle: number }) {
+  const gap = G * 0.18;
+  const ty = G * 0.38 * side;
+  const tx = gap + G * 0.34;
+  // De tekens staan rechtop, hoe de bron ook gedraaid is.
+  const sign = (x: number, t: string) => (
+    <text
+      x={x}
+      y={ty}
+      transform={`rotate(${-angle} ${x} ${ty})`}
+      fill={SYM}
+      textAnchor="middle"
+      dominantBaseline="central"
+      style={{ fontSize: 18, fontWeight: 600, pointerEvents: "none" }}
+    >
+      {t}
+    </text>
+  );
   return (
     <g>
-      {/* de wire loopt door tot aan beide platen (zelfde cf-lead-stijl) */}
-      <line className="cf-lead" x1={-26} y1={0} x2={-7} y2={0} />
-      <line className="cf-lead" x1={7} y1={0} x2={26} y2={0} />
-      {/* lange dunne plaat = +, korte dikke plaat = − */}
-      <line x1={-7} y1={-15} x2={-7} y2={15} stroke={SYM} strokeWidth={2.5} strokeLinecap="round" />
-      <line x1={7} y1={-8} x2={7} y2={8} stroke={SYM} strokeWidth={6} strokeLinecap="round" />
-      <text x={-16} y={-7} fontSize={13} fontWeight={700} fill={SYM} className="cf-glyph">＋</text>
-      <text x={16} y={-5} fontSize={13} fontWeight={700} fill={SYM} className="cf-glyph">－</text>
+      <line {...line} x1={-gap} y1={-G * 0.6} x2={-gap} y2={G * 0.6} />
+      <line {...line} x1={gap} y1={-G * 0.35} x2={gap} y2={G * 0.35} />
+      {sign(-tx, "+")}
+      {sign(tx, "−")}
     </g>
   );
 }
@@ -360,9 +413,38 @@ function SchemResistor({ power = 0 }: { power?: number }) {
   return (
     <g>
       {h > 0 && (
-        <circle cx={0} cy={0} r={22 + 12 * h} fill="#ff5a2a" opacity={0.1 + 0.4 * h} filter="url(#cf-glow)" />
+        <circle cx={0} cy={0} r={30 + 12 * h} fill="#ff5a2a" opacity={0.1 + 0.4 * h} filter="url(#cf-glow)" />
       )}
-      <rect x={-26} y={-9} width={52} height={18} fill="none" stroke={SYM} strokeWidth={2} />
+      <rect {...line} x={-G} y={-G * 0.4} width={G * 2} height={G * 0.8} />
+    </g>
+  );
+}
+
+function SchemVarResistor({ power = 0 }: { power?: number }) {
+  // Pijl van linksonder naar rechtsboven, met de punt buiten het lichaam
+  const x1 = -G * 0.95;
+  const y1 = G * 0.75;
+  const x2 = G * 0.95;
+  const y2 = -G * 0.75;
+  const d = Math.hypot(x2 - x1, y2 - y1);
+  const k = 1 - 8.4 / d; // lijn stopt net vóór de punt
+  return (
+    <g>
+      <SchemResistor power={power} />
+      <line {...line} x1={x1} y1={y1} x2={x1 + (x2 - x1) * k} y2={y1 + (y2 - y1) * k} />
+      <ArrowHead x1={x1} y1={y1} x2={x2} y2={y2} len={14} w={7} />
+    </g>
+  );
+}
+
+/** Potmeter: weerstand met een pijl (de loper) die op het lichaam drukt. */
+function SchemPot({ power = 0, wx, side }: { power?: number; wx: number; side: 1 | -1 }) {
+  const y0 = side * G * 0.4; // rand van het lichaam
+  const y1 = side * G * 0.7; // achterkant van de pijlpunt
+  return (
+    <g>
+      <SchemResistor power={power} />
+      <path d={`M ${wx} ${y0} L ${wx - 8} ${y1} L ${wx + 8} ${y1} Z`} fill={SYM} />
     </g>
   );
 }
@@ -370,12 +452,24 @@ function SchemResistor({ power = 0 }: { power?: number }) {
 function SchemLamp({ brightness }: { brightness: number }) {
   const b = Math.max(0, Math.min(1, brightness));
   const lit = b > 0.02;
+  const r = G * 0.7;
+  const d = r * 0.55;
   return (
     <g>
-      {lit && <circle cx={0} cy={0} r={12 + 30 * b} fill="#ffcf5a" opacity={0.12 + 0.5 * b} filter="url(#cf-glow)" />}
-      <circle cx={0} cy={0} r={14} fill={lit ? `rgba(255,214,120,${0.25 + 0.5 * b})` : "none"} stroke={SYM} strokeWidth={2} />
-      <line x1={-9.9} y1={-9.9} x2={9.9} y2={9.9} stroke={SYM} strokeWidth={2} />
-      <line x1={-9.9} y1={9.9} x2={9.9} y2={-9.9} stroke={SYM} strokeWidth={2} />
+      {lit && <circle cx={0} cy={0} r={16 + 34 * b} fill="#ffcf5a" opacity={0.12 + 0.5 * b} filter="url(#cf-glow)" />}
+      <circle {...line} cx={0} cy={0} r={r} fill={lit ? `rgba(255,214,120,${0.25 + 0.5 * b})` : "none"} />
+      <path {...line} d={`M ${-d} ${-d} L ${d} ${d} M ${d} ${-d} L ${-d} ${d}`} />
+    </g>
+  );
+}
+
+/** Diode en LED: driehoek van anode (v0) naar kathode (v1) met een streep. */
+function SchemDiode({ fill = "none" }: { fill?: string }) {
+  const a = G * 0.6;
+  return (
+    <g>
+      <path {...line} d={`M ${-a} ${-a} L ${-a} ${a} L ${a} 0 Z`} fill={fill} strokeLinejoin="round" />
+      <line {...line} x1={a} y1={-a} x2={a} y2={a} />
     </g>
   );
 }
@@ -383,22 +477,117 @@ function SchemLamp({ brightness }: { brightness: number }) {
 function SchemLed({ color, brightness, burned }: { color: string; brightness: number; burned: boolean }) {
   const b = Math.max(0, Math.min(1, brightness));
   const lit = !burned && b > 0.02;
-  const fill = burned ? "#3b3b43" : lit ? color : "none";
+  const s = G * 0.3;
   return (
     <g>
-      {lit && <circle cx={0} cy={0} r={10 + 26 * b} fill={color} opacity={0.15 + 0.55 * b} filter="url(#cf-glow)" />}
-      {/* diode: driehoek anode(links) → kathode(rechts) + balk = met de stroom mee */}
-      <path d="M -10 -11 L 9 0 L -10 11 Z" fill={fill} stroke={SYM} strokeWidth={2} strokeLinejoin="round" />
-      <line x1={9} y1={-12} x2={9} y2={12} stroke={SYM} strokeWidth={2.5} strokeLinecap="round" />
-      {/* twee lichtpijltjes */}
-      <g stroke={SYM} strokeWidth={1.4} strokeLinecap="round" fill="none">
-        <path d="M -1 -12 L 6 -20 M 6 -20 L 2.5 -19.5 M 6 -20 L 5.5 -16.5" />
-        <path d="M 5 -11 L 12 -19 M 12 -19 L 8.5 -18.5 M 12 -19 L 11.5 -15.5" />
-      </g>
-      {burned && <path d="M -8 -7 L -2 -1 L -6 3 L 1 9" fill="none" stroke="#15151a" strokeWidth={1.6} strokeLinejoin="round" />}
+      {lit && <circle cx={0} cy={0} r={14 + 30 * b} fill={color} opacity={0.15 + 0.55 * b} filter="url(#cf-glow)" />}
+      <SchemDiode fill={burned ? "#3b3b43" : lit ? color : "none"} />
+      {/* twee lichtpijltjes naar buiten */}
+      {[-G * 0.6, -G * 0.9].map((dy) => (
+        <path
+          key={dy}
+          {...line}
+          strokeWidth={2}
+          d={`M ${s} ${dy} L ${s + G * 0.5} ${dy - G * 0.3} M ${s + G * 0.5} ${dy - G * 0.3} L ${s + G * 0.3} ${dy - G * 0.2} M ${s + G * 0.5} ${dy - G * 0.3} L ${s + G * 0.4} ${dy - G * 0.1}`}
+        />
+      ))}
+      {burned && <path d="M -14 -10 L -6 -2 L -12 4 L -2 12" fill="none" stroke="#c5543a" strokeWidth={2} strokeLinejoin="round" />}
     </g>
   );
 }
+
+function SchemDiodeBody({ burned }: { burned: boolean }) {
+  return (
+    <g>
+      <SchemDiode fill={burned ? "#3b3b43" : "none"} />
+      {burned && <path d="M -14 -10 L -6 -2 L -12 4 L -2 12" fill="none" stroke="#c5543a" strokeWidth={2} strokeLinejoin="round" />}
+    </g>
+  );
+}
+
+function SchemFuse({ blown }: { blown: boolean }) {
+  const w = G * 0.8;
+  return (
+    <g>
+      <rect {...line} x={-w} y={-G * 0.3} width={w * 2} height={G * 0.6} />
+      {blown ? (
+        <path {...line} d={`M ${-w} 0 H -8 M 8 0 H ${w}`} />
+      ) : (
+        <line {...line} x1={-w} y1={0} x2={w} y2={0} />
+      )}
+    </g>
+  );
+}
+
+function SchemLdr() {
+  const arrows: [number, number, number, number][] = [
+    [G * 1.3, -G * 1.4, G * 0.3, -G * 0.4],
+    [G * 1.8, -G * 1.4, G * 0.8, -G * 0.4],
+  ];
+  return (
+    <g>
+      <rect {...line} x={-G} y={-G * 0.4} width={G * 2} height={G * 0.8} />
+      {arrows.map(([x1, y1, x2, y2]) => (
+        <g key={x1}>
+          <line {...line} strokeWidth={2.2} x1={x1} y1={y1} x2={x2} y2={y2} />
+          <ArrowHead x1={x1} y1={y1} x2={x2} y2={y2} len={10} w={5} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function SchemNtc({ angle }: { angle: number }) {
+  const cx = G * 1.5;
+  const cy = -G * 0.6;
+  return (
+    <g>
+      <rect {...line} x={-G} y={-G * 0.4} width={G * 2} height={G * 0.8} />
+      <line {...line} x1={-G * 0.9} y1={G * 0.38} x2={cx} y2={cy} />
+      <circle {...line} cx={cx} cy={cy} r={G * 0.22} fill="var(--cf-canvas)" />
+      <text x={cx} y={cy + 1} transform={`rotate(${-angle} ${cx} ${cy})`} fontSize={G * 0.32} fontWeight={700} fill={SYM} textAnchor="middle" dominantBaseline="central">
+        −
+      </text>
+    </g>
+  );
+}
+
+function SchemSwitch({ closed }: { closed: boolean }) {
+  const a = G * 0.6;
+  return (
+    <g>
+      <circle cx={-a} cy={0} r={5} fill={SYM} />
+      <circle cx={a} cy={0} r={5} fill={SYM} />
+      {closed ? (
+        <line {...line} x1={-a} y1={0} x2={a} y2={0} />
+      ) : (
+        <line {...line} x1={-a} y1={0} x2={a - G * 0.2} y2={-G * 0.7} />
+      )}
+    </g>
+  );
+}
+
+/** Meter: cirkel; de letter (V/A) zet CircuitSvg er rechtop in. */
+function SchemMeter() {
+  return <circle {...line} cx={0} cy={0} r={G * 0.7} fill="var(--cf-canvas)" />;
+}
+
+/** Waar de leads aan het schematische symbool vastzitten (±, langs de as). */
+export const SCHEM_ATTACH: Partial<Record<ComponentType, number>> = {
+  source: G * 0.18,
+  resistor: G,
+  varresistor: G,
+  potmeter: G,
+  lamp: G * 0.7,
+  led: G * 0.6,
+  diode: G * 0.6,
+  fuse: G * 0.8,
+  ldr: G,
+  ntc: G,
+  switch: G * 0.6,
+  voltmeter: G * 0.7,
+  ammeter: G * 0.7,
+};
 
 export function ComponentSymbol({
   type,
@@ -410,6 +599,10 @@ export function ComponentSymbol({
   resistance = 10,
   power = 0,
   schematic = false,
+  side = -1,
+  angle = 0,
+  wiperX = 0,
+  wiperSide = -1,
 }: {
   type: ComponentType;
   brightness?: number;
@@ -420,13 +613,24 @@ export function ComponentSymbol({
   resistance?: number;
   power?: number;
   schematic?: boolean;
+  /** Alleen schematische bron: kant (lokale y) van de +/−-tekens. */
+  side?: 1 | -1;
+  /** Draaihoek van het symbool (graden), om tekst rechtop te zetten. */
+  angle?: number;
+  /** Alleen potmeter: plek van de loper langs de as en de kant ervan. */
+  wiperX?: number;
+  wiperSide?: 1 | -1;
 }) {
   if (schematic) {
     switch (type) {
       case "source":
-        return <SchemSource />;
+        return <SchemSource side={side} angle={angle} />;
       case "resistor":
         return <SchemResistor power={power} />;
+      case "varresistor":
+        return <SchemVarResistor power={power} />;
+      case "potmeter":
+        return <SchemPot power={power} wx={wiperX} side={wiperSide} />;
       case "lamp":
         return <SchemLamp brightness={brightness} />;
       case "led":
@@ -436,8 +640,14 @@ export function ComponentSymbol({
       case "ldr":
         return <SchemLdr />;
       case "ntc":
-        return <SchemNtc />;
-      // schakelaar is al schematisch; meters blijven pictoriaal (echte instrumenten)
+        return <SchemNtc angle={angle} />;
+      case "diode":
+        return <SchemDiodeBody burned={burned} />;
+      case "switch":
+        return <SchemSwitch closed={closed} />;
+      case "voltmeter":
+      case "ammeter":
+        return <SchemMeter />;
     }
   }
   switch (type) {
@@ -445,10 +655,16 @@ export function ComponentSymbol({
       return <Source />;
     case "resistor":
       return <Resistor resistance={resistance} power={power} />;
+    case "varresistor":
+      return <VarResistor resistance={resistance} power={power} />;
+    case "potmeter":
+      return <Pot power={power} wx={wiperX} side={wiperSide} />;
     case "lamp":
       return <Lamp brightness={brightness} />;
     case "led":
       return <Led color={ledColor} brightness={brightness} burned={burned} />;
+    case "diode":
+      return <Diode burned={burned} />;
     case "fuse":
       return <Fuse blown={blown} />;
     case "ldr":

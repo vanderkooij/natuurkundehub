@@ -12,7 +12,7 @@ interface Props {
 }
 
 /** Componenttypen die in de tabel horen (geen meters/draden). */
-const TABLE_TYPES = new Set(["source", "resistor", "lamp", "led", "fuse", "switch"]);
+const TABLE_TYPES = new Set(["source", "resistor", "varresistor", "lamp", "led", "diode", "fuse", "switch"]);
 
 /**
  * Meetwaardentabel: U, I en P per component — handig bij serie/parallel-sommen

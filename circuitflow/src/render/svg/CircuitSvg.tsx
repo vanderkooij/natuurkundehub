@@ -8,6 +8,8 @@ import { useLayoutEffect, useRef, useState } from "react";
 
 import { LEAD_ATTACH } from "@/model/componentDefs";
 import { componentGeom, incidentCount, resolveVertex } from "@/model/geometry";
+import { hopPath, wireHops } from "@/model/hops";
+import { POT_HALF } from "@/model/componentDefs";
 import { ledBrightness, ledColor } from "@/model/ledSpec";
 import { isSensor, sensorR } from "@/model/sensorSpec";
 import {
@@ -22,7 +24,7 @@ import type { CircuitComponent, CircuitDoc, TextLabel } from "@/model/types";
 import { formatCurrent, formatOhm, formatVoltage, formatVolts } from "@/lib/format";
 import type { SolveResult } from "@/sim";
 import { AnalogMeter } from "./AnalogMeter";
-import { ComponentSymbol } from "./Symbols";
+import { ComponentSymbol, SCHEM_ATTACH } from "./Symbols";
 
 export type Selection = { kind: "component" | "wire" | "vertex" | "label"; id: string } | null;
 
@@ -58,6 +60,8 @@ interface Props {
   scale: number;
   onComponentPointerDown: (id: string, e: React.PointerEvent) => void;
   onTerminalPointerDown: (vid: string, e: React.PointerEvent) => void;
+  /** Potmeter: het schuifje / de pijl vastpakken om de loper te verschuiven. */
+  onWiperPointerDown?: (id: string, e: React.PointerEvent) => void;
   onWireSegmentPointerDown: (wireId: string, segIndex: number, e: React.PointerEvent) => void;
   onVertexPointerDown: (vid: string, e: React.PointerEvent) => void;
   onVertexTabPointerDown: (vid: string, e: React.PointerEvent) => void;
@@ -120,6 +124,7 @@ function CanvasLabel({
 function valueLabel(c: CircuitComponent): string {
   if (c.type === "source") return formatVolts(c.values.emf ?? 0);
   if (c.type === "switch") return (c.values.closed ?? true) ? "dicht" : "open";
+  if (c.type === "diode") return c.values.burned ? "doorgebrand" : "";
   if (c.type === "led") return c.values.burned ? "doorgebrand" : ledColor(c.values.color).label;
   if (c.type === "fuse")
     return c.values.blown ? "doorgebrand" : `${(c.values.imax ?? 0).toLocaleString("nl-NL")} A`;
@@ -148,6 +153,7 @@ function statusLabel(result: SolveResult, c: CircuitComponent): { text: string; 
   if (result.shortedSources.includes(c.id)) return { text: "kortsluiting", warn: true };
   if (result.conflicts.includes(c.id)) return { text: "conflict", warn: true };
   if (c.type === "switch") return null; // status zit al in valueLabel (open/dicht)
+  if (c.type === "potmeter") return { text: `loper ${Math.round(c.values.wiper ?? 50)} %`, warn: false };
   const i = result.elementCurrents.get(c.id);
   if (i === undefined || !Number.isFinite(i)) return null;
   return { text: formatCurrent(Math.abs(i)), warn: false };
@@ -196,6 +202,7 @@ export function CircuitSvg({
   scale,
   onComponentPointerDown,
   onTerminalPointerDown,
+  onWiperPointerDown,
   onWireSegmentPointerDown,
   onVertexPointerDown,
   onVertexTabPointerDown,
@@ -207,13 +214,15 @@ export function CircuitSvg({
   for (const c of doc.components) {
     terminalIds.add(c.v0);
     terminalIds.add(c.v1);
+    if (c.v2) terminalIds.add(c.v2);
     if (c.ports) for (const p of c.ports) terminalIds.add(p);
   }
   const junctions = Object.keys(doc.vertices).filter((id) => incidentCount(doc, id) >= 3);
   const shortedSet = new Set(result.shortedNodes);
+  const hops = wireHops(doc);
 
   return (
-    <g className="cf-root">
+    <g className={schematic ? "cf-root cf-schem" : "cf-root"}>
       <defs>
         <filter id="cf-glow" x="-120%" y="-120%" width="340%" height="340%">
           <feGaussianBlur stdDeviation="5" />
@@ -275,12 +284,10 @@ export function CircuitSvg({
                 >
                   {/* Ruim klikgebied: minstens ~28 schermpixels, ook uitgezoomd en met een vinger. */}
                   <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth={Math.max(16, 28 / scale)} />
-                  <line
+                  <path
                     className={hot ? "cf-wire cf-hot-wire" : "cf-wire"}
-                    x1={a.x}
-                    y1={a.y}
-                    x2={b.x}
-                    y2={b.y}
+                    d={hopPath(a, b, hops.get(`${w.id}:${i}`))}
+                    fill="none"
                     stroke={sel ? "var(--cf-select)" : hot ? undefined : "var(--cf-wire)"}
                   />
                 </g>
@@ -293,7 +300,7 @@ export function CircuitSvg({
       {/* Vertakkingsstippen */}
       {junctions.map((id) => {
         const p = resolveVertex(doc, id);
-        return p ? <circle key={`j-${id}`} cx={p.x} cy={p.y} r={5.5} fill="var(--cf-wire)" /> : null;
+        return p ? <circle key={`j-${id}`} className="cf-junction" cx={p.x} cy={p.y} r={5.5} fill="var(--cf-wire)" /> : null;
       })}
 
       {/* Componenten */}
@@ -332,13 +339,32 @@ export function CircuitSvg({
         const sel =
             (selection?.kind === "component" && selection.id === c.id) ||
             (multi?.components.has(c.id) ?? false);
-        const attach = LEAD_ATTACH[c.type];
+        const attach = (schematic && SCHEM_ATTACH[c.type]) || LEAD_ATTACH[c.type];
         // Meters staan altijd rechtop (anders lijnt de uitlezing niet uit); leads
-        // hechten dan horizontaal aan en lopen naar de terminals.
-        const meter = isMeter(c.type);
+        // hechten dan horizontaal aan en lopen naar de terminals. Een schematische
+        // meter is een rond symbool en volgt gewoon de as.
+        const meter = isMeter(c.type) && !schematic;
+        // Bron in schema: +/− boven (liggend) of links (staand), dus aan de
+        // andere kant dan de waarde.
+        const rad = (g.angleDeg * Math.PI) / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        const side = ((Math.abs(cos) > 0.5 ? -Math.sign(cos) : Math.sign(sin)) * (c.mirrored ? -1 : 1) || -1) as 1 | -1;
         const ux = meter ? 1 : g.ux;
         const uy = meter ? 0 : g.uy;
         const bodyAngle = meter ? 0 : g.angleDeg;
+        // Potmeter: de loper. wx = plek langs de as (de stand van de loper), aan de
+        // kant waar de loper-aansluiting ligt; daarheen loopt een eigen lead.
+        const pot = c.type === "potmeter" && c.v2 ? resolveVertex(doc, c.v2) : null;
+        const half = POT_HALF;
+        const wx = pot ? ((c.values.wiper ?? 50) / 100 - 0.5) * 2 * half : 0;
+        const px = -g.uy;
+        const py = g.ux;
+        const wSide = pot ? ((Math.sign(px * (pot.x - g.center.x) + py * (pot.y - g.center.y)) || -1) as 1 | -1) : -1;
+        const wOff = schematic ? 28 : 17;
+        const wiperAttach = pot
+          ? { x: g.center.x + g.ux * wx + px * wSide * wOff, y: g.center.y + g.uy * wx + py * wSide * wOff }
+          : null;
         const a0 = { x: g.center.x - ux * attach, y: g.center.y - uy * attach };
         const a1 = { x: g.center.x + ux * attach, y: g.center.y + uy * attach };
         const power = result.elementPowers.get(c.id) ?? 0;
@@ -350,6 +376,24 @@ export function CircuitSvg({
               : 0;
         const status = statusLabel(result, c);
         const shorted = result.shortedSources.includes(c.id);
+        const vertical = Math.abs(g.uy) > Math.abs(g.ux);
+        let labelPos: { x: number; y: number; anchor: "start" | "middle" | "end" } =
+          schematic && vertical
+            ? { x: g.center.x + 36, y: g.center.y - (status ? 2 : -5), anchor: "start" }
+            : { x: g.center.x, y: g.center.y + 34, anchor: "middle" };
+        if (pot && vertical) {
+          // Naast de potmeter, maar in de helft waar de loper níét zit: anders
+          // valt de tekst over de loperdraad.
+          const lowerHalf = (wx < 0) === (g.uy > 0);
+          labelPos = {
+            x: g.center.x + px * wSide * 36,
+            y: g.center.y + (lowerHalf ? 24 : -30),
+            anchor: px * wSide < 0 ? "end" : "start",
+          };
+        } else if (pot) {
+          // Liggend: onder of boven, aan de kant zonder loper.
+          labelPos = { x: g.center.x, y: g.center.y + (py * wSide > 0 ? -40 : 34), anchor: "middle" };
+        }
         return (
           <g key={c.id}>
             {/* hete gloed bij een kortgesloten bron */}
@@ -367,6 +411,9 @@ export function CircuitSvg({
             {/* leads naar de terminals */}
             <line className="cf-lead" x1={a0.x} y1={a0.y} x2={g.c0.x} y2={g.c0.y} />
             <line className="cf-lead" x1={a1.x} y1={a1.y} x2={g.c1.x} y2={g.c1.y} />
+            {pot && wiperAttach && (
+              <line className="cf-lead" x1={wiperAttach.x} y1={wiperAttach.y} x2={pot.x} y2={pot.y} />
+            )}
 
             {/* body */}
             <g
@@ -374,6 +421,15 @@ export function CircuitSvg({
               onPointerDown={(e) => onComponentPointerDown(c.id, e)}
               style={{ cursor: "grab" }}
             >
+              {/* Onzichtbaar trefvlak over het hele lichaam: anders pak je een
+                  symbool met een open vorm (schema) alleen op de lijntjes. */}
+              <rect
+                x={-Math.max(attach, 20) - 4}
+                y={-30}
+                width={(Math.max(attach, 20) + 4) * 2}
+                height={60}
+                fill="transparent"
+              />
               {sel && (
                 <rect
                   x={-attach - 8}
@@ -397,8 +453,26 @@ export function CircuitSvg({
                 resistance={c.values.resistance ?? 10}
                 power={Number.isFinite(power) ? power : 0}
                 schematic={schematic}
+                side={side}
+                angle={bodyAngle}
+                wiperX={wx}
+                wiperSide={(wSide * (c.mirrored ? -1 : 1)) as 1 | -1}
               />
             </g>
+
+            {/* Potmeter: schuifje (of pijl) verslepen = loper verschuiven */}
+            {pot && wiperAttach && onWiperPointerDown && (
+              <circle
+                cx={g.center.x + g.ux * wx + px * wSide * (schematic ? 20 : 14)}
+                cy={g.center.y + g.uy * wx + py * wSide * (schematic ? 20 : 14)}
+                r={12}
+                fill="transparent"
+                style={{ cursor: Math.abs(g.ux) >= Math.abs(g.uy) ? "ew-resize" : "ns-resize" }}
+                onPointerDown={(e) => onWiperPointerDown(c.id, e)}
+              >
+                <title>Sleep om de loper te verschuiven</title>
+              </circle>
+            )}
 
             {/* terminal-nubs; bij digitale meters rood (+) en zwart (COM), zodat
                 het teken van de uitlezing uitlegbaar is (zoals echte meetsnoeren).
@@ -407,6 +481,7 @@ export function CircuitSvg({
             {[
               { p: g.c0, vid: c.v0 },
               { p: g.c1, vid: c.v1 },
+              ...(pot && c.v2 ? [{ p: pot, vid: c.v2 }] : []),
             ].map(({ p, vid }, ti) => {
               const meterFill =
                 c.type === "voltmeter"
@@ -437,23 +512,51 @@ export function CircuitSvg({
               );
             })}
 
-            {isMeter(c.type) ? (
+            {isMeter(c.type) && schematic ? (
+              /* Schematische meter: letter rechtop in de cirkel, uitlezing eronder. */
+              <>
+                <text
+                  x={g.center.x}
+                  y={g.center.y}
+                  className="cf-schem-letter"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  style={{ pointerEvents: "none" }}
+                >
+                  {c.type === "voltmeter" ? "V" : "A"}
+                </text>
+                <text
+                  x={vertical ? g.center.x + 36 : g.center.x}
+                  y={vertical ? g.center.y + 5 : g.center.y + 46}
+                  className="cf-label"
+                  textAnchor={vertical ? "start" : "middle"}
+                >
+                  {meterReading(result, c)}
+                </text>
+              </>
+            ) : isMeter(c.type) ? (
               /* Meter: uitlezing rechtop op het LCD-venster. */
               <text x={g.center.x} y={g.center.y - 10} className="cf-lcd" textAnchor="middle">
                 {meterReading(result, c)}
               </text>
             ) : (
               <>
-                {/* uitlezing onder het component (rechtop) */}
-                <text x={g.center.x} y={g.center.y + 34} className="cf-label" textAnchor="middle">
+                {/* uitlezing onder het component (rechtop); in de schemaweergave
+                    staat een verticaal symbool zo lang dat de tekst ernaast moet */}
+                <text
+                  x={labelPos.x}
+                  y={labelPos.y}
+                  className="cf-label"
+                  textAnchor={labelPos.anchor}
+                >
                   {valueLabel(c)}
                 </text>
                 {status && (!measureMode || status.warn) && (
                   <text
-                    x={g.center.x}
-                    y={g.center.y + 49}
+                    x={labelPos.x}
+                    y={labelPos.y + 15}
                     className={status.warn ? "cf-label cf-label-warn" : "cf-label cf-label-muted"}
-                    textAnchor="middle"
+                    textAnchor={labelPos.anchor}
                   >
                     {status.text}
                   </text>

@@ -1,5 +1,5 @@
 import type { CircuitComponent, Wire, TextLabel, Point, WireAttachment, LRouteOrientation, ChipPreset } from './types';
-import { GRID, LEAD, OLD_LEAD, snap, orthogonalRoute, LABEL_FONT, CHIP_PRESETS, isChipType, chipTerminalLocal } from './types';
+import { GRID, LEAD, OLD_LEAD, snap, orthogonalRoute, LABEL_FONT, LABEL_FONT_FAMILY, CHIP_PRESETS, isChipType, chipTerminalLocal } from './types';
 
 export function clearCanvas(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillStyle = '#fff';
@@ -932,6 +932,32 @@ export function drawWire(ctx: CanvasRenderingContext2D, w: Wire, selected: boole
       ctx.stroke();
     });
   }
+}
+
+/** De zichtbare tekst van een waarde: zonder het verborgen deel tussen [ ]. */
+export function visibleValue(v: string | undefined): string {
+  return (v ?? '').replace(/\[[^\]]*\]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+/** Plek van de waarde-tekst: onder een liggend, rechts naast een staand onderdeel. */
+export function valueAnchor(c: CircuitComponent): { x: number; y: number; align: CanvasTextAlign } {
+  const vertical = c.rotation === 90 || c.rotation === 270;
+  return vertical
+    ? { x: c.x + GRID * 1.1, y: c.y, align: 'left' }
+    : { x: c.x, y: c.y + GRID * 1.3, align: 'center' };
+}
+
+export function drawComponentValue(ctx: CanvasRenderingContext2D, c: CircuitComponent) {
+  const text = visibleValue(c.value);
+  if (!text) return;
+  const a = valueAnchor(c);
+  ctx.save();
+  ctx.font = `13px ${LABEL_FONT_FAMILY}`;
+  ctx.fillStyle = '#000';
+  ctx.textAlign = a.align;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, a.x, a.y);
+  ctx.restore();
 }
 
 export function drawLabel(ctx: CanvasRenderingContext2D, l: TextLabel, selected: boolean) {

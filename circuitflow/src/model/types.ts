@@ -13,8 +13,11 @@
 export type ComponentType =
   | "source"
   | "resistor"
+  | "varresistor"
+  | "potmeter"
   | "lamp"
   | "led"
+  | "diode"
   | "fuse"
   | "ldr"
   | "ntc"
@@ -37,6 +40,11 @@ export interface CircuitComponent {
   v0: string;
   /** Vertex-id van terminal 1. Voor `source`: de −pool. */
   v1: string;
+  /**
+   * Alleen potmeter: vertex-id van de loper (derde aansluiting). De weerstand
+   * zit tussen v0 en v1; de loper verdeelt hem (values.wiper, % vanaf v0).
+   */
+  v2?: string;
   /** Gespiegeld (nodig voor LED-polariteit, Fase 5). */
   mirrored: boolean;
   values: {
@@ -45,7 +53,7 @@ export interface CircuitComponent {
     closed?: boolean;
     /** LED-kleur (bepaalt de Vf); zie ledSpec. */
     color?: string;
-    /** LED doorgebrand (permanent open tot vervangen). */
+    /** LED of diode doorgebrand (permanent open tot vervangen). */
     burned?: boolean;
     /** Zekering: nominale stroom (A) waarboven hij doorbrandt. */
     imax?: number;
@@ -53,9 +61,16 @@ export interface CircuitComponent {
     blown?: boolean;
     /** Sensor (LDR/NTC): omgevingswaarde 0–100 (% licht resp. °C); bepaalt R. */
     env?: number;
+    /** Potmeter: stand van de loper in % vanaf v0 (0 = bij v0, 100 = bij v1). */
+    wiper?: number;
     /** Lamp: niet-ohms (gloeidraad, R stijgt met de spanning) i.p.v. vaste R. */
     nonOhmic?: boolean;
   };
+  /**
+   * De tekst die in CircuitSketch bij dit onderdeel stond (bv. "R1 = 100 Ω").
+   * Gaat bij "Openen in CircuitSketch" terug mee, met het getal bijgewerkt.
+   */
+  sketchText?: string;
   /** Alleen analoge VOS-meter: middelpunt + 4 poort-vertices [common, rood0..2]. */
   cx?: number;
   cy?: number;

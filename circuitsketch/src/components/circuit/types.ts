@@ -36,6 +36,10 @@ export interface CircuitComponent {
   closed?: boolean;
   // Chip only: editable name shown in the centre of the block. Falls back to the preset label.
   name?: string;
+  // Vrije tekst naast het symbool, bv. "100 Ω" of "R1 = 4,7 kΩ". Hier alleen
+  // tekst; CircuitFlow haalt er bij het simuleren de waarde uit. Tekst tussen
+  // [ ] wordt niet getoond (verborgen antwoord, bv. "R2 = ? [30 Ω]").
+  value?: string;
 }
 
 export type WireAttachment =

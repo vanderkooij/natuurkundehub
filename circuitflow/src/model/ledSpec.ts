@@ -27,6 +27,14 @@ export const LED_COLORS: LedColor[] = [
 
 export const DEFAULT_LED_COLOR = "rood";
 
+/**
+ * Gewone (silicium)diode: hetzelfde model als de LED, maar met de vaste
+ * drempelspanning van silicium en zonder licht. Hij kan veel meer stroom aan
+ * dan een LED en brandt pas boven DIODE_IMAX door.
+ */
+export const DIODE_VF = 0.7;
+export const DIODE_IMAX = 1;
+
 /** Stroom (A) waarboven de LED doorbrandt. */
 export const LED_IMAX = 0.03;
 /** Referentiestroom (A) voor volledige helderheid. */
