@@ -65,10 +65,31 @@ natuurkundehub/
 
 1. Maak een map met de tool-naam (kebab-case) onder de root.
 2. Bouw de tool volgens de geldende conventies (header, thema, paginapresentatie, ontwerpprincipes — zie hieronder).
-3. Voeg een tegel toe in `index.html` (de homepage).
+3. Voeg een tegel toe in `index.html` (de homepage), in de goede categorie. Zie **Homepage** hieronder.
 4. Voeg een `cp -r <toolnaam> dist/<toolnaam>` regel toe in `build.sh` (of een eigen build-stap bij een Vite-project).
 5. Geef elke pagina de vindbaarheidskoppen (zie **Vindbaarheid** hieronder). De sitemap neemt de pagina daarna vanzelf mee.
 6. Werk dit bestand bij: tool in de mapstructuur, naam in de tabel onder Paginapresentatie, en eventueel de status in `ideeen.md`.
+
+## Homepage
+
+De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht en Elektriciteit. Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
+
+**Tegel toevoegen.** Kopieer een bestaande `<a class="card">` binnen de juiste `<section class="category">` en vul in:
+
+- `data-name` (de toolnaam) en `data-keys`: trefwoorden waarop een leerling zoekt, ook woorden die niet in de naam of beschrijving staan. De naam van de categorie telt vanzelf mee.
+- Een korte beschrijving in leerlingentaal.
+- Twee labels: het niveau (`alle klassen` of `bovenbouw`, met `tag--niveau`) en wat je doet (`oefenen`, `meten`, `simuleren`, `tekenen`).
+- Het aantal tools in de snelknop van die categorie (`<span class="count">`).
+
+Een nieuwe categorie is een nieuwe `<section class="category" id="…">` plus een snelknop met `href="#…"`. Maak er pas een als er een tool in komt; lege categorieën tonen we niet.
+
+**Het podium.** Bovenaan elke tegel staat een podium van 128 px hoog dat bij hover beweegt.
+
+- *Oefentools* krijgen een eigen kleine animatie in SVG of HTML die laat zien wat je oefent (de stapper bij formules, het karretje bij bewegingsgrafieken). Gewone CSS-animaties hangen aan `.card:hover`; animaties met stappen of een functie staan in het `anims`-object onderaan het script, gekoppeld via `data-anim` op de tegel.
+- *Labs* (schermvullende apps) tonen hun schermafbeelding uit `assets/og/` met het label *Lab*. In `<div class="shot">` bepalen `--oy` (welk deel verticaal in beeld is) en `--zoom` de uitsnede; bij een zoom onder 1 vult `--fill` op de stage de rand met de randkleur van de schermafbeelding. Over het plaatje ligt een SVG-laag met `viewBox="0 0 1200 630"`, dus in pixels van de schermafbeelding. **Wordt een schermafbeelding vervangen, dan moeten de coördinaten in die laag mee** (meetpunten bij Videometen, de valkromme bij Modelleren, de draden bij CircuitFlow en CircuitSketch).
+- Bij `prefers-reduced-motion` staan de animaties uit.
+
+**Verder waar je was.** De homepage onthoudt zelf op welke tegel je het laatst klikte (`localStorage`, sleutel `nh-last`). De tools hoeven daar niets voor te doen.
 
 ## Vindbaarheid (SEO)
 
