@@ -78,6 +78,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .field textarea{resize:vertical;min-height:130px;line-height:1.55}
 .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
 
+.field input.invalid,.field textarea.invalid{border-color:var(--accent-amber)}
+.field-error{display:none;font-size:12.5px;color:var(--accent-amber);margin-top:6px;line-height:1.45}
+.field-error.show{display:block}
+.form-note{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin:-4px 0 18px}
+.form-error{display:none;font-size:13px;color:var(--accent-amber);margin-top:12px;text-align:center}
+.form-error.show{display:block}
+
 .submit-btn{
   width:100%;padding:13px 20px;background:var(--accent-amber);color:#fff;border:none;
   border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;
@@ -133,21 +140,23 @@ footer a:hover{text-decoration:underline}
   <p class="page-subtitle">Heb je een bug gevonden, een idee voor een nieuwe functie, of een vraag? Stuur een bericht.</p>
 
   <div class="form-card" id="form-wrap">
-    <form name="contact" netlify netlify-honeypot="bot-field" onsubmit="handleSubmit(event)">
+    <form name="contact" netlify netlify-honeypot="bot-field" onsubmit="handleSubmit(event)" novalidate>
       <input type="hidden" name="form-name" value="contact">
       <div style="display:none">
         <label>Niet invullen: <input name="bot-field"></label>
       </div>
 
       <div class="field">
-        <label for="naam">Naam <span style="font-weight:400;color:var(--text-muted)">(optioneel)</span></label>
-        <input type="text" id="naam" name="naam" placeholder="Jouw naam" autocomplete="name">
+        <label for="naam">Naam <span style="font-weight:400;color:var(--text-muted)">*</span></label>
+        <input type="text" id="naam" name="naam" placeholder="Voor- en achternaam" autocomplete="name" required>
+        <span class="field-error" id="naam-error"></span>
       </div>
 
       <div class="field">
-        <label for="email">E-mailadres <span style="font-weight:400;color:var(--text-muted)">(optioneel)</span></label>
-        <span class="hint">Vul in als je een antwoord wilt ontvangen</span>
-        <input type="email" id="email" name="email" placeholder="jouw@email.nl" autocomplete="email">
+        <label for="email">E-mailadres <span style="font-weight:400;color:var(--text-muted)">*</span></label>
+        <span class="hint">Leerling? Gebruik je e-mailadres van school.</span>
+        <input type="email" id="email" name="email" placeholder="jouw@email.nl" autocomplete="email" required>
+        <span class="field-error" id="email-error"></span>
       </div>
 
       <div class="field">
@@ -162,17 +171,21 @@ footer a:hover{text-decoration:underline}
 
       <div class="field">
         <label for="bericht">Bericht <span style="font-weight:400;color:var(--text-muted)">*</span></label>
-        <textarea id="bericht" name="bericht" placeholder="Schrijf je bericht hier..." required></textarea>
+        <textarea id="bericht" name="bericht" placeholder="Wat werkt er niet, of wat zou je willen? Hoe specifieker, hoe beter." required></textarea>
+        <span class="field-error" id="bericht-error"></span>
       </div>
 
+      <p class="form-note">Je naam en e-mailadres worden met je bericht meegestuurd, zodat ik kan reageren. Ze worden nergens anders voor gebruikt.</p>
+
       <button type="submit" class="submit-btn" id="submit-btn">Verstuur bericht</button>
+      <p class="form-error" id="form-error">Er ging iets mis bij het versturen. Probeer het opnieuw.</p>
     </form>
   </div>
 
   <div class="success-card" id="success-wrap">
     <div class="success-icon">✓</div>
     <h2>Bericht verzonden!</h2>
-    <p>Bedankt voor je bericht. Als je een e-mailadres hebt achtergelaten, probeer ik zo snel mogelijk te reageren.</p>
+    <p>Bedankt voor je bericht. Ik probeer zo snel mogelijk te reageren.</p>
     <a href="/" class="back-btn">← Terug naar NatuurkundeHub</a>
   </div>
 </div>
@@ -214,24 +227,74 @@ function toggleTheme(){
   else applyTheme('light');
 })();
 
+// Geen anoniem formulier meer: leerlingen stuurden onzin. Naam en e-mailadres
+// zijn verplicht en overduidelijk neppe adressen worden geweigerd. Controleren
+// of een adres echt bestaat kan zonder server niet; dit verhoogt de drempel.
+const NEP_NAMEN=/^(test|testje|asdf\w*|qwerty|abc|aaa+|xxx+|fake|nep|nee|geen|niks|niemand|anoniem|hallo|hoi|bla+)$/i;
+const NEP_DOMEINEN=/^(test|example|voorbeeld|asdf|abc|aaa+|xxx+|fake|nep|bla+)\./i;
+
+function controleerNaam(v){
+  if(!v) return 'Vul je naam in.';
+  if(v.length<2||NEP_NAMEN.test(v)||!/[a-zà-ÿ]/i.test(v)) return 'Vul je echte naam in.';
+  return '';
+}
+function controleerEmail(v){
+  if(!v) return 'Vul je e-mailadres in.';
+  const m=v.match(/^([^\s@]+)@([^\s@]+\.[a-z]{2,})$/i);
+  if(!m) return 'Dit is geen geldig e-mailadres.';
+  if(NEP_NAMEN.test(m[1])||NEP_DOMEINEN.test(m[2])) return 'Vul je echte e-mailadres in, zodat ik kan reageren.';
+  return '';
+}
+function controleerBericht(v){
+  if(!v) return 'Schrijf een bericht.';
+  const woorden=v.split(/\s+/).filter(function(w){return /[a-zà-ÿ]{2,}/i.test(w);});
+  if(v.length<20||woorden.length<4) return 'Schrijf iets meer: wat werkt er niet, of wat zou je willen?';
+  if(/(.)\1{5,}/.test(v)) return 'Schrijf een echt bericht.';
+  return '';
+}
+function toonFout(id,melding){
+  const veld=document.getElementById(id);
+  const fout=document.getElementById(id+'-error');
+  fout.textContent=melding;
+  fout.classList.toggle('show',!!melding);
+  veld.classList.toggle('invalid',!!melding);
+  return !melding;
+}
+['naam','email','bericht'].forEach(function(id){
+  // Fout weghalen zodra er weer getypt wordt.
+  document.getElementById(id).addEventListener('input',function(){ toonFout(id,''); });
+});
+
 function handleSubmit(e){
   e.preventDefault();
+  const naam=document.getElementById('naam').value.trim();
+  const email=document.getElementById('email').value.trim();
   const bericht=document.getElementById('bericht').value.trim();
-  if(!bericht) return;
+  const goed=[
+    toonFout('naam',controleerNaam(naam)),
+    toonFout('email',controleerEmail(email)),
+    toonFout('bericht',controleerBericht(bericht)),
+  ];
+  if(goed.indexOf(false)!==-1){
+    document.querySelector('.field input.invalid, .field textarea.invalid').focus();
+    return;
+  }
   const btn=document.getElementById('submit-btn');
+  const formError=document.getElementById('form-error');
+  formError.classList.remove('show');
   btn.disabled=true;
   btn.textContent='Verzenden...';
-  const form=e.target;
-  const data=new FormData(form);
+  const data=new FormData(e.target);
   fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data).toString()})
-    .then(function(){
+    .then(function(res){
+      if(!res.ok) throw new Error('HTTP '+res.status);
       document.getElementById('form-wrap').style.display='none';
       document.getElementById('success-wrap').style.display='block';
     })
     .catch(function(){
       btn.disabled=false;
       btn.textContent='Verstuur bericht';
-      alert('Er ging iets mis. Probeer het opnieuw.');
+      formError.classList.add('show');
     });
 }
 </script>
