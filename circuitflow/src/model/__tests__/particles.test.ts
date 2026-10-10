@@ -55,6 +55,29 @@ describe("kringdecompositie voor de deeltjes", () => {
     }
   });
 
+  it("een draadstukje van lengte nul breekt de kringen niet", () => {
+    // Twee knopen op dezelfde plek, met een draad ertussen (kan ontstaan bij
+    // slepen/samenvoegen). Dat stukje mag de kringzoeker niet laten doodlopen:
+    // anders verdwijnen alle deeltjes, ook die in de andere takken.
+    for (const naam of ["parallel", "combiSerieParallel"]) {
+      const doc = structuredClone(preset(naam));
+      for (const w of doc.wires) {
+        const last = w.nodes[w.nodes.length - 1];
+        const v = doc.vertices[last];
+        const id = `${last}-dubbel`;
+        doc.vertices[id] = { id, x: v.x, y: v.y };
+        w.nodes.splice(w.nodes.length - 1, 0, id);
+      }
+      const o = opbouw(doc);
+      const som = new Map<string, number>();
+      for (const k of o.kringen)
+        for (const e of k.edges) som.set(e.key, (som.get(e.key) ?? 0) + k.weight);
+      for (const e of o.edges.values())
+        expect(som.get(e.key) ?? 0).toBeCloseTo(e.weight, 4);
+      expect(deeltjesOp(o, 0).length).toBeGreaterThan(0);
+    }
+  });
+
   it("elke kring is gesloten: het eind van de ene tak is het begin van de volgende", () => {
     const o = opbouw(preset("combiSerieParallel"));
     for (const k of o.kringen) {

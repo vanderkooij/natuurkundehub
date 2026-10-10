@@ -71,16 +71,18 @@ export function orientEdges(
     const sy = aToB ? f.ay : f.by;
     const ex = aToB ? f.bx : f.ax;
     const ey = aToB ? f.by : f.ay;
+    // Ook een tak zonder lengte (twee knopen op dezelfde plek) blijft erin: hij
+    // draagt stroom, en zonder hem loopt de kringzoeker dood en verdwijnen alle
+    // deeltjes. Er komen alleen geen deeltjes óp te staan.
     const len = Math.hypot(ex - sx, ey - sy);
-    if (len < 1) continue;
     edges.set(f.key, {
       key: f.key,
       fromNode: aToB ? f.aNode : f.bNode,
       toNode: aToB ? f.bNode : f.aNode,
       sx,
       sy,
-      ux: (ex - sx) / len,
-      uy: (ey - sy) / len,
+      ux: len > 0 ? (ex - sx) / len : 0,
+      uy: len > 0 ? (ey - sy) / len : 0,
       len,
       weight: Math.abs(I),
       hideRadius: f.hideRadius,
@@ -155,7 +157,9 @@ export function decompose(
       knoop = beste.toNode;
     }
     if (!kring) {
-      rest.set(start.key, 0);
+      // Doodlopend: schrap alleen de laatste tak van het pad. Zou je de starttak
+      // (meestal de bron) schrappen, dan sluit daarna geen enkele kring meer.
+      rest.set(pad[pad.length - 1].key, 0);
       continue;
     }
     const w = Math.min(...kring.map((e) => rest.get(e.key)!));

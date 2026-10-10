@@ -14,6 +14,8 @@ interface Props {
   onNotify: (msg: string) => void;
 }
 
+const MENU_WIDTH = 240;
+
 const item =
   "block w-full rounded-md px-2.5 py-1.5 text-left text-sm text-(--text-secondary) hover:bg-(--bg-card-hover)";
 
@@ -114,7 +116,11 @@ function ShareDialog({
 export function FileMenu({ doc, onLoad, onLoadSketch, onExportPng, onNotify }: Props) {
   const [open, setOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  // Uitklappen naar de kant waar ruimte is: op smalle schermen wrapt de knop
+  // naar links en zou een rechts uitgelijnd menu buiten beeld vallen.
+  const [alignLeft, setAlignLeft] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -138,7 +144,12 @@ export function FileMenu({ doc, onLoad, onLoadSketch, onExportPng, onNotify }: P
     <div className="relative" onPointerDown={(e) => e.stopPropagation()}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        ref={btnRef}
+        onClick={() => {
+          const r = btnRef.current?.getBoundingClientRect();
+          if (r) setAlignLeft(r.right < MENU_WIDTH + 8);
+          setOpen((o) => !o);
+        }}
         title="Voorbeelden &amp; bestand"
         aria-label="Voorbeelden en bestand"
         className="grid h-9 w-9 place-items-center rounded-lg border border-(--border-solid) text-(--text-secondary) hover:bg-(--bg-card-hover)"
@@ -146,7 +157,10 @@ export function FileMenu({ doc, onLoad, onLoadSketch, onExportPng, onNotify }: P
         <FolderOpen size={16} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-60 rounded-lg border border-(--border-solid) bg-card p-1 shadow-xl">
+        <div
+          className={`absolute ${alignLeft ? "left-0" : "right-0"} top-full z-30 mt-1 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-lg border border-(--border-solid) bg-card p-1 shadow-xl`}
+          style={{ width: MENU_WIDTH }}
+        >
           <div className="px-2.5 pb-1 pt-1.5 text-xs font-semibold uppercase tracking-wide text-(--text-muted)">
             Voorbeelden
           </div>

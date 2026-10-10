@@ -257,7 +257,7 @@ export function ContextPanel({
       )}
       <div className="flex gap-1">
         {!meter && (
-          <button type="button" className={iconBtn} title="Roteren" onClick={onRotate}>
+          <button type="button" className={iconBtn} title="Roteren (R)" onClick={onRotate}>
             <RotateCw size={15} />
           </button>
         )}
@@ -267,7 +267,7 @@ export function ContextPanel({
         <button
           type="button"
           className={iconBtn}
-          title={meter ? "Meetsnoeren omwisselen (teken omkeren)" : "Omdraaien (polariteit omkeren)"}
+          title={meter ? "Meetsnoeren omwisselen (teken omkeren, F)" : "Omdraaien (polariteit omkeren, F)"}
           onClick={onReverse}
           disabled={isAnalog(comp.type) && analogActiveIndex === null}
         >

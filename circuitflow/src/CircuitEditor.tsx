@@ -47,7 +47,7 @@ type Drag =
       ocx?: number;
       ocy?: number;
     }
-  | { type: "wire"; wireId: string; newVid: string; fromVid: string; fromPos: Pt }
+  | { type: "wire"; wireId: string; newVid: string; fromVid: string; fromPos: Pt; startW?: Pt }
   | { type: "vertex"; vid: string; startW: Pt }
   | { type: "bend"; wireId: string; segIndex: number; startW: Pt; vid: string | null }
   | { type: "pan"; startX: number; startY: number; startTx: number; startTy: number }
@@ -95,6 +95,54 @@ function marqueeHits(doc: CircuitDoc, a: Pt, b: Pt): MultiSelection | null {
   return { components, wires, labels };
 }
 const BEND_THRESHOLD = 10; // scherm-px voordat een segment-sleep een knikpunt maakt (een tik selecteert alleen)
+
+
+/**
+ * Waar een uitgeklapt draadstukje vanaf knoop `vid` heen kan: twee rasterstappen
+ * in de eerste richting waar nog geen draad of component zit en geen andere
+ * knoop ligt (rechts, omlaag, links, omhoog, dan schuin).
+ */
+function freeStubPos(doc: CircuitDoc, vid: string, from: Pt, skip: string): Pt {
+  const buren: string[] = [];
+  for (const w of doc.wires) {
+    w.nodes.forEach((n, i) => {
+      if (n !== vid) return;
+      if (i > 0) buren.push(w.nodes[i - 1]);
+      if (i < w.nodes.length - 1) buren.push(w.nodes[i + 1]);
+    });
+  }
+  for (const c of doc.components) {
+    const ts = c.ports ?? [c.v0, c.v1, ...(c.v2 ? [c.v2] : [])];
+    if (ts.includes(vid)) buren.push(...ts.filter((t) => t !== vid));
+  }
+  const bezet = buren
+    .filter((b) => b !== skip)
+    .map((b) => resolveVertex(doc, b))
+    .filter((p): p is Pt => !!p && dist(p, from) > 0.5)
+    .map((p) => {
+      const d = dist(p, from);
+      return { x: (p.x - from.x) / d, y: (p.y - from.y) / d };
+    });
+  const richtingen: Pt[] = [
+    { x: 1, y: 0 },
+    { x: 0, y: 1 },
+    { x: -1, y: 0 },
+    { x: 0, y: -1 },
+    { x: 1, y: 1 },
+    { x: -1, y: 1 },
+    { x: -1, y: -1 },
+    { x: 1, y: -1 },
+  ];
+  const ex = new Set([vid, skip]);
+  for (const r of richtingen) {
+    const n = Math.hypot(r.x, r.y);
+    if (bezet.some((b) => (b.x * r.x + b.y * r.y) / n > 0.9)) continue;
+    const p = { x: from.x + r.x * 2 * GRID, y: from.y + r.y * 2 * GRID };
+    if (nearestSnap(doc, p, ex)) continue;
+    return p;
+  }
+  return { x: from.x + 2 * GRID, y: from.y };
+}
 
 export function CircuitEditor() {
   const circuit = useCircuit();
@@ -528,7 +576,17 @@ export function CircuitEditor() {
       } else if (drag.type === "wire") {
         const snap = nearestSnap(docRef.current, w, new Set([drag.newVid, drag.fromVid]));
         if (snap) circuitRef.current.mergeVertex(snap.id, drag.newVid);
-        else if (dist(drag.fromPos, w) < 8) circuitRef.current.deleteWire(drag.wireId);
+        else if (drag.startW && dist(drag.startW, w) * viewRef.current.s < 6) {
+          // Tik op het plusje (het plusje zelf ligt al een eindje van de knoop):
+          // klap een stukje draad uit in een vrije richting, dan is er iets om
+          // aan te pakken. Zonder dit bleef er een onzichtbare draad van lengte 0.
+          const p = freeStubPos(docRef.current, drag.fromVid, drag.fromPos, drag.newVid);
+          circuitRef.current.moveVertex(drag.newVid, p.x, p.y);
+          circuitRef.current.commit();
+        } else {
+          const end = resolveVertex(docRef.current, drag.newVid);
+          if (!end || dist(drag.fromPos, end) < 8) circuitRef.current.deleteWire(drag.wireId);
+        }
       } else if (drag.type === "vertex") {
         if (dist(drag.startW, w) >= 4) {
           const snap = nearestSnap(docRef.current, w, new Set([drag.vid]));
@@ -659,6 +717,24 @@ export function CircuitEditor() {
         return;
       }
 
+      // R: 90° draaien (zoals in CircuitSketch). F: omdraaien (+/− van een bron,
+      // LED-richting, meetsnoeren van een meter), zelfde als de ⇄-knop.
+      if (selection.kind === "component" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const k = e.key.toLowerCase();
+        const comp = docRef.current.components.find((c) => c.id === selection.id);
+        if (comp && k === "r") {
+          e.preventDefault();
+          const meter = comp.type === "voltmeter" || comp.type === "ammeter" || isAnalog(comp.type);
+          if (!meter) circuit.rotateComponent(comp.id);
+          return;
+        }
+        if (comp && k === "f") {
+          e.preventDefault();
+          circuit.reversePolarity(comp.id);
+          return;
+        }
+      }
+
       // Pijltjestoetsen: waarde van het geselecteerde component bijstellen
       // (rechts/omhoog = groter, links/omlaag = kleiner; Shift = grovere stap).
       const dir =
@@ -756,8 +832,11 @@ export function CircuitEditor() {
     const from = resolveVertex(docRef.current, vid);
     if (!from) return;
     const { wireId, newVid } = circuitRef.current.startWire(vid, from.x, from.y);
-    dragRef.current = { type: "wire", wireId, newVid, fromVid: vid, fromPos: from };
-  }, []);
+    // De nieuwe draad meteen geselecteerd = gemarkeerd, zodat hij ook zichtbaar
+    // is als hij over een bestaande draad loopt.
+    setSelection({ kind: "wire", id: wireId });
+    dragRef.current = { type: "wire", wireId, newVid, fromVid: vid, fromPos: from, startW: screenToWorld(e.clientX, e.clientY) };
+  }, [screenToWorld]);
 
   // Knip-knop bij een geselecteerde knoop → alle aansluitingen losmaken.
   const onCutNode = useCallback((vid: string, e: React.PointerEvent) => {

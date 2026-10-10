@@ -36,4 +36,20 @@ describe("voorbeeldschakelingen", () => {
     expect(I(3)).toBeCloseTo(0.3, 6); // 6 V / 20 Ω
     expect(I(0)).toBeCloseTo(0.5, 6);
   });
+
+  it("potmeter + LED: loper naar de +kant geeft meer stroom, en de LED brandt nergens door", () => {
+    const build = PRESETS.find((p) => p.key === "potLed")!.build;
+    const ledStroom = (wiper: number) => {
+      const doc = build();
+      const pot = doc.components.find((c) => c.type === "potmeter")!;
+      pot.values.wiper = wiper;
+      const led = doc.components.find((c) => c.type === "led")!;
+      return Math.abs(solve(toNetlist(doc)).elementCurrents.get(led.id) ?? NaN);
+    };
+    const [boven, midden, onder] = [ledStroom(0), ledStroom(50), ledStroom(100)];
+    expect(boven).toBeGreaterThan(midden);
+    expect(midden).toBeGreaterThan(onder);
+    expect(boven).toBeLessThan(0.03); // ruim onder de doorbrandgrens
+    expect(onder).toBeLessThan(1e-3);
+  });
 });

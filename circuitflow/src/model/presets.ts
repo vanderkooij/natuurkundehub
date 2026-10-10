@@ -16,8 +16,14 @@ class Build {
     this.vertices[id] = { id, x, y };
     return id;
   }
-  comp(type: ComponentType, v0: string, v1: string, values: CircuitComponent["values"] = {}): void {
-    this.components.push({ id: `pc${this.n++}`, type, v0, v1, mirrored: false, values });
+  comp(
+    type: ComponentType,
+    v0: string,
+    v1: string,
+    values: CircuitComponent["values"] = {},
+    v2?: string,
+  ): void {
+    this.components.push({ id: `pc${this.n++}`, type, v0, v1, ...(v2 ? { v2 } : {}), mirrored: false, values });
   }
   wire(...nodes: string[]): void {
     this.wires.push({ id: `pw${this.n++}`, nodes });
@@ -244,6 +250,33 @@ function ntcSensor(): CircuitDoc {
   return b.doc();
 }
 
+// ── Spanningsdeler met potmeter: de loper regelt de spanning over LED + R ────
+// Loper omhoog (naar de +kant) → meer spanning over de LED-tak → feller.
+function potLed(): CircuitDoc {
+  const b = new Build();
+  const sPlus = b.v(180, 160);
+  const sMin = b.v(180, 400);
+  const potT = b.v(360, 220);
+  const potB = b.v(360, 340);
+  const loper = b.v(400, 280); // rechts naast het midden, zoals na een kwartslag draaien
+  const onder = b.v(360, 400);
+  const rL = b.v(480, 280);
+  const rR = b.v(600, 280);
+  const ledK = b.v(680, 400);
+  const ledA = b.v(680, 280);
+  b.comp("source", sPlus, sMin, { emf: 6 });
+  b.comp("potmeter", potT, potB, { resistance: 1000, wiper: 50 }, loper);
+  b.comp("resistor", rL, rR, { resistance: 220 });
+  b.comp("led", ledA, ledK, { color: "rood" });
+  b.wire(sPlus, b.v(360, 160), potT);
+  b.wire(potB, onder, sMin);
+  b.wire(loper, rL);
+  b.wire(rR, ledA);
+  b.wire(ledK, onder);
+  b.label(180, 100, "Spanningsdeler met potmeter: klik de potmeter en schuif de loper.", true);
+  return b.doc();
+}
+
 export interface Preset {
   key: string;
   label: string;
@@ -258,6 +291,7 @@ export const PRESETS: Preset[] = [
   { key: "schakelaar", label: "Lamp + schakelaar", build: schakelaar },
   { key: "led", label: "LED + voorschakelweerstand", build: ledCircuit },
   { key: "deler", label: "Spanningsdeler + voltmeter", build: spanningsdeler },
+  { key: "potLed", label: "Spanningsdeler: potmeter + LED", build: potLed },
   { key: "schemer", label: "Schemerschakelaar (LDR)", build: schemer },
   { key: "ntc", label: "Temperatuursensor (NTC)", build: ntcSensor },
   { key: "zekering", label: "Kortsluiting-demo (zekering)", build: zekering },
