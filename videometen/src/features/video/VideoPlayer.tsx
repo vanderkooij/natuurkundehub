@@ -22,8 +22,16 @@ function fitBox(outerW: number, outerH: number, aspectW: number, aspectH: number
  * align with the native pixel grid.
  */
 export function VideoPlayer({ children }: { children?: ReactNode }) {
-  const { video, currentFrame, isPlaying, videoRef, setFrame, setPlaying, snapCurrentFrame } =
-    useVideo();
+  const {
+    video,
+    currentFrame,
+    isPlaying,
+    videoRef,
+    setFrame,
+    setPlaying,
+    snapCurrentFrame,
+    reportPlaybackError,
+  } = useVideo();
   const localRef = useRef<HTMLVideoElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -108,6 +116,10 @@ export function VideoPlayer({ children }: { children?: ReactNode }) {
           playsInline
           controls={false}
           onTimeUpdate={onTimeUpdate}
+          onError={(e) => {
+            const err = e.currentTarget.error;
+            reportPlaybackError(err?.code ?? null, err?.message);
+          }}
           onPlay={() => setPlaying(true)}
           onPause={() => {
             setPlaying(false);

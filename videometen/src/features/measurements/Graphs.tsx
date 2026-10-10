@@ -17,6 +17,7 @@ import { useMeasurementHover } from "@/features/measurements/MeasurementHoverSta
 import { useTracking } from "@/features/tracking/TrackingState";
 import { useVideo } from "@/features/video/VideoState";
 import { cn } from "@/lib/utils";
+import { timeFpsOf } from "@/features/video/videoFile";
 
 export function Graphs() {
   const { video, currentFrame, trim, setFrame } = useVideo();
@@ -37,7 +38,8 @@ export function Graphs() {
   } = useGraphsLayout();
 
   // Data-pipeline (memoised): tracked points → MeasurementRow[] → ExtendedRow[] met versnellingen.
-  const fps = video?.fps ?? 30;
+  // Tijd per frame: bij slowmotion de opname-fps, niet de afspeel-fps.
+  const fps = video ? timeFpsOf(video) : 30;
   const rows = useMemo(() => {
     if (!scale) return [];
     return buildRows(points, scale, axes, fps, trim.start, trim.end);

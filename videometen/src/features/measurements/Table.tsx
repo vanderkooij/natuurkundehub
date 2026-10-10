@@ -13,6 +13,7 @@ import { useTracking } from "@/features/tracking/TrackingState";
 import { useVideo } from "@/features/video/VideoState";
 import { decimalsForUnit, formatDecimal, TIME_DECIMALS } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
+import { timeFpsOf } from "@/features/video/videoFile";
 
 // 10: extra (optionele) kolommen — de zes afgeleide grootheden. frame/t/x/y
 // zijn essentieel en altijd zichtbaar (niet in het menu). De keuze is een
@@ -184,7 +185,8 @@ export function MeasurementTable() {
     setExtraColumns(new Set());
   }, [videoUrl]);
 
-  const fps = video?.fps ?? 30;
+  // Tijd per frame: bij slowmotion de opname-fps, niet de afspeel-fps.
+  const fps = video ? timeFpsOf(video) : 30;
   const rows = useMemo<MeasurementRow[]>(() => {
     if (!scale) return [];
     return buildRows(points, scale, axes, fps, trim.start, trim.end);

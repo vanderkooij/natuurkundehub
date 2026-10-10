@@ -1,14 +1,16 @@
 import { useRef, useState, type DragEvent } from "react";
-import { FileVideo, Upload } from "lucide-react";
+import { AlertTriangle, FileVideo, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useVideo } from "@/features/video/VideoState";
 import { cn } from "@/lib/utils";
 
-const ACCEPT = "video/mp4,video/quicktime,video/webm,video/*";
+// Extensies erbij: op Chromebooks hebben bestanden uit Drive soms geen MIME-type,
+// en dan verbergt een filter op alleen video/* ze in de bestandskiezer.
+const ACCEPT = "video/*,.mp4,.m4v,.mov,.webm,.mkv,.3gp";
 
 export function VideoDropZone() {
-  const { loadFile } = useVideo();
+  const { loadFile, loadError, clearLoadError } = useVideo();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -16,9 +18,8 @@ export function VideoDropZone() {
 
   const onFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const file = files[0];
-    if (!file.type.startsWith("video/")) return;
-    loadFile(file);
+    // Controle en eventuele foutmelding zitten in loadFile (VideoState).
+    loadFile(files[0]);
   };
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -71,9 +72,53 @@ export function VideoDropZone() {
           type="file"
           accept={ACCEPT}
           className="hidden"
-          onChange={(e) => onFiles(e.target.files)}
+          onChange={(e) => {
+            onFiles(e.target.files);
+            // Leegmaken, zodat hetzelfde bestand na een fout opnieuw te kiezen is.
+            e.target.value = "";
+          }}
         />
       </div>
+      {loadError ? (
+        <div
+          role="alert"
+          className="mt-4 w-full max-w-md rounded-xl border border-(--accent-amber)/50 bg-(--accent-amber)/10 px-4 py-3 text-left"
+        >
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle
+              className="mt-0.5 size-4 flex-shrink-0 text-(--accent-amber)"
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <p className="text-sm font-semibold text-(--text-primary)">{loadError.title}</p>
+              <p className="break-all font-mono text-[11px] text-(--text-muted)">
+                {loadError.fileName}
+              </p>
+              <p className="text-[13px] leading-snug text-(--text-secondary)">
+                {loadError.message}
+              </p>
+              {loadError.tips.length > 0 ? (
+                <ul className="list-disc space-y-1 pl-4 text-[13px] leading-snug text-(--text-secondary)">
+                  {loadError.tips.map((tip) => (
+                    <li key={tip}>{tip}</li>
+                  ))}
+                </ul>
+              ) : null}
+              {loadError.detail ? (
+                <p className="font-mono text-[10.5px] text-(--text-muted)">{loadError.detail}</p>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={clearLoadError}
+              aria-label="Melding sluiten"
+              className="-mr-1 -mt-1 rounded px-1.5 text-(--text-muted) hover:text-(--text-primary)"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
       {/* Lichte hint over film-condities. Bewust zacht (geen icoon/kader);
           uitgebreide help volgt in een latere prompt. */}
       <p className="mt-4 max-w-md text-center text-xs text-(--text-muted) opacity-70">

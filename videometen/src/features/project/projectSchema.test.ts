@@ -15,6 +15,7 @@ function snapshot(overrides: Partial<ProjectSnapshot> = {}): ProjectSnapshot {
     toolVersion: "1.0.0",
     videoFileName: "val.mp4",
     fps: 30,
+    captureFps: null,
     lastFrame: 299,
     trim: { start: 10, end: 250 },
     scale: { p1: { x: 0, y: 0 }, p2: { x: 100, y: 0 }, length: 1, unit: "m" },
@@ -57,6 +58,13 @@ describe("serialize → deserialize roundtrip", () => {
     expect(back.calibration).toEqual(json.calibration);
     expect(back.tracking).toEqual(json.tracking);
     expect(back.ui).toEqual(json.ui);
+  });
+
+  it("bewaart de opname-fps van een slowmotionvideo", () => {
+    const json = serializeProject(snapshot({ captureFps: 240 }));
+    const back = deserializeProject(JSON.parse(JSON.stringify(json)));
+    expect(back.video.captureFps).toBe(240);
+    expect(back.video.fps).toBe(30);
   });
 
   it("scale null blijft null", () => {
@@ -107,6 +115,13 @@ describe("migraties van oude versies", () => {
     const back = deserializeProject(file);
     expect(back.ui.graphs.fitConfig.xFit).toBe("none");
     expect(back.ui.graphs.fitConfig.yFit).toBe("linear");
+  });
+
+  it("v8 krijgt captureFps null (gewone video), oudere versies ook", () => {
+    const v8 = { ...serializeProject(snapshot()), schemaVersion: 8 } as Record<string, unknown>;
+    delete (v8.video as Record<string, unknown>).captureFps;
+    expect(deserializeProject(v8).video.captureFps).toBeNull();
+    expect(deserializeProject(v1File()).video.captureFps).toBeNull();
   });
 });
 

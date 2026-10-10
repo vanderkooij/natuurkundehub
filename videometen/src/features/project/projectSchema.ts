@@ -38,8 +38,10 @@ import { type TrackedPoint, type TrailColor } from "@/features/tracking/Tracking
  * Schema-versie 8: `calibration.axes.xPositiveDirection` / `yPositiveDirection`
  *                  (11 — richting-toggles). v7-bestanden krijgen defaults
  *                  'right' / 'up' bij migratie.
+ * Schema-versie 9: `video.captureFps` (opname-fps bij slowmotion, `null` =
+ *                  gewone video). v8-bestanden krijgen `null` bij migratie.
  */
-export const PROJECT_SCHEMA_VERSION = 8 as const;
+export const PROJECT_SCHEMA_VERSION = 9 as const;
 
 /** Per-pane snapshot in de save-file (subset van runtime PaneState). */
 export interface ProjectPaneJSON {
@@ -55,7 +57,7 @@ export interface ProjectPaneJSON {
 }
 
 export interface ProjectJSON {
-  schemaVersion: 8;
+  schemaVersion: 9;
   meta: {
     toolName: "videometen";
     toolVersion: string;
@@ -64,6 +66,8 @@ export interface ProjectJSON {
   };
   video: {
     fps: number;
+    /** v9: opname-fps bij slowmotion; `null` = gewone video. */
+    captureFps: number | null;
     lastFrame: number;
     trim: { start: number; end: number };
   };
@@ -110,6 +114,7 @@ export interface ProjectSnapshot {
   toolVersion: string;
   videoFileName: string | null;
   fps: number;
+  captureFps: number | null;
   lastFrame: number;
   trim: { start: number; end: number };
   scale: ScaleCalibration | null;
@@ -134,6 +139,7 @@ export function serializeProject(snapshot: ProjectSnapshot): ProjectJSON {
     },
     video: {
       fps: snapshot.fps,
+      captureFps: snapshot.captureFps,
       lastFrame: snapshot.lastFrame,
       trim: { ...snapshot.trim },
     },
@@ -247,6 +253,16 @@ function migrateV1toV2(v1: Record<string, unknown>): Record<string, unknown> {
     }
     out.ui = ui;
   }
+  return out;
+}
+
+/**
+ * Migreer een v8-project naar v9: `video.captureFps` erbij met `null` (gewone
+ * video). Oude projecten rekenen dus precies als voorheen.
+ */
+function migrateV8toV9(v8: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...v8, schemaVersion: 9 };
+  if (isObject(v8.video)) out.video = { ...v8.video, captureFps: v8.video.captureFps ?? null };
   return out;
 }
 
@@ -388,57 +404,45 @@ function migrateV2toV3(v2: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
+/** Migratie van versie n naar n+1. */
+const MIGRATIONS: Record<number, (input: Record<string, unknown>) => Record<string, unknown>> = {
+  1: migrateV1toV2,
+  2: migrateV2toV3,
+  3: migrateV3toV4,
+  4: migrateV4toV5,
+  5: migrateV5toV6,
+  6: migrateV6toV7,
+  7: migrateV7toV8,
+  8: migrateV8toV9,
+};
+
 /**
  * Parsed een onbekend object naar een geldig `ProjectJSON`. Gooit
  * `ProjectLoadError` bij elke schending van het schema. Strenger dan strikt
  * nodig — beter een nette foutmelding dan stille corruptie van state.
  *
- * Versie-dispatch:
- *  - v1 → migrateV1toV2 → … → migrateV7toV8 → v8-flow
- *  - v2 → migrateV2toV3 → … → migrateV7toV8 → v8-flow
- *  - v3 → migrateV3toV4 → … → migrateV7toV8 → v8-flow
- *  - v4 → migrateV4toV5 → … → migrateV7toV8 → v8-flow
- *  - v5 → migrateV5toV6 → … → migrateV7toV8 → v8-flow
- *  - v6 → migrateV6toV7 → migrateV7toV8 → v8-flow
- *  - v7 → migrateV7toV8 → v8-flow
- *  - v8 → direct
- *  - anders: nette foutmelding
+ * Versie-dispatch: een bestand van versie n doorloopt alle migraties vanaf
+ * n tot de huidige versie (v1 → v2 → … → v9). Onbekende of ontbrekende versie:
+ * nette foutmelding.
  */
 export function deserializeProject(input: unknown): ProjectJSON {
   if (!isObject(input)) {
     throw new ProjectLoadError("Bestand bevat geen geldig JSON-object.");
   }
   const v = input.schemaVersion;
-  let normalized: Record<string, unknown> = input;
-  if (v === 1) {
-    normalized = migrateV7toV8(
-      migrateV6toV7(
-        migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(migrateV1toV2(input))))),
-      ),
-    );
-  } else if (v === 2) {
-    normalized = migrateV7toV8(
-      migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(input))))),
-    );
-  } else if (v === 3) {
-    normalized = migrateV7toV8(migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(input)))));
-  } else if (v === 4) {
-    normalized = migrateV7toV8(migrateV6toV7(migrateV5toV6(migrateV4toV5(input))));
-  } else if (v === 5) {
-    normalized = migrateV7toV8(migrateV6toV7(migrateV5toV6(input)));
-  } else if (v === 6) {
-    normalized = migrateV7toV8(migrateV6toV7(input));
-  } else if (v === 7) {
-    normalized = migrateV7toV8(input);
-  } else if (v !== PROJECT_SCHEMA_VERSION) {
-    if (typeof v === "number") {
-      throw new ProjectLoadError(
-        `Onbekende projectversie ${v}. Update de tool om dit project te openen.`,
-      );
-    }
+  if (typeof v !== "number") {
     throw new ProjectLoadError("Bestand mist een schemaVersion.");
   }
-  // Vanaf hier werkt de parser op het (mogelijk gemigreerde) v8-object.
+  if (v !== PROJECT_SCHEMA_VERSION && !MIGRATIONS[v]) {
+    throw new ProjectLoadError(
+      `Onbekende projectversie ${v}. Update de tool om dit project te openen.`,
+    );
+  }
+  let normalized: Record<string, unknown> = input;
+  for (let version = v; version < PROJECT_SCHEMA_VERSION; version += 1) {
+    normalized = MIGRATIONS[version](normalized);
+  }
+  // Vanaf hier werkt de parser op het (mogelijk gemigreerde) v9-object.
   const data = normalized;
 
   // ---- meta -------------------------------------------------------------
@@ -461,6 +465,9 @@ export function deserializeProject(input: unknown): ProjectJSON {
     (x): x is number => typeof x === "number" && x > 0,
     "video.fps",
   );
+  // v9: migrator vult null in voor oudere bestanden; defensief valideren.
+  const captureFps =
+    typeof video.captureFps === "number" && video.captureFps > 0 ? video.captureFps : null;
   const lastFrame = requireField(
     video,
     "lastFrame",
@@ -617,7 +624,7 @@ export function deserializeProject(input: unknown): ProjectJSON {
   return {
     schemaVersion: PROJECT_SCHEMA_VERSION,
     meta: { toolName: "videometen", toolVersion, savedAt, videoFileName },
-    video: { fps, lastFrame, trim },
+    video: { fps, captureFps, lastFrame, trim },
     calibration: { scale, axes },
     tracking: { points, frameStep },
     ui: {

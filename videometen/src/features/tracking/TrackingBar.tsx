@@ -9,6 +9,7 @@ import { useTracking } from "@/features/tracking/TrackingState";
 import { useVideo } from "@/features/video/VideoState";
 import { formatSeconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { timeFpsOf } from "@/features/video/videoFile";
 
 /** Bovenbalk in tracking-modus. Vervangt de workflow-bar in die view. */
 export function TrackingBar() {
@@ -28,7 +29,7 @@ export function TrackingBar() {
 
   if (!video) return null;
 
-  const t = video.fps > 0 ? currentFrame / video.fps : 0;
+  const t = currentFrame / timeFpsOf(video);
   const lastFrame = Math.max(0, video.frameCount - 1);
 
   return (

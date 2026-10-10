@@ -40,8 +40,9 @@ import { useTracking } from "@/features/tracking/TrackingState";
 import { useVideo } from "@/features/video/VideoState";
 import { decimalsForUnit, TIME_DECIMALS } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
+import { timeFpsOf } from "@/features/video/videoFile";
 
-const VIDEO_ACCEPT = "video/mp4,video/quicktime,video/webm,video/*";
+const VIDEO_ACCEPT = "video/*,.mp4,.m4v,.mov,.webm,.mkv,.3gp";
 const JSON_ACCEPT = "application/json,.json";
 /** Versie van de tool zoals 'ie in een opgeslagen project verschijnt. Stem
  *  af op `package.json` (handmatig — vaste constante is genoeg voor v1). */
@@ -105,7 +106,8 @@ async function saveJsonFile(json: string, suggestedName: string) {
  *  - "Andere video laden..." → reset alles + opent file-picker
  */
 export function ToolMenu() {
-  const { video, loadFile, clearVideo, resetTrim, setFps, setTrim, trim } = useVideo();
+  const { video, loadFile, clearVideo, resetTrim, setFps, setCaptureFps, setTrim, trim } =
+    useVideo();
   const {
     points,
     frameStep,
@@ -162,6 +164,7 @@ export function ToolMenu() {
       toolVersion: TOOL_VERSION,
       videoFileName: video.file.name,
       fps: video.fps,
+      captureFps: video.captureFps,
       lastFrame: Math.max(0, video.frameCount - 1),
       trim,
       scale,
@@ -295,6 +298,8 @@ export function ToolMenu() {
     // (FrameSnapCoordinator zet `fpsAtFirstMeasurement` daarna). Bij een
     // project zonder meetpunten blijft fps daarna gewoon wijzigbaar.
     setFps(project.video.fps, "project-load");
+    // Ook bij een gewone video (null): dan is de slowmotion-vraag beantwoord.
+    setCaptureFps(project.video.captureFps, "project-load");
     setTrim(project.video.trim);
     loadCalibration(project.calibration.scale, project.calibration.axes);
     loadTracking(project.tracking.points, project.tracking.frameStep, project.ui.trailColor);
@@ -323,7 +328,9 @@ export function ToolMenu() {
     // Zelfde t-referentie als tabel en grafieken (t = 0 op trim-start) —
     // anders wijkt de CSV af van wat de leerling op het scherm ziet. Punten
     // buiten de trim gaan wel mee (net als in de tabel), met negatieve t.
-    const rows = withAccelerations(buildRows(points, scale, axes, video.fps, trim.start, trim.end));
+    const rows = withAccelerations(
+      buildRows(points, scale, axes, timeFpsOf(video), trim.start, trim.end),
+    );
     const unit = scale.unit;
     const dec = decimalsForUnit(unit);
     const header = [
@@ -399,7 +406,8 @@ export function ToolMenu() {
   const onVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (e.target) e.target.value = "";
-    if (!file || !file.type.startsWith("video/")) return;
+    // Geen typecheck hier: loadFile toont zelf een melding als het geen video is.
+    if (!file) return;
     loadFile(file);
   };
 

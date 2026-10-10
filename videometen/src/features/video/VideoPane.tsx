@@ -8,6 +8,7 @@ import { CalibrationOverlay } from "@/features/calibration/overlays/CalibrationO
 import { FrameStepChip } from "@/features/tracking/FrameStepChip";
 import { TrailColorChip } from "@/features/tracking/TrailColorChip";
 import { FpsChip } from "@/features/video/FpsChip";
+import { SlowmoQuestion } from "@/features/video/SlowmoQuestion";
 import { VideoControls } from "@/features/video/VideoControls";
 import { VideoDropZone } from "@/features/video/VideoDropZone";
 import { VideoPlayer } from "@/features/video/VideoPlayer";
@@ -34,6 +35,7 @@ export function VideoPane() {
           ) : null
         }
       />
+      <SlowmoQuestion />
       <div className="relative flex flex-1 min-h-0 flex-col">
         {video ? (
           <>

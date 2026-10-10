@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { TrimScrubber } from "@/features/trim/TrimScrubber";
 import { useVideo } from "@/features/video/VideoState";
 import { formatSeconds } from "@/lib/format";
+import { timeFpsOf } from "@/features/video/videoFile";
 
 export function VideoControls() {
   const {
@@ -29,7 +30,7 @@ export function VideoControls() {
   const goPrev = () => (hasMeasurements ? jumpToMeasurement(-1) : stepFrame(-1));
   const goNext = () => (hasMeasurements ? jumpToMeasurement(1) : stepFrame(1));
 
-  const t = video.fps > 0 ? currentFrame / video.fps : 0;
+  const t = currentFrame / timeFpsOf(video);
   const lastFrame = Math.max(0, video.frameCount - 1);
 
   const transportBtn =

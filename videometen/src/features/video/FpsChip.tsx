@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { announceSlowmo } from "@/features/video/announceSlowmo";
+import { SLOWMO_PRESETS } from "@/features/video/videoFile";
 import { useVideo } from "@/features/video/VideoState";
 import { cn } from "@/lib/utils";
 
@@ -28,8 +30,26 @@ function formatFps(fps: number): string {
  * verandert nadat er metingen zijn gedaan — een verandering daar zou alle
  * t-waardes (en dus alle grafieken + zoomstates) corrupteren.
  */
+/** Tekst op de chip: gewone fps, of de opname-fps bij slowmotion. */
+function ChipLabel({ fps, captureFps }: { fps: number; captureFps: number | null }) {
+  if (captureFps !== null) {
+    return (
+      <>
+        <span className="text-(--text-muted)">slow-mo</span>
+        {formatFps(captureFps)}
+      </>
+    );
+  }
+  return (
+    <>
+      <span className="text-(--text-muted)">fps</span>
+      {formatFps(fps)}
+    </>
+  );
+}
+
 export function FpsChip() {
-  const { video, setFps, fpsAtFirstMeasurement } = useVideo();
+  const { video, setFps, setCaptureFps, fpsAtFirstMeasurement } = useVideo();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +90,7 @@ export function FpsChip() {
             )}
           >
             <Lock className="size-3" aria-hidden />
-            <span>fps</span>
-            {formatFps(video.fps)}
+            <ChipLabel fps={video.fps} captureFps={video.captureFps} />
           </span>
         </TooltipTrigger>
         <TooltipContent className="max-w-[36ch] leading-snug">
@@ -106,12 +125,15 @@ export function FpsChip() {
                 "border-(--border-solid) bg-card text-(--text-secondary) hover:border-(--accent) hover:text-(--accent)",
               )}
             >
-              <span className="text-(--text-muted)">fps</span>
-              {formatFps(video.fps)}
+              <ChipLabel fps={video.fps} captureFps={video.captureFps} />
             </button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent>fps · {sourceLabel}</TooltipContent>
+        <TooltipContent>
+          {video.captureFps !== null
+            ? `slowmotion: opgenomen met ${formatFps(video.captureFps)} fps, afgespeeld met ${formatFps(video.fps)} fps`
+            : `fps · ${sourceLabel}`}
+        </TooltipContent>
       </Tooltip>
       <PopoverContent align="end" className="w-64 space-y-3">
         <div>
@@ -160,6 +182,33 @@ export function FpsChip() {
           </Button>
         </form>
         {error ? <p className="font-mono text-[11px] text-(--color-destructive)">{error}</p> : null}
+
+        <div className="space-y-1.5 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+          <div className="text-[13px] font-semibold text-(--text-primary)">Slowmotion</div>
+          <div className="flex flex-wrap gap-1.5">
+            {[null, ...SLOWMO_PRESETS].map((p) => (
+              <Button
+                key={p ?? "nee"}
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "h-7 text-[11px]",
+                  video.captureFps === p && "border-(--accent) text-(--accent)",
+                )}
+                onClick={() => {
+                  setCaptureFps(p, "user");
+                  if (p !== null) announceSlowmo(p);
+                  setOpen(false);
+                }}
+              >
+                {p === null ? "Nee" : `${p} fps`}
+              </Button>
+            ))}
+          </div>
+          <p className="text-[10.5px] leading-snug text-(--text-muted)">
+            Opgenomen in slowmotion? Kies de opname-fps; de tijd per frame wordt dan 1/opname-fps.
+          </p>
+        </div>
         <p className="text-[10.5px] leading-snug text-(--text-muted)">
           Zodra je het eerste meetpunt zet wordt deze waarde vergrendeld.
         </p>

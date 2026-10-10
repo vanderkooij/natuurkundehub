@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useVideo } from "@/features/video/VideoState";
 import { formatSeconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { timeFpsOf } from "@/features/video/videoFile";
 
 type DragHandle = "position" | "trimStart" | "trimEnd";
 
@@ -16,7 +17,7 @@ export function TrimScrubber() {
   const [hoverInfo, setHoverInfo] = useState<{ frame: number; trackPx: number } | null>(null);
 
   const lastFrame = video ? Math.max(0, video.frameCount - 1) : 0;
-  const fps = video?.fps ?? 30;
+  const fps = video ? timeFpsOf(video) : 30;
 
   const frameFromClientX = useCallback(
     (clientX: number): number => {

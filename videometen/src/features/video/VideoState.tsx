@@ -8,6 +8,13 @@ import {
   type ReactNode,
 } from "react";
 
+import {
+  checkVideoFile,
+  describeMediaError,
+  describeNoPicture,
+  type VideoLoadError,
+} from "@/features/video/videoFile";
+
 export interface LoadedVideo {
   file: File;
   url: string;
@@ -22,6 +29,14 @@ export interface LoadedVideo {
   /** Native video resolution in pixels. Falls back to 16:9 placeholder if metadata fails. */
   width: number;
   height: number;
+  /**
+   * Opname-fps bij slowmotion (bv. 240), `null` = gewone video. De tijd per
+   * frame is 1/captureFps; stappen en zoeken blijven op `fps` (afspeel-fps).
+   * Gebruik `timeFpsOf(video)` overal waar een tijd wordt berekend.
+   */
+  captureFps: number | null;
+  /** Of de leerling de slowmotion-vraag al heeft beantwoord (of weggeklikt). */
+  slowmoAnswered: boolean;
 }
 
 /**
@@ -63,6 +78,8 @@ interface VideoState {
    * lopen met de video.
    */
   fpsAtFirstMeasurement: number | null;
+  /** Waarom de laatste video niet laadde; `null` = geen fout. */
+  loadError: VideoLoadError | null;
 }
 
 type Action =
@@ -77,7 +94,11 @@ type Action =
   | { type: "SET_SNAP_CONFIG"; enabled: boolean; frames: number[] }
   | { type: "JUMP_TO_MEASUREMENT"; dir: -1 | 1; magnitude: number }
   | { type: "MARK_FIRST_MEASUREMENT_FPS"; fps: number }
-  | { type: "CLEAR_FIRST_MEASUREMENT_FPS" };
+  | { type: "CLEAR_FIRST_MEASUREMENT_FPS" }
+  | { type: "LOAD_ERROR"; error: VideoLoadError }
+  | { type: "CLEAR_LOAD_ERROR" }
+  | { type: "SET_CAPTURE_FPS"; captureFps: number | null; source: FpsSource }
+  | { type: "DISMISS_SLOWMO" };
 
 const initialState: VideoState = {
   video: null,
@@ -87,6 +108,7 @@ const initialState: VideoState = {
   snapEnabled: false,
   snapFrames: [],
   fpsAtFirstMeasurement: null,
+  loadError: null,
 };
 
 function clampFrame(frame: number, max: number) {
@@ -141,8 +163,25 @@ function reducer(state: VideoState, action: Action): VideoState {
         snapEnabled: state.snapEnabled,
         snapFrames: state.snapFrames,
         fpsAtFirstMeasurement: null,
+        loadError: null,
       };
     }
+    case "LOAD_ERROR":
+      return { ...initialState, loadError: action.error };
+    case "CLEAR_LOAD_ERROR":
+      return state.loadError ? { ...state, loadError: null } : state;
+    case "SET_CAPTURE_FPS": {
+      if (!state.video) return state;
+      // Zelfde lock als SET_FPS: de opname-fps bepaalt alle t-waardes.
+      if (state.fpsAtFirstMeasurement !== null && action.source !== "reset") return state;
+      return {
+        ...state,
+        video: { ...state.video, captureFps: action.captureFps, slowmoAnswered: true },
+      };
+    }
+    case "DISMISS_SLOWMO":
+      if (!state.video || state.video.slowmoAnswered) return state;
+      return { ...state, video: { ...state.video, slowmoAnswered: true } };
     case "CLEAR_VIDEO":
       return { ...initialState };
     case "SET_FPS": {
@@ -307,6 +346,13 @@ interface VideoContextValue extends VideoState {
   /** Wis de marker — gebruikt door reset-flows ("alle metingen wissen",
    *  "begin opnieuw", "andere video"). */
   clearFirstMeasurementFps: () => void;
+  /** Meld een afspeelfout van de zichtbare video (zie VideoPlayer). */
+  reportPlaybackError: (code: number | null, message?: string) => void;
+  clearLoadError: () => void;
+  /** Opname-fps bij slowmotion; `null` = gewone video. Zelfde lock als setFps. */
+  setCaptureFps: (captureFps: number | null, source: FpsSource) => void;
+  /** Slowmotion-vraag wegklikken ("Nee"). */
+  dismissSlowmo: () => void;
 }
 
 const VideoContext = createContext<VideoContextValue | null>(null);
@@ -323,12 +369,32 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     const previous = stateRef.current.video?.url;
     if (previous) URL.revokeObjectURL(previous);
 
+    // Nooit stil weigeren: geen video → melding in het startscherm.
+    const invalid = checkVideoFile(file);
+    if (invalid) {
+      dispatch({ type: "LOAD_ERROR", error: invalid });
+      return;
+    }
+    dispatch({ type: "CLEAR_LOAD_ERROR" });
+
     const url = URL.createObjectURL(file);
+    const fail = (error: VideoLoadError) => {
+      probe.onloadedmetadata = null;
+      probe.onerror = null;
+      probe.removeAttribute("src");
+      URL.revokeObjectURL(url);
+      dispatch({ type: "LOAD_ERROR", error });
+    };
     const probe = document.createElement("video");
     probe.preload = "metadata";
     probe.muted = true;
     probe.src = url;
     probe.onloadedmetadata = () => {
+      // Wel een bestand, maar geen beeldspoor (of onleesbaar beeld).
+      if (!probe.videoWidth) {
+        fail(describeNoPicture(file));
+        return;
+      }
       const finish = (duration: number) => {
         const fps = 30; // default, refined later by useFpsDetection
         const frameCount = Math.max(1, Math.round(duration * fps));
@@ -336,7 +402,18 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         const height = probe.videoHeight || 720;
         dispatch({
           type: "LOAD_VIDEO",
-          video: { file, url, fps, fpsSource: "default", duration, frameCount, width, height },
+          video: {
+            file,
+            url,
+            fps,
+            fpsSource: "default",
+            duration,
+            frameCount,
+            width,
+            height,
+            captureFps: null,
+            slowmoAnswered: false,
+          },
         });
       };
       if (Number.isFinite(probe.duration)) {
@@ -361,22 +438,32 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       };
       probe.currentTime = Number.MAX_SAFE_INTEGER;
     };
+    // Voorheen werd hier een "video" van één frame geladen, zodat de leerling
+    // een zwart vlak zag zonder uitleg. Nu: melding met wat je kunt doen.
     probe.onerror = () => {
-      dispatch({
-        type: "LOAD_VIDEO",
-        video: {
-          file,
-          url,
-          fps: 30,
-          fpsSource: "default",
-          duration: 0,
-          frameCount: 1,
-          width: 1280,
-          height: 720,
-        },
-      });
+      fail(describeMediaError(file, probe.error?.code ?? null, probe.error?.message));
     };
   }, []);
+
+  /**
+   * De zichtbare `<video>` kan later alsnog falen (metadata las wel, frames
+   * decoderen niet). Dan dezelfde melding en terug naar het startscherm.
+   */
+  const reportPlaybackError = useCallback((code: number | null, message?: string) => {
+    const v = stateRef.current.video;
+    if (!v) return;
+    URL.revokeObjectURL(v.url);
+    dispatch({ type: "LOAD_ERROR", error: describeMediaError(v.file, code, message) });
+  }, []);
+
+  const clearLoadError = useCallback(() => dispatch({ type: "CLEAR_LOAD_ERROR" }), []);
+
+  const setCaptureFps = useCallback((captureFps: number | null, source: FpsSource) => {
+    if (captureFps !== null && (!Number.isFinite(captureFps) || captureFps <= 0)) return;
+    dispatch({ type: "SET_CAPTURE_FPS", captureFps, source });
+  }, []);
+
+  const dismissSlowmo = useCallback(() => dispatch({ type: "DISMISS_SLOWMO" }), []);
 
   const clearVideo = useCallback(() => {
     const previous = stateRef.current.video?.url;
@@ -469,6 +556,10 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       resetTrim,
       markFirstMeasurementFps,
       clearFirstMeasurementFps,
+      reportPlaybackError,
+      clearLoadError,
+      setCaptureFps,
+      dismissSlowmo,
     }),
     [
       state,
@@ -488,6 +579,10 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       resetTrim,
       markFirstMeasurementFps,
       clearFirstMeasurementFps,
+      reportPlaybackError,
+      clearLoadError,
+      setCaptureFps,
+      dismissSlowmo,
     ],
   );
 

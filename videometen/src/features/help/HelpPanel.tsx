@@ -71,6 +71,11 @@ export function HelpPanel({ isOpen, onClose, toolVersion }: HelpPanelProps) {
             (24/25/30/60) of typ je eigen waarde.
           </p>
           <p>
+            Laadt de video niet? Dan verschijnt er een melding met de oorzaak en wat je kunt doen.
+            Meestal is het bestand beschadigd doordat het via WhatsApp of Signal is verstuurd: zet
+            filmpjes rechtstreeks van je telefoon op je computer (kabel of Google Drive).
+          </p>
+          <p>
             Te lange video? Sleep de twee blokjes aan de uiteinden van de tijdbalk om het meetbereik
             (de <em>trim</em>) te beperken. Of zet de afspeel-positie op een frame en gebruik{" "}
             <strong>Trim begin</strong> / <strong>Trim eind</strong>.
@@ -113,6 +118,34 @@ export function HelpPanel({ isOpen, onClose, toolVersion }: HelpPanelProps) {
               meer voor scherpere frames.
             </li>
           </ul>
+        </Prose>
+      ),
+    },
+    {
+      id: "slowmotion",
+      title: "Slowmotion-video's",
+      content: (
+        <Prose>
+          <p>
+            Een telefoon filmt slowmotion met 120 of 240 fps, maar slaat het op als een gewone video
+            van 30 fps die vertraagd afspeelt. De tool ziet dan 30 fps, en zonder correctie duurt
+            alles 4 of 8 keer te lang: je snelheid wordt veel te klein en je versnelling nog veel
+            kleiner.
+          </p>
+          <p>
+            Daarom vraagt Videometen na het laden of je video in slowmotion is gefilmd. Kies je{" "}
+            <strong>120</strong> of <strong>240 fps</strong>, dan rekent de tool met 1/120 of 1/240
+            s per frame. Je kunt het later nog aanpassen via de <Kbd>fps</Kbd>-chip, tot je eerste
+            meetpunt.
+          </p>
+          <p>
+            <strong>Trim alleen het vertraagde stuk.</strong> Een iPhone filmt het begin en het eind
+            van een slowmotion op normale snelheid.
+          </p>
+          <p>
+            <strong>Controle:</strong> laat een bal vallen in beeld en meet de valversnelling. Komt
+            er ongeveer 9,8 m/s² uit, dan klopt je instelling.
+          </p>
         </Prose>
       ),
     },
