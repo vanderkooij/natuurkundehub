@@ -8,6 +8,7 @@
 - [x] Significantie — oefenen met significante cijfers (tellen, afronden, juiste aantal sig.cijfers bij berekeningen)
 - [x] Videometen — video-analyse / bewegings-tracker: filmpje frame voor frame analyseren, automatisch v-t en a-t grafiek
 - [x] Voorvoegsels en machten van 10. Uitleg in negen stappen met een interactieve ladder, plus oefenen in drie vormen en vijf levels, met foutdiagnose en ladder-hint. Plan in `plannen/voorvoegsels.md`. Dimensieanalyse blijft buiten scope.
+- [x] Bewegingsgrafieken (gebouwd 2026-10-10). Herkennen van stilstand, constante snelheid, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen zonder getallen, met een karretje dat de beweging naspeelt, foutdiagnose en levels. Onderbouwspoor (afstand en snelheid, 4 levels) en bovenbouwspoor (x, v, a, achteruit, 6 levels). Plan in `plannen/bewegingsgrafieken.md`. Level met getallen (onderbouw 5, bovenbouw 7) en een eindmix (onderbouw 6, bovenbouw 8) toegevoegd 2026-10-10. Nog te doen: koppelen (bovenbouw).
 
 ## Te ontwikkelen
 
@@ -16,10 +17,7 @@
 - [ ] Vectoren ontbinden — vector tekenen, componenten aflezen of zelf ontbinden in x/y; ook optellen van vectoren
 
 ### Bewegingsleer
-- [ ] Grafieken-oefentool (x-t / v-t / a-t) — combinatietool met meerdere oefenmodi:
-  - *Type beweging herkennen* — grafiek zonder getallen (x-t of v-t), (deel) gearceerd als aandachtsgebied; kiezen uit stilstand, constante snelheid, versnelling of vertraging (multiple choice + volgende).
-  - *Grafieken koppelen* — bij één grafiek de bijbehorende andere twee (x-t/v-t/a-t) kiezen of tekenen.
-  - Optie om te oefenen met alleen x-t, alleen v-t, of gemengd.
+- [ ] Bewegingsgrafieken: koppelen (bovenbouw). Bij een diagram het bijbehorende andere diagram kiezen. Later eventueel een lichte versie voor de onderbouw (extra level vwo). Zie `plannen/bewegingsgrafieken.md`.
 
 ### Meten & rekenen
 - [ ] Foutenleer / meetonzekerheden — absolute en relatieve fout, doorrekenen, foutenbalken bij grafieken
@@ -54,6 +52,12 @@
 - [x] **CircuitFlow: draden aanklikken en verwijderen** (2026-09-30). Klikgebied minstens ~28 schermpixels (ook uitgezoomd), buigen pas na 10 px slepen, en een knop *Verwijderen* onder een geselecteerde draad (voor digibord zonder toetsenbord).
 - [x] **CircuitFlow: voorbeeldschakelingen op het raster** (2026-09-30), plus twee combischakelingen: 20 Ω ∥ 30 Ω in serie met 10 Ω, en 10 Ω + 20 Ω parallel aan 20 Ω (6 V).
 - [x] **CircuitFlow: voltmeter met meetpennen** (2026-09-30). Los instrument in de meterstrook: kastje met rode en zwarte pen die je op elke draad of aansluiting zet, zonder iets los te koppelen. Bewust geen stroompennen: een stroommeter moet in de kring.
+
+- [ ] **Videometen: duidelijke melding als een video niet laadt** (idee 2026-10-10). Nu faalt het laden stil: in `VideoDropZone.tsx` en `ToolMenu.tsx` stopt `if (!file.type.startsWith("video/")) return;` zonder melding, en bij `probe.onerror` in `VideoState.tsx` wordt een "video" van 1 frame geladen. Aanleiding: in klas 2 laadde een filmpje niet op Chromebooks (bij Jop wel). Oorzaak bleek een kapot mp4-bestand na versturen via Signal: de stsc-tabel van het geluidsspoor verwees naar chunk 5 terwijl er maar 4 waren. Windows negeert dat, Chrome op ChromeOS niet. Hernoemen naar .mov hielp toevallig. Voorstel:
+  1. Bij `onerror` een melding met de MediaError-code en een uitleg in leerlingtaal, bijvoorbeeld: "Deze video kan je browser niet lezen. Stuur filmpjes niet via WhatsApp of Signal, maar zet ze direct van je telefoon op je Chromebook (kabel, Drive)."
+  2. Lege `file.type` (komt voor bij Chromebooks, bestanden uit Drive of de Android-map) niet weigeren maar terugvallen op de extensie (.mp4, .mov, .webm, .m4v).
+  3. Eventueel: geluidsspoor negeren of een hint geven bij HEVC (H.265) die zonder hardware-decoder niet speelt ("zet je camera op Meest compatibel").
+- [ ] **Videometen: slowmotion-hulp** (idee 2026-10-10). Telefoons nemen slowmotion op met 120/240 fps maar slaan het op als afspeelvideo van 30 fps; de fps-detectie meet dan 30 en alle tijden zijn een factor 4 of 8 te lang (v te klein, a een factor 16 of 64). De handmatige fps-override bestaat al, maar leerlingen weten niet dat ze die nodig hebben. Voorstel: vraag bij laden "Is dit een slowmotionvideo?" met keuze 120/240 fps, en een tip om alleen het echt vertraagde stuk te trimmen (iPhone heeft aan begin en eind een stuk op normale snelheid). Controle-idee voor in de help: laat een bal vallen in beeld en check of g ongeveer 9,8 m/s² is.
 
 ### Overig
 - [ ] Onderzoeksvaardigheden app — ondersteuning bij practicumverslagen, variabelen, conclusies etc.

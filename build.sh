@@ -52,6 +52,9 @@ cp -r significantie dist/significantie
 # Kopieer Voorvoegsels (statische HTML)
 cp -r voorvoegsels dist/voorvoegsels
 
+# Kopieer Bewegingsgrafieken (statische HTML)
+cp -r bewegingsgrafieken dist/bewegingsgrafieken
+
 # Kopieer de Contactpagina (statische HTML)
 cp -r contact dist/contact
 

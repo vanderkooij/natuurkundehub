@@ -46,6 +46,16 @@ natuurkundehub/
 │   ├── index.html                    # Keuzemenu
 │   ├── uitleg/index.html             # Uitlegmodus
 │   └── oefenen/index.html            # Oefenmodus (4 soorten, 5 levels)
+├── bewegingsgrafieken/
+│   ├── index.html                    # Keuzemenu: eerst onderbouw of bovenbouw (#onderbouw / #bovenbouw)
+│   ├── uitleg/index.html             # Stappen met karretje en diagrammen; ?niveau=…&stap=… opent een stap
+│   ├── oefenen/index.html            # Herken de beweging; onderbouw 4 levels + 5 met getallen, bovenbouw 6 + 7 met getallen
+│   ├── css/beweging.css              # Opmaak van grafiek en karretje, gedeeld door uitleg en oefenen
+│   ├── js/beweging.js                # Bewegingsmodel, vraaggenerator en feedback (ook in node te testen)
+│   ├── js/getallen.js                # Rekenvragen bij het level met getallen: generator, controle, uitwerking
+│   ├── js/grafiek.js                 # x,t-, v,t- en a,t-diagram als SVG, met of zonder getallen
+│   ├── js/karretje.js                # Baan met karretje en afdrukjes; scène die alles synchroon afspeelt
+│   └── tests/                        # beweging.test.js en getallen.test.js: npm run test:bewegingen
 ├── dist/                             # Gebouwde versies (automatisch, niet handmatig bewerken)
 ├── build.sh                          # Build-script — bron van waarheid voor wat er gedeployed wordt
 └── workflow.md                       # Dit bestand
@@ -69,7 +79,7 @@ Elke pagina heeft in de `<head>`, direct na `<title>`:
 - `<link rel="canonical" href="https://natuurkundehub.nl/<pad>/">`, altijd met slash aan het eind;
 - de Open Graph-tags `og:type`, `og:site_name`, `og:locale`, `og:title`, `og:description` en `og:url` (kopieer ze van een bestaande pagina).
 
-Tool- en keuzepagina's krijgen onderaan in `.main` een inklapbaar blok **Over deze tool** (`<section class="about"><details>…`), met de opmaak uit `/assets/about.css`. Daarin staan in gewone taal wat je oefent, voor wie, de kern van de stof en een link naar de uitleg. De tool zelf blijft bovenaan en ongewijzigd; het blok geeft Google leesbare tekst zonder leerlingen af te leiden. Uitlegpagina's hebben al genoeg tekst en krijgen het blok niet. Kijk het voorbeeld na in `significantie/index.html`.
+Alleen de **hoofdpagina** van een tool (de keuzepagina, of de toolpagina zelf als de tool maar één pagina heeft) krijgt onderaan in `.main` een inklapbaar blok **Over deze tool** (`<section class="about"><details>…`), met de opmaak uit `/assets/about.css`. Daarin staan in gewone taal wat je oefent, voor wie, de kern van de stof en een link naar de uitleg. De tool zelf blijft bovenaan en ongewijzigd; het blok geeft Google leesbare tekst zonder leerlingen af te leiden. Subpagina's (uitleg, oefenen, examenformules, overzichten) krijgen het blok niet; afgesproken met Jop op 2026-10-10, omdat het daar alleen afleidt. Kijk het voorbeeld na in `significantie/index.html`.
 
 Schermvullende apps (CircuitSketch, CircuitFlow, Videometen) kunnen geen blok onderaan hebben, want ze scrollen niet. Zij krijgen een **infopagina** op `/<app>/over/` (bron: `<app>/public/over/index.html`, Vite kopieert hem mee). De app zelf blijft op `/<app>/` staan, zodat bladwijzers en de tegel op de homepage direct naar de tool gaan; de infopagina is voor wie via Google binnenkomt. Vanuit de app linkt het helpvenster (en waar dat kan het lege startscherm) naar de infopagina. Modelleren scrollt wel en heeft het blok gewoon onder de app.
 
@@ -146,6 +156,9 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/voorvoegsels/` | Machten van 10 en voorvoegsels *(keuzepagina, hero)* |
 | `/voorvoegsels/uitleg/` | Machten van 10 en voorvoegsels |
 | `/voorvoegsels/oefenen/` | Oefenen |
+| `/bewegingsgrafieken/` | Bewegingsgrafieken *(keuzepagina, hero)* |
+| `/bewegingsgrafieken/uitleg/` | Bewegingsgrafieken |
+| `/bewegingsgrafieken/oefenen/` | Oefenen |
 | `/circuitsketch/` | CircuitSketch |
 | `/contact/` | Contact & Feedback |
 

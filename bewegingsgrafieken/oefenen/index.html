@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>x,t- en v,t-diagram oefenen · NatuurkundeHub</title>
+<meta name="description" content="Herken stilstand, constante snelheid, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen. Na elk antwoord rijdt een karretje de beweging na.">
+<link rel="canonical" href="https://natuurkundehub.nl/bewegingsgrafieken/oefenen/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="x,t- en v,t-diagram oefenen">
+<meta property="og:description" content="Herken stilstand, constante snelheid, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen. Na elk antwoord rijdt een karretje de beweging na.">
+<meta property="og:url" content="https://natuurkundehub.nl/bewegingsgrafieken/oefenen/">
+<meta property="og:image" content="https://natuurkundehub.nl/assets/og/hub.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="De homepage van NatuurkundeHub met de interactieve natuurkundetools.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);--green-border:rgba(22,163,74,0.3);
+  --red:#ef4444;--red-dim:rgba(220,38,38,0.08);--red-border:rgba(220,38,38,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);--green-border:rgba(34,197,94,0.3);
+  --red:#f87171;--red-dim:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:780px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+[hidden]{display:none!important}
+
+.section-title{font-size:12px;font-family:var(--mono);font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+
+/* Keuzescherm */
+.setup-intro{font-size:13.5px;color:var(--text-secondary);line-height:1.7;text-align:center;max-width:540px;margin:0 auto 18px}
+.setup-link{color:var(--accent);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-border)}
+.setup-link:hover{border-bottom-color:var(--accent)}
+.spoor-keuze{display:flex;justify-content:center;margin:0 auto 20px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:4px;width:max-content;max-width:100%}
+.spoor-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:9px 20px;border-radius:9px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.spoor-btn:hover{color:var(--accent)}
+.spoor-btn.active{background:var(--accent);color:#fff}
+.vorm-kaart{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:14px}
+.vorm-kaart h2{font-size:19px;font-weight:700;margin-bottom:6px}
+.vorm-kaart p{font-size:13.5px;color:var(--text-secondary);line-height:1.6;max-width:480px;margin:0 auto 16px}
+.vorm-kaart .section-title{text-align:left}
+.disclosure{width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border:1px solid var(--border-solid);border-radius:10px;background:transparent;color:var(--text-muted);font-family:var(--font);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.disclosure:hover{border-color:var(--accent-border);color:var(--accent)}
+.disclosure .chev{transition:transform .2s;font-size:9px;line-height:1}
+.disclosure[aria-expanded="true"]{color:var(--accent);border-color:var(--accent-border);margin-bottom:18px}
+.disclosure[aria-expanded="true"] .chev{transform:rotate(180deg)}
+#opties{text-align:left}
+.level-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.level-toggle{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 14px;background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:10px;cursor:pointer;transition:all .15s}
+.level-toggle:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.level-toggle.active{border-color:var(--accent);background:var(--accent-dim)}
+.level-check{width:19px;height:19px;border-radius:5px;border:2px solid var(--border-solid);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px;color:transparent}
+.level-toggle.active .level-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.level-label{font-size:14px;font-weight:700;flex-shrink:0}
+.level-desc{font-size:12.5px;color:var(--text-muted);flex:1;min-width:120px}
+.level-example{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:6px;padding:4px 8px;flex-shrink:0}
+.start-btn{width:100%;padding:14px 20px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.start-btn:hover:not(:disabled){background:#0999aa;box-shadow:0 0 22px var(--accent-glow)}
+.start-btn:disabled{opacity:.35;cursor:default}
+.start-btn.amber{background:var(--accent-amber)}
+.start-btn.amber:hover{background:#c07d2a;box-shadow:0 0 22px var(--accent-amber-glow)}
+.voorbeeld-plaatje{max-width:360px;margin:0 auto 18px;pointer-events:none}
+
+/* Oefenpaneel */
+.terug-btn{font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--text-muted);background:transparent;border:none;padding:4px 0;cursor:pointer;transition:color .15s}
+.terug-btn:hover{color:var(--accent)}
+.ex-counter{font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:9px 16px;margin-bottom:14px}
+.status-links{display:flex;align-items:baseline;gap:12px;min-width:0}
+.status-level{font-size:20px;font-weight:700;letter-spacing:-.4px;color:var(--accent)}
+.status-soort{font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted)}
+.status-midden{display:flex;align-items:center;gap:9px;flex:1;justify-content:center;min-width:120px}
+.klim-dots{display:inline-flex;gap:5px}
+.klim-dot{width:9px;height:9px;border-radius:50%;background:var(--border-solid);transition:background .25s,transform .25s}
+.klim-dot.vol{background:var(--accent);transform:scale(1.15)}
+.klim-tekst{font-size:11.5px;color:var(--text-muted);white-space:nowrap}
+.status-rechts{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+.status-score{white-space:nowrap}
+.streak{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.streak .flame{font-size:14px;filter:grayscale(1);opacity:.4;transition:all .2s}
+.streak.hot .flame{filter:none;opacity:1}
+.streak.hot{color:var(--accent-amber)}
+
+.oefent .main{max-width:1080px;padding-top:16px}
+.oefent .tool-name,.oefent .tool-sub{display:none}
+.ex-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+.q-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:14px 16px 12px}
+.q-vraag{font-size:16px;font-weight:700;text-align:center}
+.q-hint{font-size:13px;color:var(--accent-amber);text-align:center;font-weight:600;margin-top:4px}
+.q-baan{margin:4px auto 0;transition:opacity .3s}
+.q-baan.wacht{opacity:.45}
+/* Hoogtes begrensd door het scherm: alles moet tegelijk in beeld passen. */
+.q-baan .bg-baan{max-height:clamp(80px,17vh,130px)}
+.q-baan-tekst{font-size:12px;color:var(--text-muted);text-align:center;margin-top:2px;min-height:16px}
+.q-grafieken{display:grid;grid-template-columns:1fr;gap:6px;margin-top:2px}
+.q-grafieken.n2{grid-template-columns:1fr 1fr}
+.q-grafieken.n3{grid-template-columns:1fr 1fr 1fr}
+.q-grafieken .bg-grafiek{height:clamp(200px,calc(100vh - 430px),360px)}
+.q-grafieken.n2 .bg-grafiek{height:clamp(170px,calc(100vh - 430px),300px)}
+.q-grafieken.n3 .bg-grafiek{height:clamp(130px,calc(100vh - 430px),220px)}
+.q-nieuw{background:var(--amber-dim);border:1px solid var(--amber-border);border-left:3px solid var(--accent-amber);border-radius:0 9px 9px 0;padding:9px 12px;font-size:13.5px;line-height:1.5;color:var(--text);margin-bottom:10px}
+.q-nieuw b{color:var(--accent-amber)}
+
+/* Tussenstand en vorige sessie */
+.ov-kaart{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:var(--radius);padding:24px;max-width:640px;margin:0 auto 16px}
+.ov-kaart h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.ov-score{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.ov-lijst{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.ov-lijst li{display:flex;align-items:baseline;gap:10px;padding:10px 12px;border:1px solid var(--border-solid);border-radius:10px;font-size:14px;color:var(--text-secondary);line-height:1.45}
+.ov-tal{font-family:var(--mono);font-weight:700;color:var(--red);flex-shrink:0;min-width:28px}
+.ov-tekst{flex:1}
+.ov-lijst a{color:var(--accent);font-weight:600;text-decoration:none;white-space:nowrap;font-size:13px}
+.ov-lijst a:hover{text-decoration:underline}
+.ov-leeg{font-size:14px;color:var(--green);font-weight:600;margin-bottom:16px}
+#vorige-sessie .ov-kaart{border-color:var(--border-solid)}
+
+.antwoord-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.antwoord-btn{font-family:var(--font);font-size:14.5px;font-weight:700;padding:14px 10px;border-radius:11px;border:1.5px solid var(--border-solid);background:var(--bg-card);color:var(--text);cursor:pointer;transition:all .15s;position:relative;line-height:1.25}
+.antwoord-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+.antwoord-btn:disabled{cursor:default}
+.antwoord-btn .toets{position:absolute;top:5px;left:8px;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text-muted)}
+.antwoord-btn.goed{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.antwoord-btn.fout{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.antwoord-btn.ook-goed{border-color:var(--green);border-style:dashed;color:var(--green)}
+#na-antwoord .volgende{width:100%}
+.getal-invoer{margin-bottom:12px}
+.getal-rij{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.getal-input{flex:1;min-width:0;padding:11px 14px;border:1.5px solid var(--accent-border);border-radius:10px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);font-size:18px;text-align:center}
+.getal-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.getal-input.ok{border-color:var(--green)}
+.getal-input.wrong{border-color:var(--red)}
+.getal-eenheid{font-family:var(--mono);font-size:18px;color:var(--accent);min-width:48px}
+.getal-invoer .volgende{width:100%}
+.feedback.neutral{background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--text-secondary)}
+/* Afspeelknoppen onder de grafiek; vóór het antwoord onzichtbaar maar met
+   gereserveerde ruimte, zodat er niets verspringt. */
+.q-speel{margin-top:6px;gap:6px}
+.q-speel button{padding:6px 11px;font-size:12.5px}
+.q-speel.wacht{visibility:hidden}
+
+@media(min-width:900px){
+  .ex-grid{grid-template-columns:minmax(0,1.55fr) minmax(250px,1fr)}
+  .antwoord-grid{grid-template-columns:1fr}
+  .antwoord-btn{text-align:left;padding:10px 14px 10px 34px}
+  .antwoord-btn .toets{top:50%;transform:translateY(-50%);left:13px;font-size:11px}
+  .q-grafieken .bg-grafiek{height:clamp(200px,calc(100vh - 405px),380px)}
+  .q-grafieken.n2 .bg-grafiek{height:clamp(170px,calc(100vh - 395px),320px)}
+  .q-grafieken.n3 .bg-grafiek{height:clamp(130px,calc(100vh - 395px),240px)}
+}
+
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s}
+.btn:hover{background:#0999aa}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--accent-dim)}
+.btn.muted{background:transparent;color:var(--text-muted);border-color:var(--border-solid)}
+.btn.muted:hover{background:var(--bg-card-hover);color:var(--text-secondary)}
+.btn-row .spacer{flex:1}
+
+.feedback{border-radius:10px;padding:11px 14px;font-size:14px;line-height:1.6;margin-bottom:12px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-dim);border:1px solid var(--green-border);color:var(--text-secondary)}
+.feedback.wrong{background:var(--red-dim);border:1px solid var(--red-border);color:var(--text-secondary)}
+.feedback .kop{font-weight:700;display:block;margin-bottom:3px}
+.feedback.ok .kop{color:var(--green)}
+.feedback.wrong .kop{color:var(--red)}
+.feedback .diag{display:block;margin-bottom:6px;color:var(--text)}
+.feedback a{color:var(--accent);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-border);white-space:nowrap}
+.feedback a:hover{border-bottom-color:var(--accent)}
+
+.toast-laag{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:200;padding:0 16px}
+.toast{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:16px 30px;text-align:center;box-shadow:0 14px 44px rgba(11,181,200,0.28);animation:toastIn .28s cubic-bezier(.2,.9,.3,1.2) both}
+.toast.uit{animation:toastUit .22s ease-in both}
+.toast-titel{font-size:21px;font-weight:700;color:var(--accent);letter-spacing:-.4px}
+.toast-tekst{font-size:13px;color:var(--text-secondary);margin-top:3px}
+.toast--vuur{border-color:var(--accent-amber);box-shadow:0 14px 44px rgba(212,146,58,0.3)}
+.toast--vuur .toast-titel{color:var(--accent-amber)}
+@keyframes toastIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+@keyframes toastUit{to{opacity:0;transform:scale(.96)}}
+@media(prefers-reduced-motion:reduce){.toast,.toast.uit{animation:none}}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+  .q-grafieken.n2,.q-grafieken.n3{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .q-card{padding:12px 8px 10px}
+}
+</style>
+<link rel="stylesheet" href="../css/beweging.css">
+</head>
+<body>
+
+<div class="toast-laag" id="toast-laag" aria-live="polite"></div>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="/assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../" class="crumb" id="crumb-tool">Bewegingsgrafieken</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Oefenen</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Oefenen</h1>
+<p class="tool-sub" id="tool-sub">Bewegingsgrafieken</p>
+
+<div class="main">
+
+  <!-- ══ KEUZESCHERM ══ -->
+  <div id="setup">
+
+    <div class="spoor-keuze" role="tablist" aria-label="Onderbouw of bovenbouw">
+      <button class="spoor-btn" data-spoor="onderbouw" role="tab">Onderbouw</button>
+      <button class="spoor-btn" data-spoor="bovenbouw" role="tab">Bovenbouw</button>
+    </div>
+
+    <p class="setup-intro" id="setup-intro"></p>
+
+    <div id="vorige-sessie" hidden></div>
+
+    <div class="vorm-kaart">
+      <h2>Herken de beweging</h2>
+      <p>Je ziet een diagram met één stuk in amber. Staat het karretje daar stil, rijdt het met constante snelheid, versnelt het of vertraagt het?</p>
+      <div class="voorbeeld-plaatje" id="voorbeeld-plaatje" aria-hidden="true"></div>
+      <button class="start-btn amber" id="climb-btn">Start oefenen →</button>
+
+      <button class="disclosure" id="opties-btn" aria-expanded="false">
+        <span>Liever zelf een level kiezen</span><span class="chev">▼</span>
+      </button>
+
+      <div id="opties" hidden>
+        <div class="section-title">Welke levels?</div>
+        <div class="level-grid" id="level-grid"></div>
+        <button class="start-btn" id="start-btn" disabled>Kies een level om te starten</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ OEFENSCHERM ══ -->
+  <div id="exercise" hidden>
+
+    <div class="status-bar">
+      <div class="status-links">
+        <button class="terug-btn" id="back-btn" title="Andere instelling">← Terug</button>
+        <span class="status-level" id="ex-level">Level 1</span>
+        <span class="status-soort" id="ex-spoor">onderbouw</span>
+      </div>
+      <div class="status-midden">
+        <span class="klim-dots" id="klim-dots"></span>
+        <span class="klim-tekst" id="klim-tekst"></span>
+      </div>
+      <div class="status-rechts">
+        <span class="streak" id="streak"><span class="flame">🔥</span><span id="streak-num">0</span></span>
+        <span class="status-score" id="session-score" title="goed van totaal deze sessie">0 / 0</span>
+        <span class="ex-counter" id="ex-counter">Opgave 1</span>
+      </div>
+    </div>
+
+    <!-- Op een breed scherm staan grafiek en antwoorden naast elkaar, zodat
+         karretje, diagram en knoppen samen in beeld passen (ook op een
+         Chromebook). Smal: onder elkaar. -->
+    <div class="ex-grid">
+      <div class="q-card">
+        <div class="q-vraag" id="q-vraag">Wat doet het karretje in het gemarkeerde stuk?</div>
+        <div class="q-hint" id="q-hint" hidden></div>
+        <div class="q-baan wacht" id="q-baan"></div>
+        <div class="q-baan-tekst" id="q-baan-tekst">Na je antwoord rijdt het karretje deze beweging.</div>
+        <div class="q-grafieken" id="q-grafieken">
+          <div><div id="q-grafiek"></div></div>
+        </div>
+        <div class="bg-speel q-speel wacht" id="q-speel">
+          <button id="speel-btn">▶ Nog eens</button>
+          <button id="langzaam-btn">Langzaam</button>
+          <button id="ander-btn"></button>
+        </div>
+      </div>
+
+      <div class="ex-zij">
+        <div class="q-nieuw" id="q-nieuw" hidden></div>
+        <div class="antwoord-grid" id="antwoord-grid"></div>
+        <!-- Rekenvragen (level met getallen): een getal typen in plaats van kiezen -->
+        <div class="getal-invoer" id="getal-invoer" hidden>
+          <div class="getal-rij">
+            <input class="getal-input" id="getal-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="?">
+            <span class="getal-eenheid" id="getal-eenheid"></span>
+          </div>
+          <button class="btn volgende" id="controleer-btn">Controleer</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div id="na-antwoord" hidden>
+          <button class="btn volgende" id="volgende-btn">Volgende opgave →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="overzicht" hidden></div>
+
+  </div>
+
+
+
+</div>
+
+<footer>
+  <img src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script src="../js/beweging.js"></script>
+<script src="../js/getallen.js"></script>
+<script src="../js/grafiek.js"></script>
+<script src="../js/karretje.js"></script>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='/assets/logo/JK_dark.svg';if(fl)fl.src='/assets/logo/JK_white.svg';
+    if(fav)fav.href='/assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='/assets/logo/JK_light.svg';if(fl)fl.src='/assets/logo/JK_black.svg';
+    if(fav)fav.href='/assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+
+/* ── STAAT ── */
+const CLIMB_DOEL=4;          // vier op rij: bij meerkeuze is drie te makkelijk te gokken
+const TUSSENSTAND=15;        // na zoveel opgaven een overzicht van de fouten
+const el=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+
+const state={
+  spoor: params.get('niveau')==='bovenbouw' ? 'bovenbouw' : 'onderbouw',
+  levels:[], modus:'climb', climbLevel:1, climbStreak:0,
+  vraag:null, klaar:false, teller:0, scene:null, extra:false, pogingen:0,
+  score:{goed:0,totaal:0}, streak:0, klimMelding:'',
+  log:[], gezien:new Set(), tussenstand:false
+};
+const maxLevel=()=>Object.keys(LEVELS[state.spoor]).length;
+
+/* ── KEUZESCHERM ── */
+function tekenSpoor(){
+  document.querySelectorAll('.spoor-btn').forEach(b=>{
+    const aan=b.dataset.spoor===state.spoor;
+    b.classList.toggle('active',aan);
+    b.setAttribute('aria-selected',String(aan));
+  });
+  el('tool-sub').textContent='Bewegingsgrafieken · '+state.spoor;
+  el('crumb-tool').href='../#'+state.spoor;
+  const uitleg='../uitleg/?niveau='+state.spoor;
+  el('setup-intro').innerHTML = (state.spoor==='onderbouw'
+      ? 'Met het afstand-tijddiagram en het snelheid-tijddiagram.'
+      : 'Met het x,t-, v,t- en a,t-diagram, ook als het karretje achteruit rijdt.')+
+    ' Je begint bij level 1 en klimt vanzelf omhoog: na '+CLIMB_DOEL+' goede antwoorden op rij ga je een level verder.<br>'+
+    'Weet je nog niet hoe het werkt? <a href="'+uitleg+'" class="setup-link">Bekijk eerst de uitleg</a>.';
+  state.levels=state.levels.filter(n=>n<=maxLevel());
+  tekenLevels();
+  tekenVoorbeeld();
+}
+
+function tekenLevels(){
+  const L=LEVELS[state.spoor];
+  el('level-grid').innerHTML=Object.keys(L).map(Number).map(n=>{
+    const aan=state.levels.includes(n);
+    return '<div class="level-toggle'+(aan?' active':'')+'" data-level="'+n+'">'+
+      '<span class="level-check">✓</span><span class="level-label">Level '+n+'</span>'+
+      '<span class="level-desc">'+L[n].desc+'</span><span class="level-example">'+L[n].voorbeeld+'</span></div>';
+  }).join('');
+  el('level-grid').querySelectorAll('.level-toggle').forEach(t=>{
+    t.onclick=()=>{
+      const n=Number(t.dataset.level);
+      state.levels=state.levels.includes(n)?state.levels.filter(x=>x!==n):state.levels.concat(n).sort((a,b)=>a-b);
+      tekenLevels();
+    };
+  });
+  const knop=el('start-btn');
+  knop.disabled=state.levels.length===0;
+  knop.textContent=state.levels.length?'Start oefenen →':'Kies een level om te starten';
+}
+
+// Een klein voorbeeld op de kaart, zodat je ziet wat je kunt verwachten.
+function tekenVoorbeeld(){
+  const b=bouwBeweging([[4,3,3],[3,0,0],[5,0,4]]);
+  maakGrafiek(el('voorbeeld-plaatje'), b, {diagram: state.spoor==='onderbouw'?'x':'v', spoor:state.spoor, markeer:1, klein:true});
+}
+
+function toonPaneel(naam){
+  el('setup').hidden=naam!=='setup';
+  el('exercise').hidden=naam!=='exercise';
+  // Tijdens het oefenen is het scherm breder en vervalt de grote titel (de
+  // broodkruimel zegt al waar je bent): dan passen karretje, diagram en
+  // knoppen samen op het scherm, ook op een Chromebook.
+  document.body.classList.toggle('oefent',naam==='exercise');
+  window.scrollTo({top:0});
+  if(naam==='setup' && state.scene) state.scene.stop();
+}
+
+/* ── SCORE ── */
+function toonToast(titel,tekst,soort){
+  const t=document.createElement('div');
+  t.className='toast'+(soort?' toast--'+soort:'');
+  t.innerHTML='<div class="toast-titel">'+titel+'</div>'+(tekst?'<div class="toast-tekst">'+tekst+'</div>':'');
+  el('toast-laag').appendChild(t);
+  setTimeout(()=>{t.classList.add('uit');setTimeout(()=>t.remove(),220);},1100);
+}
+
+function klimStap(){
+  state.klimMelding='';
+  if(state.modus!=='climb') return;
+  state.climbStreak++;
+  if(state.climbStreak>=CLIMB_DOEL){
+    if(state.climbLevel<maxLevel()){
+      state.climbLevel++;
+      state.klimMelding=' '+CLIMB_DOEL+' op rij, door naar level '+state.climbLevel+'.';
+      toonToast('Level '+state.climbLevel, CLIMB_DOEL+' goed op rij.');
+    } else state.klimMelding=' '+CLIMB_DOEL+' op rij op het hoogste level.';
+    state.climbStreak=0;
+  }
+}
+function telGoed(){
+  state.score.totaal++; state.score.goed++; state.streak++;
+  klimStap();
+  if(state.streak>=5 && state.streak%5===0) toonToast(state.streak+' op rij','Mooie reeks.','vuur');
+}
+function telFout(){
+  state.score.totaal++; state.streak=0;
+  if(state.modus==='climb') state.climbStreak=0;
+}
+function tekenScore(){
+  const s=state.score;
+  el('session-score').textContent=s.goed+' / '+s.totaal;
+  el('streak-num').textContent=String(state.streak);
+  el('streak').classList.toggle('hot',state.streak>=3);
+  el('ex-counter').textContent='Opgave '+state.teller;
+  el('ex-spoor').textContent=state.spoor;
+  const level=state.modus==='climb'?state.climbLevel:(state.vraag?state.vraag.toonLevel:1);
+  el('ex-level').textContent='Level '+level;
+  if(state.modus==='climb'){
+    let dots='';
+    for(let i=0;i<CLIMB_DOEL;i++) dots+='<span class="klim-dot'+(i<state.climbStreak?' vol':'')+'"></span>';
+    el('klim-dots').innerHTML=dots;
+    el('klim-tekst').textContent=state.climbLevel<maxLevel()?'naar level '+(state.climbLevel+1):'hoogste level';
+  } else { el('klim-dots').innerHTML=''; el('klim-tekst').textContent=''; }
+}
+
+/* ── VRAAG ── */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+// De andere diagrammen van dezelfde beweging, voor de knop "Toon ook".
+function andereDiagrammen(q){
+  const alle = q.spoor==='onderbouw' || q.level<5 ? ['x','v'] : ['x','v','a'];
+  return alle.filter(d=>d!==q.diagram);
+}
+function anderLabel(q, aan){
+  const lijst=andereDiagrammen(q);
+  const wat = lijst.length===1 ? 'het '+TAAL[q.spoor].naam[lijst[0]] : 'de andere diagrammen';
+  return (aan?'Verberg ':'Toon ook ')+wat;
+}
+
+function volgendeVraag(){
+  if(state.scene) state.scene.stop();
+  const level=state.modus==='climb'?state.climbLevel:pick(state.levels);
+  // De eindmix kiest per vraag een van de moeilijkste levels.
+  const mix=LEVELS[state.spoor][level].mix;
+  const echt=mix ? pick(mix) : level;
+  const metGetallen=!!LEVELS[state.spoor][echt].getallen;
+  const q=metGetallen ? maakGetalVraag(state.spoor, echt, {vorige:state.vraag})
+                      : maakVraag(state.spoor, echt, {vorige:state.vraag});
+  if(!q) return;
+  q.toonLevel=level;
+  state.vraag=q; state.klaar=false; state.teller++; state.extra=false; state.pogingen=0;
+
+  // Eerste vraag van een level in deze sessie: zeg wat er nieuw is.
+  const nieuw=!state.gezien.has(level);
+  state.gezien.add(level);
+  el('q-nieuw').hidden=!nieuw;
+  if(nieuw) el('q-nieuw').innerHTML='<b>Level '+level+'.</b> '+LEVELS[q.spoor][level].nieuw;
+
+  const hint=vraagHint(q);
+  el('q-hint').hidden=!hint; el('q-hint').textContent=hint;
+  el('q-baan').classList.add('wacht');
+  el('q-baan-tekst').textContent='Na je antwoord rijdt het karretje deze beweging.';
+  el('q-grafieken').querySelectorAll('.extra').forEach(e=>e.remove());
+  el('q-grafieken').classList.remove('n2','n3');
+  state.scene=maakScene({
+    karretje:el('q-baan'), grafieken:[{houder:el('q-grafiek'), diagram:q.diagram}],
+    beweging:q.beweging, spoor:q.spoor, markeer:q.index,
+    // Waar de richting meetelt (bovenbouw met achteruit), verklapt de neus
+    // van het karretje vóór het antwoord niets.
+    richtingVooraf: !(q.spoor==='bovenbouw' && LEVELS[q.spoor][q.level].achteruit),
+    getallen: metGetallen,
+    opEinde:()=>{ el('speel-btn').textContent='▶ Nog eens'; }
+  });
+
+  el('feedback').className='feedback';
+  el('na-antwoord').hidden=true;
+  el('q-speel').classList.add('wacht');
+  el('q-vraag').textContent=metGetallen ? q.tekst : 'Wat doet het karretje in het gemarkeerde stuk?';
+  el('antwoord-grid').hidden=metGetallen;
+  el('getal-invoer').hidden=!metGetallen;
+  if(metGetallen){
+    const inp=el('getal-input');
+    inp.value=''; inp.disabled=false; inp.className='getal-input';
+    el('getal-eenheid').textContent=q.eenheid;
+    el('controleer-btn').hidden=false;
+    el('controleer-btn').textContent='Controleer';
+    inp.focus({preventScroll:true});
+  } else tekenAntwoorden();
+  tekenScore();
+}
+
+function tekenAntwoorden(){
+  el('antwoord-grid').innerHTML=SOORTEN.map((s,i)=>
+    '<button class="antwoord-btn" data-soort="'+s+'"><span class="toets">'+(i+1)+'</span>'+SOORT_NAAM[s]+'</button>').join('');
+  el('antwoord-grid').querySelectorAll('.antwoord-btn').forEach(b=>{
+    b.onclick=()=>beantwoord(b.dataset.soort);
+  });
+}
+
+function beantwoord(gekozen){
+  if(state.klaar) return;
+  const q=state.vraag, goed=q.goed.includes(gekozen);
+  state.klaar=true;
+  if(goed) telGoed(); else telFout();
+  state.log.push({goed, fout: goed ? null : foutCategorie(q,gekozen)});
+  el('q-nieuw').hidden=true;        // gelezen; nu is de ruimte voor de feedback
+  state.tussenstand = state.log.length % TUSSENSTAND === 0;
+
+  el('antwoord-grid').querySelectorAll('.antwoord-btn').forEach(b=>{
+    const s=b.dataset.soort;
+    b.disabled=true;
+    if(s===gekozen) b.classList.add(goed?'goed':'fout');
+    else if(q.goed.includes(s)) b.classList.add(goed?'ook-goed':'goed');
+  });
+
+  const d=diagnose(q,gekozen);
+  const stap=uitlegStap(q, d?d.code:null);
+  const link='<a href="../uitleg/?niveau='+q.spoor+'&stap='+stap+'" target="_blank" rel="noopener">Bekijk de uitleg →</a>';
+  let html;
+  if(goed){
+    const ook=q.goed.length>1?' Allebei goed: '+q.goed.map(s=>SOORT_NAAM[s].toLowerCase()).join(' of ')+'.':'';
+    html='<span class="kop">Goed.'+ook+(state.klimMelding||'')+'</span>'+uitlegTekst(q);
+  } else {
+    const juist=q.goed.map(s=>SOORT_NAAM[s].toLowerCase()).join(' of ');
+    html='<span class="kop">Niet goed. Het is '+juist+'.</span>'+
+      // Een richtingsfout legt zelf al uit wat er gebeurt; bij de andere fouten
+      // komt de gewone uitleg erachter.
+      (d && d.code==='richting' && q.diagram!=='a' ? d.tekst :
+        (d && d.tekst ? '<span class="diag">'+d.tekst+'</span>' : '')+uitlegTekst(q))+' '+link;
+  }
+  rondAf(goed, html);
+}
+
+// Wat er na elk antwoord gebeurt, bij meerkeuze en bij een rekenvraag.
+function rondAf(goed, html){
+  const q=state.vraag;
+  state.klimMelding='';
+  const f=el('feedback');
+  f.className='feedback show '+(goed?'ok':'wrong');
+  f.innerHTML=html;
+
+  el('na-antwoord').hidden=false;
+  el('q-speel').classList.remove('wacht');
+  el('ander-btn').textContent=anderLabel(q,false);
+  el('ander-btn').classList.remove('vol');
+  el('volgende-btn').textContent=state.tussenstand?'Bekijk je tussenstand →':'Volgende opgave →';
+  el('q-baan').classList.remove('wacht');
+  el('q-baan-tekst').textContent='Elke halve seconde valt er een stip. De amberkleurige stippen horen bij het gemarkeerde stuk.';
+  speel('normaal');
+  tekenScore();
+  el('volgende-btn').focus({preventScroll:true});
+}
+
+function controleerGetal(){
+  if(state.klaar) return;
+  const q=state.vraag, inp=el('getal-input'), w=leesGetal(inp.value);
+  if(Number.isNaN(w)){                         // kost geen poging
+    const f=el('feedback');
+    f.className='feedback show neutral';
+    f.innerHTML='Typ een getal, bijvoorbeeld 4 of −1,5.';
+    inp.focus();
+    return;
+  }
+  const goed=isGoed(q,w), eerste=state.pogingen===0;
+  // Alleen de eerste poging telt voor de score, zoals bij voorvoegsels.
+  if(eerste){
+    if(goed) telGoed(); else telFout();
+    state.log.push({goed, fout: goed ? null : getalFoutCategorie(q,w)});
+    state.tussenstand = state.log.length % TUSSENSTAND === 0;
+    el('q-nieuw').hidden=true;
+  }
+  state.pogingen++;
+  const d=getalDiagnose(q,w);
+  if(!goed && eerste){
+    // Tweede kans: zeg wat er mis lijkt te gaan, maar verklap het antwoord niet.
+    const f=el('feedback');
+    f.className='feedback show wrong';
+    f.innerHTML='<span class="kop">Nog niet goed. Probeer het nog een keer.</span>'+
+      ((d && d.tekst) ? d.tekst : getalHint(q));
+    inp.classList.add('wrong');
+    el('controleer-btn').textContent='Controleer opnieuw';
+    inp.select();
+    tekenScore();
+    return;
+  }
+  state.klaar=true;
+  inp.disabled=true;
+  inp.classList.remove('wrong');
+  inp.classList.add(goed?'ok':'wrong');
+  el('controleer-btn').hidden=true;
+  el('controleer-btn').textContent='Controleer';
+  const link='<a href="../uitleg/?niveau='+q.spoor+'&stap=getallen" target="_blank" rel="noopener">Bekijk de uitleg →</a>';
+  const html = goed
+    ? '<span class="kop">Goed'+(eerste?'.':', in de tweede poging.')+(state.klimMelding||'')+'</span>'+q.uitwerking
+    : '<span class="kop">Niet goed. Het antwoord is '+getalTekst(q.antwoord)+' '+q.eenheid+'.</span>'+q.uitwerking+' '+link;
+  rondAf(goed, html);
+}
+
+function speel(tempo){
+  if(!state.scene) return;
+  state.scene.speel(tempo);
+  el('speel-btn').textContent='▶ Nog eens';
+}
+
+function toggleExtra(){
+  const q=state.vraag, wrap=el('q-grafieken');
+  state.extra=!state.extra;
+  const lijst=andereDiagrammen(q);
+  if(state.extra && !wrap.querySelector('.extra')){
+    lijst.forEach(d=>{
+      const div=document.createElement('div');
+      div.className='extra';
+      div.appendChild(document.createElement('div'));
+      wrap.appendChild(div);
+      state.scene.voegGrafiekToe(div.firstChild, d);
+    });
+  }
+  wrap.querySelectorAll('.extra').forEach(e=>e.hidden=!state.extra);
+  wrap.classList.toggle('n'+(lijst.length+1), state.extra);
+  el('ander-btn').classList.toggle('vol',state.extra);
+  el('ander-btn').textContent=anderLabel(q,state.extra);
+}
+
+/* ── TUSSENSTAND ── */
+// Fouten van deze sessie, gegroepeerd per soort fout, meest voorkomende eerst.
+function overzichtHTML(titel, knop){
+  const log=state.log, goed=log.filter(r=>r.goed).length;
+  const groepen={};
+  log.filter(r=>r.fout).forEach(r=>{
+    const g=groepen[r.fout.sleutel]||(groepen[r.fout.sleutel]={n:0,fout:r.fout});
+    g.n++;
+  });
+  const lijst=Object.values(groepen).sort((a,b)=>b.n-a.n);
+  let html='<div class="ov-kaart"><h2>'+titel+'</h2>'+
+    '<p class="ov-score">'+goed+' van de '+log.length+' opgaven goed.</p>';
+  if(lijst.length){
+    html+='<div class="section-title">Hier ging het mis</div><ul class="ov-lijst">'+
+      lijst.map(g=>'<li><span class="ov-tal">'+g.n+'×</span><span class="ov-tekst">'+g.fout.tekst+'</span>'+
+        '<a href="../uitleg/?niveau='+state.spoor+'&stap='+g.fout.stap+'" target="_blank" rel="noopener">Uitleg →</a></li>').join('')+
+      '</ul>';
+  } else html+='<p class="ov-leeg">Geen enkele fout. Knap!</p>';
+  return html+(knop||'')+'</div>';
+}
+
+function toonOverzicht(){
+  if(state.scene) state.scene.stop();
+  state.tussenstand=false;
+  document.querySelector('.ex-grid').hidden=true;
+  const ov=el('overzicht');
+  ov.hidden=false;
+  ov.innerHTML=overzichtHTML('Tussenstand na '+state.log.length+' opgaven',
+    '<button class="start-btn" id="ov-verder">Verder oefenen →</button>');
+  el('ov-verder').onclick=verderNaOverzicht;
+  el('ov-verder').focus({preventScroll:true});
+}
+function verderNaOverzicht(){
+  el('overzicht').hidden=true;
+  document.querySelector('.ex-grid').hidden=false;
+  volgendeVraag();
+}
+function volgendeKnop(){
+  if(state.tussenstand) toonOverzicht(); else volgendeVraag();
+}
+
+/* ── KOPPELEN ── */
+function start(modus){
+  state.modus=modus; state.climbLevel=1; state.climbStreak=0; state.teller=0;
+  state.score={goed:0,totaal:0}; state.streak=0; state.vraag=null;
+  state.log=[]; state.gezien=new Set(); state.tussenstand=false;
+  el('overzicht').hidden=true;
+  document.querySelector('.ex-grid').hidden=false;
+  toonPaneel('exercise'); volgendeVraag();
+}
+
+document.querySelectorAll('.spoor-btn').forEach(b=>{
+  b.onclick=()=>{
+    state.spoor=b.dataset.spoor;
+    const u=new URL(location.href); u.searchParams.set('niveau',state.spoor);
+    history.replaceState(null,'',u);
+    tekenSpoor();
+  };
+});
+el('climb-btn').onclick=()=>start('climb');
+el('start-btn').onclick=()=>start('eigen');
+// Terug naar het keuzescherm, met daar het overzicht van de sessie die je net deed.
+el('back-btn').onclick=()=>{
+  const vs=el('vorige-sessie');
+  vs.hidden=state.log.length===0;
+  if(state.log.length) vs.innerHTML=overzichtHTML('Je vorige ronde');
+  toonPaneel('setup');
+};
+el('opties-btn').onclick=()=>{
+  const open=el('opties').hidden;
+  el('opties').hidden=!open;
+  el('opties-btn').setAttribute('aria-expanded',String(open));
+};
+el('volgende-btn').onclick=volgendeKnop;
+el('controleer-btn').onclick=controleerGetal;
+el('getal-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ e.preventDefault(); controleerGetal(); }
+});
+el('speel-btn').onclick=()=>speel('normaal');
+el('langzaam-btn').onclick=()=>speel('langzaam');
+el('ander-btn').onclick=toggleExtra;
+
+// Toetsen 1 tot en met 4 kiezen een antwoord, Enter gaat naar de volgende.
+document.addEventListener('keydown',e=>{
+  if(el('exercise').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+  if(!state.klaar && /^[1-4]$/.test(e.key) && el('getal-invoer').hidden){ beantwoord(SOORTEN[Number(e.key)-1]); e.preventDefault(); }
+  else if(state.klaar && e.key==='Enter' && document.activeElement===document.body && el('overzicht').hidden){ volgendeKnop(); e.preventDefault(); }
+});
+
+tekenSpoor();
+</script>
+</body>
+</html>

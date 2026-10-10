@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bewegingsgrafieken uitleg: x,t- en v,t-diagram · NatuurkundeHub</title>
+<meta name="description" content="Uitleg over bewegingsgrafieken: hoe zie je stilstand, constante snelheid, versnellen en vertragen in een x,t-, v,t- of a,t-diagram? Met een karretje dat het voordoet.">
+<link rel="canonical" href="https://natuurkundehub.nl/bewegingsgrafieken/uitleg/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Bewegingsgrafieken uitleg: x,t- en v,t-diagram">
+<meta property="og:description" content="Uitleg over bewegingsgrafieken: hoe zie je stilstand, constante snelheid, versnellen en vertragen in een x,t-, v,t- of a,t-diagram? Met een karretje dat het voordoet.">
+<meta property="og:url" content="https://natuurkundehub.nl/bewegingsgrafieken/uitleg/">
+<meta property="og:image" content="https://natuurkundehub.nl/assets/og/hub.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="De homepage van NatuurkundeHub met de interactieve natuurkundetools.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:860px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+
+.spoor-keuze{display:flex;justify-content:center;margin:0 auto 18px;background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:4px;width:max-content;max-width:100%}
+.spoor-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:9px 20px;border-radius:9px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.spoor-btn:hover{color:var(--accent)}
+.spoor-btn.active{background:var(--accent);color:#fff}
+
+.progress-track{height:6px;background:var(--accent-dim);border:1px solid var(--border-solid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-amber));transition:width .35s ease}
+.steps-row{display:flex;gap:6px;margin:14px 0 28px;flex-wrap:wrap}
+.step-chip{border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.step-chip:hover{border-color:var(--accent-border);color:var(--accent)}
+.step-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.step-chip.done{border-color:var(--accent-border);color:var(--accent)}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-size:clamp(21px,3.4vw,27px);font-weight:700;letter-spacing:-0.6px;margin-bottom:16px}
+.content p{line-height:1.7;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content strong{color:var(--text);font-weight:700}
+.content ul{padding-left:20px;line-height:1.8;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content em{font-style:italic}
+
+.info-box{border-left:3px solid var(--accent-amber);background:var(--amber-dim);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+.info-box .info-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-box p{margin:0 0 8px;font-size:14px;color:var(--text-secondary);line-height:1.65}
+.info-box p:last-child{margin-bottom:0}
+.info-box--accent{border-left-color:var(--accent);background:var(--accent-dim)}
+.info-box--accent .info-title{color:var(--accent)}
+
+/* Demo: karretje met diagrammen eronder */
+.demo{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:16px 16px 14px;margin:18px 0}
+.demo-titel{font-size:13px;font-weight:700;color:var(--text-secondary);text-align:center;margin-bottom:4px}
+.demo-baan{max-width:520px;margin:0 auto}
+.demo-grafieken{display:grid;gap:10px;margin:8px 0 12px}
+.demo-grafieken.n1{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+.demo-grafieken.n2{grid-template-columns:1fr 1fr}
+.demo-grafieken.n3{grid-template-columns:1fr 1fr 1fr}
+.demo-markeer{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.demo-markeer button{font-family:var(--font);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:16px;border:1px solid var(--amber-border);background:transparent;color:var(--accent-amber);cursor:pointer}
+.demo-markeer button.aan{background:var(--accent-amber);border-color:var(--accent-amber);color:#fff}
+.demo-paar{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.demo-paar .demo{margin:0}
+
+.table-wrap{overflow-x:auto;margin:16px 0}
+table.vorm{width:100%;border-collapse:collapse;font-size:14px}
+table.vorm th,table.vorm td{border:1px solid var(--border-solid);padding:9px 12px;text-align:left;vertical-align:top}
+table.vorm th{background:var(--accent-dim);color:var(--accent);font-size:13.5px;font-weight:700}
+table.vorm td{color:var(--text-secondary);background:var(--bg-card)}
+table.vorm td:first-child{font-weight:700;color:var(--text)}
+
+/* Probeer het zelf: één vraag aan het eind van een stap */
+.zelf{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:var(--radius);padding:18px 18px 16px;margin:26px 0 6px}
+.zelf-kop{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:4px}
+.zelf-vraag{font-size:15px;font-weight:700;margin-bottom:2px}
+.zelf-hint{font-size:13px;color:var(--accent-amber);font-weight:600}
+.zelf-body{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(200px,1fr);gap:16px;align-items:center;margin-top:8px}
+.zelf-knoppen{display:grid;grid-template-columns:1fr;gap:7px}
+.zelf-knoppen button{font-family:var(--font);font-size:14px;font-weight:700;text-align:left;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border-solid);background:var(--bg-card);color:var(--text);cursor:pointer;transition:all .15s}
+.zelf-knoppen button:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+.zelf-knoppen button:disabled{cursor:default}
+.zelf-knoppen button.goed{border-color:#16a34a;background:rgba(22,163,74,0.1);color:#16a34a}
+.zelf-knoppen button.fout{border-color:#ef4444;background:rgba(220,38,38,0.08);color:#ef4444}
+.zelf-uitleg{font-size:14px;line-height:1.6;color:var(--text-secondary);margin-top:12px;display:none}
+.zelf-uitleg.show{display:block}
+.zelf-uitleg b{color:var(--text)}
+.zelf-nog{display:flex;justify-content:flex-end;margin-top:12px}
+.zelf-nog .nav-btn{font-size:13px;padding:8px 14px}
+@media(max-width:760px){.zelf-body{grid-template-columns:1fr}}
+
+.cta-card{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:12px;padding:22px 24px;margin-top:22px;text-align:center}
+.cta-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.cta-card p{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+
+.nav-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.nav-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:#0999aa}
+.nav-btn.secondary{background:transparent;color:var(--accent)}
+.nav-btn.secondary:hover:not(:disabled){background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.35;cursor:default}
+.nav-tel{font-family:var(--mono);font-size:12px;color:var(--text-muted)}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .demo-grafieken.n2,.demo-grafieken.n3,.demo-paar{grid-template-columns:1fr}
+  .demo{padding:12px 8px}
+}
+</style>
+<link rel="stylesheet" href="../css/beweging.css">
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="/assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../" class="crumb" id="crumb-tool">Bewegingsgrafieken</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Uitleg</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Bewegingsgrafieken</h1>
+<p class="tool-sub" id="tool-sub">Uitleg</p>
+
+<div class="main">
+
+  <div class="spoor-keuze" role="tablist" aria-label="Onderbouw of bovenbouw">
+    <button class="spoor-btn" data-spoor="onderbouw" role="tab">Onderbouw</button>
+    <button class="spoor-btn" data-spoor="bovenbouw" role="tab">Bovenbouw</button>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+  <div class="steps-row" id="chips"></div>
+
+  <div id="stap"></div>
+
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="vorige">← Vorige</button>
+    <span class="nav-tel" id="nav-tel"></span>
+    <button class="nav-btn" id="volgende">Volgende →</button>
+  </div>
+
+</div>
+
+<footer>
+  <img src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script src="../js/beweging.js"></script>
+<script src="../js/grafiek.js"></script>
+<script src="../js/karretje.js"></script>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='/assets/logo/JK_dark.svg';if(fl)fl.src='/assets/logo/JK_white.svg';
+    if(fav)fav.href='/assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='/assets/logo/JK_light.svg';if(fl)fl.src='/assets/logo/JK_black.svg';
+    if(fav)fav.href='/assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+
+/* ══ STAPPEN ══
+   Elke stap: id (voor links vanuit het oefenen), chip, titel, html.
+   In de html staat <div data-demo="naam"></div> waar een demo komt; de
+   demo's staan in DEMOS met segmenten [duur, vBegin, vEind]. */
+
+const STAPPEN={
+onderbouw:[
+{id:'intro', chip:'Het karretje', titel:'Een beweging in een diagram', html:`
+<p>Een karretje rijdt over een rechte baan. Bij de <strong>startvlag</strong> begint het. Terwijl het rijdt, houden we twee dingen bij:</p>
+<ul>
+<li>hoe ver het karretje van de start is: de <strong>afstand</strong>;</li>
+<li>hoe snel het op dat moment gaat: de <strong>snelheid</strong>.</li>
+</ul>
+<p>Die twee zet je uit tegen de tijd. Zo krijg je twee diagrammen van dezelfde beweging: een <strong>afstand-tijddiagram</strong> en een <strong>snelheid-tijddiagram</strong>. Druk op afspelen en kijk hoe de lijnen meelopen met het karretje.</p>
+<div data-demo="intro"></div>
+<div class="info-box info-box--accent"><div class="info-title">Let op de stippen</div>
+<p>Elke halve seconde laat het karretje een stip achter op de baan. Liggen de stippen ver uit elkaar, dan gaat het karretje snel. Liggen ze dicht op elkaar, dan gaat het langzaam.</p></div>`},
+
+{id:'stil', chip:'Stilstand', titel:'Stilstand', html:`
+<p>In het stuk in amber staat het karretje stil. De afstand tot de start verandert niet, en de snelheid is nul.</p>
+<div data-demo="stil"></div>
+<ul>
+<li><strong>Afstand-tijddiagram:</strong> een horizontale lijn. De afstand blijft gelijk.</li>
+<li><strong>Snelheid-tijddiagram:</strong> een lijn óp nul. De snelheid is nul.</li>
+</ul>
+<p>Alle stippen uit dit stuk liggen op dezelfde plek.</p>`},
+
+{id:'constant', chip:'Constante snelheid', titel:'Constante snelheid', html:`
+<p>Het karretje rijdt, en het gaat steeds even snel. Elke seconde komt er evenveel afstand bij.</p>
+<div data-demo="constant"></div>
+<ul>
+<li><strong>Afstand-tijddiagram:</strong> een rechte, schuine lijn. Elke seconde gaat de lijn evenveel omhoog.</li>
+<li><strong>Snelheid-tijddiagram:</strong> een horizontale lijn, maar niet op nul. De snelheid blijft gelijk.</li>
+</ul>
+<div class="info-box"><div class="info-title">Steil is snel</div>
+<p>Hoe steiler de lijn in het afstand-tijddiagram, hoe groter de snelheid. In het snelheid-tijddiagram is het makkelijker: daar is de hoogte van de lijn de snelheid zelf.</p></div>`},
+
+{id:'versnellen', chip:'Versnellen', titel:'Versnellen', html:`
+<p>Het karretje gaat steeds sneller. Elke seconde komt er meer afstand bij dan de seconde ervoor.</p>
+<div data-demo="versnellen"></div>
+<ul>
+<li><strong>Afstand-tijddiagram:</strong> een kromme lijn die steeds <strong>steiler</strong> wordt.</li>
+<li><strong>Snelheid-tijddiagram:</strong> een lijn die stijgt. De snelheid wordt groter.</li>
+</ul>
+<p>Kijk naar de stippen: ze komen steeds verder uit elkaar te liggen.</p>
+<p>Hier komt er elke seconde evenveel snelheid bij. Daarom is de lijn in het snelheid-tijddiagram recht.</p>`},
+
+{id:'vertragen', chip:'Vertragen', titel:'Vertragen', html:`
+<p>Het karretje remt af: het gaat steeds langzamer. Elke seconde komt er minder afstand bij.</p>
+<div data-demo="vertragen"></div>
+<ul>
+<li><strong>Afstand-tijddiagram:</strong> een kromme lijn die steeds <strong>vlakker</strong> wordt.</li>
+<li><strong>Snelheid-tijddiagram:</strong> een lijn die daalt. De snelheid wordt kleiner.</li>
+</ul>
+<p>De stippen komen steeds dichter bij elkaar te liggen.</p>
+<p>Hier gaat er elke seconde evenveel snelheid af. Daarom is de lijn in het snelheid-tijddiagram recht.</p>`},
+
+{id:'zelfdevorm', chip:'Zelfde vorm', titel:'Zelfde vorm, ander diagram', html:`
+<p>Hier gaan de meeste fouten. Een lijn die er hetzelfde uitziet, betekent in het ene diagram iets heel anders dan in het andere. Hieronder twee horizontale lijnen:</p>
+<div data-demo="vormA"></div>
+<p>Links staat het karretje stil. Rechts rijdt het met constante snelheid. Kijk dus <strong>altijd eerst naar de as</strong>.</p>
+<div class="table-wrap"><table class="vorm">
+<tr><th>De lijn is…</th><th>Afstand-tijddiagram</th><th>Snelheid-tijddiagram</th></tr>
+<tr><td>horizontaal</td><td>stilstand</td><td>constante snelheid (of stilstand als de lijn op nul ligt)</td></tr>
+<tr><td>recht en stijgend</td><td>constante snelheid</td><td>versnellen</td></tr>
+<tr><td>recht en dalend</td><td>komt hier niet voor: het karretje rijdt alleen vooruit</td><td>vertragen</td></tr>
+<tr><td>krom, steeds steiler</td><td>versnellen</td><td>komt niet voor bij deze oefeningen</td></tr>
+<tr><td>krom, steeds vlakker</td><td>vertragen</td><td>komt niet voor bij deze oefeningen</td></tr>
+</table></div>`},
+
+{id:'getallen', chip:'Rekenen', titel:'Rekenen met een diagram', html:`
+<p>Staan er getallen bij de assen, dan kun je meer dan alleen de soort beweging zien. Drie dingen kun je doen:</p>
+<ul>
+<li><strong>Aflezen.</strong> Zoek het tijdstip op de tijdas, ga recht omhoog naar de lijn en dan opzij naar de verticale as.</li>
+<li><strong>Hoe lang staat hij stil?</strong> Kijk van waar tot waar de lijn horizontaal is (afstand) of op nul ligt (snelheid).</li>
+<li><strong>De snelheid uitrekenen</strong> uit het afstand-tijddiagram: snelheid = afstand : tijd.</li>
+</ul>
+<div data-demo="getallen"></div>
+<p>In het stuk in amber gaat de afstand van 0 m naar 12 m, van t = 4 s tot t = 8 s. Er komt dus 12 m bij in 4 s. De snelheid is 12 m : 4 s = 3 m/s.</p>
+<div class="info-box"><div class="info-title">Let op</div>
+<p>Neem altijd hoeveel afstand erbij komt in dat stuk: de afstand aan het eind min de afstand aan het begin. Niet de afstand op één moment.</p></div>`},
+
+{id:'klaar', chip:'Aan de slag', titel:'Aan de slag', html:`
+<p>Je weet nu hoe je de vier bewegingen herkent in allebei de diagrammen. Een kort overzicht:</p>
+<ul>
+<li>In het <strong>afstand-tijddiagram</strong> zit de snelheid in de steilheid van de lijn.</li>
+<li>In het <strong>snelheid-tijddiagram</strong> is de hoogte van de lijn de snelheid.</li>
+<li>Kijk altijd eerst naar de as.</li>
+</ul>
+<div class="cta-card"><h3>Oefenen</h3><p>Herken de beweging in vier levels, en reken in level 5 met getallen. Na elk antwoord rijdt het karretje de beweging na.</p>
+<a class="cta-btn" href="../oefenen/?niveau=onderbouw">Start oefenen →</a></div>`}
+],
+
+bovenbouw:[
+{id:'intro', chip:'x, v en a', titel:'Plaats, snelheid en versnelling', html:`
+<p>Een karretje rijdt over een rechte baan met een liniaal ernaast. Van die beweging maken we drie diagrammen:</p>
+<ul>
+<li><strong>x,t-diagram:</strong> de plaats <em>x</em> ten opzichte van het nulpunt. Links van het nulpunt is <em>x</em> negatief.</li>
+<li><strong>v,t-diagram:</strong> de snelheid <em>v</em>. Rijdt het karretje achteruit (naar links), dan is <em>v</em> negatief.</li>
+<li><strong>a,t-diagram:</strong> de versnelling <em>a</em>: hoe snel de snelheid verandert.</li>
+</ul>
+<div data-demo="intro"></div>
+<div class="info-box info-box--accent"><div class="info-title">Steilheid</div>
+<p>De steilheid van het x,t-diagram is de snelheid. De steilheid van het v,t-diagram is de versnelling. De stippen op de baan vallen elke halve seconde: ver uit elkaar is snel.</p></div>`},
+
+{id:'stil', chip:'Stilstand', titel:'Stilstand', html:`
+<p>In het stuk in amber staat het karretje stil.</p>
+<div data-demo="stil"></div>
+<ul>
+<li><strong>x,t:</strong> horizontaal. <em>x</em> verandert niet.</li>
+<li><strong>v,t:</strong> op de t-as: <em>v</em> = 0.</li>
+<li><strong>a,t:</strong> op de t-as: <em>a</em> = 0.</li>
+</ul>`},
+
+{id:'constant', chip:'Constante snelheid', titel:'Constante snelheid', html:`
+<p>Het karretje rijdt steeds even snel.</p>
+<div data-demo="constant"></div>
+<ul>
+<li><strong>x,t:</strong> een rechte, schuine lijn. De steilheid (de snelheid) is overal gelijk.</li>
+<li><strong>v,t:</strong> horizontaal, niet op de t-as.</li>
+<li><strong>a,t:</strong> op de t-as: <em>a</em> = 0, want de snelheid verandert niet.</li>
+</ul>`},
+
+{id:'versnellen', chip:'Versnellen', titel:'Versnellen', html:`
+<p>Het karretje gaat steeds sneller. Bij een constante versnelling heet dat <strong>eenparig versneld</strong>.</p>
+<div data-demo="versnellen"></div>
+<ul>
+<li><strong>x,t:</strong> krom, steeds steiler.</li>
+<li><strong>v,t:</strong> een rechte lijn die van de t-as af gaat.</li>
+<li><strong>a,t:</strong> horizontaal boven de t-as (bij vooruit rijden).</li>
+</ul>
+<p>Eenparig versneld betekent: de snelheid neemt elke seconde <strong>evenveel</strong> toe. Daarom is de lijn in het v,t-diagram recht, en die in het a,t-diagram horizontaal: <em>a</em> is constant.</p>`},
+
+{id:'vertragen', chip:'Vertragen', titel:'Vertragen', html:`
+<p>Het karretje remt af: <strong>eenparig vertraagd</strong>.</p>
+<div data-demo="vertragen"></div>
+<ul>
+<li><strong>x,t:</strong> krom, steeds vlakker.</li>
+<li><strong>v,t:</strong> een rechte lijn die naar de t-as toe gaat.</li>
+<li><strong>a,t:</strong> horizontaal onder de t-as (bij vooruit rijden).</li>
+</ul>
+<p>Eenparig vertraagd betekent: de snelheid neemt elke seconde <strong>evenveel</strong> af. Daarom is de lijn in het v,t-diagram recht, en die in het a,t-diagram horizontaal.</p>`},
+
+{id:'achteruit', chip:'Achteruit', titel:'Achteruit rijden', html:`
+<p>Rijdt het karretje achteruit, dan neemt <em>x</em> af en is <em>v</em> negatief. Versnellen en vertragen gaan over de <strong>grootte</strong> van de snelheid, niet over het teken. Kies hieronder welk stuk je wilt bekijken.</p>
+<div data-demo="achteruit"></div>
+<ul>
+<li><strong>Versnellen achteruit:</strong> in het v,t-diagram daalt de lijn, maar hij gaat van de t-as af. De snelheid wordt groter.</li>
+<li><strong>Vertragen achteruit:</strong> in het v,t-diagram stijgt de lijn, maar hij gaat naar de t-as toe. De snelheid wordt kleiner.</li>
+</ul>
+<div class="info-box"><div class="info-title">Vuistregel</div>
+<p>Gaat de lijn in het v,t-diagram <strong>van de t-as af</strong>, dan versnelt het karretje. Gaat hij <strong>naar de t-as toe</strong>, dan vertraagt het. Of de lijn stijgt of daalt, maakt niet uit.</p></div>`},
+
+{id:'versnelling', chip:'a,t-diagram', titel:'Het a,t-diagram', html:`
+<p>Aan het a,t-diagram zie je hoe de snelheid verandert, maar niet hoe groot die snelheid is. Dat heeft twee gevolgen.</p>
+<p><strong>1. Bij a = 0 weet je niet of het karretje stilstaat.</strong> Hieronder hebben beide gemarkeerde stukken <em>a</em> = 0. In het eerste staat het karretje stil, in het tweede rijdt het met constante snelheid.</p>
+<div data-demo="anul"></div>
+<p><strong>2. Negatieve a is niet altijd vertragen.</strong> Of het karretje versnelt of vertraagt, hangt af van de richting:</p>
+<ul>
+<li>Als <em>a</em> en <em>v</em> <strong>hetzelfde teken</strong> hebben, wordt de snelheid groter: het karretje versnelt.</li>
+<li>Als <em>a</em> en <em>v</em> een <strong>tegengesteld teken</strong> hebben, wordt de snelheid kleiner: het karretje vertraagt.</li>
+</ul>
+<div data-demo="ateken"></div>
+<p>In het gemarkeerde stuk is <em>a</em> positief, maar het karretje rijdt achteruit en remt af.</p>`},
+
+{id:'zelfdevorm', chip:'Zelfde vorm', titel:'Zelfde vorm, ander diagram', html:`
+<p>Een lijn die er hetzelfde uitziet, betekent in elk diagram iets anders. Hieronder twee horizontale lijnen:</p>
+<div data-demo="vormA"></div>
+<p>Links staat het karretje stil, rechts rijdt het met constante snelheid. Kijk dus <strong>altijd eerst naar de as</strong>.</p>
+<div class="table-wrap"><table class="vorm">
+<tr><th>De lijn is…</th><th>x,t</th><th>v,t</th><th>a,t</th></tr>
+<tr><td>horizontaal op de t-as</td><td>stilstand (in het nulpunt)</td><td>stilstand</td><td>stilstand of constante snelheid</td></tr>
+<tr><td>horizontaal, niet op de t-as</td><td>stilstand</td><td>constante snelheid</td><td>versnellen of vertragen (hangt af van de richting)</td></tr>
+<tr><td>recht en schuin</td><td>constante snelheid</td><td>versnellen of vertragen</td><td>komt niet voor</td></tr>
+<tr><td>krom</td><td>versnellen of vertragen</td><td>komt niet voor</td><td>komt niet voor</td></tr>
+</table></div>`},
+
+{id:'getallen', chip:'Rekenen', titel:'Rekenen met een diagram', html:`
+<p>Met getallen bij de assen kun je ook rekenen:</p>
+<ul>
+<li><strong>Snelheid uit het x,t-diagram:</strong> de steilheid. <em>v</em> = Δ<em>x</em> / Δ<em>t</em>.</li>
+<li><strong>Versnelling uit het v,t-diagram:</strong> de steilheid. <em>a</em> = Δ<em>v</em> / Δ<em>t</em>.</li>
+<li><strong>Afstand over meer stukken:</strong> deel het op in rechthoeken, driehoeken en trapezia, en tel de oppervlaktes op.</li>
+<li><strong>Afstand uit het v,t-diagram:</strong> de oppervlakte tussen de lijn en de t-as. Dat is een rechthoek, een driehoek of een trapezium. Bij een rechte lijn kan het ook met de gemiddelde snelheid: (begin + eind) / 2, keer de tijd. Dat komt op hetzelfde neer; de oppervlakte is handig als de beweging uit meer stukken bestaat.</li>
+</ul>
+<div data-demo="getallen"></div>
+<p>In het stuk in amber gaat <em>v</em> van 0 naar 2 m/s in 4 s: <em>a</em> = (2 − 0) / (4 − 0) = 0,5 m/s². De oppervlakte onder de v,t-lijn is een driehoek: ½ × 4 × 2 = 4 m. Kijk in het x,t-diagram: <em>x</em> gaat in dat stuk inderdaad van 0 naar 4 m.</p>
+<div class="info-box"><div class="info-title">Let op het teken</div>
+<p>Δ betekent: eind min begin. Daalt de lijn in het x,t-diagram, dan is <em>v</em> negatief. Daalt de lijn in het v,t-diagram, dan is <em>a</em> negatief. Een afgelegde afstand is altijd positief, ook als de lijn onder de t-as ligt.</p></div>`},
+
+{id:'klaar', chip:'Aan de slag', titel:'Aan de slag', html:`
+<ul>
+<li>In het <strong>x,t-diagram</strong> is de steilheid de snelheid.</li>
+<li>In het <strong>v,t-diagram</strong> is de hoogte de snelheid en de steilheid de versnelling. Van de t-as af is versnellen, naar de t-as toe is vertragen.</li>
+<li>In het <strong>a,t-diagram</strong> is de hoogte de versnelling. Vergelijk het teken van <em>a</em> met de richting.</li>
+</ul>
+<div class="cta-card"><h3>Oefenen</h3><p>Herken de beweging in zes levels, van het v,t-diagram tot het a,t-diagram met achteruitrijden. In level 7 reken je met getallen.</p>
+<a class="cta-btn" href="../oefenen/?niveau=bovenbouw">Start oefenen →</a></div>`}
+]
+};
+
+// Demo's per spoor. diagrammen: welke diagrammen onder het karretje.
+// keuzes: knoppen om een ander stuk te markeren. paar: twee losse demo's naast elkaar.
+const DEMOS={
+onderbouw:{
+  intro:{segs:[[3,0,4],[4,4,4],[3,4,0],[2,0,0]], diagrammen:['x','v'], markeer:null},
+  stil:{segs:[[4,3,3],[4,0,0],[4,3,3]], diagrammen:['x','v'], markeer:1},
+  constant:{segs:[[2,0,0],[10,3,3]], diagrammen:['x','v'], markeer:1},
+  versnellen:{segs:[[2,0,0],[8,0,6],[2,6,6]], diagrammen:['x','v'], markeer:1},
+  vertragen:{segs:[[2,6,6],[8,6,0],[2,0,0]], diagrammen:['x','v'], markeer:1},
+  getallen:{segs:[[4,0,0],[4,3,3],[4,0,0]], diagrammen:['x'], markeer:1, getallen:true},
+  vormA:{paar:[
+    {titel:'Afstand-tijddiagram', segs:[[12,0,0]], x0:6, diagrammen:['x'], markeer:0},
+    {titel:'Snelheid-tijddiagram', segs:[[12,3,3]], diagrammen:['v'], markeer:0}
+  ]}
+},
+bovenbouw:{
+  intro:{segs:[[3,0,4],[4,4,4],[3,4,0],[2,0,0]], diagrammen:['x','v','a'], markeer:null},
+  // Geen sprongen in de snelheid: dan zou a op dat moment oneindig groot zijn.
+  stil:{segs:[[3,4,0],[4,0,0],[3,0,4]], diagrammen:['x','v','a'], markeer:1},
+  constant:{segs:[[3,0,3],[9,3,3]], diagrammen:['x','v','a'], markeer:1},
+  versnellen:{segs:[[2,0,0],[8,0,6],[2,6,6]], diagrammen:['x','v','a'], markeer:1},
+  vertragen:{segs:[[2,6,6],[8,6,0],[2,0,0]], diagrammen:['x','v','a'], markeer:1},
+  achteruit:{segs:[[5,0,-5],[5,-5,0],[2,0,0]], diagrammen:['x','v','a'], markeer:0,
+             keuzes:[['Versnellen achteruit',0],['Vertragen achteruit',1]]},
+  anul:{segs:[[3,0,0],[3,0,4],[4,4,4],[2,4,0]], diagrammen:['v','a'], markeer:[0,2]},
+  ateken:{segs:[[4,0,-5],[4,-5,0],[2,0,0]], diagrammen:['v','a'], markeer:1},
+  getallen:{segs:[[4,0,2],[4,2,2],[4,2,0]], diagrammen:['v','x'], markeer:0, getallen:true},
+  vormA:{paar:[
+    {titel:'x,t-diagram', segs:[[12,0,0]], x0:6, diagrammen:['x'], markeer:0},
+    {titel:'v,t-diagram', segs:[[12,3,3]], diagrammen:['v'], markeer:0}
+  ]}
+}
+};
+
+// Probeer het zelf: een gegenereerde vraag per stap, met "Nog een vraag".
+// Het antwoord komt uit de bewegingen die tot en met die stap behandeld zijn,
+// zodat het niet vanzelf de titel van de stap is. Bij stilstand is er nog
+// niets te kiezen, dus daar staat geen vraag.
+const VRAGEN={
+onderbouw:{
+  constant:{level:3, uit:['stil','constant']},
+  versnellen:{level:3, uit:['stil','constant','versnellen']},
+  vertragen:{level:3, uit:SOORTEN},
+  zelfdevorm:{level:4, vast:{contrast:true}}
+},
+bovenbouw:{
+  constant:{level:2, uit:['stil','constant']},
+  versnellen:{level:2, uit:['stil','constant','versnellen']},
+  vertragen:{level:2, uit:SOORTEN},
+  achteruit:{level:4, vast:{achteruit:true}},
+  zelfdevorm:{level:3, vast:{contrast:true}}
+}
+};
+
+function bouwZelf(houder, spec){
+  let vorige=null;
+  houder.className='zelf';
+  function nieuweVraag(){
+    let vraag=null;
+    for(let k=0;k<20 && !vraag;k++){
+      const vast=Object.assign({}, spec.vast||{});
+      if(spec.uit){
+        // Niet twee keer achter elkaar hetzelfde antwoord.
+        const keuze=spec.uit.filter(x=>!vorige || x!==vorige.soort);
+        vast.doel=keuze[Math.floor(Math.random()*keuze.length)];
+      }
+      vraag=maakVraag(spoor, spec.level, {vast, vorige});
+    }
+    vorige=vraag;
+    houder.innerHTML='<div class="zelf-kop">PROBEER HET ZELF</div>'+
+      '<div class="zelf-vraag">Wat doet het karretje in het gemarkeerde stuk?</div>'+
+      '<div class="zelf-body"><div class="zelf-grafiek"></div><div class="zelf-knoppen">'+
+      SOORTEN.map(x=>'<button data-soort="'+x+'">'+SOORT_NAAM[x]+'</button>').join('')+
+      '</div></div><div class="zelf-uitleg"></div>'+
+      '<div class="zelf-nog"><button class="nav-btn secondary">Nog een vraag ↻</button></div>';
+    maakGrafiek(houder.querySelector('.zelf-grafiek'), vraag.beweging, {diagram:vraag.diagram, spoor, markeer:vraag.index, klein:true});
+    houder.querySelector('.zelf-nog button').onclick=nieuweVraag;
+    houder.querySelectorAll('.zelf-knoppen button').forEach(b=>{
+      b.onclick=()=>{
+        const gekozen=b.dataset.soort, goed=vraag.goed.includes(gekozen);
+        houder.querySelectorAll('.zelf-knoppen button').forEach(k=>{
+          k.disabled=true;
+          if(vraag.goed.includes(k.dataset.soort)) k.classList.add('goed');
+          else if(k===b) k.classList.add('fout');
+        });
+        const d=diagnose(vraag,gekozen);
+        // Een richtingsfout legt zelf al uit wat er gebeurt (zoals bij het oefenen).
+        const alleenDiag=d && d.code==='richting' && vraag.diagram!=='a';
+        const u=houder.querySelector('.zelf-uitleg');
+        u.innerHTML=goed ? '<b>Goed.</b> '+uitlegTekst(vraag)
+          : '<b>Niet goed.</b> '+(alleenDiag ? d.tekst : (d&&d.tekst?d.tekst+' ':'')+uitlegTekst(vraag));
+        u.classList.add('show');
+      };
+    });
+  }
+  nieuweVraag();
+}
+
+/* ══ WEERGAVE ══ */
+const el=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+let spoor=params.get('niveau')==='bovenbouw'?'bovenbouw':'onderbouw';
+let huidig=0, scenes=[];
+
+function bouwDemo(houder, d, metTitel){
+  const b=bouwBeweging(d.segs, d.x0||0);
+  const n=d.diagrammen.length;
+  houder.className='demo';
+  houder.innerHTML=(metTitel?'<div class="demo-titel">'+d.titel+'</div>':'')+
+    (d.keuzes?'<div class="demo-markeer">'+d.keuzes.map(([t,i],k)=>'<button data-i="'+i+'" class="'+(k===0?'aan':'')+'">'+t+'</button>').join('')+'</div>':'')+
+    '<div class="demo-baan"></div><div class="demo-grafieken n'+n+'">'+
+    d.diagrammen.map(()=>'<div><div class="g"></div></div>').join('')+'</div>'+
+    '<div class="bg-speel"><button class="vol">▶ Afspelen</button><button>Langzaam</button></div>';
+  const scene=maakScene({
+    karretje:houder.querySelector('.demo-baan'),
+    grafieken:[...houder.querySelectorAll('.g')].map((g,i)=>({houder:g, diagram:d.diagrammen[i]})),
+    beweging:b, spoor, markeer:d.markeer, klein:n>1, getallen:!!d.getallen
+  });
+  const [speel,langzaam]=houder.querySelectorAll('.bg-speel button');
+  speel.onclick=()=>scene.speel('normaal');
+  langzaam.onclick=()=>scene.speel('langzaam');
+  houder.querySelectorAll('.demo-markeer button').forEach(k=>{
+    k.onclick=()=>{
+      houder.querySelectorAll('.demo-markeer button').forEach(x=>x.classList.toggle('aan',x===k));
+      scene.zetMarkering(Number(k.dataset.i));
+      scene.speel('normaal');
+    };
+  });
+  scenes.push(scene);
+}
+
+function tekenStap(){
+  scenes.forEach(s=>s.stop()); scenes=[];
+  const lijst=STAPPEN[spoor], s=lijst[huidig];
+  el('stap').innerHTML='<span class="badge">Stap '+(huidig+1)+' van '+lijst.length+'</span>'+
+    '<h2 class="step-title">'+s.titel+'</h2><div class="content">'+s.html+'</div>';
+  el('stap').querySelectorAll('[data-demo]').forEach(h=>{
+    const d=DEMOS[spoor][h.dataset.demo];
+    if(d.paar){
+      h.className='demo-paar';
+      h.innerHTML=d.paar.map(()=>'<div></div>').join('');
+      [...h.children].forEach((c,i)=>bouwDemo(c,d.paar[i],true));
+    } else bouwDemo(h,d,false);
+  });
+  const zelf=VRAGEN[spoor][s.id];
+  if(zelf){
+    const h=document.createElement('div');
+    el('stap').querySelector('.content').appendChild(h);
+    bouwZelf(h, zelf);
+  }
+  el('chips').innerHTML=lijst.map((x,i)=>'<button class="step-chip'+(i===huidig?' active':(i<huidig?' done':''))+'" data-i="'+i+'">'+x.chip+'</button>').join('');
+  el('chips').querySelectorAll('.step-chip').forEach(c=>c.onclick=()=>gaNaar(Number(c.dataset.i)));
+  el('progress').style.width=((huidig+1)/lijst.length*100)+'%';
+  el('vorige').disabled=huidig===0;
+  el('volgende').disabled=huidig===lijst.length-1;
+  el('nav-tel').textContent=(huidig+1)+' / '+lijst.length;
+  document.querySelectorAll('.spoor-btn').forEach(b=>{
+    const aan=b.dataset.spoor===spoor;
+    b.classList.toggle('active',aan); b.setAttribute('aria-selected',String(aan));
+  });
+  el('tool-sub').textContent='Uitleg · '+spoor;
+  el('crumb-tool').href='../#'+spoor;
+  const u=new URL(location.href);
+  u.searchParams.set('niveau',spoor); u.searchParams.set('stap',s.id);
+  history.replaceState(null,'',u);
+}
+
+function gaNaar(i){
+  const n=STAPPEN[spoor].length;
+  huidig=Math.max(0,Math.min(n-1,i));
+  tekenStap();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+el('vorige').onclick=()=>gaNaar(huidig-1);
+el('volgende').onclick=()=>gaNaar(huidig+1);
+document.querySelectorAll('.spoor-btn').forEach(b=>{
+  b.onclick=()=>{
+    if(b.dataset.spoor===spoor) return;
+    const id=STAPPEN[spoor][huidig].id;
+    spoor=b.dataset.spoor;
+    const j=STAPPEN[spoor].findIndex(x=>x.id===id);
+    huidig=j>=0?j:0;
+    tekenStap();
+  };
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,textarea,select')) return;
+  if(e.key==='ArrowRight') gaNaar(huidig+1);
+  else if(e.key==='ArrowLeft') gaNaar(huidig-1);
+});
+
+// ?stap=… opent meteen de goede stap (links vanuit het oefenen).
+const start=STAPPEN[spoor].findIndex(x=>x.id===params.get('stap'));
+huidig=start>=0?start:0;
+tekenStap();
+</script>
+</body>
+</html>

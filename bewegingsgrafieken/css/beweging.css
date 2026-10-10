@@ -1,0 +1,50 @@
+/* Grafiek en karretje: gedeeld door uitleg en oefenen.
+   Gebruikt de themavariabelen van de pagina (--text, --accent, ...). */
+
+.bg-grafiek,.bg-baan{display:block;width:100%;height:auto;overflow:visible;font-family:var(--font)}
+
+.bg-raster line{stroke:var(--border-solid);stroke-width:1}
+.bg-as line{stroke:var(--text);stroke-width:2;stroke-linecap:round}
+.bg-pijl{fill:none;stroke:var(--text);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bg-label{fill:var(--text-secondary);font-size:15px;font-weight:600}
+.bg-getal{fill:var(--text-secondary);font-size:14px;font-weight:500}
+.bg-nul{fill:var(--text);font-size:17px;font-weight:700}
+
+.bg-lijn{fill:none;stroke:var(--text);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.bg-lijn--mark{stroke:var(--accent-amber);stroke-width:5.5}
+.bg-sprong line{stroke:var(--text-muted);stroke-width:1.6;stroke-dasharray:3 4}
+.bg-stip{fill:var(--text)}
+.bg-stip--mark{fill:var(--accent-amber);r:5}
+.bg-band{fill:rgba(212,146,58,0.13);transition:fill .25s}
+.bg-grafiek.is-actief .bg-band{fill:rgba(212,146,58,0.3)}
+[data-theme="dark"] .bg-band{fill:rgba(212,146,58,0.2)}
+[data-theme="dark"] .bg-grafiek.is-actief .bg-band{fill:rgba(212,146,58,0.36)}
+
+.bg-cursor line{stroke:var(--accent);stroke-width:2}
+.bg-cursor circle{fill:var(--accent);stroke:var(--bg-card);stroke-width:2}
+
+/* Baan met karretje */
+.bg-baan-lijn{stroke:var(--text-muted);stroke-width:3;stroke-linecap:round}
+.bg-baan-tekst{fill:var(--text-muted);font-size:12.5px;font-weight:600}
+.bg-baan-tekst--as{font-style:italic;font-size:14px;fill:var(--text-secondary)}
+.bg-vlag line{stroke:var(--text-secondary);stroke-width:2}
+.bg-vlag path{fill:var(--accent-amber)}
+.bg-liniaal line{stroke:var(--text-muted);stroke-width:1.4}
+.bg-liniaal .bg-pijl{stroke:var(--text-muted);stroke-width:1.4}
+.bg-maat line{stroke:var(--accent);stroke-width:1.8}
+.bg-maat text{fill:var(--accent)}
+.bg-kar-romp{fill:var(--accent)}
+.bg-kar-ruit{fill:var(--bg-card);opacity:.85}
+.bg-kar-lamp{fill:#fde68a}
+.bg-kar-pijl{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.bg-kar-wiel{fill:var(--bg-card);stroke:var(--text);stroke-width:2.2}
+.bg-kar-spaak{stroke:var(--text);stroke-width:1.6}
+.bg-afdruk{fill:var(--text-muted)}
+.bg-afdruk--mark{fill:var(--accent-amber)}
+
+/* Afspeelknoppen onder een scène */
+.bg-speel{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.bg-speel button{font-family:var(--font);font-size:13px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer;border:1px solid var(--accent-border);background:transparent;color:var(--accent);transition:all .15s}
+.bg-speel button:hover{background:var(--accent-dim)}
+.bg-speel button.vol{background:var(--accent);border-color:var(--accent);color:#fff}
+.bg-speel button.vol:hover{background:#0999aa}
