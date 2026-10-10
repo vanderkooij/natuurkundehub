@@ -29,45 +29,60 @@
 </script>
 <link rel="icon" type="image/svg+xml" href="/assets/logo/JK_light.svg" id="favicon">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('nh-theme'); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
 <style>
   :root {
     --bg-primary: #f8f9fa;
-    --bg-primary-rgb: 248, 249, 250;
     --bg-secondary: #eef6f7;
     --bg-card: #ffffff;
     --bg-card-hover: #f0fafb;
+    --bg-stage: #f2f8f9;
     --accent: #0BB5C8;
+    --accent-soft: rgba(11, 181, 200, 0.1);
     --accent-glow: rgba(11, 181, 200, 0.2);
     --accent-amber: #D4923A;
-    --accent-amber-glow: rgba(212, 146, 58, 0.15);
+    --amber-soft: rgba(212, 146, 58, 0.12);
     --text-primary: #1A1A2E;
     --text-secondary: #2d2d4a;
     --text-muted: #64748b;
-    --border: rgba(11, 181, 200, 0.12);
+    --border: rgba(11, 181, 200, 0.14);
     --border-hover: rgba(11, 181, 200, 0.45);
     --border-solid: #d4e8ec;
+    --grid-line: rgba(11, 181, 200, 0.06);
+    --nav-bg: rgba(255, 255, 255, 0.6);
     --radius: 16px;
     --font-display: 'Space Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+    --font-math: 'KaTeX_Math', 'Cambria Math', Georgia, serif;
   }
-
   [data-theme="dark"] {
     --bg-primary: #0f1117;
-    --bg-primary-rgb: 15, 17, 23;
     --bg-secondary: #161b26;
     --bg-card: #1c2333;
     --bg-card-hover: #222b3d;
+    --bg-stage: #161d2b;
+    --accent-soft: rgba(11, 181, 200, 0.12);
     --accent-glow: rgba(11, 181, 200, 0.25);
-    --accent-amber-glow: rgba(212, 146, 58, 0.2);
+    --amber-soft: rgba(212, 146, 58, 0.16);
     --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --border: rgba(11, 181, 200, 0.08);
+    --border: rgba(11, 181, 200, 0.1);
     --border-hover: rgba(11, 181, 200, 0.45);
     --border-solid: #1e2d44;
+    --grid-line: rgba(11, 181, 200, 0.05);
+    --nav-bg: rgba(15, 17, 23, 0.6);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
 
   body {
     font-family: var(--font-display);
@@ -77,31 +92,28 @@
     overflow-x: hidden;
     transition: background .3s, color .3s;
   }
-
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(11, 181, 200, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(11, 181, 200, 0.06) 1px, transparent 1px);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 60px 60px;
     pointer-events: none;
     z-index: 0;
   }
-
   .ambient-glow {
     position: fixed;
-    width: 600px;
-    height: 600px;
+    width: 600px; height: 600px;
     border-radius: 50%;
     filter: blur(120px);
-    opacity: 0.25;
+    opacity: 0.22;
     pointer-events: none;
     z-index: 0;
+    background: var(--accent);
+    top: -220px; right: -120px;
   }
-  .ambient-glow--blue { background: var(--accent); top: -200px; right: -100px; }
-  .ambient-glow--cyan { background: var(--accent-amber); bottom: -200px; left: -100px; }
 
   .container {
     position: relative;
@@ -111,46 +123,24 @@
     padding: 0 24px;
   }
 
+  /* ---------- Header (ongewijzigd t.o.v. nu) ---------- */
   nav.nav-home {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 68px;
+    height: 68px;
     padding: 0 32px;
     border-bottom: 1px solid var(--border);
-    animation: fadeDown 0.6s ease-out;
     position: sticky;
     top: 0;
     z-index: 100;
     backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.6);
+    -webkit-backdrop-filter: blur(12px);
+    background: var(--nav-bg);
   }
-
-  [data-theme="dark"] nav.nav-home {
-    background: rgba(15,17,23,0.6);
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--text-primary);
-  }
-
-  nav.nav-home .logo-text { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-  nav.nav-home .logo-text span { color: var(--accent); }
-
-  .hero-site-name {
-    font-size: clamp(44px, 8vw, 70px);
-    font-weight: 700;
-    letter-spacing: -2.5px;
-    line-height: 1;
-    margin-bottom: 12px;
-    color: var(--text-primary);
-  }
-  .hero-site-name span { color: var(--accent); }
-
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-primary); }
+  .logo-text { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-text span { color: var(--accent); }
   .theme-toggle {
     background: transparent;
     border: 1px solid var(--border-solid);
@@ -159,384 +149,862 @@
     cursor: pointer;
     font-size: 16px;
     color: var(--text-muted);
-    transition: all .2s;
     line-height: 1;
   }
-  .theme-toggle:hover { border-color: var(--border-hover); color: var(--accent); }
+  .theme-toggle:hover { border-color: var(--border-hover); }
 
-  .hero {
-    padding: 80px 0 60px;
-    text-align: center;
-    animation: fadeUp 0.7s ease-out 0.15s both;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--accent);
-    background: rgba(11, 181, 200, 0.08);
-    border: 1px solid rgba(11, 181, 200, 0.15);
-    padding: 6px 14px;
-    border-radius: 100px;
-    margin-bottom: 24px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .hero-badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
+  /* ---------- Hero: één regel + zoekveld ---------- */
+  .hero { padding: 30px 0 14px; text-align: center; }
   .hero h1 {
-    font-size: clamp(20px, 3.5vw, 30px);
-    font-weight: 500;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-    margin-bottom: 16px;
-    color: var(--text-secondary);
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.15;
   }
-  .hero h1 .gradient {
-    background: linear-gradient(135deg, var(--accent), var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
+  .hero h1 span { color: var(--accent); }
   .hero p {
-    font-size: 18px;
-    color: var(--text-secondary);
-    max-width: 520px;
-    margin: 0 auto;
-    line-height: 1.6;
+    margin-top: 8px;
+    font-size: 16px;
+    color: var(--text-muted);
   }
 
-  .tools-section { padding: 20px 0 80px; }
-
-  .section-label {
+  .search {
+    position: relative;
+    max-width: 520px;
+    margin: 22px auto 0;
+  }
+  .search svg {
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    font: inherit;
+    font-size: 15px;
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-solid);
+    border-radius: 12px;
+    padding: 12px 48px 12px 44px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search input::placeholder { color: var(--text-muted); }
+  .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+  .search kbd {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 24px;
-    animation: fadeUp 0.7s ease-out 0.3s both;
+    border: 1px solid var(--border-solid);
+    border-radius: 6px;
+    padding: 1px 7px;
   }
 
-  .tools-grid {
+  /* ---------- Verder waar je was ---------- */
+  .resume {
+    display: none;
+    width: fit-content;
+    margin: 14px auto 0;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    background: var(--amber-soft);
+    border: 1px solid rgba(212, 146, 58, 0.3);
+    border-radius: 100px;
+    padding: 7px 8px 7px 16px;
+    transition: border-color .2s, transform .2s;
+  }
+  .resume.is-visible { display: inline-flex; }
+  .resume:hover { border-color: var(--accent-amber); transform: translateY(-1px); }
+  .resume strong { color: var(--text-primary); font-weight: 600; }
+  .resume .go {
+    background: var(--accent-amber);
+    color: #fff;
+    border-radius: 100px;
+    padding: 3px 12px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .resume-wrap { text-align: center; }
+
+  /* ---------- Snelknoppen per categorie ---------- */
+  .jumpbar {
+    position: sticky;
+    top: 68px;
+    z-index: 50;
+    padding: 10px 0;
+    margin-top: 6px;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s, background .2s;
+  }
+  .jumpbar.is-stuck {
+    border-bottom-color: var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: var(--nav-bg);
+  }
+  .jumpbar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .jumpbar-inner::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border: 1px solid var(--border-solid);
+    background: var(--bg-card);
+    border-radius: 100px;
+    padding: 6px 14px;
+    transition: all .2s;
+  }
+  .chip:hover { border-color: var(--border-hover); color: var(--accent); }
+  .chip.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: .7;
+  }
+
+  /* ---------- Secties ---------- */
+  .category { padding-top: 22px; scroll-margin-top: 130px; }
+  .category + .category { padding-top: 36px; }
+  .category-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .category-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  .category-head .sub { font-size: 14px; color: var(--text-muted); }
+  .category-head::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    align-self: center;
+  }
+
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
   }
 
-  .tool-card {
+  /* ---------- Tegel ---------- */
+  .card {
+    display: flex;
+    flex-direction: column;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 32px 28px;
+    overflow: hidden;
     text-decoration: none;
     color: var(--text-primary);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.6s ease-out both;
-    cursor: pointer;
-    display: block;
     box-shadow: 0 2px 12px rgba(11, 181, 200, 0.07);
+    transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s, border-color .3s, background .3s;
   }
-  .tool-card:nth-child(1) { animation-delay: 0.4s; }
-  .tool-card:nth-child(2) { animation-delay: 0.5s; }
-  .tool-card:nth-child(3) { animation-delay: 0.6s; }
-
-  .tool-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent-amber), transparent);
-  }
-
-  .tool-card:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-hover);
+  .card:hover, .card:focus-visible {
     transform: translateY(-4px);
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
     box-shadow: 0 12px 40px rgba(11, 181, 200, 0.12), 0 0 30px var(--accent-glow);
+    outline: none;
   }
 
-  .tool-icon {
-    width: 48px; height: 48px;
-    border-radius: 12px;
+  .stage {
+    position: relative;
+    height: 128px;
+    background-color: var(--bg-stage);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 14px 14px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
   }
-  .tool-icon--blue { background: rgba(11, 181, 200, 0.1); border: 1px solid rgba(11, 181, 200, 0.15); }
-  .tool-icon--cyan { background: rgba(212, 146, 58, 0.1); border: 1px solid rgba(212, 146, 58, 0.15); }
-  .tool-icon--purple { background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(100, 116, 139, 0.15); }
+  .stage svg { width: 100%; height: 100%; display: block; }
+  /* Lab: schermafbeelding met een bewegende laag erop, in dezelfde coordinaten (1200x630) */
+  .shot {
+    position: absolute;
+    left: 0; top: 50%;
+    width: 100%;
+    aspect-ratio: 1200 / 630;
+    transform-origin: var(--ox) var(--oy);
+    transform: translateY(calc(-1 * var(--oy))) scale(var(--zoom));
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  .card:hover .shot, .card:focus-visible .shot { transform: translateY(calc(-1 * var(--oy))) scale(calc(var(--zoom) * 1.04)); }
+  .shot img, .shot svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  [data-theme="dark"] .shot img { filter: brightness(.82); }
+  /* Uitgezoomd (zoom < 1): de rand opvullen met de achtergrondkleur van de schermafbeelding */
+  .stage[style*="--fill"]::before { content: ''; position: absolute; inset: 0; background: var(--fill); }
+  [data-theme="dark"] .stage[style*="--fill"]::before { filter: brightness(.82); }
+  .overlay { opacity: 0; transition: opacity .3s; }
+  .card:hover .overlay, .card:focus-visible .overlay { opacity: 1; }
+  .ov-dot { fill: var(--accent-amber); stroke: #fff; stroke-width: 4; }
+  .ov-halo { fill: var(--accent-amber); opacity: .25; }
+  .ov-cursor { stroke: var(--accent-amber); stroke-width: 3; stroke-dasharray: 8 8; }
+  .ov-tangent { stroke: var(--accent-amber); stroke-width: 5; stroke-linecap: round; }
+  .ov-trace { fill: none; stroke: var(--accent); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+  .ov-pen { fill: var(--accent); stroke: #fff; stroke-width: 4; }
+  .ov-flow { fill: none; stroke: #ffb020; stroke-width: 11; stroke-linecap: round; stroke-dasharray: 0 36; filter: drop-shadow(0 0 6px rgba(255, 176, 32, .9)); }
+  .card:hover .ov-flow--main { animation: flow .9s linear infinite; }
+  .card:hover .ov-flow--branch { animation: flow 1.4s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -72; } }
+  .stage-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+    background: rgba(26, 26, 46, 0.72);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
 
-  .tool-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.3px; }
-  .tool-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
-
-  .tool-tag {
+  .card-body { padding: 18px 22px 20px; display: flex; flex-direction: column; flex: 1; }
+  .card-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .card h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.3px; }
+  .arrow { color: var(--text-muted); font-size: 18px; transition: transform .3s, color .3s; }
+  .card:hover .arrow { color: var(--accent); transform: translateX(4px); }
+  .card p { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 14px; }
+  .tags { margin-top: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--text-muted);
     background: rgba(100, 116, 139, 0.1);
-    padding: 4px 10px;
+    padding: 3px 9px;
     border-radius: 6px;
-    display: inline-block;
+  }
+  .tag--niveau { color: var(--accent); background: var(--accent-soft); }
+
+  .empty { display: none; text-align: center; color: var(--text-muted); padding: 48px 0; }
+  .empty.is-visible { display: block; }
+
+  /* ---------- Illustraties (bewegen bij hover) ---------- */
+  .ill text { font-family: var(--font-display); fill: var(--text-primary); }
+  .ill .math { font-family: var(--font-math); font-style: italic; }
+  .ill .mono { font-family: var(--font-mono); }
+  .ill .muted { fill: var(--text-muted); }
+  .ill .axis { stroke: var(--text-muted); stroke-width: 1.5; fill: none; }
+  .ill .curve { stroke: var(--accent); stroke-width: 3; fill: none; stroke-linecap: round; }
+  .ill .track { stroke: var(--text-muted); stroke-width: 1.5; stroke-dasharray: 2 4; }
+  .ill .cart-body { fill: var(--accent-amber); }
+  .ill .wheel { fill: var(--text-primary); }
+
+  /* Formules: de stapper in het klein, met wegstrepen */
+  .stage--stapper { font-size: 22px; color: var(--text-primary); }
+  .st-step {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .3s, transform .3s;
+  }
+  .stage--stapper[data-step="0"] [data-s="0"],
+  .stage--stapper[data-step="1"] [data-s="1"],
+  .stage--stapper[data-step="2"] [data-s="2"],
+  .stage--stapper[data-step="3"] [data-s="3"],
+  .stage--stapper[data-step="4"] [data-s="4"] { opacity: 1; transform: none; }
+  [data-s="1"], [data-s="2"] { transition-duration: .05s; }
+  .st-regel { display: flex; align-items: center; gap: 8px; }
+  .st-regel i { font-family: var(--font-math); font-style: italic; padding: 0 1px; position: relative; }
+  .st-regel .isg { color: var(--accent); font-weight: 500; }
+  .st-regel .op { color: var(--text-muted); }
+  .st-uitleg { font-size: 12.5px; color: var(--text-muted); }
+  .st-uitleg b { color: var(--accent); font-weight: 600; }
+  .breuk { display: inline-flex; flex-direction: column; align-items: stretch; }
+  .breuk > span { display: flex; justify-content: center; align-items: center; gap: 4px; line-height: 1.15; }
+  .breuk > .teller { padding: 0 6px 3px; border-bottom: 1.5px solid currentColor; }
+  .breuk > .noemer { padding: 3px 6px 0; }
+  [data-s="2"] .wv { color: var(--accent-amber); }
+  [data-s="2"] .wv::after {
+    content: ''; position: absolute; left: -2px; right: -2px; top: 52%; height: 2px;
+    background: var(--accent-amber); transform: scaleX(0); transform-origin: left center;
+  }
+  .stage--stapper[data-step="2"] [data-s="2"] .wv::after { animation: streepDoor .3s ease-out .35s forwards; }
+  .stage--stapper[data-step="2"] [data-s="2"] .wv { animation: wegDimmen .3s ease-out .65s forwards; }
+  @keyframes streepDoor { to { transform: scaleX(1); } }
+  @keyframes wegDimmen { to { opacity: .5; } }
+  [data-s="4"] .st-regel, [data-s="4"] .st-uitleg { color: #16a34a; }
+  [data-s="4"] .st-regel { font-weight: 500; }
+  [data-theme="dark"] [data-s="4"] .st-regel, [data-theme="dark"] [data-s="4"] .st-uitleg { color: #4ade80; }
+
+  /* Voorvoegsels: 4500 m → 4,5 km → 4,5·10³ m */
+  .v-s { opacity: 0; }
+  .v-s1 { opacity: 1; }
+  .card:hover .v-s { animation: cycle3 4.2s ease-in-out infinite; }
+  .card:hover .v-s2 { animation-delay: 1.4s; }
+  .card:hover .v-s3 { animation-delay: 2.8s; }
+  @keyframes cycle3 {
+    0% { opacity: 0; transform: translateY(8px); }
+    6%, 30% { opacity: 1; transform: none; }
+    36%, 100% { opacity: 0; transform: translateY(-8px); }
   }
 
-  .tool-arrow {
-    position: absolute;
-    top: 32px; right: 28px;
-    font-size: 18px;
-    color: var(--text-muted);
-    transition: all 0.3s;
-  }
-  .tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(4px); }
+  /* Significantie: de significante cijfers lichten op */
+  .sig-d { fill: var(--text-primary); transition: fill .2s; }
+  .sig-bar { fill: var(--accent-amber); transform-box: fill-box; transform-origin: left; transform: scaleX(0); }
+  .sig-label { opacity: 0; }
+  .card:hover .sig-lead { animation: dimLead 3s ease-in-out infinite; }
+  .card:hover .sig-d.is-sig { animation: litDigit 3s ease-in-out infinite; }
+  .card:hover .sig-bar { animation: litBar 3s ease-in-out infinite; }
+  .card:hover .sig-label { animation: showLabel 3s ease-in-out infinite; }
+  .card:hover .d2 { animation-delay: .25s; }
+  .card:hover .d3 { animation-delay: .5s; }
+  .card:hover .d4 { animation-delay: .75s; }
+  @keyframes dimLead { 0%, 8% { fill: var(--text-primary); } 15%, 85% { fill: var(--text-muted); opacity: .45; } 100% { fill: var(--text-primary); } }
+  @keyframes litDigit { 0%, 10% { fill: var(--text-primary); } 18%, 80% { fill: var(--accent-amber); } 92%, 100% { fill: var(--text-primary); } }
+  @keyframes litBar { 0%, 10% { transform: scaleX(0); } 18%, 80% { transform: scaleX(1); } 92%, 100% { transform: scaleX(0); } }
+  @keyframes showLabel { 0%, 40% { opacity: 0; } 50%, 80% { opacity: 1; } 92%, 100% { opacity: 0; } }
 
-  .tool-card--soon { border-style: dashed; opacity: 0.5; cursor: default; }
-  .tool-card--soon:hover { transform: none; box-shadow: none; background: var(--bg-card); border-color: var(--border); }
-  .tool-card--soon::before { display: none; }
+  /* Overhoor: kaartje draait om */
+  .flip-scene { perspective: 600px; position: relative; width: 112px; height: 70px; }
+  .flip-shadow {
+    position: absolute; inset: 0;
+    transform: translate(8px, 6px) rotate(3deg);
+    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-solid);
+  }
+  .flip {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+  }
+  .card:hover .flip { animation: flipCard 3.2s cubic-bezier(.4,0,.2,1) infinite; }
+  .face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-hover);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    box-shadow: 0 4px 14px rgba(11, 181, 200, 0.12);
+  }
+  .face--front { font-family: var(--font-math); font-style: italic; font-size: 34px; color: var(--text-primary); }
+  .face--back { transform: rotateY(180deg); font-size: 14px; font-weight: 600; color: var(--text-primary); gap: 2px; }
+  .face--back small { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--accent); }
+  @keyframes flipCard { 0%, 30% { transform: rotateY(0); } 42%, 80% { transform: rotateY(180deg); } 92%, 100% { transform: rotateY(360deg); } }
+
+  /* Bewegingsgrafieken: grafiek tekent zich, karretje versnelt mee */
+  .bg-reveal { transform-box: fill-box; transform-origin: left; }
+  .card:hover .bg-reveal { animation: reveal 2.4s linear infinite; }
+  .card:hover .cart { animation: drive 2.4s cubic-bezier(.55,.085,.68,.53) infinite; }
+  @keyframes reveal { 0% { transform: scaleX(0); } 80%, 100% { transform: scaleX(1); } }
+  @keyframes drive { 0% { transform: translateX(0); } 80%, 100% { transform: translateX(150px); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover .stage * { animation: none !important; }
+    .card:hover .shot { transform: translateY(calc(-1 * var(--oy))) scale(var(--zoom)) !important; }
+    html { scroll-behavior: auto; }
+  }
 
   footer {
+    margin-top: 56px;
     padding: 32px 0;
     border-top: 1px solid var(--border);
     text-align: center;
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-muted);
-    animation: fadeUp 0.6s ease-out 0.7s both;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
   }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+  footer a { color: var(--accent); text-decoration: none; }
 
   @media (max-width: 680px) {
-    .tools-grid { grid-template-columns: 1fr; }
-    .hero { padding: 60px 0 40px; }
-    .hero p { font-size: 16px; }
-    nav.nav-home { padding: 0 12px; }
-    .hero-site-name { letter-spacing: -2px; }
+    nav.nav-home { padding: 0 16px; }
+    .container, .jumpbar-inner { padding: 0 16px; }
+    .hero { padding-top: 28px; }
+    .grid { grid-template-columns: 1fr; }
+    .search kbd { display: none; }
+    .category-head .sub { display: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="ambient-glow ambient-glow--blue"></div>
-<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow"></div>
 
 <nav class="nav-home">
   <a href="/" class="logo">
     <img src="/assets/logo/JK_light.svg" alt="JK logo" id="nav-logo" style="height: 30px;">
     <div class="logo-text">Natuurkunde<span>Hub</span></div>
   </a>
-  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
+  <button class="theme-toggle" id="theme-btn" aria-label="Wissel thema">🌙</button>
 </nav>
 
 <div class="container">
-
   <section class="hero">
-    <div class="hero-site-name">Natuurkunde<span>Hub</span></div>
-    <h1>Leren wordt <span class="gradient">makkelijker</span></h1>
-    <p>Interactieve tools voor natuurkunde. Oefen, experimenteer en ontdek.</p>
+    <h1>Oefen, meet en <span>simuleer</span></h1>
+    <p>Gratis natuurkundetools voor de middelbare school, van klas 1 tot het examen.</p>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      <input id="search" type="search" placeholder="Zoek een tool, bijvoorbeeld 'beweging' of 'stroom'" autocomplete="off" aria-label="Zoek een tool">
+      <kbd>/</kbd>
+    </div>
+    <div class="resume-wrap">
+      <a class="resume" id="resume" href="#">
+        <span>Verder waar je was:</span>
+        <strong id="resume-name"></strong>
+        <span class="go">Ga verder →</span>
+      </a>
+    </div>
   </section>
+</div>
 
-  <section class="tools-section">
-    <div class="section-label">Beschikbare tools</div>
-    <div class="tools-grid">
+<div class="jumpbar" id="jumpbar">
+  <div class="jumpbar-inner">
+    <a class="chip" href="#basis">Basisvaardigheden <span class="count">4</span></a>
+    <a class="chip" href="#beweging">Beweging en kracht <span class="count">3</span></a>
+    <a class="chip" href="#elektriciteit">Elektriciteit <span class="count">2</span></a>
+  </div>
+</div>
 
-      <a href="/overhoor/" class="tool-card">
-        <div class="tool-icon tool-icon--blue">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0BB5C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-          </svg>
+<div class="container">
+
+  <!-- ============ Basisvaardigheden ============ -->
+  <section class="category" id="basis">
+    <div class="category-head">
+      <h2>Basisvaardigheden</h2>
+      <span class="sub">Wat je bij elk hoofdstuk nodig hebt</span>
+    </div>
+    <div class="grid">
+
+      <a href="/formules-omschrijven/" class="card" data-anim="formules" data-name="Formules omschrijven" data-keys="formule omschrijven ombouwen letters stapper examen vergelijking">
+        <div class="stage stage--stapper" data-step="0" aria-hidden="true">
+          <div class="st-step" data-s="0">
+            <div class="st-regel"><i>s</i><span class="isg">=</span><i>v</i><span class="op">·</span><i>t</i></div>
+            <div class="st-uitleg">Je zoekt <b>t</b></div>
+          </div>
+          <div class="st-step" data-s="1">
+            <div class="st-regel"><span class="breuk"><span class="teller"><i>s</i></span><span class="noemer"><i>v</i></span></span><span class="isg">=</span><span class="breuk"><span class="teller"><i>v</i><span class="op">·</span><i>t</i></span><span class="noemer"><i>v</i></span></span></div>
+            <div class="st-uitleg">Deel beide kanten door <b>v</b></div>
+          </div>
+          <div class="st-step" data-s="2">
+            <div class="st-regel"><span class="breuk"><span class="teller"><i>s</i></span><span class="noemer"><i>v</i></span></span><span class="isg">=</span><span class="breuk"><span class="teller"><i class="wv">v</i><span class="op">·</span><i>t</i></span><span class="noemer"><i class="wv">v</i></span></span></div>
+            <div class="st-uitleg">Rechts valt <b>v</b> weg</div>
+          </div>
+          <div class="st-step" data-s="3">
+            <div class="st-regel"><span class="breuk"><span class="teller"><i>s</i></span><span class="noemer"><i>v</i></span></span><span class="isg">=</span><i>t</i></div>
+            <div class="st-uitleg">Zet <b>t</b> links</div>
+          </div>
+          <div class="st-step" data-s="4">
+            <div class="st-regel"><i>t</i><span class="isg">=</span><span class="breuk"><span class="teller"><i>s</i></span><span class="noemer"><i>v</i></span></span></div>
+            <div class="st-uitleg">Gelukt!</div>
+          </div>
         </div>
-        <span class="tool-arrow">→</span>
-        <h3>Overhoorprogramma</h3>
-        <p>Test je kennis van natuurkundige begrippen, formules en eenheden. Direct feedback op je antwoorden.</p>
-        <span class="tool-tag">oefenen</span>
+        <div class="card-body">
+          <div class="card-title"><h3>Formules omschrijven</h3><span class="arrow">→</span></div>
+          <p>Schrijf een formule om naar de grootheid die je zoekt. Van s = v · t tot de examenformules, stap voor stap.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">oefenen</span></div>
+        </div>
       </a>
 
-      <a href="/circuitsketch/" class="tool-card">
-        <div class="tool-icon tool-icon--cyan">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4923A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/>
-            <line x1="6" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="18" y2="12"/>
-            <path d="M9 7h6v10H9z"/>
+      <a href="/voorvoegsels/" class="card" data-name="Voorvoegsels" data-keys="machten van 10 tienmacht voorvoegsel kilo milli micro wetenschappelijke notatie eenheden omrekenen">
+        <div class="stage">
+          <svg class="ill" viewBox="0 0 300 118" aria-hidden="true">
+            <g class="v-s v-s1" style="transform-box: fill-box; transform-origin: center;"><text x="150" y="72" text-anchor="middle" font-size="34" font-weight="600">4500 m</text></g>
+            <g class="v-s v-s2" style="transform-box: fill-box; transform-origin: center;"><text x="150" y="72" text-anchor="middle" font-size="34" font-weight="600">4,5 <tspan fill="#0BB5C8">k</tspan>m</text></g>
+            <g class="v-s v-s3" style="transform-box: fill-box; transform-origin: center;"><text x="150" y="72" text-anchor="middle" font-size="34" font-weight="600">4,5 · 10<tspan dy="-14" font-size="20" fill="#0BB5C8">3</tspan><tspan dy="14"> m</tspan></text></g>
           </svg>
         </div>
-        <span class="tool-arrow">→</span>
-        <h3>CircuitSketch</h3>
-        <p>Teken elektrische schakelingen snel en netjes. Handig voor practica en samenvattingen.</p>
-        <span class="tool-tag">tekenen</span>
+        <div class="card-body">
+          <div class="card-title"><h3>Voorvoegsels</h3><span class="arrow">→</span></div>
+          <p>Machten van 10 en voorvoegsels: van km naar m, van mA naar A, en wetenschappelijke notatie.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">oefenen</span></div>
+        </div>
       </a>
 
-      <a href="/circuitflow/" class="tool-card">
-        <div class="tool-icon tool-icon--cyan">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0BB5C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="9" r="5.5"/>
-            <path d="M9.5 7.5l1.3 3 1.4-3 1.3 3"/>
-            <path d="M9.5 14.5V17h5v-2.5"/>
-            <line x1="10.5" y1="20" x2="13.5" y2="20"/>
+      <a href="/significantie/" class="card" data-name="Significantie" data-keys="significante cijfers afronden nauwkeurigheid sig">
+        <div class="stage">
+          <svg class="ill" viewBox="0 0 300 118" aria-hidden="true">
+            <g font-size="36" class="mono">
+              <text class="mono sig-d sig-lead" x="80" y="66">0</text>
+              <text class="mono sig-d sig-lead" x="102" y="66">,</text>
+              <text class="mono sig-d sig-lead" x="124" y="66">0</text>
+              <text class="mono sig-d is-sig d1" x="146" y="66">4</text>
+              <text class="mono sig-d is-sig d2" x="168" y="66">0</text>
+              <text class="mono sig-d is-sig d3" x="190" y="66">2</text>
+              <text class="mono sig-d is-sig d4" x="212" y="66">0</text>
+            </g>
+            <rect class="sig-bar d1" x="146" y="74" width="20" height="3" rx="1.5"/>
+            <rect class="sig-bar d2" x="168" y="74" width="20" height="3" rx="1.5"/>
+            <rect class="sig-bar d3" x="190" y="74" width="20" height="3" rx="1.5"/>
+            <rect class="sig-bar d4" x="212" y="74" width="20" height="3" rx="1.5"/>
+            <text class="sig-label muted" x="189" y="98" text-anchor="middle" font-size="12">4 significante cijfers</text>
           </svg>
         </div>
-        <span class="tool-arrow">→</span>
-        <h3>CircuitFlow</h3>
-        <p>Bouw gelijkstroom-schakelingen, zie de stroom lopen en meet eraan. Een didactische sandbox naast CircuitSketch.</p>
-        <span class="tool-tag">simulatie</span>
+        <div class="card-body">
+          <div class="card-title"><h3>Significantie</h3><span class="arrow">→</span></div>
+          <p>Significante cijfers tellen, afronden en goed opschrijven bij een berekening.</p>
+          <div class="tags"><span class="tag tag--niveau">bovenbouw</span><span class="tag">oefenen</span></div>
+        </div>
       </a>
 
-      <a href="/modelleren/" class="tool-card">
-        <div class="tool-icon tool-icon--purple">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
+      <a href="/overhoor/" class="card" data-name="Overhoor" data-keys="overhoren grootheden eenheden symbolen begrippen leren toets">
+        <div class="stage">
+          <div class="flip-scene" aria-hidden="true">
+            <div class="flip-shadow"></div>
+            <div class="flip">
+              <div class="face face--front">F</div>
+              <div class="face face--back">kracht<small>newton (N)</small></div>
+            </div>
+          </div>
         </div>
-        <span class="tool-arrow">→</span>
-        <h3>Modelleren</h3>
-        <p>Bouw numerieke modellen en bekijk het gedrag van natuurkundige systemen in grafieken. Met begeleide oefeningen.</p>
-        <span class="tool-tag">simulatie</span>
-      </a>
-
-      <a href="/formules-omschrijven/" class="tool-card">
-        <div class="tool-icon tool-icon--blue">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0BB5C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"/><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/>
-          </svg>
+        <div class="card-body">
+          <div class="card-title"><h3>Overhoor</h3><span class="arrow">→</span></div>
+          <p>Grootheden, symbolen en eenheden overhoren, met direct feedback op elk antwoord.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">oefenen</span></div>
         </div>
-        <span class="tool-arrow">→</span>
-        <h3>Formules omschrijven</h3>
-        <p>Oefen het omschrijven van formules — van kale letterformules tot examenformules.</p>
-        <span class="tool-tag">oefenen</span>
-      </a>
-
-      <a href="/significantie/" class="tool-card">
-        <div class="tool-icon tool-icon--cyan">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4923A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="6" cy="12" r="1.5" fill="#D4923A"/>
-            <circle cx="12" cy="12" r="1.5" fill="#D4923A"/>
-            <circle cx="18" cy="12" r="1.5" fill="#D4923A"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </div>
-        <span class="tool-arrow">→</span>
-        <h3>Significantie</h3>
-        <p>Oefen met significante cijfers: tellen, afronden, en het juiste aantal sig.cijfers bij een berekening.</p>
-        <span class="tool-tag">oefenen</span>
-      </a>
-
-      <a href="/voorvoegsels/" class="tool-card">
-        <div class="tool-icon tool-icon--blue">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0BB5C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <text x="9.5" y="18.5" text-anchor="middle" font-size="16" font-weight="700" fill="#0BB5C8" stroke="none" font-family="inherit">10</text>
-            <text x="20" y="10.5" text-anchor="middle" font-size="11" font-weight="700" fill="#0BB5C8" stroke="none" font-family="inherit">n</text>
-          </svg>
-        </div>
-        <span class="tool-arrow">→</span>
-        <h3>Voorvoegsels</h3>
-        <p>Oefen met machten van 10, SI-voorvoegsels en wetenschappelijke notatie — van km naar m en terug.</p>
-        <span class="tool-tag">oefenen</span>
-      </a>
-
-      <a href="/bewegingsgrafieken/" class="tool-card">
-        <div class="tool-icon tool-icon--cyan">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4923A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 3 3 21 21 21"/>
-            <polyline points="6 17 10 11 14 11"/>
-            <path d="M14 11 Q17 11 20 5"/>
-          </svg>
-        </div>
-        <span class="tool-arrow">→</span>
-        <h3>Bewegingsgrafieken</h3>
-        <p>Herken stilstand, constante snelheid, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen. Een karretje rijdt de beweging na.</p>
-        <span class="tool-tag">oefenen</span>
-      </a>
-
-      <a href="/videometen/" class="tool-card">
-        <div class="tool-icon tool-icon--purple">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="6" width="20" height="14" rx="2"/>
-            <polygon points="10 10 16 13 10 16 10 10" fill="#8b5cf6" stroke="none"/>
-            <line x1="2" y1="9" x2="22" y2="9"/>
-          </svg>
-        </div>
-        <span class="tool-arrow">→</span>
-        <h3>Videometen</h3>
-        <p>Analyseer bewegingen in video's. Track, kalibreer, plot grafieken en fit modellen — drempelloos in je browser.</p>
-        <span class="tool-tag">meten</span>
       </a>
 
     </div>
   </section>
 
+  <!-- ============ Beweging en kracht ============ -->
+  <section class="category" id="beweging">
+    <div class="category-head">
+      <h2>Beweging en kracht</h2>
+      <span class="sub">Grafieken, metingen en modellen</span>
+    </div>
+    <div class="grid">
+
+      <a href="/bewegingsgrafieken/" class="card" data-name="Bewegingsgrafieken" data-keys="beweging grafiek diagram x,t v,t a,t snelheid versnelling versnellen vertragen karretje">
+        <div class="stage">
+          <svg class="ill" viewBox="0 0 300 118" aria-hidden="true">
+            <defs>
+              <clipPath id="bg-clip"><rect class="bg-reveal" x="96" y="6" width="112" height="74"/></clipPath>
+            </defs>
+            <polyline class="axis" points="98 12 98 74 206 74"/>
+            <text class="math muted" x="86" y="20" font-size="13">x</text>
+            <text class="math muted" x="208" y="88" font-size="13">t</text>
+            <path class="curve" clip-path="url(#bg-clip)" d="M98 72 Q 158 72 202 16"/>
+            <line class="track" x1="60" y1="104" x2="240" y2="104"/>
+            <g class="cart">
+              <rect class="cart-body" x="62" y="91" width="24" height="9" rx="2.5"/>
+              <circle class="wheel" cx="68" cy="102" r="2.6"/>
+              <circle class="wheel" cx="80" cy="102" r="2.6"/>
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>Bewegingsgrafieken</h3><span class="arrow">→</span></div>
+          <p>Herken stilstaan, constant, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen. Een karretje rijdt mee.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">oefenen</span></div>
+        </div>
+      </a>
+
+      <a href="/videometen/" class="card" data-anim="videometen" data-name="Videometen" data-keys="video meten filmpje analyse tracken beweging grafiek valbeweging">
+        <div class="stage" style="--fill: #f8fafb">
+          <div class="shot" style="--ox: 50%; --oy: 60%; --zoom: 0.9">
+            <img src="/assets/og/videometen.webp" alt="" loading="lazy">
+            <svg class="overlay" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+              <line class="ov-cursor vm-c1" x1="449" y1="232" x2="449" y2="528"/>
+              <line class="ov-cursor vm-c2" x1="853" y1="232" x2="853" y2="528"/>
+              <circle class="ov-halo vm-h1" r="22" cx="449" cy="273"/><circle class="ov-dot vm-d1" r="11" cx="449" cy="273"/>
+              <circle class="ov-halo vm-h2" r="22" cx="853" cy="520"/><circle class="ov-dot vm-d2" r="11" cx="853" cy="520"/>
+            </svg>
+          </div>
+          <span class="stage-badge">Lab</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>Videometen</h3><span class="arrow">→</span></div>
+          <p>Film een beweging, klik het voorwerp aan in elk frame en krijg je eigen x,t- en v,t-diagram.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">meten</span></div>
+        </div>
+      </a>
+
+      <a href="/modelleren/" class="card" data-anim="modelleren" data-name="Modelleren" data-keys="modelleren numeriek model simulatie coach grafiek differentievergelijking">
+        <div class="stage">
+          <div class="shot" style="--ox: 50%; --oy: 64%; --zoom: 1">
+            <img src="/assets/og/modelleren.jpg" alt="" loading="lazy">
+            <svg class="overlay" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+              <line class="ov-tangent md-t" x1="0" y1="0" x2="0" y2="0"/>
+              <circle class="ov-halo md-h" r="22" cx="89" cy="265"/><circle class="ov-dot md-d" r="11" cx="89" cy="265"/>
+            </svg>
+          </div>
+          <span class="stage-badge">Lab</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>Modelleren</h3><span class="arrow">→</span></div>
+          <p>Bouw een numeriek model en zie in grafieken wat een systeem doet. Met begeleide opdrachten.</p>
+          <div class="tags"><span class="tag tag--niveau">bovenbouw</span><span class="tag">simuleren</span></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ============ Elektriciteit ============ -->
+  <section class="category" id="elektriciteit">
+    <div class="category-head">
+      <h2>Elektriciteit</h2>
+      <span class="sub">Schakelingen bouwen en tekenen</span>
+    </div>
+    <div class="grid">
+
+      <a href="/circuitflow/" class="card" data-name="CircuitFlow" data-keys="schakeling stroom spanning weerstand serie parallel simulatie lampje ampèremeter voltmeter">
+        <div class="stage">
+          <div class="shot" style="--ox: 50%; --oy: 62%; --zoom: 1">
+            <img src="/assets/og/circuitflow.webp" alt="" loading="lazy">
+            <svg class="overlay" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+              <path class="ov-flow ov-flow--main" d="M280 578 V338 H430 V278 H610 V338 H730 V578 Z"/>
+              <path class="ov-flow ov-flow--branch" d="M430 338 V398 H610 V338"/>
+            </svg>
+          </div>
+          <span class="stage-badge">Lab</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>CircuitFlow</h3><span class="arrow">→</span></div>
+          <p>Bouw een schakeling, zie de stroom lopen en meet stroom en spanning.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">simuleren</span></div>
+        </div>
+      </a>
+
+      <a href="/circuitsketch/" class="card" data-anim="circuitsketch" data-name="CircuitSketch" data-keys="schakelschema tekenen schakeling schema verslag symbolen stroom spanning stroomkring lampje weerstand ampèremeter voltmeter">
+        <div class="stage" style="--fill: #fff">
+          <div class="shot" style="--ox: 50%; --oy: 54%; --zoom: 0.88">
+            <img src="/assets/og/circuitsketch.webp" alt="" loading="lazy">
+            <svg class="overlay" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+              <path class="ov-trace cs-trace" d="M270 395 V240 H446 V130 H534 V240 H930 V547 H270 V395"/>
+              <circle class="ov-pen cs-pen" r="10" cx="270" cy="395"/>
+            </svg>
+          </div>
+          <span class="stage-badge">Lab</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>CircuitSketch</h3><span class="arrow">→</span></div>
+          <p>Teken nette schakelschema's voor je verslag, samenvatting of het bord.</p>
+          <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">tekenen</span></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <p class="empty" id="empty">Geen tool gevonden. Mis je er een? <a href="/contact/" style="color:var(--accent)">Laat het weten →</a></p>
+
   <footer>
     <img id="footer-logo" src="/assets/logo/JK_black.svg" alt="JK logo" style="height: 24px; opacity: 0.4;">
     Jop van der Kooij · NatuurkundeHub · © 2026
-    <div>Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+    <div>Feedback of een bug gevonden? <a href="/contact/">Laat het weten →</a></div>
   </footer>
-
 </div>
 
 <script>
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  const navLogo = document.getElementById('nav-logo');
-  const footerLogo = document.getElementById('footer-logo');
-  const btn = document.getElementById('theme-btn');
-  const favicon = document.getElementById('favicon');
-  if (theme === 'dark') {
-    if (navLogo) navLogo.src = '/assets/logo/JK_dark.svg';
-    if (footerLogo) footerLogo.src = '/assets/logo/JK_white.svg';
-    if (favicon) favicon.href = '/assets/logo/JK_dark.svg';
-    if (btn) btn.textContent = '☀️';
-  } else {
-    if (navLogo) navLogo.src = '/assets/logo/JK_light.svg';
-    if (footerLogo) footerLogo.src = '/assets/logo/JK_black.svg';
-    if (favicon) favicon.href = '/assets/logo/JK_light.svg';
-    if (btn) btn.textContent = '🌙';
+(function () {
+  // ---------- Thema ----------
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    document.getElementById('nav-logo').src = dark ? '/assets/logo/JK_dark.svg' : '/assets/logo/JK_light.svg';
+    document.getElementById('footer-logo').src = dark ? '/assets/logo/JK_white.svg' : '/assets/logo/JK_black.svg';
+    document.getElementById('favicon').href = dark ? '/assets/logo/JK_dark.svg' : '/assets/logo/JK_light.svg';
+    document.getElementById('theme-btn').textContent = dark ? '☀️' : '🌙';
   }
-}
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+  document.getElementById('theme-btn').addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('nh-theme', next); } catch (e) {}
+    applyTheme(next);
+  });
 
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('nh-theme', next);
-  applyTheme(next);
-}
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
 
-(function() {
-  const saved = localStorage.getItem('nh-theme');
-  if (saved) {
-    applyTheme(saved);
-  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    applyTheme('dark');
-  } else {
-    applyTheme('light');
+  // ---------- Verder waar je was ----------
+  // De homepage onthoudt zelf op welke tegel je klikte; de tools hoeven daarvoor niets te doen.
+  var resume = document.getElementById('resume');
+  function showResume() {
+    var last = null;
+    try { last = JSON.parse(localStorage.getItem('nh-last') || 'null'); } catch (e) {}
+    var known = last && cards.some(function (c) { return c.getAttribute('href') === last.href; });
+    resume.classList.toggle('is-visible', !!known);
+    if (known) {
+      resume.href = last.href;
+      document.getElementById('resume-name').textContent = last.name;
+    }
   }
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      try { localStorage.setItem('nh-last', JSON.stringify({ href: card.getAttribute('href'), name: card.dataset.name })); } catch (e) {}
+    });
+  });
+  showResume();
+  window.addEventListener('pageshow', showResume);
+
+  // ---------- Zoeken ----------
+  var search = document.getElementById('search');
+  function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  cards.forEach(function (c) {
+    var sec = c.closest('.category');
+    c._haystack = norm(c.dataset.name + ' ' + c.dataset.keys + ' ' + c.querySelector('p').textContent + ' ' + (sec ? sec.querySelector('h2').textContent : ''));
+  });
+  search.addEventListener('input', function () {
+    var words = norm(search.value).split(/\s+/).filter(Boolean);
+    var any = false;
+    cards.forEach(function (c) {
+      var hit = words.every(function (w) { return c._haystack.indexOf(w) !== -1; });
+      c.style.display = hit ? '' : 'none';
+      if (hit) any = true;
+    });
+    document.querySelectorAll('.category').forEach(function (sec) {
+      var visible = sec.querySelectorAll('.card:not([style*="none"])').length;
+      sec.style.display = visible ? '' : 'none';
+      var chip = document.querySelector('.chip[href="#' + sec.id + '"]');
+      chip.style.display = visible ? '' : 'none';
+      chip.querySelector('.count').textContent = visible;
+    });
+    document.getElementById('empty').classList.toggle('is-visible', !any);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== search) { e.preventDefault(); search.focus(); }
+    if (e.key === 'Escape' && document.activeElement === search) { search.value = ''; search.dispatchEvent(new Event('input')); search.blur(); }
+  });
+
+  // ---------- Snelknoppen: actieve sectie volgen ----------
+  var jumpbar = document.getElementById('jumpbar');
+  var chips = document.querySelectorAll('.chip');
+  var sections = document.querySelectorAll('.category');
+  function onScroll() {
+    jumpbar.classList.toggle('is-stuck', jumpbar.getBoundingClientRect().top <= 68);
+    var current = null;
+    sections.forEach(function (s) {
+      if (s.style.display !== 'none' && s.getBoundingClientRect().top < 220) current = s.id;
+    });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+      var vis = Array.prototype.filter.call(sections, function (s) { return s.style.display !== 'none'; });
+      if (vis.length) current = vis[vis.length - 1].id;
+    }
+    chips.forEach(function (c) { c.classList.toggle('is-active', c.getAttribute('href') === '#' + current); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  chips.forEach(function (c) {
+    c.addEventListener('click', function (e) {
+      var target = document.querySelector(c.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      chips.forEach(function (o) { o.classList.toggle('is-active', o === c); });
+    });
+  });
+
+  // ---------- Animaties die JavaScript nodig hebben ----------
+  // Starten bij hover of toetsenbordfocus, stoppen en terugzetten bij weggaan.
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function setAttrs(el, a) { for (var k in a) el.setAttribute(k, a[k]); }
+  function rafLoop(card, period, draw) {
+    var t0 = performance.now();
+    (function frame(now) {
+      draw(((now - t0) % period) / period);
+      card._raf = requestAnimationFrame(frame);
+    })(t0);
+  }
+
+  var anims = {
+    formules: {
+      start: function (card) {
+        var stage = card.querySelector('.stage--stapper');
+        var steps = [900, 1100, 1500, 1100, 1700];
+        var i = 0;
+        (function next() {
+          i = (i + 1) % steps.length;
+          stage.dataset.step = i;
+          card._timer = setTimeout(next, steps[i]);
+        })();
+      },
+      stop: function (card) { card.querySelector('.stage--stapper').dataset.step = 0; }
+    },
+    videometen: {
+      // y(t) en x(t) uit de fit in de schermafbeelding; beide grafieken lopen gelijk op
+      draw: function (card, p) {
+        var t = Math.min(p / 0.85, 1) * 0.46;
+        var x1 = 449 + 511.7 * t, y1 = 528 - 207 * (-4.92 * t * t + 0.00576 * t + 1.23);
+        var x2 = 853 + 512 * t, y2 = 528 - 144 * (3.53 * t + 0.0588);
+        ['vm-d1', 'vm-h1'].forEach(function (c) { setAttrs(card.querySelector('.' + c), { cx: x1, cy: y1 }); });
+        ['vm-d2', 'vm-h2'].forEach(function (c) { setAttrs(card.querySelector('.' + c), { cx: x2, cy: y2 }); });
+        setAttrs(card.querySelector('.vm-c1'), { x1: x1, x2: x1 });
+        setAttrs(card.querySelector('.vm-c2'), { x1: x2, x2: x2 });
+      },
+      period: 2600
+    },
+    modelleren: {
+      // vrije val h = 100 - 4,9 t^2, met de raaklijn die meeloopt
+      draw: function (card, p) {
+        var t = Math.min(p / 0.85, 1) * 4.4;
+        var x = 89 + 236 * t, y = 565 - 3 * (100 - 4.9 * t * t);
+        var m = 3 * 9.8 * t / 236, L = 130, ux = L / Math.sqrt(1 + m * m);
+        setAttrs(card.querySelector('.md-t'), { x1: x - ux, y1: y - ux * m, x2: x + ux, y2: y + ux * m });
+        setAttrs(card.querySelector('.md-d'), { cx: x, cy: y });
+        setAttrs(card.querySelector('.md-h'), { cx: x, cy: y });
+      },
+      period: 3000
+    },
+    circuitsketch: {
+      // een pen trekt het schema na
+      draw: function (card, p) {
+        var path = card.querySelector('.cs-trace'), pen = card.querySelector('.cs-pen');
+        var len = path._len || (path._len = path.getTotalLength());
+        var q = Math.min(p / 0.75, 1);
+        path.style.strokeDasharray = len;
+        path.style.strokeDashoffset = len * (1 - q);
+        path.style.opacity = p > 0.9 ? (1 - p) * 10 : 1;
+        var pt = path.getPointAtLength(len * q);
+        setAttrs(pen, { cx: pt.x, cy: pt.y });
+        pen.style.opacity = q < 1 ? 1 : 0;
+      },
+      period: 3000
+    }
+  };
+
+  cards.forEach(function (card) {
+    var a = anims[card.dataset.anim];
+    if (!a) return;
+    function start() {
+      if (reduce || card._running) return;
+      card._running = true;
+      if (a.start) a.start(card);
+      else rafLoop(card, a.period, function (p) { a.draw(card, p); });
+    }
+    function stop() {
+      card._running = false;
+      clearTimeout(card._timer);
+      cancelAnimationFrame(card._raf);
+      if (a.stop) a.stop(card);
+      else a.draw(card, 0);
+    }
+    card.addEventListener('mouseenter', start);
+    card.addEventListener('focus', start);
+    card.addEventListener('mouseleave', stop);
+    card.addEventListener('blur', stop);
+    if (a.draw) a.draw(card, 0);
+  });
 })();
 </script>
-
 </body>
 </html>
