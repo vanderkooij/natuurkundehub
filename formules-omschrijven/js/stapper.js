@@ -867,6 +867,10 @@ function initStapper(el){
     // boom ter plekke aan, dus na afloop is het ruwe beeld weg.
     const ruwRegel = voegRegelToe(regelHTML(ruwLinks, ruwRechts), 'ruw');
     const snel = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Eerst in beeld, dan pas strepen. Op een telefoon staan de knoppen vaak
+    // onderaan het scherm en komt de nieuwe regel daaronder, buiten beeld; dan
+    // gebeurde het wegstrepen ongezien en zag je alleen de uitkomst.
+    if(ruwRegel.scrollIntoView) ruwRegel.scrollIntoView({ block: 'nearest', behavior: snel ? 'auto' : 'smooth' });
 
     // Fase 1: de wortel eerst over de losse stukken verdelen, zodat het kwadraat
     // straks tegen zijn eigen wortel wegvalt en de andere wortels blijven staan.
@@ -901,7 +905,10 @@ function initStapper(el){
     const meedoen = [...werkRegel.querySelectorAll('.is-weg,.mv-wortelweg,.mv-smelt')];
 
     const meteen = () => { voegRegelToe(regelHTML(links, rechts), 'nieuw'); naStap(); };
-    if(snel || (!meedoen.length && !vliegers.length)){ meteen(); return; }
+    // Met "minder beweging" (staat op veel telefoons aan) geen animatie, maar de
+    // strepen moeten er wel staan: wegstrepen is juist waar het om gaat.
+    if(snel){ meedoen.forEach(e => e.classList.add('streep')); meteen(); return; }
+    if(!meedoen.length && !vliegers.length){ meteen(); return; }
 
     const vliegen = () => {
       const nieuw = voegRegelToe(regelHTML(links, rechts));
