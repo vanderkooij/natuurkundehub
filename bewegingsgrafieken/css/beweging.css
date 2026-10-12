@@ -48,3 +48,8 @@
 .bg-speel button:hover{background:var(--accent-dim)}
 .bg-speel button.vol{background:var(--accent);border-color:var(--accent);color:#fff}
 .bg-speel button.vol:hover{background:#0999aa}
+
+/* Klein diagram (antwoordopties bij koppelen) */
+.bg-grafiek--klein .bg-lijn{stroke-width:3}
+.bg-grafiek--klein .bg-nul{font-size:14px}
+.bg-label--symbool{font-style:italic;font-size:15px;font-weight:700}

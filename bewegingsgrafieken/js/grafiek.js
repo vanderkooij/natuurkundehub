@@ -196,3 +196,56 @@ function maakGrafiek(houder, beweging, { diagram = 'x', spoor = 'bovenbouw', mar
   houder.appendChild(svg);
   return { zetTijd, zetMarkering, svg };
 }
+
+/* ── KLEIN DIAGRAM VAN EEN VORM (antwoordopties bij koppelen) ──
+   stukken: [{ t0, t1, f(t) }]. Zelfde stijl als hierboven, maar compact: als
+   label alleen het symbool (x, v of a) en t, geen getallen. */
+function maakVormGrafiek(houder, stukken, { diagram = 'v' } = {}) {
+  const W = 300, H = 190;
+  const vak = { l: 30, r: W - 18, t: 16, b: H - 14 };
+  const T = stukken[stukken.length - 1].t1;
+  const monsters = stukken.map(s => {
+    const p = [];
+    for (let k = 0; k <= 24; k++) { const t = s.t0 + (s.t1 - s.t0) * k / 24; p.push([t, s.f(t)]); }
+    return p;
+  });
+  let lo = 0, hi = 0;
+  monsters.flat().forEach(([, y]) => { lo = Math.min(lo, y); hi = Math.max(hi, y); });
+  if (hi - lo < 1e-9) { hi = 1; lo = -1; }
+  const marge = (hi - lo) * 0.12;
+  if (hi > 0) hi += marge;
+  if (lo < 0) lo -= marge;
+  if (lo < 0 && hi <= 0) hi = (hi - lo) * 0.22;
+  const px = t => vak.l + (t / T) * (vak.r - vak.l);
+  const py = y => vak.b - ((y - lo) / (hi - lo)) * (vak.b - vak.t);
+  const y0 = py(0);
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'bg-grafiek bg-grafiek--klein', role: 'img' });
+  const raster = svgEl('g', { class: 'bg-raster' }, svg);
+  const hok = (vak.r - vak.l) / 12;
+  for (let k = 1; k <= 12; k++) svgEl('line', { x1: vak.l + k * hok, y1: vak.t, x2: vak.l + k * hok, y2: vak.b }, raster);
+  for (let y = y0 - hok; y >= vak.t - 0.5; y -= hok) svgEl('line', { x1: vak.l, y1: y, x2: vak.r, y2: y }, raster);
+  for (let y = y0 + hok; y <= vak.b + 0.5; y += hok) svgEl('line', { x1: vak.l, y1: y, x2: vak.r, y2: y }, raster);
+
+  const assen = svgEl('g', { class: 'bg-as' }, svg);
+  svgEl('line', { x1: vak.l, y1: vak.b + 3, x2: vak.l, y2: vak.t - 6 }, assen);
+  svgEl('path', { d: `M${vak.l - 4},${vak.t - 1} L${vak.l},${vak.t - 8} L${vak.l + 4},${vak.t - 1}`, class: 'bg-pijl' }, assen);
+  svgEl('line', { x1: vak.l - 3, y1: y0, x2: vak.r + 8, y2: y0 }, assen);
+  svgEl('path', { d: `M${vak.r + 3},${y0 - 4} L${vak.r + 10},${y0} L${vak.r + 3},${y0 + 4}`, class: 'bg-pijl' }, assen);
+  svgEl('text', { x: vak.l - 7, y: y0 + 5, class: 'bg-nul', 'text-anchor': 'end' }, assen).textContent = '0';
+  svgEl('text', { x: vak.l + 8, y: vak.t + 2, class: 'bg-label bg-label--symbool' }, assen).textContent = diagram;
+  svgEl('text', { x: vak.r + 8, y: y0 + (y0 > vak.b - 16 ? -7 : 17), class: 'bg-label bg-label--symbool', 'text-anchor': 'end' }, assen).textContent = 't';
+
+  const lijn = svgEl('g', {}, svg);
+  const sprong = svgEl('g', { class: 'bg-sprong' }, svg);
+  monsters.forEach((p, i) => {
+    svgEl('path', { d: 'M' + p.map(([t, y]) => px(t).toFixed(1) + ',' + py(y).toFixed(1)).join(' L'), class: 'bg-lijn' }, lijn);
+    if (i > 0) {
+      const ya = monsters[i - 1][24][1], yb = p[0][1];
+      if (Math.abs(ya - yb) > (hi - lo) * 1e-3) svgEl('line', { x1: px(p[0][0]), y1: py(ya), x2: px(p[0][0]), y2: py(yb) }, sprong);
+    }
+  });
+  houder.innerHTML = '';
+  houder.appendChild(svg);
+  return svg;
+}

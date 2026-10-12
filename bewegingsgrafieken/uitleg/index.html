@@ -402,6 +402,24 @@ bovenbouw:[
 <tr><td>krom</td><td>versnellen of vertragen</td><td>komt niet voor</td><td>komt niet voor</td></tr>
 </table></div>`},
 
+{id:'koppelen', chip:'Koppelen', titel:'Diagrammen koppelen', html:`
+<p>Bij koppelen zoek je bij één diagram het bijbehorende andere diagram. Dat gaat het best <strong>stuk voor stuk</strong>:</p>
+<ul>
+<li>Verdeel de beweging in stukken. De stippen op de lijn laten zien waar een nieuw stuk begint.</li>
+<li>Zeg per stuk wat het karretje doet: stilstaan, constante snelheid, versnellen of vertragen. Rijdt het vooruit of achteruit?</li>
+<li>Zoek het diagram waarin elk stuk precies dat doet, in dezelfde volgorde.</li>
+</ul>
+<div data-demo="koppelen"></div>
+<div class="table-wrap"><table class="vorm">
+<tr><th>Van</th><th>Naar</th><th>Waar let je op?</th></tr>
+<tr><td>x,t</td><td>v,t</td><td>De steilheid van het x,t-diagram is de snelheid. Recht geeft horizontaal, steeds steiler geeft stijgend.</td></tr>
+<tr><td>v,t</td><td>x,t</td><td>Horizontaal (niet op nul) geeft een rechte schuine lijn, stijgend geeft een x,t-lijn die steeds steiler wordt, op nul geeft horizontaal.</td></tr>
+<tr><td>v,t</td><td>a,t</td><td>De steilheid van het v,t-diagram is de versnelling: horizontaal geeft <em>a</em> = 0, stijgend een positieve <em>a</em>.</td></tr>
+<tr><td>a,t</td><td>v,t</td><td>Je hebt ook de beginsnelheid nodig. In de opgaven begint het karretje stil, dus de v,t-lijn begint bij nul.</td></tr>
+</table></div>
+<div class="info-box"><div class="info-title">Valkuil</div>
+<p>Neem nooit de vorm over. Bij dezelfde beweging ziet het andere diagram er bijna altijd anders uit.</p></div>`},
+
 {id:'getallen', chip:'Rekenen', titel:'Rekenen met een diagram', html:`
 <p>Met getallen bij de assen kun je ook rekenen:</p>
 <ul>
@@ -453,6 +471,7 @@ bovenbouw:{
   anul:{segs:[[3,0,0],[3,0,4],[4,4,4],[2,4,0]], diagrammen:['v','a'], markeer:[0,2]},
   ateken:{segs:[[4,0,-5],[4,-5,0],[2,0,0]], diagrammen:['v','a'], markeer:1},
   getallen:{segs:[[4,0,2],[4,2,2],[4,2,0]], diagrammen:['v','x'], markeer:0, getallen:true},
+  koppelen:{segs:[[3,0,4],[3,4,4],[4,4,0],[2,0,0]], diagrammen:['x','v','a'], markeer:null},
   vormA:{paar:[
     {titel:'x,t-diagram', segs:[[12,0,0]], x0:6, diagrammen:['x'], markeer:0},
     {titel:'v,t-diagram', segs:[[12,3,3]], diagrammen:['v'], markeer:0}

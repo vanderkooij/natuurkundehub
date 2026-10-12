@@ -49,13 +49,14 @@ natuurkundehub/
 ├── bewegingsgrafieken/
 │   ├── index.html                    # Keuzemenu: eerst onderbouw of bovenbouw (#onderbouw / #bovenbouw)
 │   ├── uitleg/index.html             # Stappen met karretje en diagrammen; ?niveau=…&stap=… opent een stap
-│   ├── oefenen/index.html            # Herken de beweging; onderbouw 4 levels + 5 met getallen, bovenbouw 6 + 7 met getallen
+│   ├── oefenen/index.html            # Herkennen (onderbouw 6 levels, bovenbouw 8, incl. getallen en eindmix) en koppelen (bovenbouw, 4 levels; ?vorm=koppelen)
 │   ├── css/beweging.css              # Opmaak van grafiek en karretje, gedeeld door uitleg en oefenen
 │   ├── js/beweging.js                # Bewegingsmodel, vraaggenerator en feedback (ook in node te testen)
 │   ├── js/getallen.js                # Rekenvragen bij het level met getallen: generator, controle, uitwerking
+│   ├── js/koppel.js                  # Koppelen: bij een diagram het andere kiezen, foute opties uit denkfouten
 │   ├── js/grafiek.js                 # x,t-, v,t- en a,t-diagram als SVG, met of zonder getallen
 │   ├── js/karretje.js                # Baan met karretje en afdrukjes; scène die alles synchroon afspeelt
-│   └── tests/                        # beweging.test.js en getallen.test.js: npm run test:bewegingen
+│   └── tests/                        # beweging, getallen en koppel: npm run test:bewegingen
 ├── dist/                             # Gebouwde versies (automatisch, niet handmatig bewerken)
 ├── build.sh                          # Build-script — bron van waarheid voor wat er gedeployed wordt
 └── workflow.md                       # Dit bestand

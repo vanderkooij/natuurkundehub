@@ -127,6 +127,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   .cards-grid{grid-template-columns:1fr 1fr}
 }
 .laag .laag-kop{max-width:720px}
+#laag-bovenbouw .laag-kop{max-width:none}
 </style>
 <link rel="stylesheet" href="/assets/about.css">
 </head>
@@ -212,7 +213,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
   <div class="laag" id="laag-bovenbouw" hidden>
     <div class="laag-kop"><a href="#" class="laag-terug">← andere keuze</a><span class="laag-naam">Bovenbouw</span></div>
-    <div class="cards-grid cards-grid--2">
+    <div class="cards-grid">
       <div class="mode-card mode-card--c" onclick="window.location='uitleg/?niveau=bovenbouw'">
         <span class="mode-letter">UITLEG</span>
         <h2>Uitleg</h2>
@@ -234,6 +235,17 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
           <li>Gerichte feedback bij een fout</li>
         </ul>
         <a href="oefenen/?niveau=bovenbouw" class="mode-btn">Start oefenen →</a>
+      </div>
+      <div class="mode-card" onclick="window.location='oefenen/?niveau=bovenbouw&vorm=koppelen'">
+        <span class="mode-letter">OEFENEN</span>
+        <h2>Koppel de diagrammen</h2>
+        <p>Bij een x,t-, v,t- of a,t-diagram het andere diagram van dezelfde beweging kiezen.</p>
+        <ul class="bullets">
+          <li>Vier levels, tot x,t ↔ a,t</li>
+          <li>Foute keuzes uit echte denkfouten</li>
+          <li>Het karretje rijdt na je antwoord</li>
+        </ul>
+        <a href="oefenen/?niveau=bovenbouw&vorm=koppelen" class="mode-btn">Start koppelen →</a>
       </div>
     </div>
   </div>

@@ -165,6 +165,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .antwoord-btn.fout{border-color:var(--red);background:var(--red-dim);color:var(--red)}
 .antwoord-btn.ook-goed{border-color:var(--green);border-style:dashed;color:var(--green)}
 #na-antwoord .volgende{width:100%}
+.koppel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.koppel-optie{position:relative;border:1.5px solid var(--border-solid);border-radius:11px;background:var(--bg-card);padding:6px 6px 2px;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.koppel-optie:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+.koppel-optie:disabled{cursor:default}
+.koppel-optie .bg-grafiek{height:clamp(84px,calc((100vh - 400px) / 2),150px)}
+.koppel-grid.klaar .koppel-optie .bg-grafiek{height:clamp(66px,calc((100vh - 470px) / 2),130px)}
+.koppel-optie .letter{position:absolute;top:5px;right:9px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text-muted)}
+.koppel-optie.goed{border-color:var(--green);background:var(--green-dim)}
+.koppel-optie.goed .letter{color:var(--green)}
+.koppel-optie.fout{border-color:var(--red);background:var(--red-dim)}
+.koppel-optie.fout .letter{color:var(--red)}
 .getal-invoer{margin-bottom:12px}
 .getal-rij{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .getal-input{flex:1;min-width:0;padding:11px 14px;border:1.5px solid var(--accent-border);border-radius:10px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);font-size:18px;text-align:center}
@@ -291,6 +302,22 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       </div>
     </div>
 
+    <div class="vorm-kaart" id="koppel-kaart" hidden>
+      <h2>Koppel de diagrammen</h2>
+      <p>Je ziet een diagram van een beweging. Welk van de vier andere diagrammen hoort bij dezelfde beweging?</p>
+      <button class="start-btn" id="klim-koppel">Start koppelen →</button>
+
+      <button class="disclosure" id="opties-koppel-btn" aria-expanded="false">
+        <span>Liever zelf een level kiezen</span><span class="chev">▼</span>
+      </button>
+
+      <div id="opties-koppel" hidden>
+        <div class="section-title">Welke levels?</div>
+        <div class="level-grid" id="level-grid-koppel"></div>
+        <button class="start-btn" id="start-koppel" disabled>Kies een level om te starten</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══ OEFENSCHERM ══ -->
@@ -335,6 +362,8 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       <div class="ex-zij">
         <div class="q-nieuw" id="q-nieuw" hidden></div>
         <div class="antwoord-grid" id="antwoord-grid"></div>
+        <!-- Koppelen: vier kleine diagrammen om uit te kiezen -->
+        <div class="koppel-grid" id="koppel-grid" hidden></div>
         <!-- Rekenvragen (level met getallen): een getal typen in plaats van kiezen -->
         <div class="getal-invoer" id="getal-invoer" hidden>
           <div class="getal-rij">
@@ -366,6 +395,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
 <script src="../js/beweging.js"></script>
 <script src="../js/getallen.js"></script>
+<script src="../js/koppel.js"></script>
 <script src="../js/grafiek.js"></script>
 <script src="../js/karretje.js"></script>
 <script>
@@ -395,10 +425,13 @@ const state={
   spoor: params.get('niveau')==='bovenbouw' ? 'bovenbouw' : 'onderbouw',
   levels:[], modus:'climb', climbLevel:1, climbStreak:0,
   vraag:null, klaar:false, teller:0, scene:null, extra:false, pogingen:0,
+  vorm: params.get('vorm')==='koppelen' ? 'koppelen' : 'herkennen', koppelLevels:[],
   score:{goed:0,totaal:0}, streak:0, klimMelding:'',
   log:[], gezien:new Set(), tussenstand:false
 };
-const maxLevel=()=>Object.keys(LEVELS[state.spoor]).length;
+// Herkennen en koppelen hebben elk hun eigen levels.
+const huidigeLevels=()=>state.vorm==='koppelen' ? KOPPEL_LEVELS : LEVELS[state.spoor];
+const maxLevel=()=>Object.keys(huidigeLevels()).length;
 
 /* ── KEUZESCHERM ── */
 function tekenSpoor(){
@@ -415,29 +448,35 @@ function tekenSpoor(){
       : 'Met het x,t-, v,t- en a,t-diagram, ook als het karretje achteruit rijdt.')+
     ' Je begint bij level 1 en klimt vanzelf omhoog: na '+CLIMB_DOEL+' goede antwoorden op rij ga je een level verder.<br>'+
     'Weet je nog niet hoe het werkt? <a href="'+uitleg+'" class="setup-link">Bekijk eerst de uitleg</a>.';
-  state.levels=state.levels.filter(n=>n<=maxLevel());
+  state.levels=state.levels.filter(n=>n in LEVELS[state.spoor]);
+  // Koppelen is er alleen voor de bovenbouw.
+  el('koppel-kaart').hidden=state.spoor!=='bovenbouw';
   tekenLevels();
   tekenVoorbeeld();
 }
 
 function tekenLevels(){
-  const L=LEVELS[state.spoor];
-  el('level-grid').innerHTML=Object.keys(L).map(Number).map(n=>{
-    const aan=state.levels.includes(n);
+  tekenLevelLijst('level-grid', 'start-btn', LEVELS[state.spoor], 'levels');
+  tekenLevelLijst('level-grid-koppel', 'start-koppel', KOPPEL_LEVELS, 'koppelLevels');
+}
+
+function tekenLevelLijst(gridId, knopId, L, sleutel){
+  el(gridId).innerHTML=Object.keys(L).map(Number).map(n=>{
+    const aan=state[sleutel].includes(n);
     return '<div class="level-toggle'+(aan?' active':'')+'" data-level="'+n+'">'+
       '<span class="level-check">✓</span><span class="level-label">Level '+n+'</span>'+
       '<span class="level-desc">'+L[n].desc+'</span><span class="level-example">'+L[n].voorbeeld+'</span></div>';
   }).join('');
-  el('level-grid').querySelectorAll('.level-toggle').forEach(t=>{
+  el(gridId).querySelectorAll('.level-toggle').forEach(t=>{
     t.onclick=()=>{
-      const n=Number(t.dataset.level);
-      state.levels=state.levels.includes(n)?state.levels.filter(x=>x!==n):state.levels.concat(n).sort((a,b)=>a-b);
+      const n=Number(t.dataset.level), lijst=state[sleutel];
+      state[sleutel]=lijst.includes(n)?lijst.filter(x=>x!==n):lijst.concat(n).sort((a,b)=>a-b);
       tekenLevels();
     };
   });
-  const knop=el('start-btn');
-  knop.disabled=state.levels.length===0;
-  knop.textContent=state.levels.length?'Start oefenen →':'Kies een level om te starten';
+  const knop=el(knopId);
+  knop.disabled=state[sleutel].length===0;
+  knop.textContent=state[sleutel].length?'Start oefenen →':'Kies een level om te starten';
 }
 
 // Een klein voorbeeld op de kaart, zodat je ziet wat je kunt verwachten.
@@ -494,7 +533,7 @@ function tekenScore(){
   el('streak-num').textContent=String(state.streak);
   el('streak').classList.toggle('hot',state.streak>=3);
   el('ex-counter').textContent='Opgave '+state.teller;
-  el('ex-spoor').textContent=state.spoor;
+  el('ex-spoor').textContent=state.vorm==='koppelen' ? 'koppelen' : state.spoor;
   const level=state.modus==='climb'?state.climbLevel:(state.vraag?state.vraag.toonLevel:1);
   el('ex-level').textContent='Level '+level;
   if(state.modus==='climb'){
@@ -509,6 +548,8 @@ function tekenScore(){
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 // De andere diagrammen van dezelfde beweging, voor de knop "Toon ook".
 function andereDiagrammen(q){
+  // Bij koppelen: het derde diagram, maar niet in level 1 (daar nog geen a,t).
+  if(q.vorm==='koppel') return q.level===1 ? [] : ['x','v','a'].filter(d=>d!==q.van && d!==q.naar);
   const alle = q.spoor==='onderbouw' || q.level<5 ? ['x','v'] : ['x','v','a'];
   return alle.filter(d=>d!==q.diagram);
 }
@@ -518,8 +559,32 @@ function anderLabel(q, aan){
   return (aan?'Verberg ':'Toon ook ')+wat;
 }
 
+// Zet karretje, grafiek en de knoppen klaar voor een nieuwe vraag.
+function zetSceneKlaar(q, { getallen=false, richtingVooraf=true }={}){
+  el('q-baan').classList.add('wacht');
+  el('q-baan-tekst').textContent='Na je antwoord rijdt het karretje deze beweging.';
+  el('q-grafieken').querySelectorAll('.extra').forEach(e=>e.remove());
+  el('q-grafieken').classList.remove('n2','n3');
+  state.scene=maakScene({
+    karretje:el('q-baan'), grafieken:[{houder:el('q-grafiek'), diagram:q.diagram}],
+    beweging:q.beweging, spoor:q.spoor, markeer:q.index, richtingVooraf, getallen,
+    opEinde:()=>{ el('speel-btn').textContent='▶ Nog eens'; }
+  });
+  el('feedback').className='feedback';
+  el('na-antwoord').hidden=true;
+  el('q-speel').classList.add('wacht');
+}
+
+function toonNieuwLevel(level, tekst){
+  const nieuw=!state.gezien.has(level);
+  state.gezien.add(level);
+  el('q-nieuw').hidden=!nieuw;
+  if(nieuw) el('q-nieuw').innerHTML='<b>Level '+level+'.</b> '+tekst;
+}
+
 function volgendeVraag(){
   if(state.scene) state.scene.stop();
+  if(state.vorm==='koppelen'){ volgendeKoppelVraag(); return; }
   const level=state.modus==='climb'?state.climbLevel:pick(state.levels);
   // De eindmix kiest per vraag een van de moeilijkste levels.
   const mix=LEVELS[state.spoor][level].mix;
@@ -532,30 +597,17 @@ function volgendeVraag(){
   state.vraag=q; state.klaar=false; state.teller++; state.extra=false; state.pogingen=0;
 
   // Eerste vraag van een level in deze sessie: zeg wat er nieuw is.
-  const nieuw=!state.gezien.has(level);
-  state.gezien.add(level);
-  el('q-nieuw').hidden=!nieuw;
-  if(nieuw) el('q-nieuw').innerHTML='<b>Level '+level+'.</b> '+LEVELS[q.spoor][level].nieuw;
+  toonNieuwLevel(level, LEVELS[q.spoor][level].nieuw);
 
   const hint=vraagHint(q);
   el('q-hint').hidden=!hint; el('q-hint').textContent=hint;
-  el('q-baan').classList.add('wacht');
-  el('q-baan-tekst').textContent='Na je antwoord rijdt het karretje deze beweging.';
-  el('q-grafieken').querySelectorAll('.extra').forEach(e=>e.remove());
-  el('q-grafieken').classList.remove('n2','n3');
-  state.scene=maakScene({
-    karretje:el('q-baan'), grafieken:[{houder:el('q-grafiek'), diagram:q.diagram}],
-    beweging:q.beweging, spoor:q.spoor, markeer:q.index,
+  zetSceneKlaar(q, {
+    getallen: metGetallen,
     // Waar de richting meetelt (bovenbouw met achteruit), verklapt de neus
     // van het karretje vóór het antwoord niets.
-    richtingVooraf: !(q.spoor==='bovenbouw' && LEVELS[q.spoor][q.level].achteruit),
-    getallen: metGetallen,
-    opEinde:()=>{ el('speel-btn').textContent='▶ Nog eens'; }
+    richtingVooraf: !(q.spoor==='bovenbouw' && LEVELS[q.spoor][q.level].achteruit)
   });
-
-  el('feedback').className='feedback';
-  el('na-antwoord').hidden=true;
-  el('q-speel').classList.add('wacht');
+  el('koppel-grid').hidden=true;
   el('q-vraag').textContent=metGetallen ? q.tekst : 'Wat doet het karretje in het gemarkeerde stuk?';
   el('antwoord-grid').hidden=metGetallen;
   el('getal-invoer').hidden=!metGetallen;
@@ -568,6 +620,73 @@ function volgendeVraag(){
     inp.focus({preventScroll:true});
   } else tekenAntwoorden();
   tekenScore();
+}
+
+/* ── KOPPELEN ── */
+const LETTERS='ABCD';
+
+function volgendeKoppelVraag(){
+  const level=state.modus==='climb'?state.climbLevel:pick(state.koppelLevels);
+  const q=maakKoppelVraag(level, {vorige:state.vraag});
+  if(!q) return;
+  q.toonLevel=level;
+  state.vraag=q; state.klaar=false; state.teller++; state.extra=false; state.pogingen=0;
+  toonNieuwLevel(level, KOPPEL_LEVELS[level].nieuw);
+  const naam=TAAL.bovenbouw.naam;
+  el('q-vraag').textContent='Welk '+naam[q.naar]+' hoort bij dit '+naam[q.van]+'?';
+  el('q-hint').hidden=!q.beginStil;
+  el('q-hint').textContent='Het karretje begint stil.';
+  zetSceneKlaar(q, { richtingVooraf: !KOPPEL_LEVELS[level].achteruit });
+  el('antwoord-grid').hidden=true;
+  el('getal-invoer').hidden=true;
+  el('koppel-grid').hidden=false;
+  el('koppel-grid').classList.remove('klaar');
+  el('koppel-grid').innerHTML=q.opties.map((o,i)=>
+    '<button class="koppel-optie" data-i="'+i+'" aria-label="Optie '+LETTERS[i]+'"><span class="letter">'+LETTERS[i]+'</span><div class="g"></div></button>').join('');
+  el('koppel-grid').querySelectorAll('.koppel-optie').forEach((b,i)=>{
+    maakVormGrafiek(b.querySelector('.g'), q.opties[i].stukken, {diagram:q.naar});
+    b.onclick=()=>kiesKoppel(i);
+  });
+  tekenScore();
+}
+
+function kiesKoppel(i){
+  if(state.klaar) return;
+  const q=state.vraag, goed=i===q.juist;
+  state.klaar=true;
+  if(goed) telGoed(); else telFout();
+  state.log.push({goed, fout: goed ? null : koppelFoutCategorie(q,i)});
+  state.tussenstand = state.log.length % TUSSENSTAND === 0;
+  el('q-nieuw').hidden=true;
+  el('koppel-grid').querySelectorAll('.koppel-optie').forEach((b,k)=>{
+    b.disabled=true;
+    if(k===q.juist) b.classList.add('goed');
+    else if(k===i) b.classList.add('fout');
+  });
+  const d=koppelDiagnose(q,i), c=koppelFoutCategorie(q,i);
+  const link=c ? ' <a href="../uitleg/?niveau=bovenbouw&stap='+c.stap+'" target="_blank" rel="noopener">Bekijk de uitleg →</a>' : '';
+  // Kort houden: de beweging in woorden, en bij een fout wat er misging. De
+  // algemene regel staat in de uitleg (link).
+  const html = goed
+    ? '<span class="kop">Goed.'+(state.klimMelding||'')+'</span>'+koppelUitleg(q)
+    : '<span class="kop">Niet goed. Het is '+LETTERS[q.juist]+'.</span>'+(d && d.tekst ? '<span class="diag">'+d.tekst+'</span>' : '')+bewegingInWoorden(q.beweging)+link;
+  el('koppel-grid').classList.add('klaar');
+  // Het goede diagram loopt mee naast het gegeven diagram tijdens het afspelen.
+  const div=document.createElement('div');
+  div.className='extra vast';
+  div.appendChild(document.createElement('div'));
+  el('q-grafieken').appendChild(div);
+  state.scene.voegGrafiekToe(div.firstChild, q.naar);
+  zetGrafiekKolommen();
+  rondAf(goed, html);
+}
+
+// Zoveel kolommen als er diagrammen in beeld zijn.
+function zetGrafiekKolommen(){
+  const wrap=el('q-grafieken');
+  const n=[...wrap.children].filter(c=>!c.hidden).length;
+  wrap.classList.remove('n2','n3');
+  if(n>1) wrap.classList.add('n'+Math.min(n,3));
 }
 
 function tekenAntwoorden(){
@@ -626,7 +745,10 @@ function rondAf(goed, html){
   el('ander-btn').classList.remove('vol');
   el('volgende-btn').textContent=state.tussenstand?'Bekijk je tussenstand →':'Volgende opgave →';
   el('q-baan').classList.remove('wacht');
-  el('q-baan-tekst').textContent='Elke halve seconde valt er een stip. De amberkleurige stippen horen bij het gemarkeerde stuk.';
+  el('q-baan-tekst').textContent = q.index===null || q.index===undefined
+    ? 'Elke halve seconde valt er een stip.'
+    : 'Elke halve seconde valt er een stip. De amberkleurige stippen horen bij het gemarkeerde stuk.';
+  el('ander-btn').hidden=andereDiagrammen(q).length===0;
   speel('normaal');
   tekenScore();
   el('volgende-btn').focus({preventScroll:true});
@@ -687,7 +809,7 @@ function toggleExtra(){
   const q=state.vraag, wrap=el('q-grafieken');
   state.extra=!state.extra;
   const lijst=andereDiagrammen(q);
-  if(state.extra && !wrap.querySelector('.extra')){
+  if(state.extra && !wrap.querySelector('.extra:not(.vast)')){
     lijst.forEach(d=>{
       const div=document.createElement('div');
       div.className='extra';
@@ -696,8 +818,8 @@ function toggleExtra(){
       state.scene.voegGrafiekToe(div.firstChild, d);
     });
   }
-  wrap.querySelectorAll('.extra').forEach(e=>e.hidden=!state.extra);
-  wrap.classList.toggle('n'+(lijst.length+1), state.extra);
+  wrap.querySelectorAll('.extra:not(.vast)').forEach(e=>e.hidden=!state.extra);
+  zetGrafiekKolommen();
   el('ander-btn').classList.toggle('vol',state.extra);
   el('ander-btn').textContent=anderLabel(q,state.extra);
 }
@@ -743,9 +865,9 @@ function volgendeKnop(){
   if(state.tussenstand) toonOverzicht(); else volgendeVraag();
 }
 
-/* ── KOPPELEN ── */
-function start(modus){
-  state.modus=modus; state.climbLevel=1; state.climbStreak=0; state.teller=0;
+/* ── KNOPPEN ── */
+function start(modus, vorm){
+  state.vorm=vorm; state.modus=modus; state.climbLevel=1; state.climbStreak=0; state.teller=0;
   state.score={goed:0,totaal:0}; state.streak=0; state.vraag=null;
   state.log=[]; state.gezien=new Set(); state.tussenstand=false;
   el('overzicht').hidden=true;
@@ -761,8 +883,15 @@ document.querySelectorAll('.spoor-btn').forEach(b=>{
     tekenSpoor();
   };
 });
-el('climb-btn').onclick=()=>start('climb');
-el('start-btn').onclick=()=>start('eigen');
+el('climb-btn').onclick=()=>start('climb','herkennen');
+el('start-btn').onclick=()=>start('eigen','herkennen');
+el('klim-koppel').onclick=()=>start('climb','koppelen');
+el('start-koppel').onclick=()=>start('eigen','koppelen');
+el('opties-koppel-btn').onclick=()=>{
+  const open=el('opties-koppel').hidden;
+  el('opties-koppel').hidden=!open;
+  el('opties-koppel-btn').setAttribute('aria-expanded',String(open));
+};
 // Terug naar het keuzescherm, met daar het overzicht van de sessie die je net deed.
 el('back-btn').onclick=()=>{
   const vs=el('vorige-sessie');
@@ -787,11 +916,16 @@ el('ander-btn').onclick=toggleExtra;
 // Toetsen 1 tot en met 4 kiezen een antwoord, Enter gaat naar de volgende.
 document.addEventListener('keydown',e=>{
   if(el('exercise').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
-  if(!state.klaar && /^[1-4]$/.test(e.key) && el('getal-invoer').hidden){ beantwoord(SOORTEN[Number(e.key)-1]); e.preventDefault(); }
+  const koppel=!el('koppel-grid').hidden;
+  const letter='abcd'.indexOf(e.key.toLowerCase());
+  if(!state.klaar && koppel && (/^[1-4]$/.test(e.key) || letter>=0)){ kiesKoppel(letter>=0 ? letter : Number(e.key)-1); e.preventDefault(); }
+  else if(!state.klaar && !koppel && /^[1-4]$/.test(e.key) && el('getal-invoer').hidden){ beantwoord(SOORTEN[Number(e.key)-1]); e.preventDefault(); }
   else if(state.klaar && e.key==='Enter' && document.activeElement===document.body && el('overzicht').hidden){ volgendeKnop(); e.preventDefault(); }
 });
 
 tekenSpoor();
+// Vanaf de keuzepagina (?vorm=koppelen): meteen naar de koppelkaart.
+if(state.vorm==='koppelen' && state.spoor==='bovenbouw') el('koppel-kaart').scrollIntoView({block:'center'});
 </script>
 </body>
 </html>

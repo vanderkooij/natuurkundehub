@@ -170,3 +170,16 @@ Foutdiagnose: teken vergeten, niet gedeeld door de tijd, plaats in plaats van ve
 **Besluit 2026-10-10: in de onderbouw rijdt het karretje alleen vooruit.** Een positieve snelheid bij terugrijden zou in de bovenbouw weer afgeleerd moeten worden. Bijkomend voordeel: "afstand" op de as is dan zowel afgelegde afstand als afstand tot de start. De uitlegstap Teruglopen is weg; teruglopen, richting en negatieve snelheid komen pas in de bovenbouw. Dit vervangt de eerdere afspraak dat het snelheidsdiagram in de onderbouw bij teruglopen positief blijft.
 
 Verder: nieuw vraagtype in bovenbouw level 7, de afgelegde afstand over twee of drie stukken (oppervlaktes optellen, zonder richtingswissel). Eindmix bovenbouw (level 8) = levels 3, 4, 6 en 7.
+
+## Koppelen (gebouwd 2026-10-12)
+
+Tweede oefenvorm op de oefenpagina, alleen in de bovenbouw (kaart "Koppel de diagrammen", of `oefenen/?niveau=bovenbouw&vorm=koppelen` vanaf de keuzepagina). Links het gegeven diagram met het karretje, rechts vier kleine diagrammen A tot D. Na het antwoord loopt het goede diagram mee naast het gegeven diagram.
+
+| Level | Paren | Richting |
+|---|---|---|
+| 1 | x,t ↔ v,t | alleen vooruit |
+| 2 | + v,t ↔ a,t | alleen vooruit |
+| 3 | x,t ↔ v,t, v,t ↔ a,t | ook achteruit |
+| 4 | + x,t ↔ a,t (doordenker) | ook achteruit |
+
+Foute opties komen uit denkfouten: de vorm van het gegeven diagram overgenomen (bijna altijd een van de opties), één stuk anders, twee stukken in de verkeerde volgorde, alles gespiegeld (in levels zonder achteruit alleen als er niets anders is), en bij een a,t-diagram een verkeerde beginsnelheid. Vanaf een a,t-diagram begint het karretje altijd stil (staat als hint bij de vraag). Opties die er (geschaald) hetzelfde uitzien, worden geweigerd. Uitlegstap "Diagrammen koppelen" in de bovenbouw.

@@ -8,7 +8,7 @@
 - [x] Significantie — oefenen met significante cijfers (tellen, afronden, juiste aantal sig.cijfers bij berekeningen)
 - [x] Videometen — video-analyse / bewegings-tracker: filmpje frame voor frame analyseren, automatisch v-t en a-t grafiek
 - [x] Voorvoegsels en machten van 10. Uitleg in negen stappen met een interactieve ladder, plus oefenen in drie vormen en vijf levels, met foutdiagnose en ladder-hint. Plan in `plannen/voorvoegsels.md`. Dimensieanalyse blijft buiten scope.
-- [x] Bewegingsgrafieken (gebouwd 2026-10-10). Herkennen van stilstand, constante snelheid, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen zonder getallen, met een karretje dat de beweging naspeelt, foutdiagnose en levels. Onderbouwspoor (afstand en snelheid, 4 levels) en bovenbouwspoor (x, v, a, achteruit, 6 levels). Plan in `plannen/bewegingsgrafieken.md`. Level met getallen (onderbouw 5, bovenbouw 7) en een eindmix (onderbouw 6, bovenbouw 8) toegevoegd 2026-10-10. Nog te doen: koppelen (bovenbouw).
+- [x] Bewegingsgrafieken (gebouwd 2026-10-10). Herkennen van stilstand, constante snelheid, versnellen en vertragen in x,t-, v,t- en a,t-diagrammen zonder getallen, met een karretje dat de beweging naspeelt, foutdiagnose en levels. Onderbouwspoor (afstand en snelheid, 4 levels) en bovenbouwspoor (x, v, a, achteruit, 6 levels). Plan in `plannen/bewegingsgrafieken.md`. Level met getallen (onderbouw 5, bovenbouw 7) en een eindmix (onderbouw 6, bovenbouw 8) toegevoegd 2026-10-10. Koppelen voor de bovenbouw toegevoegd 2026-10-12 (vier levels, tot x,t ↔ a,t).
 
 ## Te ontwikkelen
 
@@ -17,7 +17,8 @@
 - [ ] Vectoren ontbinden — vector tekenen, componenten aflezen of zelf ontbinden in x/y; ook optellen van vectoren
 
 ### Bewegingsleer
-- [ ] Bewegingsgrafieken: koppelen (bovenbouw). Bij een diagram het bijbehorende andere diagram kiezen. Later eventueel een lichte versie voor de onderbouw (extra level vwo). Zie `plannen/bewegingsgrafieken.md`.
+- [ ] Bewegingsgrafieken: koppelen voor de onderbouw (afstand bij snelheid), eventueel als extra level voor vwo. De bovenbouwversie staat er sinds 2026-10-12.
+- [ ] Bewegingsgrafieken: koppelen door zelf te tekenen in plaats van te kiezen.
 
 ### Meten & rekenen
 - [ ] Foutenleer / meetonzekerheden — absolute en relatieve fout, doorrekenen, foutenbalken bij grafieken
