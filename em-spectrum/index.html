@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektromagnetisch spectrum · NatuurkundeHub</title>
+<meta name="description" content="Verken het elektromagnetisch spectrum van radiogolven tot gammastraling en zie hoe klein het zichtbare deel is.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;
+  --accent:#0BB5C8;--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --stage-bg:#f3f6f9;--stage-line:rgba(15,23,42,0.05);--stage-edge:#d4e0ea;
+  --s-tekst:#1A1A2E;--s-mute:#475569;--s-zacht:#64748b;--s-rand:#c9d6e2;--s-paneel:rgba(255,255,255,0.88);
+  --s-knop:rgba(15,23,42,0.04);--s-knop-hover:rgba(15,23,42,0.08);--s-kaart:#ffffff;--s-amber:#a8610f;
+  --s-fout-tekst:#7f1d1d;--s-fout-bg:#fef2f2;--s-fout-rand:#fca5a5;
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --stage-bg:#0b0e15;--stage-line:rgba(255,255,255,0.045);--stage-edge:#1e2d44;
+  --s-tekst:#e2e8f0;--s-mute:#94a3b8;--s-zacht:#64748b;--s-rand:#2a3a52;--s-paneel:rgba(11,14,21,0.82);
+  --s-knop:rgba(255,255,255,0.05);--s-knop-hover:rgba(255,255,255,0.1);--s-kaart:#111723;--s-amber:#f2c48a;
+  --s-fout-tekst:#fecaca;--s-fout-bg:#2a1414;--s-fout-rand:#7f1d1d;
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;
+  --text:#e2e8f0;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+}
+
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden;transition:background .3s,color .3s}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px;flex:none}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(24px,3.4vw,34px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:18px 0 14px;flex:none}
+
+/* Het podium volgt het thema van de site; donker leest het best op de beamer. */
+.stage{flex:1;min-height:0;margin:0 24px 24px;border-radius:var(--radius);border:1px solid var(--stage-edge);
+  background-color:var(--stage-bg);
+  background-image:linear-gradient(var(--stage-line) 1px,transparent 1px),linear-gradient(90deg,var(--stage-line) 1px,transparent 1px);
+  background-size:40px 40px;position:relative;overflow:hidden;display:grid;
+  grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto auto;
+  grid-template-areas:"tool tool" "balk info" "lees info" "bedien bedien"}
+.bedien{grid-area:bedien}
+.toolbar{grid-area:tool}
+.midden{grid-area:balk}
+.readout{grid-area:lees}
+.info{grid-area:info}
+/* Snelknoppen: groot genoeg voor een vinger op het digibord. */
+.toolbar{flex:none;display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--stage-edge);background:var(--s-paneel)}
+.snel{display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.snel::-webkit-scrollbar{display:none}
+.snelknop,.zoomknop{font-family:var(--font);font-size:clamp(14px,1.15vw,17px);font-weight:600;color:var(--s-tekst);background:var(--s-knop);border:1px solid var(--stage-edge);border-radius:10px;min-height:46px;padding:0 14px;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;flex:none;transition:background .15s,border-color .15s}
+.snelknop:hover,.zoomknop:hover{background:var(--s-knop-hover)}
+.snelknop.actief{border-color:#0BB5C8;background:rgba(11,181,200,0.18)}
+.snelknop.klein{border-color:rgba(212,146,58,0.55);color:var(--s-amber)}
+.snelknop.klein.actief{border-color:#D4923A;background:rgba(212,146,58,0.2)}
+.snelknop .stip{width:12px;height:12px;border-radius:50%;flex:none}
+.snelknop kbd{font-family:var(--mono);font-size:12px;color:var(--s-zacht);border:1px solid var(--s-rand);border-radius:4px;padding:0 5px;line-height:18px}
+.zoom{display:flex;gap:8px;flex:none}
+/* Bedieningsbalk helemaal onderin, over de volle breedte: links wat er in beeld staat (opbouwen met ◂ ▸ of per
+   laag), rechts invoerveld, zoomen, volledig scherm en hulp. Boven staan alleen de gebieden,
+   in de volgorde van het spectrum. */
+.bedien{display:flex;align-items:center;gap:12px;padding:8px 12px;border-top:1px solid var(--stage-edge);background:var(--s-paneel);min-width:0}
+.opbouw{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+.chips{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 22px),transparent);padding:0 10px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font-family:var(--font);font-size:clamp(13px,0.95vw,16px);font-weight:600;color:var(--s-mute);background:transparent;border:1px solid var(--s-rand);border-radius:999px;min-height:40px;padding:0 11px;cursor:pointer;white-space:nowrap}
+.chip:hover{color:var(--s-tekst)}
+.chip[aria-pressed="true"]{color:var(--s-tekst);border-color:#0BB5C8;background:rgba(11,181,200,0.18)}
+.pijl{flex:none;width:44px;height:40px;border-radius:10px;border:1px solid var(--s-rand);background:var(--s-knop);color:var(--s-tekst);font-size:18px;cursor:pointer}
+.pijl:hover{background:var(--s-knop-hover)}
+.pijl.leeg{opacity:.35;cursor:default}
+.rechts{flex:none;display:flex;align-items:center;gap:8px}
+.bedien .zoomknop{width:42px;min-height:40px;height:40px}
+.bedien .ganaar input{height:40px;width:clamp(120px,10vw,200px)}
+.bedien .ganaar .fout{top:auto;bottom:48px}
+/* Overzicht van de bediening */
+.hulp{position:absolute;inset:0;z-index:40;background:rgba(5,7,12,0.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.hulp[hidden]{display:none}
+.hulpkaart{background:var(--s-kaart);border:1px solid var(--s-rand);border-radius:14px;padding:18px 22px;color:var(--s-tekst);max-width:820px;width:100%;max-height:100%;overflow:auto;font-size:clamp(14px,1.1vw,18px);line-height:1.45}
+.hulpkaart h2{font-size:1.3em;margin-bottom:10px}
+.hulpkaart h3{font-size:.85em;color:#0BB5C8;margin:6px 0 4px}
+.hulpkaart p{margin:3px 0}
+.hulpkaart b{font-weight:600}
+.hulpkaart kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--s-rand);border-radius:5px;padding:0 6px;background:var(--s-knop)}
+.hulpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 28px}
+.hulp-sluit{float:right;font-family:var(--font);font-size:15px;font-weight:600;color:var(--s-tekst);background:var(--s-knop);border:1px solid var(--s-rand);border-radius:10px;min-height:42px;padding:0 14px;cursor:pointer}
+/* Volledig scherm: alleen de tool. */
+body.volscherm .app-header,body.volscherm .tool-name{display:none}
+body.volscherm .stage{margin:0;border-radius:0;border:none}
+/* Minder breed: de sneltoetsnummers op de gebiedsknoppen weg, zodat alle gebieden passen. */
+@media(max-width:1600px){ .snelknop kbd{display:none} .snelknop{padding:0 12px} }
+/* Invoerveld: typ een golflengte, frequentie of energie en spring erheen. */
+.ganaar{position:relative;flex:none}
+.ganaar input{font-family:var(--mono);font-size:16px;height:46px;width:clamp(130px,12vw,200px);border-radius:10px;border:1px solid var(--stage-edge);background:var(--s-knop);color:var(--s-tekst);padding:0 12px;outline:none}
+.ganaar input::placeholder{color:var(--s-zacht)}
+.ganaar input:focus{border-color:#0BB5C8;background:rgba(11,181,200,0.08)}
+.ganaar .fout{position:absolute;top:52px;left:0;z-index:30;width:max-content;max-width:min(360px,80vw);background:var(--s-fout-bg);color:var(--s-fout-tekst);border:1px solid var(--s-fout-rand);border-radius:8px;padding:8px 10px;font-size:14px;line-height:1.35;display:none}
+.ganaar .fout.toon{display:block}
+.zoomknop{width:46px;justify-content:center;padding:0;font-size:24px;line-height:1}
+.midden{min-height:0;display:flex;position:relative}
+.bar-wrap{flex:1;min-width:0;min-height:0;position:relative}
+
+/* Infopaneel per gebied: kolom rechts naast de balk, aan en uit met de knop Info. */
+.info{flex:none;width:clamp(280px,25vw,440px);border-left:1px solid var(--stage-edge);background:var(--s-paneel);color:var(--s-tekst);overflow-y:auto;padding:12px 16px 14px;font-size:clamp(13px,min(1.05vw,2vh),20px);line-height:1.35}
+.stage.info-uit .info{display:none}
+.info h2{display:flex;align-items:center;gap:10px;font-size:clamp(19px,1.6vw,26px);font-weight:700;line-height:1.15}
+.info h2 svg,#uitVergelijk svg{background:#0b0e15;border-radius:7px;padding:2px;flex:none}
+.info h2 .stip{width:.6em;height:.6em;border-radius:50%;flex:none}
+.info .info-sluit{display:none;float:right;font-family:var(--font);font-size:15px;font-weight:600;color:var(--s-tekst);background:var(--s-knop);border:1px solid var(--s-rand);border-radius:10px;min-height:42px;padding:0 14px;cursor:pointer}
+.info .info-terug{display:inline-flex;align-items:center;font-family:var(--font);font-size:15px;font-weight:600;color:var(--s-tekst);background:var(--s-knop);border:1px solid var(--s-rand);border-radius:10px;min-height:42px;padding:0 14px;cursor:pointer;margin-bottom:8px}
+.info .grens{color:var(--s-mute);font-size:.88em;margin:2px 0 8px}
+.info dl{display:grid;gap:7px}
+.info .live-tekst{color:var(--s-amber);white-space:nowrap}
+.info .live-tekst b{font-family:var(--mono);font-weight:500}
+.info dt{color:#0BB5C8;font-weight:600;font-size:.82em;letter-spacing:.2px}
+.info dd{margin:1px 0 0}
+.info .live{border:1px solid var(--stage-edge);border-radius:10px;padding:6px 10px;background:var(--s-knop)}
+.info .live b{font-family:var(--mono);font-weight:500}
+.info .live.ion{border-color:rgba(212,146,58,0.6);background:rgba(212,146,58,0.08)}
+
+@media(max-width:1000px){
+  /* Smal scherm: het paneel schuift over de balk heen. */
+  .stage{grid-template-areas:"tool tool" "balk balk" "lees lees" "bedien bedien"}
+  .info{position:absolute;right:0;top:70px;bottom:0;z-index:5;background:var(--stage-bg);box-shadow:-8px 0 24px rgba(0,0,0,0.5)}
+  .info .info-sluit{display:block}
+}
+#spectrum{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:ew-resize;outline:none}
+
+/* Getallenpaneel: groot genoeg om achter in het lokaal te lezen. */
+.readout{flex:none;container-type:inline-size;display:flex;border-top:1px solid var(--stage-edge);background:var(--s-paneel);color:var(--s-tekst)}
+.cell{flex:1 1 0;padding:12px 16px 14px;border-left:1px solid var(--stage-edge);min-width:0}
+.cell.golfcel{flex:1.35 1 0;min-width:220px}
+/* Lagen die uit staan */
+.stage.klein-modus #golf,.stage.klein-modus #uitVergelijk,.stage.zonder-frequentie .cel-f,.stage.zonder-energie .cel-e,.stage.zonder-energie #infoIon,.stage.zonder-golf #golf{display:none}
+.cell:first-child{border-left:none}
+.cell .kop{font-size:clamp(12px,1.25cqw,17px);font-weight:600;color:var(--s-mute);display:flex;justify-content:space-between;gap:8px;white-space:nowrap}
+.cell .kop .formule{color:#0BB5C8;font-weight:500}
+.cell .getal{overflow:hidden;font-family:var(--mono);font-size:clamp(16px,2.35cqw,36px);font-weight:500;letter-spacing:-0.5px;margin-top:6px;white-space:nowrap}
+.cell .getal sup,.cell .sub sup{font-size:.62em;line-height:0;vertical-align:super}
+.cell .sub{font-family:var(--mono);font-size:clamp(12px,1.2cqw,17px);color:var(--s-mute);margin-top:4px;white-space:nowrap;min-height:1.2em}
+.gebied{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:clamp(20px,2.1vw,34px);font-weight:700;white-space:nowrap}
+.gebied .stip{width:.7em;height:.7em;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.15)}
+/* Smal paneel (bijvoorbeeld met het infopaneel ernaast): de formules boven de vakjes weg. */
+@container (max-width: 1000px){ .cell .kop .formule{display:none} }
+/* Golfvenster: gebied, de golf bij de marker met een liniaal, en waar één golflengte op lijkt. */
+.golfcel .kop{align-items:center;flex-wrap:wrap;row-gap:2px}
+.golfcel .gebied{margin-top:0;font-size:clamp(17px,1.6vw,26px);color:var(--s-tekst);gap:8px}
+.golfcel .vergelijk{color:var(--s-amber);font-weight:600;white-space:normal;flex-basis:100%}   /* eigen regel onder het gebied: niet afkappen */
+#golf{display:block;width:100%;height:clamp(58px,8.5vh,84px);margin-top:4px}
+
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .stage{margin:0 16px 16px}
+  .readout{flex-wrap:wrap}
+  .cell{flex:1 1 40%;padding:10px 12px;border-top:1px solid var(--stage-edge);border-left:none}
+  .cell.golfcel{flex-basis:100%;border-top:none}
+  .cell .kop .formule{display:none}
+  .toolbar{padding:8px 10px}
+  .info{width:100%}
+  .snelknop kbd{display:none}
+  .ganaar input{width:110px}
+  .bedien{flex-wrap:wrap}
+  .rechts{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="/assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">EM-spectrum</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Elektromagnetisch spectrum</h1>
+
+<div class="stage" id="stage">
+  <div class="toolbar">
+    <div class="snel" id="snel" role="group" aria-label="Spring naar een gebied"></div>
+  </div>
+  <div class="midden">
+    <div class="bar-wrap">
+      <canvas id="spectrum" tabindex="0" role="slider" aria-label="Golflengte op het elektromagnetisch spectrum, van radiogolven links tot gammastraling rechts"></canvas>
+    </div>
+  </div>
+  <div class="bedien">
+    <div class="opbouw">
+      <button type="button" class="pijl" id="lagenMinder" aria-label="Minder in beeld" title="Minder in beeld">◂</button>
+      <div class="chips" id="lagenChips" role="group" aria-label="Wat staat er in beeld"></div>
+      <button type="button" class="pijl" id="lagenMeer" aria-label="Meer in beeld" title="Meer in beeld">▸</button>
+    </div>
+    <div class="rechts">
+      <form class="ganaar" id="gaNaar" autocomplete="off">
+        <input id="gaNaarVeld" type="text" placeholder="589 nm of 2,45 GHz" aria-label="Ga naar een golflengte, frequentie of energie (toets /)" spellcheck="false" enterkeyhint="go">
+        <div class="fout" id="gaNaarFout" role="alert"></div>
+      </form>
+      <button type="button" class="zoomknop" id="zoomUit" aria-label="Uitzoomen" title="Uitzoomen (−)">−</button>
+      <button type="button" class="zoomknop" id="zoomIn" aria-label="Inzoomen" title="Inzoomen (+)">+</button>
+      <button type="button" class="zoomknop" id="volKnop" aria-label="Volledig scherm" title="Volledig scherm (f)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+      <button type="button" class="zoomknop" id="hulpKnop" aria-label="Sneltoetsen en bediening" title="Sneltoetsen (?)">?</button>
+    </div>
+  </div>
+  <aside class="info" id="info" aria-live="polite"></aside>
+  <div class="hulp" id="hulp" hidden>
+    <div class="hulpkaart" role="dialog" aria-label="Sneltoetsen en bediening">
+      <button type="button" class="hulp-sluit" id="hulpSluit">Sluiten</button>
+      <h2>Bediening</h2>
+      <div class="hulpgrid">
+        <div><h3>Op het bord</h3>
+          <p><b>Marker slepen</b> golflengte kiezen</p>
+          <p><b>Tikken op de balk</b> marker springt erheen</p>
+          <p><b>Vegen</b> spectrum schuiven</p>
+          <p><b>Knijpen</b> zoomen</p>
+          <p><b>Tikken op een toepassing</b> infokaart</p>
+          <p><b>◂ ▸ onderaan</b> minder of meer in beeld</p></div>
+        <div><h3>Toetsen</h3>
+          <p><kbd>0</kbd>–<kbd>7</kbd> heel spectrum, gebieden</p>
+          <p><kbd>9</kbd> hoe klein is zichtbaar? daarna <kbd>→</kbd> of spatie: volgende stap, <kbd>←</kbd>: terug</p>
+          <p><kbd>←</kbd> <kbd>→</kbd> marker, met Shift grote stap</p>
+          <p><kbd>+</kbd> <kbd>−</kbd> zoomen</p>
+          <p><kbd>/</kbd> waarde typen, zoals 2,45 GHz</p>
+          <p><kbd>i</kbd> infopaneel · <kbd>f</kbd> volledig scherm · <kbd>?</kbd> dit overzicht</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="readout" aria-live="polite">
+    <div class="cell golfcel">
+      <div class="kop">
+        <span class="gebied"><span class="stip" id="uitStip"></span><span id="uitGebied"></span></span>
+        <span class="vergelijk" id="uitVergelijk"></span>
+      </div>
+      <canvas id="golf" aria-hidden="true"></canvas>
+    </div>
+    <div class="cell">
+      <div class="kop"><span>Golflengte λ</span></div>
+      <div class="getal" id="uitL"></div>
+      <div class="sub" id="uitLsub"></div>
+    </div>
+    <div class="cell cel-f">
+      <div class="kop"><span>Frequentie f</span><span class="formule">f = c / λ</span></div>
+      <div class="getal" id="uitF"></div>
+      <div class="sub" id="uitFsub"></div>
+    </div>
+    <div class="cell cel-e">
+      <div class="kop"><span>Energie E</span><span class="formule">E = h · f</span></div>
+      <div class="getal" id="uitEJ"></div>
+      <div class="sub">per foton</div>
+    </div>
+    <div class="cell cel-e">
+      <div class="kop"><span>Energie E</span><span class="formule">in eV</span></div>
+      <div class="getal" id="uitEeV"></div>
+      <div class="sub">1 eV = 1,60·10<sup>−19</sup> J</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='/assets/logo/JK_dark.svg';
+    if(fav)fav.href='/assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='/assets/logo/JK_light.svg';
+    if(fav)fav.href='/assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';try{localStorage.setItem('nh-theme',n)}catch(e){}applyTheme(n);}
+(function(){let s=null;try{s=localStorage.getItem('nh-theme')}catch(e){}if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+</script>
+
+<script src="plaatjes.js"></script>
+<script src="invoer.js"></script>
+<script>
+// ===== Natuurkunde =====
+const C_LICHT = 2.99792458e8;            // m/s (Binas)
+const LOG_C = Math.log10(C_LICHT);
+const H_PLANCK = 6.62607015e-34;         // J·s (Binas)
+const E_LADING = 1.602176634e-19;        // C, dus 1 eV in J
+
+// Gebieden van lang naar kort, dus van links naar rechts. Grenzen in meter,
+// indicatief (plan: zachte overgangen, geen harde lijnen).
+// doel: het venster van de snelknop, in log10(λ / m). typisch: waar de marker heen
+// springt als hij buiten dat venster staat.
+const GEBIEDEN = [
+  {id:'radio', naam:'Radio',       knop:'Radio',       max:Infinity, min:1,      kleur:'#d9644a', doel:{hi:5, lo:-0.3},    typisch:3.00},
+  {id:'micro', naam:'Microgolven', knop:'Microgolven', max:1,        min:1e-3,   kleur:'#e8a33d', doel:{hi:0.3, lo:-3.3},  typisch:0.122},
+  {id:'ir',    naam:'Infrarood',   knop:'Infrarood',   max:1e-3,     min:7.5e-7, kleur:'#c23b4e', doel:{hi:-2.7, lo:-6.4}, typisch:1.00e-5},
+  {id:'vis',   naam:'Zichtbaar',   knop:'Zichtbaar',   max:7.5e-7,   min:3.8e-7, kleur:'#e8e070', doel:{hi:Math.log10(790e-9), lo:Math.log10(350e-9)}, typisch:550e-9},
+  {id:'uv',    naam:'Ultraviolet', knop:'UV',          max:3.8e-7,   min:1e-8,   kleur:'#8e6cf0', doel:{hi:-6.25, lo:-8.3}, typisch:3.00e-7},
+  {id:'xray',  naam:'Röntgen',     knop:'Röntgen',     max:1e-8,     min:1e-11,  kleur:'#3f8fe0', doel:{hi:-7.7, lo:-11.3}, typisch:1.00e-10},
+  {id:'gamma', naam:'Gamma',       knop:'Gamma',       max:1e-11,    min:0,      kleur:'#2fbf9b', doel:{hi:-10.7, lo:-13},  typisch:1.00e-12},
+];
+
+// ===== Lagen =====
+// Alles wat je aan en uit kunt zetten. 'Eenvoudig' is de standaard bij de eerste keer:
+// alleen de balk met namen, de golflengte-as, de marker en de golflengte.
+const LAGEN = [
+  // Volgorde = de volgorde van opbouwen met ▸.
+  {id:'frequentie',   naam:'Frequentie',    uitleg:'frequentie-as en f in het paneel'},
+  {id:'energie',      naam:'Energie',       uitleg:'E in J en eV in het paneel'},
+  {id:'golf',         naam:'Golf',          uitleg:'golfvenster onderin, met liniaal'},
+  {id:'toepassingen', naam:'Toepassingen',  uitleg:'FM, wifi, magnetron … bij inzoomen'},
+  {id:'deelgebieden', naam:'Deelgebieden',  uitleg:'UV-A/B/C, kleuren, nabij en ver IR'},
+  {id:'ioniserend',   naam:'Ioniserend',    uitleg:'grens van ioniserende straling op de balk'},
+  {id:'atmosfeer',    naam:'Atmosfeer',     uitleg:'welke straling de grond bereikt'},
+  {id:'zon',          naam:'Zonlicht',      uitleg:'stralingskromme van de zon'},
+  {id:'info',         naam:'Info',          uitleg:'detector, bron en toepassing per gebied'},
+];
+const LAGEN_BASIS = Object.fromEntries(LAGEN.map(l => [l.id, false]));
+const LAGEN_ALLES = Object.fromEntries(LAGEN.map(l => [l.id, true]));
+let lagen = {...LAGEN_BASIS};
+try{
+  const opgeslagen = JSON.parse(localStorage.getItem('nh-em-lagen') || 'null');
+  if(opgeslagen) for(const l of LAGEN) if(typeof opgeslagen[l.id] === 'boolean') lagen[l.id] = opgeslagen[l.id];
+}catch(e){}
+
+// Kleur van het vlak in een plaatje: de kleur van het gebied, de echte kleur bij zichtbaar
+// licht, en één neutrale kleur voor de voorwerpen bij "Hoe klein is zichtbaar?".
+const KLEUR_VOORWERP = '#9aa7b8';
+function kleurVan(lambda){
+  const g = GEBIEDEN.find(g => lambda <= g.max && lambda > g.min) || GEBIEDEN[GEBIEDEN.length-1];
+  return g.id === 'vis' ? rgba(golflengteNaarRGB(lambda * 1e9), 1) : g.kleur;
+}
+function toepKleur(t){ return kleurVan(Math.sqrt(t.van * (t.tot || t.van))); }
+
+// ===== Infopaneel per gebied =====
+// Grenzen indicatief. 'live' zijn regels die meerekenen met de marker (zie werkInfoBij).
+const INFO = {
+  radio: {
+    grens: 'langer dan 1 m',
+    detector: 'Een antenne. Die werkt het best als hij ongeveer een halve golflengte lang is.',
+    bron: 'Zenders: elektronen die in een antenne heen en weer bewegen. Ook bliksem, sterren en sterrenstelsels.',
+    toepassing: 'Radio en tv, communicatie met onderzeeërs, radiosterrenkunde (LOFAR bij Exloo).',
+  },
+  micro: {
+    grens: '1 mm tot 1 m',
+    detector: 'Een kleine antenne (in je telefoon) of een schotel die de golven naar één punt kaatst.',
+    bron: 'Zendmasten, wifi-routers, radar, de magnetronbuis. En de oerknal: de kosmische achtergrondstraling.',
+    toepassing: 'Mobiel, wifi, Bluetooth, GPS, radar, satelliet-tv, de magnetron.',
+  },
+  ir: {
+    grens: '750 nm tot 1 mm',
+    detector: 'Een thermometer, een warmtecamera, en je huid: je voelt infrarood als warmte.',
+    bron: 'Alles wat warm is. Jouw lichaam straalt het meest uit rond 10 µm. Ook de zon en afstandsbedieningen.',
+    toepassing: 'Warmtecamera, afstandsbediening, glasvezel, warmtelamp.',
+  },
+  vis: {
+    grens: '380 tot 750 nm',
+    detector: 'Je oog: kegeltjes voor rood, groen en blauw, staafjes voor licht en donker. Ook de chip in een camera.',
+    bron: 'De zon, lampen, vuur, lasers.',
+    toepassing: 'Zien, verlichting, lasers, fotografie.',
+  },
+  uv: {
+    grens: '10 tot 380 nm',
+    detector: 'Je huid (verbranden, bruin worden), stoffen die oplichten (fluorescentie), UV-sensoren.',
+    bron: 'De zon, blacklight, zonnebank, kwiklamp.',
+    toepassing: 'Desinfectie met UV-C, echtheid van bankbiljetten controleren, tandvullingen en nagellak uitharden.',
+  },
+  xray: {
+    grens: '0,01 tot 10 nm',
+    detector: 'Een fotografische plaat of een digitale röntgendetector.',
+    bron: 'Elektronen: in een röntgenbuis worden snelle elektronen afgeremd. In de ruimte: heel heet gas. Röntgen ontstaat bij elektronen, gamma in de atoomkern.',
+    toepassing: 'Röntgenfoto: botten houden meer straling tegen dan zacht weefsel en worden wit op de foto. Ook CT-scan, bagagecontrole en onderzoek aan kristallen.',
+  },
+  gamma: {
+    grens: 'korter dan 0,01 nm',
+    detector: 'Een geigerteller of een scintillator.',
+    bron: 'Atoomkernen: radioactief verval, kernreacties, explosies in de ruimte. Gamma en röntgen kunnen dezelfde golflengte hebben; het verschil zit in de bron: gamma ontstaat in de atoomkern, röntgen bij elektronen.',
+    toepassing: 'PET-scan, bestraling van tumoren, voedsel en medische spullen steriliseren.',
+  },
+};
+const ION_GRENS_EV = 10;
+const EV_EENHEDEN = [{e:9, s:'GeV'}, {e:6, s:'MeV'}, {e:3, s:'keV'}, {e:0, s:'eV'}];
+// Voor de energie-as ook kleiner dan 1 eV (radiogolven hebben fotonen van µeV en minder).
+const EV_AS = EV_EENHEDEN.concat([{e:-3, s:'meV'}, {e:-6, s:'µeV'}, {e:-9, s:'neV'}, {e:-12, s:'peV'}]);
+const HC_EVM = H_PLANCK * C_LICHT / E_LADING;    // E (eV) = HC_EVM / λ (m)
+const LOG_HC = Math.log10(HC_EVM);                 // vanaf ongeveer 10 eV per foton: ioniserend
+
+// ===== Toepassingen en deelgebieden (verschijnen pas bij inzoomen) =====
+const kHz = 1e3, MHz = 1e6, GHz = 1e9;
+const golf = f => C_LICHT / f;           // frequentie naar golflengte
+// van: langste golflengte, tot: kortste (weglaten bij één waarde). Volgorde = voorrang
+// als er niet genoeg plaats is.
+const TOEPASSINGEN = [
+  {img:'radio',     naam:'FM-radio',               van:golf(87.5*MHz), tot:golf(108*MHz)},
+  {img:'router',    naam:'wifi en Bluetooth',      van:golf(2.4*GHz),  tot:golf(2.4835*GHz)},
+  {img:'magnetron', naam:'magnetron',              van:golf(2.45*GHz)},
+  {img:'mobiel',    naam:'mobiel 4G/5G',           van:golf(0.7*GHz),  tot:golf(3.5*GHz)},
+  {img:'oudeRadio', naam:'AM-radio',               van:golf(531*kHz),  tot:golf(1602*kHz)},
+  {img:'mast',      naam:'lange golf',             van:golf(153*kHz),  tot:golf(279*kHz)},
+  {img:'onderzeeer', naam:'onderzeeërs (VLF)',      van:golf(3*kHz),    tot:golf(30*kHz)},
+  {img:'dab',       naam:'DAB+',                   van:golf(174*MHz),  tot:golf(240*MHz)},
+  {img:'vliegtuig', naam:'luchtvaartradio',        van:golf(118*MHz),  tot:golf(137*MHz)},
+  {img:'portofoon', naam:'C2000 (hulpdiensten)',   van:golf(380*MHz),  tot:golf(400*MHz)},
+  {img:'helm',      naam:'militaire communicatie', van:golf(225*MHz),  tot:golf(400*MHz)},
+  {img:'lofar',     naam:'LOFAR (Exloo)',          van:golf(10*MHz),   tot:golf(240*MHz)},
+  {img:'satelliet', naam:'GPS',                    van:golf(1575.42*MHz)},
+  {img:'telescoop', naam:'Westerbork (21 cm)',     van:0.211},        // waterstoflijn, 1420 MHz
+  {img:'router',    naam:'wifi 5 GHz',             van:golf(5.15*GHz), tot:golf(5.85*GHz)},
+  {img:'schotel',   naam:'satelliet-tv',           van:golf(10.7*GHz), tot:golf(12.75*GHz)},
+  {img:'flitspaal', naam:'verkeersradar',          van:golf(24.15*GHz)},
+  {img:'kosmos',    naam:'kosmische achtergrond',  van:golf(160.2*GHz)},
+  {img:'lichaam',   naam:'warmte van je lichaam',  van:9.35e-6},      // piek bij 37 °C (Wien)
+  {img:'warmtecamera', naam:'warmtecamera',           van:14e-6,  tot:8e-6},
+  {img:'glasvezel', naam:'glasvezel',              van:1550e-9},
+  {img:'afstandsbediening', naam:'afstandsbediening',      van:940e-9},
+  {img:'laser',     naam:'rode laser',             van:650e-9},
+  {img:'lantaarn',  naam:'natriumlamp',            van:589e-9},
+  {img:'laser',     naam:'groene laser',           van:532e-9},
+  {img:'tlbuis',    naam:'blacklight',             van:365e-9},
+  {img:'uvlamp',    naam:'UV-C-lamp',              van:254e-9},
+  {img:'tand',      naam:'tandartsfoto',           van:6e-11,  tot:2e-11},  // 20 tot 60 keV
+  {img:'ctscan',    naam:'CT-scan',                van:3e-11,  tot:1e-11},  // 40 tot 120 keV
+  {img:'spuit',     naam:'Tc-99m (scan)',          van:8.82e-12},           // 140 keV
+  {img:'petscan',   naam:'PET-scan',               van:2.426e-12},          // 511 keV
+  {img:'straling',  naam:'Co-60 (bestraling)',     van:9.9e-13},            // 1,17 en 1,33 MeV
+];
+const TOEPASSING_SPAN = 5.5;
+// Infokaart per apparaat: waarom juist deze golflengte of energie.
+const UITLEG = {
+  'FM-radio': 'Een FM-zender laat elektronen in een mast zo’n 100 miljoen keer per seconde heen en weer gaan. De golf is ongeveer 3 m lang. Een ontvangstantenne werkt het best als hij een halve golflengte is, zo’n 1,5 m; de uitschuifantenne van een radio is vaak een kwart golflengte, rond de 75 cm. Golven van meters lang buigen om gebouwen en heuvels heen.',
+  'wifi en Bluetooth': 'Golven van 12,5 cm passen bij antennes van een paar centimeter, klein genoeg voor een telefoon of oordopje. Ze gaan door muren, maar worden daarbij wel zwakker. Wifi en Bluetooth gebruiken een band waarvoor je geen vergunning nodig hebt; de magnetron zit in dezelfde band.',
+  'magnetron': 'Watermoleculen hebben een plus- en een minkant. De microgolven draaien ze steeds heen en weer, en die beweging wordt warmte. Dat is geen resonantie van water: 2,45 GHz is gekozen omdat de golven een paar centimeter het eten in dringen en omdat deze band vrij is. Het rooster in de deur heeft gaatjes van een paar millimeter: een golf van 12 cm kan er niet door, licht wel.',
+  'mobiel 4G/5G': 'Lage frequenties, rond 700 MHz, reiken ver en gaan goed door muren: handig op het platteland. Hoge frequenties, rond 3,5 GHz, hebben meer ruimte voor data maar reiken minder ver; daarom staan er in steden meer masten. De antennes in je telefoon zijn maar een paar centimeter.',
+  'AM-radio': 'Middengolf heeft golven van een paar honderd meter. ’s Nachts kaatsen ze terug tegen de ionosfeer, een laag met geladen deeltjes hoog in de atmosfeer. Zo kun je zenders horen die honderden kilometers ver weg staan. Een zendmast is vaak meer dan 100 m hoog: een flink deel van de golflengte.',
+  'lange golf': 'Golven van één tot twee kilometer volgen de bolling van de aarde en reiken daardoor heel ver, ook over zee. De zendantennes zijn enorm: masten van honderden meters met draden ertussen.',
+  'onderzeeërs (VLF)': 'Zeewater geleidt stroom en houdt radiogolven sterk tegen. Hoe langer de golf, hoe dieper hij in het water komt: golven van tientallen kilometers halen zo’n 10 tot 20 m. Zo ontvangt een onderzeeër berichten zonder boven te komen. De zender op het land heeft antennes van kilometers lang; de onderzeeër zelf kan zo niet terugzenden.',
+  'DAB+': 'Digitale radio gebruikt golven van ruim een meter, korter dan bij FM, dus de antenne mag ook korter: een halve golflengte is zo’n 70 cm. Eén zender stuurt een heel pakket zenders tegelijk uit, als enen en nullen.',
+  'luchtvaartradio': 'Piloten en verkeersleiders praten met golven van ruim 2 m. Die gaan in een rechte lijn en komen niet achter de horizon. Maar een vliegtuig hoog in de lucht kijkt ver over de horizon heen, dus het bereik is honderden kilometers.',
+  'C2000 (hulpdiensten)': 'Het netwerk van politie, brandweer en ambulance. Golven van ongeveer 77 cm gaan redelijk door gebouwen en passen bij een antenne die klein genoeg is voor een portofoon. C2000 heeft een eigen frequentieband, zodat het blijft werken als het mobiele netwerk vol zit.',
+  'militaire communicatie': 'Militaire vliegtuigen en schepen gebruiken golven van 75 cm tot 1,3 m. Net als luchtvaartradio reiken die tot over de horizon van een vliegtuig; voor grotere afstanden gaat het via satellieten. Deze band is in veel landen voor het leger gereserveerd.',
+  'LOFAR (Exloo)': 'LOFAR is een radiotelescoop van duizenden eenvoudige antennes; het hart staat bij Exloo in Drenthe. Omdat de golven meters lang zijn, volstaan draden en tegels in plaats van schotels. Een computer voegt alle antennes samen tot één telescoop van honderden kilometers groot. LOFAR kijkt onder meer naar waterstof uit de tijd vlak na de oerknal.',
+  'GPS': 'GPS-satellieten op 20 000 km hoogte zenden een tijdsignaal uit met golven van 19 cm. Die gaan dwars door wolken en regen. Je telefoon meet hoe lang het signaal van minstens vier satellieten onderweg was en rekent daaruit uit waar je bent.',
+  'Westerbork (21 cm)': 'Waterstofatomen in de ruimte zenden straling uit met een golflengte van 21 cm. Nederlandse sterrenkundigen brachten zo in de jaren vijftig als eersten de spiraalarmen van ons Melkwegstelsel in kaart. De schotels bij Westerbork zijn 25 m groot, veel groter dan de golf: zo vangen ze genoeg straling en zien ze scherp.',
+  'wifi 5 GHz': 'Golven van 6 cm: een hogere frequentie, met meer ruimte voor data. Maar muren en vloeren houden ze sterker tegen, dus het bereik is kleiner dan bij 2,4 GHz. Daarom heeft een router vaak allebei.',
+  'satelliet-tv': 'De satelliet hangt 36 000 km boven de evenaar. Een schotel kaatst de golven van ongeveer 2,5 cm naar één punt, waar een kopje ze opvangt. Omdat de schotel veel groter is dan de golf, kan hij precies op die ene satelliet richten. Bij zware regen houden de druppels deze korte golven deels tegen en kan het beeld haperen.',
+  'verkeersradar': 'Een radar zendt golven van ruim een centimeter en vangt de weerkaatsing op. Rijdt de auto naar je toe, dan komt de golf iets korter terug (dopplereffect); uit dat verschil volgt de snelheid. Korte golven geven een smalle bundel met een kleine antenne.',
+  'kosmische achtergrond': 'Straling die uit alle richtingen van de ruimte komt: het nagloeien van de oerknal. Toen het heelal nog heet was, was dit licht. Doordat het heelal uitdijt, zijn de golven uitgerekt tot een paar millimeter. Dat past bij een temperatuur van 2,7 K.',
+  'warmte van je lichaam': 'Alles wat warm is straalt. Hoe warmer, hoe korter de golflengte waarbij de meeste straling zit (wet van Wien: λ<sub>max</sub> · T = 2,90·10<sup>−3</sup> m·K). Bij 37 °C, dus 310 K, is dat ongeveer 9,4 µm: infrarood, onzichtbaar voor je ogen. De zon, 5800 K, straalt het meest rond 500 nm.',
+  'warmtecamera': 'Een warmtecamera is gevoelig voor golven van 8 tot 14 µm, precies waar mensen, dieren en huizen het meest stralen. In dit gebied houdt de lucht ook weinig tegen. Gewoon glas laat deze golven niet door; de lens is daarom van een ander materiaal, zoals germanium.',
+  'glasvezel': 'In glasvezel gaat licht door totale terugkaatsing door een draad die dunner is dan een haar. Bij 1550 nm, onzichtbaar infrarood, houdt het glas het minste licht tegen. Het signaal haalt zo tientallen kilometers voordat het versterkt moet worden.',
+  'afstandsbediening': 'Een led knippert een code in infrarood van 940 nm. Je ziet het niet, maar de camera van je telefoon vaak wel: probeer het maar. Infrarood stoort niet met wat je ziet, en de led en de ontvanger zijn goedkoop.',
+  'rode laser': 'Een laser geeft licht van één golflengte in een smalle bundel; bij 650 nm is dat rood. Een dvd-speler gebruikt ook 650 nm, een cd-speler 780 nm en een Blu-ray-speler 405 nm. Hoe korter de golf, hoe kleiner het lichtpuntje en hoe meer data er op een schijf past.',
+  'natriumlamp': 'De oranje straatlantaarns van vroeger. Natriumatomen zenden vooral licht van 589 nm uit: een elektron dat van een hoger naar een lager energieniveau springt, geeft een foton met precies die energie, 2,10 eV. Omdat er bijna alleen deze kleur is, zie je onder zo’n lamp geen kleuren.',
+  'groene laser': 'Groen licht van 532 nm lijkt veel feller dan rood licht met hetzelfde vermogen: je oog is het gevoeligst rond 555 nm. Daarom wijzen sterrenkijkers sterren aan met een groene laser.',
+  'blacklight': 'Een blacklight geeft UV-A van ongeveer 365 nm. Witte kleding en de echtheidskenmerken op bankbiljetten lichten erop op: een stof neemt het UV-foton op en zendt een foton met minder energie uit, dus met een langere golflengte die je wel ziet. Dat heet fluorescentie.',
+  'UV-C-lamp': 'Een kwiklamp zonder poederlaag geeft UV-C van 254 nm. Eén foton heeft dan 4,9 eV. Dat is nog niet ioniserend, maar wel genoeg om het DNA van bacteriën en virussen te beschadigen, zodat ze zich niet meer vermenigvuldigen. Zo worden water en lucht ontsmet. Niet in kijken: het beschadigt ook je ogen en huid.',
+  'tandartsfoto': 'Een röntgenbuis versnelt elektronen met tienduizenden volt en remt ze af in metaal. Dat geeft fotonen van tientallen keV. Die gaan door je wang en tandvlees, maar tanden en vullingen houden er meer van tegen; die worden wit op de foto. De dosis van één tandartsfoto is heel klein.',
+  'CT-scan': 'Een CT-scanner draait een röntgenbuis rond je lichaam en maakt honderden opnames uit alle richtingen. Een computer maakt daar plakjes van je lichaam van. Omdat het zoveel opnames zijn, is de dosis veel groter dan bij een gewone röntgenfoto.',
+  'Tc-99m (scan)': 'Technetium-99m is een radioactieve stof die een arts in je bloed spuit. Het zendt gammafotonen van 140 keV uit: genoeg energie om uit je lichaam te komen, en goed op te vangen met een gammacamera. De halveringstijd is 6 uur, dus na een dag is er weinig van over.',
+  'PET-scan': 'Je krijgt suiker met radioactief fluor-18, dat positronen uitzendt. Een positron en een elektron vernietigen elkaar en worden twee gammafotonen van 511 keV, die precies tegengesteld wegvliegen. Uit waar ze tegelijk aankomen, berekent de scanner waar de suiker zit, bijvoorbeeld in een tumor.',
+  'Co-60 (bestraling)': 'Kobalt-60 zendt gammafotonen van meer dan 1 MeV uit. Die dringen diep in het lichaam door, dus een smalle bundel kan een tumor bestralen. Ook medische spullen en voedsel worden er zo mee gesteriliseerd. De halveringstijd is 5,3 jaar.',
+};
+             // pas onder deze breedte (decaden) in beeld
+
+// Deelgebieden als strook onderin de balk. Grenzen indicatief; UV-A loopt officieel tot
+// 400 nm, maar de strook begint bij 380 nm zodat hij niet over violet heen valt.
+const DEELGEBIEDEN = [
+  {naam:'ver IR',        van:1e-3,     tot:5e-5},
+  {naam:'midden IR',     van:5e-5,     tot:3e-6},
+  {naam:'nabij IR',      van:3e-6,     tot:7.5e-7},
+  {naam:'rood',          van:750e-9,   tot:620e-9, kleur:'#ff6b6b'},
+  {naam:'oranje',        van:620e-9,   tot:590e-9, kleur:'#ffa94d'},
+  {naam:'geel',          van:590e-9,   tot:570e-9, kleur:'#ffe066'},
+  {naam:'groen',         van:570e-9,   tot:495e-9, kleur:'#69db7c'},
+  {naam:'blauw',         van:495e-9,   tot:450e-9, kleur:'#74c0fc'},
+  {naam:'violet',        van:450e-9,   tot:380e-9, kleur:'#c599ff'},
+  {naam:'UV-A', kort:'A', van:380e-9,   tot:315e-9},
+  {naam:'UV-B', kort:'B', van:315e-9,   tot:280e-9},
+  {naam:'UV-C', kort:'C', van:280e-9,   tot:100e-9},
+  {naam:'extreem UV',    van:100e-9,   tot:10e-9},
+  {naam:'zachte röntgen', van:10e-9,   tot:1e-10},
+  {naam:'harde röntgen', van:1e-10,    tot:1e-11},
+];
+const DEEL_SPAN = 6;
+
+// Doorlaatbaarheid van de atmosfeer voor straling van boven tot aan de grond: [λ in m, 0..1].
+// Indicatief en vereenvoudigd: het optische venster (vanaf ongeveer 300 nm, de ozonlaag
+// houdt UV-C en het meeste UV-B tegen), een paar infraroodvensters tussen waterdamp- en
+// CO2-banden, en het radiovenster van ongeveer 1 cm tot 20 m (langere golven kaatsen
+// terug tegen de ionosfeer).
+const ATMOSFEER = [
+  [1e-13, 0], [2.9e-7, 0], [3.4e-7, 1], [7e-7, 1], [9.4e-7, 0.7], [1.05e-6, 1], [1.4e-6, 0.3],
+  [1.6e-6, 0.9], [1.9e-6, 0.1], [2.2e-6, 0.8], [2.7e-6, 0], [3.6e-6, 0.8], [4.3e-6, 0.1],
+  [4.8e-6, 0.6], [6e-6, 0], [7e-6, 0], [8.5e-6, 0.85], [9.6e-6, 0.55], [11e-6, 0.85],
+  [13e-6, 0.5], [16e-6, 0], [1e-3, 0], [1.3e-3, 0.3], [2e-3, 0.2], [1e-2, 0.85], [3e-2, 1],
+  [10, 1], [20, 0.5], [30, 0], [1e6, 0],
+];
+function doorlaat(lambda){
+  const L = Math.log10(lambda);
+  for(let i = 1; i < ATMOSFEER.length; i++){
+    const [la, ta] = ATMOSFEER[i-1], [lb, tb] = ATMOSFEER[i];
+    const A = Math.log10(la), B = Math.log10(lb);
+    if(L <= B) return ta + (tb - ta) * (L - A) / (B - A);
+  }
+  return 0;
+}
+// Zonlicht: stralingskromme van een zwarte straler van 5800 K (wet van Planck, per golflengte),
+// zo geschaald dat de piek (rond 500 nm, wet van Wien) 1 is.
+const T_ZON = 5778, K_B = 1.380649e-23;
+function planck(lambda){ return 1 / (lambda ** 5 * (Math.exp(H_PLANCK * C_LICHT / (lambda * K_B * T_ZON)) - 1)); }
+const ZON_PIEK_L = 2.897771955e-3 / T_ZON;
+const ZON_PIEK = planck(ZON_PIEK_L);
+const ION_LAMBDA = H_PLANCK * C_LICHT / (10 * E_LADING);   // 10 eV: ongeveer 124 nm
+
+// ===== Kijkvenster =====
+// Het venster loopt in log10(λ / m). Links staat hi (lange golven), rechts lo.
+const VIEW_HEEL = {hi:5, lo:-13};      // 100 km tot 0,1 pm
+const SPAN_HEEL = VIEW_HEEL.hi - VIEW_HEEL.lo;
+const SPAN_MIN = 0.03;                   // ongeveer 7 %, genoeg voor de FM-band
+let view = {...VIEW_HEEL};
+
+// Marker: de gekozen golflengte, als log10(λ / m). Begint bij de natriumlamp.
+let markerL = Math.log10(589e-9);
+const L_MAX = VIEW_HEEL.hi, L_MIN = VIEW_HEEL.lo;
+
+// Hoe lineair de as is: 0 boven 1,5 decade (logaritmisch), 1 onder 0,7 decade
+// (lineair in λ), daartussen een vloeiende overgang.
+// dwang: 1 tijdens "Hoe klein is zichtbaar?", dan is de as ook over het hele spectrum lineair.
+let dwang = 0;
+function linFactor(span){
+  const t = Math.max(0, Math.min(1, (1.5 - span) / 0.8));
+  return Math.max(dwang, t*t*(3 - 2*t));
+}
+// Plaats op de as als fractie: 0 links, 1 rechts. Een mengsel van de logaritmische
+// en de lineaire positie; beide lopen omlaag met L, dus het mengsel ook.
+function uVan(L, v = view){
+  const span = v.hi - v.lo, t = linFactor(span);
+  const uLog = (v.hi - L) / span;
+  if(t === 0) return uLog;
+  const uLin = (1 - 10 ** (L - v.hi)) / (1 - 10 ** (-span));
+  return (1 - t)*uLog + t*uLin;
+}
+function LvanU(u, v = view){
+  const span = v.hi - v.lo;
+  if(linFactor(span) === 0) return v.hi - u*span;
+  let a = v.lo, b = v.hi;                // uVan(a) = 1, uVan(b) = 0
+  for(let i = 0; i < 48; i++){
+    const m = (a + b) / 2;
+    if(uVan(m, v) > u) a = m; else b = m;
+  }
+  return (a + b) / 2;
+}
+function begrens(v){
+  const span = Math.max(SPAN_MIN, Math.min(SPAN_HEEL, v.hi - v.lo));
+  let hi = (v.hi + v.lo) / 2 + span / 2;
+  if(hi > VIEW_HEEL.hi) hi = VIEW_HEEL.hi;
+  if(hi - span < VIEW_HEEL.lo) hi = VIEW_HEEL.lo + span;
+  return {hi, lo: hi - span};
+}
+// Venster met breedte span waarin golflengte La op plek u0 staat. De verschuiving s
+// wordt gezocht met halveren: u van La loopt op met s.
+function verankerd(La, u0, span){
+  u0 = Math.max(0, Math.min(1, u0));
+  span = Math.max(SPAN_MIN, Math.min(SPAN_HEEL, span));
+  let a = La - span*1.0001, b = La + span*0.0001;   // s zo dat La binnen [lo+s, hi+s]
+  const v = s => ({hi: s + span, lo: s});
+  for(let i = 0; i < 48; i++){
+    const m = (a + b) / 2;
+    if(uVan(La, v(m)) < u0) a = m; else b = m;
+  }
+  return begrens(v((a + b) / 2));
+}
+
+// ===== Notatie =====
+function nl(x){ return String(x).replace('.', ','); }
+
+const LENGTE_EENHEDEN = [
+  {e:3, s:'km'}, {e:0, s:'m'}, {e:-2, s:'cm'}, {e:-3, s:'mm'},
+  {e:-6, s:'µm'}, {e:-9, s:'nm'}, {e:-12, s:'pm'},
+];
+const FREQ_EENHEDEN = [
+  {e:21, s:'ZHz'}, {e:18, s:'EHz'}, {e:15, s:'PHz'}, {e:12, s:'THz'},
+  {e:9, s:'GHz'}, {e:6, s:'MHz'}, {e:3, s:'kHz'}, {e:0, s:'Hz'},
+];
+function eenheidVoor(x, eenheden){
+  return eenheden.find(u => x >= 10 ** u.e * 0.9995) || eenheden[eenheden.length-1];
+}
+// 10^e meter als leesbaar getal met eenheid: 1 mm, 100 µm, 0,1 pm.
+function lengteLabel(e){
+  const u = LENGTE_EENHEDEN.find(u => u.e <= e) || LENGTE_EENHEDEN[LENGTE_EENHEDEN.length-1];
+  const d = e - u.e;
+  const getal = d >= 0 ? String(10 ** d) : nl((10 ** d).toFixed(-d));
+  return getal + ' ' + u.s;
+}
+// Een asgetal met voorvoegsel, zonder overbodige nullen: 2 µm, 2,45 GHz.
+function kortLabel(x, eenheden){
+  const u = eenheidVoor(x, eenheden);
+  return nl(Number((x / 10 ** u.e).toPrecision(3))) + ' ' + u.s;
+}
+// Wetenschappelijke notatie met drie significante cijfers, zoals in Binas: 5,89·10<sup>−7</sup>.
+function binas(x){
+  const [m, n] = x.toExponential(2).split('e');
+  const exp = Number(n);
+  if(exp === 0) return nl(m);
+  return nl(m) + '·10<sup>' + String(exp).replace('-', '−') + '</sup>';
+}
+// Hetzelfde getal met een voorvoegsel, zodat het tussen 1 en 1000 valt: 589 nm, 2,45 GHz.
+function metVoorvoegsel(x, eenheden){
+  const u = eenheidVoor(x, eenheden);
+  return nl((x / 10 ** u.e).toPrecision(3)) + ' ' + u.s;
+}
+
+function gebiedVan(lambda){
+  return GEBIEDEN.find(g => lambda <= g.max && lambda > g.min) || GEBIEDEN[GEBIEDEN.length-1];
+}
+
+// Golflengte (nm) naar een benadering van de kleur die je ziet.
+function golflengteNaarRGB(nm){
+  let r=0, g=0, b=0;
+  if(nm < 440){ r = (440-nm)/60; b = 1; }
+  else if(nm < 490){ g = (nm-440)/50; b = 1; }
+  else if(nm < 510){ g = 1; b = (510-nm)/20; }
+  else if(nm < 580){ r = (nm-510)/70; g = 1; }
+  else if(nm < 645){ r = 1; g = (645-nm)/65; }
+  else { r = 1; }
+  // Aan de randen ziet het oog minder: daar donkerder.
+  const f = nm < 420 ? 0.3 + 0.7*(nm-380)/40 : nm > 700 ? 0.3 + 0.7*(750-nm)/50 : 1;
+  const k = v => Math.round(255 * Math.pow(Math.max(0, Math.min(1, v*f)), 0.8));
+  return [k(r), k(g), k(b)];
+}
+function hexRGB(h){ return [1,3,5].map(i => parseInt(h.slice(i,i+2),16)); }
+function rgba(c, a){ return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+
+// ===== Streepjes op de as =====
+function mooiStap(ruw){
+  const p = 10 ** Math.floor(Math.log10(ruw)), m = ruw / p;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
+}
+// Logaritmische streepjes voor een grootheid tussen qMin en qMax: elke decade, en bij
+// genoeg ruimte ook 2 t/m 9 (met een getal bij 2 en 5 als dat past).
+function logStreepjes(qMin, qMax, pxPerDec, labelW){
+  const uit = [];
+  const stap = [1,2,3,4,6,8].find(s => s*pxPerDec >= labelW) || 10;
+  const minor = pxPerDec > 90, minorLabel = pxPerDec > labelW * 4.2;
+  for(let e = Math.floor(Math.log10(qMin)); e <= Math.ceil(Math.log10(qMax)); e++){
+    for(let m = 1; m <= 9; m++){
+      if(m > 1 && !minor) break;
+      const q = m * 10 ** e;
+      if(q < qMin*0.9999 || q > qMax*1.0001) continue;
+      uit.push({q, decade: m === 1, label: m === 1 ? e % stap === 0 : minorLabel && (m === 2 || m === 5)});
+    }
+  }
+  return uit;
+}
+// Lineaire streepjes met een mooie stap (1, 2 of 5 keer een macht van tien),
+// met kleinere streepjes ertussen.
+function linStreepjes(qMin, qMax, nLabels){
+  const stap = mooiStap((qMax - qMin) / Math.max(2, nLabels));
+  const p = 10 ** Math.floor(Math.log10(stap) + 1e-9), m = Math.round(stap / p);
+  const klein = stap / (m === 2 ? 4 : 5);
+  const uit = [];
+  for(let k = Math.ceil(qMin / klein - 1e-9); k * klein <= qMax * (1 + 1e-9); k++){
+    const q = k * klein;
+    const groot = Math.abs(q / stap - Math.round(q / stap)) < 1e-6;
+    uit.push({q, label: groot, decade: false});
+  }
+  return {uit, stap};
+}
+
+// ===== Tekenen =====
+const canvas = document.getElementById('spectrum');
+const ctx = canvas.getContext('2d');
+// Kleuren buiten de balk volgen het thema. In de balk blijft alles wit op kleur.
+const KLEUREN = {
+  donker: {tekst:'#e2e8f0', mute:'#94a3b8', zwak:'rgba(226,232,240,0.35)', accent:'#0BB5C8', amber:'#D4923A',
+           kaartBg:'rgba(11,14,21,0.92)', kaartRand:'#ffffff', kaartTekst:'#ffffff', markerAs:'rgba(255,255,255,0.6)',
+           bandAlfa:0.5, golfHulp:'rgba(255,255,255,0.8)', amberInBand:'#f2c48a'},
+  licht:  {tekst:'#1A1A2E', mute:'#475569', zwak:'rgba(26,26,46,0.35)', accent:'#0a8a9a', amber:'#a8610f',
+           kaartBg:'rgba(255,255,255,0.96)', kaartRand:'#1A1A2E', kaartTekst:'#1A1A2E', markerAs:'rgba(26,26,46,0.55)',
+           bandAlfa:0.78, golfHulp:'rgba(26,26,46,0.7)', amberInBand:'#fff4dc'},
+};
+const KLEUR = {...KLEUREN.donker};
+function volgThema(){
+  Object.assign(KLEUR, document.documentElement.getAttribute('data-theme') === 'dark' ? KLEUREN.donker : KLEUREN.licht);
+}
+volgThema();
+new MutationObserver(() => { volgThema(); if(typeof herteken === 'function') herteken(); if(typeof tekenGolf === 'function') tekenGolf(); })
+  .observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+const FONT = "'Space Grotesk', sans-serif";
+let geo = null;
+
+function tekenSpectrum(){
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if(!W || !H) return;
+  if(canvas.width !== Math.round(W*dpr) || canvas.height !== Math.round(H*dpr)){
+    canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  }
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const fs = Math.max(13, Math.min(26, W/62, H/24));   // groeit mee op een groot bord, met mate
+  const marge = Math.max(16, fs*1.6);
+  const x0 = marge, x1 = W - marge, bw = x1 - x0;
+  const span = view.hi - view.lo;
+  const t = linFactor(span);
+  const lineair = t >= 0.5;
+  const pxPerDec = bw / span;
+  const xVan = L => x0 + uVan(L) * bw;   // L = log10(λ / m)
+  const font = (gewicht, grootte) => `${gewicht} ${grootte}px ${FONT}`;
+
+  // --- Gebieden in beeld, met hun stuk van de balk, en hun namen ---
+  ctx.font = font(700, fs*1.15);
+  const {delen, namen} = plaatsNamen(view, x0, x1, fs);
+  // Het aantal naamrijen staat vast per schermmaat (zoveel als het hele spectrum nodig
+  // heeft, minstens drie). Anders springt de balk op en neer als er tijdens het zoomen
+  // een rij bij komt of weg valt. Een naam die niet meer past, valt weg.
+  const nRijen = Math.max(3, plaatsNamen(VIEW_HEEL, x0, x1, fs).nRijen);
+
+  // --- Streepjes voor beide assen ---
+  ctx.font = font(600, fs);
+  const lMin = 10 ** view.lo, lMax = 10 ** view.hi;
+  const fMin = C_LICHT / lMax, fMax = C_LICHT / lMin;
+  let lStreep, fStreep, eStreep, schaalTekst;
+  const eMin = HC_EVM / lMax, eMax = HC_EVM / lMin;
+  const breedL = ctx.measureText('1000 nm').width + fs*1.2;
+  if(lineair){
+    const r = linStreepjes(lMin, lMax, Math.floor(bw / (breedL + fs)));
+    const u = eenheidVoor(lMax / 2, LENGTE_EENHEDEN);
+    const dec = Math.max(0, -Math.floor(Math.log10(r.stap / 10 ** u.e) + 1e-9));
+    lStreep = r.uit.map(s => ({...s, L: Math.log10(s.q), tekst: () => nl((s.q / 10 ** u.e).toFixed(dec)) + ' ' + u.s}));
+    // Over een groot bereik (bij "Hoe klein is zichtbaar?") liggen mooie lineaire
+    // frequenties allemaal op een kluitje rechts; dan de machten van tien.
+    fStreep = fMax / fMin > 20
+      ? logStreepjes(fMin, fMax, 1e9, 0).filter(s => s.decade)
+          .map(s => ({...s, label: true, L: LOG_C - Math.log10(s.q), macht: Math.round(Math.log10(s.q))}))
+      : linStreepjes(fMin, fMax, Math.floor(bw / (breedL + fs))).uit
+          .map(s => ({...s, L: LOG_C - Math.log10(s.q), tekst: () => kortLabel(s.q, FREQ_EENHEDEN)}));
+    eStreep = eMax / eMin > 20
+      ? logStreepjes(eMin, eMax, 1e9, 0).filter(s => s.decade)
+          .map(s => ({...s, label: true, L: LOG_HC - Math.log10(s.q), macht: Math.round(Math.log10(s.q)), eenheid: 'eV'}))
+      : linStreepjes(eMin, eMax, Math.floor(bw / (breedL + fs))).uit
+          .map(s => ({...s, L: LOG_HC - Math.log10(s.q), tekst: () => kortLabel(s.q, EV_AS)}));
+    schaalTekst = 'lineaire schaal: van streepje tot streepje ' + kortLabel(r.stap, LENGTE_EENHEDEN);
+  } else {
+    lStreep = logStreepjes(lMin, lMax, pxPerDec, breedL)
+      .map(s => ({...s, L: Math.log10(s.q), tekst: () => s.decade ? lengteLabel(Math.round(Math.log10(s.q))) : kortLabel(s.q, LENGTE_EENHEDEN)}));
+    const machten = span > 6;            // in het overzicht: 10ⁿ Hz, ingezoomd: MHz, GHz
+    fStreep = logStreepjes(fMin, fMax, pxPerDec, ctx.measureText(machten ? '10²⁰ Hz' : '100 GHz').width + fs*1.4)
+      .map(s => ({...s, L: LOG_C - Math.log10(s.q), macht: machten && s.decade ? Math.round(Math.log10(s.q)) : null,
+                  tekst: () => kortLabel(s.q, FREQ_EENHEDEN)}));
+    eStreep = logStreepjes(eMin, eMax, pxPerDec, ctx.measureText(machten ? '10⁻¹⁰ eV' : '100 keV').width + fs*1.4)
+      .map(s => ({...s, L: LOG_HC - Math.log10(s.q), macht: machten && s.decade ? Math.round(Math.log10(s.q)) : null,
+                  eenheid: 'eV', tekst: () => kortLabel(s.q, EV_AS)}));
+    schaalTekst = lStreep.some(s => !s.decade)
+      ? 'logaritmische schaal'
+      : 'logaritmische schaal: elk streepje is 10× zo klein';
+  }
+  if(t > 0.02 && t < 0.98) schaalTekst = 'van logaritmisch naar lineair';
+
+  // --- Teksten links en rechts: op een smal scherm onder elkaar ---
+  // Rechts noemen we alleen wat in beeld is.
+  const RICHTING = ['← grotere golflengte',
+    lagen.frequentie && lagen.energie ? 'grotere frequentie en energie →'
+    : lagen.frequentie ? 'grotere frequentie →'
+    : lagen.energie ? 'grotere energie per foton →' : 'kleinere golflengte →'];
+  const SCHAAL = ['golflengte λ', schaalTekst];
+  const pastNaast = (paar, f) => {
+    ctx.font = f;
+    return ctx.measureText(paar[0]).width + ctx.measureText(paar[1]).width + fs*2 <= bw;
+  };
+  const richtingNaast = pastNaast(RICHTING, font(500, fs*0.95));
+  // Ook hier de langste tekst die kan voorkomen, zodat de opbouw niet verspringt.
+  const schaalNaast = pastNaast([SCHAAL[0], 'lineaire schaal: van streepje tot streepje 200 µm'], font(600, fs*0.85))
+    && pastNaast([SCHAAL[0], 'logaritmische schaal: elk streepje is 10× zo klein'], font(600, fs*0.85));
+
+  // --- Verticale opbouw ---
+  const rijH = fs*1.75;
+  const bandH = Math.max(60, Math.min(190, H*0.24));
+  const asH = fs*4.4;
+  const extraRichting = richtingNaast ? 0 : fs*1.3;
+  const extraSchaal = schaalNaast ? 0 : fs*1.2;
+  const metF = lagen.frequentie, metE = lagen.energie && !(dwang > 0.5);   // bij "Hoe klein" geen energie-as
+  const totaal = fs*2.2 + extraRichting + nRijen*rijH + bandH + asH*(1 + (metF ? 1 : 0) + (metE ? 1 : 0)) + extraSchaal;
+  let y = Math.max(fs*0.8, (H - totaal) / 2);
+
+  // Richting
+  ctx.font = font(500, fs*0.95);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = KLEUR.mute;
+  ctx.textAlign = 'left';
+  const klein = dwang > 0.5;
+  if(klein){
+    // Bijschrift bij "Hoe klein is zichtbaar?": tot waar de as loopt en hoeveel
+    // van de balk het zichtbare licht nog is.
+    const deel = (7.5e-7 - 3.8e-7) / (lMax - lMin) * 100;
+    const stukken = [{t: 'lineair tot ' + kortLabel(lMax, LENGTE_EENHEDEN) + ' · zichtbaar licht is '}]
+      .concat(deel >= 0.1 ? [{t: nl(Number(deel.toPrecision(2))) + ' %'}] : machtDelen(deel, ' %'))
+      .concat([{t: ' van de balk'}]);
+    tekenRijk(stukken, (x0 + x1) / 2, y + fs + extraRichting/2, fs*1.05, KLEUR.amber, bw);
+  } else {
+    ctx.fillText(RICHTING[0], x0, y + fs);
+    ctx.textAlign = 'right';
+    ctx.fillText(RICHTING[1], x1, y + fs + extraRichting);
+  }
+  y += fs*2.2 + extraRichting;
+
+  const bandTop = y + nRijen*rijH;
+  const bandBot = bandTop + bandH;
+
+  // Namen
+  ctx.font = font(700, fs*1.15);
+  ctx.textAlign = 'left';
+  for(const n of namen){
+    if(n.rij >= nRijen || (klein && (n.rij > 0 || n.d.g.id === 'vis'))) continue;
+    const basis = bandTop - n.rij*rijH - fs*0.5;
+    ctx.fillStyle = KLEUR.tekst;
+    ctx.fillText(n.d.g.naam, n.a, basis);
+    if(n.rij > 0){
+      const xl = Math.max(n.d.xa, Math.min(n.d.xb, n.xm));
+      ctx.strokeStyle = KLEUR.zwak; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(Math.max(n.a+4, Math.min(n.a+n.w-4, xl)), basis + fs*0.35);
+      ctx.lineTo(xl, bandTop - 2);
+      ctx.stroke();
+    }
+  }
+
+  // --- Balk: één verloop met zachte overgangen tussen de gebieden ---
+  const stops = [];
+  const stop = (x, kleur) => stops.push([Math.max(0, Math.min(1, (x - x0) / bw)), kleur]);
+  for(const d of delen){
+    const breed = d.xb - d.xa;
+    const fade = Math.min(0.25*breed, 0.12*pxPerDec, 0.02*bw);
+    if(d.g.id === 'vis'){
+      for(let i = 0; i <= 48; i++){
+        const L = d.Lmax + (d.Lmin - d.Lmax) * i / 48;
+        stop(xVan(L), rgba(golflengteNaarRGB(10 ** L * 1e9), 0.95));
+      }
+    } else {
+      const c = rgba(hexRGB(d.g.kleur), KLEUR.bandAlfa);
+      stop(d.xa + fade, c);
+      stop(d.xb - fade, c);
+    }
+  }
+  stops.sort((p,q) => p[0]-q[0]);
+  const verloop = ctx.createLinearGradient(x0, 0, x1, 0);
+  for(const [p,c] of stops) verloop.addColorStop(p, c);
+  ctx.fillStyle = verloop;
+  rondeRect(x0, bandTop, bw, bandH, 10); ctx.fill();
+  // Glans aan de bovenkant
+  const glans = ctx.createLinearGradient(0, bandTop, 0, bandBot);
+  glans.addColorStop(0, 'rgba(255,255,255,0.10)');
+  glans.addColorStop(0.5, 'rgba(255,255,255,0)');
+  ctx.fillStyle = glans;
+  rondeRect(x0, bandTop, bw, bandH, 10); ctx.fill();
+
+  // --- Overzicht: een schematische golf door de balk, met een golflengte die naar rechts
+  // steeds kleiner wordt. Niet op schaal; dat staat er ook bij.
+  if(!klein && span > 6){
+    ctx.save();
+    rondeRect(x0, bandTop, bw, bandH, 10); ctx.clip();
+    const p0 = bw / 7, p1 = Math.max(3, fs*0.25);   // golflengte links en rechts, in px
+    const ym = bandTop + bandH*0.5, A = bandH*0.2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    let fase = 0;
+    for(let x = x0; x <= x1; x += 1){
+      const u = (x - x0) / bw;
+      fase += 2*Math.PI / (p0 * Math.pow(p1 / p0, u));
+      const y = ym - A * Math.sin(fase);
+      x === x0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.font = font(600, fs*0.75);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.textAlign = 'right';
+    ctx.fillText('golf schematisch, niet op schaal', x1 - fs*0.6, bandBot - fs*0.45);
+    ctx.restore();
+  }
+
+  // --- Deelgebieden: strook onderin de balk ---
+  const strookH = !klein && lagen.deelgebieden && span < DEEL_SPAN ? Math.min(fs*1.6, bandH*0.3) : 0;
+  if(strookH){
+    const sy = bandBot - strookH;
+    ctx.save();
+    rondeRect(x0, bandTop, bw, bandH, 10); ctx.clip();
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(x0, sy, bw, strookH);
+    ctx.font = font(600, fs*0.85);
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    for(const d of DEELGEBIEDEN){
+      const xa = Math.max(x0, xVan(Math.log10(d.van))), xb = Math.min(x1, xVan(Math.log10(d.tot)));
+      if(xb <= xa) continue;
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+      for(const xg of [xVan(Math.log10(d.van)), xVan(Math.log10(d.tot))]){
+        if(xg > x0 + 1 && xg < x1 - 1){ ctx.beginPath(); ctx.moveTo(xg, sy); ctx.lineTo(xg, bandBot); ctx.stroke(); }
+      }
+      // Past de naam niet, dan de korte naam (UV-A, -B, -C worden A, B, C).
+      const naam = [d.naam, d.kort].find(t => t && ctx.measureText(t).width + fs*0.6 <= xb - xa);
+      if(!naam) continue;
+      ctx.fillStyle = d.kleur || 'rgba(255,255,255,0.85)';
+      ctx.fillText(naam, (xa + xb) / 2, sy + strookH/2 + 1);
+    }
+    ctx.restore();
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // --- Atmosfeer: een strook bovenin de balk; hoe lichter, hoe meer de grond bereikt ---
+  const topStrook = !klein && lagen.atmosfeer ? Math.max(16, fs*1.0) : 0;
+  if(topStrook){
+    ctx.save();
+    rondeRect(x0, bandTop, bw, bandH, 10); ctx.clip();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(x0, bandTop, bw, topStrook);
+    for(let x = x0; x < x1; x += 2){
+      const t = doorlaat(10 ** LvanU((x + 1 - x0) / bw));
+      if(t <= 0.01) continue;
+      ctx.fillStyle = `rgba(190,235,255,${(0.85 * t).toFixed(3)})`;
+      ctx.fillRect(x, bandTop, 2, topStrook);
+    }
+    ctx.font = font(700, Math.max(11, topStrook*0.7));
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4;
+    ctx.fillStyle = '#ffffff';
+    const uitleg = ['atmosfeer: licht = bereikt de grond, donker = tegengehouden', 'licht = bereikt de grond'];
+    ctx.fillText(uitleg.find(t => ctx.measureText(t).width < bw * 0.5) || uitleg[1], x0 + 8, bandTop + topStrook/2 + 1);
+    ctx.restore();
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // --- Zonlicht: de stralingskromme van de zon over de balk ---
+  if(!klein && lagen.zon){
+    const yB = bandBot - strookH, hB = (bandH - strookH - topStrook) * 0.85;
+    ctx.save();
+    rondeRect(x0, bandTop, bw, bandH, 10); ctx.clip();
+    ctx.beginPath();
+    let eerste = true;
+    for(let x = x0; x <= x1; x += 2){
+      const v = planck(10 ** LvanU((x - x0) / bw)) / ZON_PIEK;
+      const y = yB - Math.max(0, Math.min(1.05, v)) * hB;
+      eerste ? (ctx.moveTo(x, y), eerste = false) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.lineTo(x1, yB); ctx.lineTo(x0, yB); ctx.closePath();
+    ctx.fillStyle = 'rgba(255,210,63,0.12)'; ctx.fill();
+    // Op aarde: wat er na de atmosfeer van over is (zonkromme maal doorlaatbaarheid).
+    if(lagen.atmosfeer){
+      ctx.beginPath();
+      let eerst = true;
+      for(let x = x0; x <= x1; x += 2){
+        const lam = 10 ** LvanU((x - x0) / bw);
+        const v = planck(lam) / ZON_PIEK * doorlaat(lam);
+        const y = yB - Math.max(0, Math.min(1.05, v)) * hB;
+        eerst ? (ctx.moveTo(x, y), eerst = false) : ctx.lineTo(x, y);
+      }
+      ctx.lineTo(x1, yB); ctx.lineTo(x0, yB); ctx.closePath();
+      ctx.fillStyle = 'rgba(255,170,40,0.35)'; ctx.fill();
+    }
+    const xp = xVan(Math.log10(ZON_PIEK_L));
+    if(xp > x0 && xp < x1){
+      ctx.font = font(700, fs*0.85);
+      ctx.fillStyle = '#ffd23f'; ctx.textAlign = 'left';
+      ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 5;
+      // Bovenin bij de piek, tussen de atmosfeerstrook en de golf. Staan er toepassingen
+      // bovenin de balk, dan één label linksonder met beide uitleggen.
+      const metToep = lagen.toepassingen && span < TOEPASSING_SPAN;
+      const tz = metToep
+        ? (lagen.atmosfeer ? 'zonlicht: lijn = buiten de atmosfeer, vlak = op aarde' : 'zonlicht buiten de atmosfeer')
+        : (lagen.atmosfeer ? 'zonlicht: lijn = buiten de atmosfeer' : 'zonlicht buiten de atmosfeer, piek rond 500 nm');
+      const wz = ctx.measureText(tz).width;
+      // Rechts van de piek als het past, anders links ervan, en altijd binnen de balk.
+      const az = metToep ? x0 + 6 : xp + 6 + wz < x1 - 6 ? xp + 6 : Math.max(x0 + 6, xp - 6 - wz);
+      ctx.fillText(tz, az, metToep ? yB - fs*0.45 : bandTop + topStrook + fs*1.05);
+      // In het vlak: wat er op aarde van over is (alleen als daar ruimte is).
+      if(lagen.atmosfeer && !metToep){
+        const hoog = planck(ZON_PIEK_L) / ZON_PIEK * doorlaat(ZON_PIEK_L) * hB;
+        if(hoog > fs*1.6){
+          ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
+          ctx.fillText('op aarde', xp, yB - Math.min(hoog * 0.4, fs*1.2));
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  // --- Grens ioniserende straling (ongeveer 10 eV per foton) ---
+  if(!klein && lagen.ioniserend){
+    const xi = xVan(Math.log10(ION_LAMBDA));
+    ctx.save();
+    ctx.fillStyle = 'rgba(212,146,58,0.10)';
+    const xr = Math.min(x1, Math.max(x0, xi));
+    if(xr < x1) ctx.fillRect(xr, bandTop, x1 - xr, bandH);
+    if(xi >= x0 && xi <= x1){
+      ctx.strokeStyle = '#D4923A'; ctx.lineWidth = 2.5; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(xi, bandTop - fs*0.3); ctx.lineTo(xi, bandBot); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.font = font(700, fs*0.85);
+    ctx.fillStyle = '#f2c48a'; ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 5;
+    const yt = bandBot - strookH - fs*0.45;
+    if(xi > x1 - fs*7){ ctx.textAlign = 'right'; ctx.fillText('ioniserend →', Math.min(x1 - 6, xi - 6), yt); }
+    else { ctx.textAlign = 'left'; ctx.fillText('ioniserend →', Math.max(x0 + 6, xi + 6), yt); }
+    ctx.restore();
+  }
+
+  // --- Toepassingen: in de balk. Een bereik als lichte kolom, één waarde als stippellijn,
+  // de naam bovenin. Boven de balk staan alleen de gebiedsnamen.
+  const labelVakken = [];
+  const naderhand = [];
+  if(!klein && lagen.toepassingen && span < TOEPASSING_SPAN){
+    const binnenH = bandH - strookH - topStrook;
+    const regelH = fs*1.45;
+    const nRegels = Math.max(1, Math.min(3, Math.floor((binnenH - fs*0.3) / regelH)));
+    const bezet = Array.from({length: nRegels}, () => []);
+    ctx.save();
+    rondeRect(x0, bandTop, bw, bandH, 10); ctx.clip();
+    ctx.font = font(600, fs*0.85);
+    const geplaatst = [];
+    for(const t of TOEPASSINGEN){
+      const La = Math.log10(t.van), Lb = Math.log10(t.tot || t.van);
+      const xa = xVan(La), xb = xVan(Lb), xm = (xa + xb) / 2;
+      if(xm < x0 || xm > x1) continue;
+      const tekst = t.naam;
+      const icoW = fs*1.25;                 // plaatje voor de naam
+      const w = icoW + fs*0.3 + ctx.measureText(tekst).width;
+      const a = Math.max(x0 + 4, Math.min(x1 - w - 4, xm - w/2));
+      const regel = bezet.findIndex(r => !r.some(([p, q]) => a < q + fs*0.6 && a + w > p - fs*0.6));
+      if(regel < 0) continue;
+      bezet[regel].push([a, a + w]);
+      geplaatst.push({t, tekst, xa, xb, xm, a, w, regel, L: (La + Lb) / 2});
+    }
+    // Eerst alle kolommen en lijnen, dan de namen erover.
+    for(const g of geplaatst){
+      const kies = g.t === gekozen;
+      if(g.xb - g.xa > 4){
+        ctx.fillStyle = kies ? 'rgba(212,146,58,0.28)' : 'rgba(255,255,255,0.10)';
+        ctx.fillRect(g.xa, bandTop, g.xb - g.xa, binnenH);
+        ctx.strokeStyle = kies ? '#D4923A' : 'rgba(255,255,255,0.35)'; ctx.lineWidth = kies ? 2 : 1;
+        ctx.beginPath();
+        ctx.moveTo(g.xa, bandTop); ctx.lineTo(g.xa, bandTop + binnenH);
+        ctx.moveTo(g.xb, bandTop); ctx.lineTo(g.xb, bandTop + binnenH);
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = kies ? '#D4923A' : 'rgba(255,255,255,0.6)'; ctx.lineWidth = kies ? 2.5 : 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(g.xm, bandTop + 2); ctx.lineTo(g.xm, bandTop + binnenH); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+    ctx.restore();
+    // De namen pas na de marker tekenen, zodat zijn lijn er niet doorheen loopt.
+    naderhand.push(() => {
+      ctx.save();
+      ctx.font = font(600, fs*0.85);
+      ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 6;
+      ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
+      for(const g of geplaatst){
+        const basis = bandTop + topStrook + fs*0.4 + (g.regel + 1) * regelH;
+        const kleurNaam = g.t === gekozen ? '#f2c48a' : '#ffffff';
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = kleurNaam;
+        const beeld = plaatjeBeeld(g.t.img, toepKleur(g.t), herteken);
+        if(beeld){
+          // Donker vlakje erachter: anders valt het kleurvlak weg tegen de balk in dezelfde kleur.
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = 'rgba(11,14,21,0.6)';
+          rondeRect(g.a - 2, basis - fs*1.12, fs*1.25 + 4, fs*1.25 + 4, 5); ctx.fill();
+          ctx.drawImage(beeld, g.a, basis - fs*1.02, fs*1.25, fs*1.25);
+          ctx.shadowBlur = 6; ctx.fillStyle = kleurNaam;
+        }
+        ctx.fillText(g.tekst, g.a + fs*1.55, basis);
+        // Onder de naam: een haakje over het bereik, of een pijltje naar de ene waarde.
+        ctx.shadowBlur = 3;
+        ctx.strokeStyle = kleurNaam; ctx.fillStyle = kleurNaam; ctx.lineWidth = 1.5;
+        const yh = basis + fs*0.28;
+        if(g.xb - g.xa > 4){
+          const ha = Math.max(x0 + 2, g.xa), hb = Math.min(x1 - 2, g.xb);
+          ctx.beginPath();
+          ctx.moveTo(ha, yh + fs*0.25); ctx.lineTo(ha, yh); ctx.lineTo(hb, yh); ctx.lineTo(hb, yh + fs*0.25);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(g.xm - fs*0.28, yh - fs*0.05); ctx.lineTo(g.xm + fs*0.28, yh - fs*0.05); ctx.lineTo(g.xm, yh + fs*0.3);
+          ctx.closePath(); ctx.fill();
+        }
+      }
+      ctx.restore();
+    });
+    for(const g of geplaatst){
+      const basis = bandTop + topStrook + fs*0.4 + (g.regel + 1) * regelH;
+      // Tikken op de naam zet de marker daar (midden van het bereik).
+      labelVakken.push({x: g.a - 6, y: basis - fs*0.95, w: g.w + 12, h: fs*1.3, L: g.L, t: g.t});
+    }
+  }
+
+  // --- Marker: kaartjes op de assen met λ en f, zodat de balk vrij blijft ---
+  const xm = xVan(markerL);
+  const markerIn = xm >= x0 - 1 && xm <= x1 + 1;
+  const pilFont = `700 ${fs}px ${FONT}`, ph = fs*1.6;
+  function pil(tekst){
+    ctx.font = pilFont;
+    if(!markerIn) tekst = xm < x0 ? '◀ ' + tekst : tekst + ' ▶';
+    const pw = ctx.measureText(tekst).width + fs*1.2;
+    const px = markerIn ? Math.max(x0 - fs*0.6, Math.min(x1 + fs*0.6 - pw, xm - pw/2))
+                        : (xm < x0 ? x0 - fs*0.6 : x1 + fs*0.6 - pw);
+    return {tekst, px, pw};
+  }
+  const pilL = klein ? null : pil(metVoorvoegsel(10 ** markerL, LENGTE_EENHEDEN));
+  const pilF = klein || !metF ? null : pil(metVoorvoegsel(C_LICHT / 10 ** markerL, FREQ_EENHEDEN));
+  const pilE = klein || !metE ? null : pil(metVoorvoegsel(HC_EVM / 10 ** markerL, EV_AS));
+
+  // --- Assen ---
+  // Getallen die tegen elkaar aan zouden komen, vallen weg; het streepje blijft.
+  // Ook de getallen onder het kaartje van de marker vallen weg.
+  function tekenAs(streepjes, ya, doorBalk, kaart){
+    ctx.font = font(600, fs);
+    let rechtsVorige = -Infinity;
+    // Van links naar rechts, zodat het overlapgetal klopt.
+    const opVolgorde = streepjes.map(s => ({s, x: xVan(s.L)})).sort((p, q) => p.x - q.x);
+    for(const {s, x} of opVolgorde){
+      if(x < x0 - 0.5 || x > x1 + 0.5) continue;
+      const groot = s.label || s.decade;
+      if(doorBalk && s.label){
+        ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, bandTop+6); ctx.lineTo(x, bandBot); ctx.stroke();
+      }
+      ctx.strokeStyle = s.label ? KLEUR.tekst : KLEUR.zwak; ctx.lineWidth = groot ? 2 : 1.5;
+      ctx.beginPath(); ctx.moveTo(x, ya); ctx.lineTo(x, ya + (s.label ? fs*0.7 : groot ? fs*0.5 : fs*0.35)); ctx.stroke();
+      if(!s.label) continue;
+      const tekst = s.macht != null ? null : s.tekst();
+      const w = tekst ? ctx.measureText(tekst).width : ctx.measureText('10²⁰ Hz').width;
+      const a = Math.max(x0 - fs, Math.min(x1 + fs - w, x - w/2));
+      if(a < rechtsVorige + fs*0.8) continue;
+      if(kaart && a < kaart.px + kaart.pw + fs*0.3 && a + w > kaart.px - fs*0.3) continue;
+      rechtsVorige = a + w;
+      if(tekst){
+        ctx.fillStyle = KLEUR.tekst; ctx.textAlign = 'left';
+        ctx.fillText(tekst, a, ya + fs*1.85);
+      } else {
+        tekenMacht(s.macht, s.eenheid || 'Hz', a + w/2, ya + fs*1.85, fs);
+      }
+    }
+  }
+
+  let ya = bandBot;
+  const yaL = ya;
+  tekenAs(lStreep, ya, true, pilL);
+  ctx.font = font(600, fs*0.85);
+  ctx.textAlign = 'left'; ctx.fillStyle = KLEUR.accent;
+  ctx.fillText(SCHAAL[0], x0, ya + fs*3.4);
+  ctx.textAlign = schaalNaast ? 'right' : 'left'; ctx.fillStyle = lineair ? KLEUR.amber : KLEUR.mute;
+  ctx.fillText(SCHAAL[1], schaalNaast ? x1 : x0, ya + fs*3.4 + extraSchaal);
+
+  if(metF){
+    ya += asH + extraSchaal;
+    ctx.strokeStyle = KLEUR.zwak; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x0, ya); ctx.lineTo(x1, ya); ctx.stroke();
+    tekenAs(fStreep, ya, false, pilF);
+    ctx.font = font(600, fs*0.85);
+    ctx.textAlign = 'left'; ctx.fillStyle = KLEUR.accent;
+    ctx.fillText('frequentie f', x0, ya + fs*3.4);
+  }
+  const yaF = ya;
+  if(metE){
+    ya += metF ? asH : asH + extraSchaal;
+    ctx.strokeStyle = KLEUR.zwak; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x0, ya); ctx.lineTo(x1, ya); ctx.stroke();
+    tekenAs(eStreep, ya, false, pilE);
+    ctx.font = font(600, fs*0.85);
+    ctx.textAlign = 'left'; ctx.fillStyle = KLEUR.accent;
+    ctx.fillText('energie E per foton', x0, ya + fs*3.4);
+  }
+
+  geo = {x0, x1, bw, fs, bandTop, bandBot, yOnder: ya + fs*0.7, labels: labelVakken, xm: xVan(markerL)};
+  if(klein !== paneelKlein){
+    paneelKlein = klein;
+    // Tijdens "Hoe klein is zichtbaar?" heeft het golfvenster niets te zeggen: weg ermee.
+    document.getElementById('stage').classList.toggle('klein-modus', klein);
+    werkPaneelBij();
+  }
+
+  // --- Hoe klein is zichtbaar: het streepje aanwijzen ---
+  if(klein){
+    const xa = xVan(Math.log10(7.5e-7)), xb = xVan(Math.log10(3.8e-7));
+    const xv = (xa + xb) / 2, w = Math.max(3, xb - xa);
+    // Zolang de regenboog nog te zien is een kader eromheen, daarna een wit streepje.
+    if(xb - xa > 8){
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.strokeRect(xa, bandTop - fs*0.2, xb - xa, bandH + fs*0.2);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(xv - w/2, bandTop - fs*0.2, w, bandH + fs*0.2);
+    }
+    ctx.font = font(700, fs*1.15);
+    const tekst = 'zichtbaar licht';
+    const tw = ctx.measureText(tekst).width;
+    const ta = Math.max(x0, Math.min(x1 - tw, xv - tw/2));
+    const basis = bandTop - rijH - fs*0.5;
+    ctx.fillStyle = KLEUR.tekst; ctx.textAlign = 'left';
+    ctx.fillText(tekst, ta, basis);
+    ctx.strokeStyle = KLEUR.tekst; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(Math.max(ta + 4, Math.min(ta + tw - 4, xv)), basis + fs*0.35);
+    ctx.lineTo(xv, bandTop - fs*0.4);
+    ctx.stroke();
+
+    // Voorwerpen op hun eigen maat, een rij hoger. Een nieuw voorwerp schuift links
+    // het beeld in zodra de balk zo lang wordt, en glijdt bij verder uitzoomen naar rechts.
+    ctx.font = font(600, fs*0.9);
+    // Twee rijen: eerst de bovenste, anders die eronder (daar staat ook 'zichtbaar licht').
+    const vRijen = [{basis: bandTop - 2*rijH - fs*0.5, bezet: []},
+                    {basis: bandTop - rijH - fs*0.5, bezet: [[ta - fs*0.6, ta + tw + fs*0.6]]}];
+    const zichtbaarObj = VOORWERPEN.filter(o => o.m <= lMax && o.m > lMin * 3)
+      .sort((p, q) => q.m - p.m);          // groot eerst: die staan links
+    for(const o of zichtbaarObj){
+      const x = xVan(Math.log10(o.m));
+      if(x < x0 - 1 || x > x1 - 2) continue;   // het huidige voorwerp staat precies op de linkerrand
+      const label = o.kort;
+      const w = fs*1.3 + ctx.measureText(label).width;
+      const a = Math.max(x0, Math.min(x1 - w, x - w/2));
+      const rij = vRijen.find(r => !r.bezet.some(([p, q]) => a < q + fs*0.5 && a + w > p - fs*0.5));
+      if(!rij) continue;
+      rij.bezet.push([a, a + w]);
+      const vBasis = rij.basis;
+      ctx.fillStyle = KLEUR.tekst; ctx.textAlign = 'left';
+      const beeld = plaatjeBeeld(o.img, KLEUR_VOORWERP, herteken);
+      if(beeld){
+        ctx.fillStyle = '#0b0e15';
+        rondeRect(a - 2, vBasis - fs*1.08, fs*1.15 + 4, fs*1.15 + 4, 5); ctx.fill();
+        ctx.drawImage(beeld, a, vBasis - fs*1.0, fs*1.15, fs*1.15);
+        ctx.fillStyle = KLEUR.tekst;
+      }
+      ctx.fillText(label, a + fs*1.3, vBasis);
+      ctx.strokeStyle = KLEUR.zwak; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(Math.max(a + 3, Math.min(a + w - 3, x)), vBasis + fs*0.35);
+      ctx.lineTo(x, bandTop + 4);
+      ctx.stroke();
+      ctx.fillStyle = KLEUR.tekst;
+      ctx.beginPath(); ctx.arc(x, bandTop + 4, 3, 0, 2*Math.PI); ctx.fill();
+    }
+
+    // In de balk: hoe lang hij nu is, en hoe breed zichtbaar licht op een bord van 1,5 m zou zijn.
+    const breedte = (7.5e-7 - 3.8e-7) / (lMax - lMin) * BORD_BREED;
+    const nu = kleinVoorwerp || dichtstbij(lMax);
+    const regel1 = 'de balk is nu zo lang als ' + nu.naam;
+    const regel2 = 'op een balk van 1,5 m is zichtbaar licht ' +
+      kortLabel(breedte, LENGTE_EENHEDEN) + ': ' + vergelijk(breedte);
+    // Groot plaatje van wat de balk nu is, links in de balk, met de tekst ernaast.
+    const icoG = Math.min(bandH * 0.62, fs*3.2);
+    ctx.font = `${icoG}px ${FONT}`;
+    const icoW = icoG;
+    const tx = x0 + fs*0.9 + icoW + fs*0.6, tMax = xa - tx - fs*1.2;
+    // Pas als het zichtbare deel naar rechts is geschoven is er links plaats voor tekst.
+    if(tMax > bw*0.35){
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 6;
+    const pas = (t, g, gewicht) => {      // krimpen als de tekst niet naast het streepje past
+      ctx.font = font(gewicht, g);
+      const w = ctx.measureText(t).width;
+      if(w > tMax) ctx.font = font(gewicht, g * tMax / w);
+    };
+    ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const midden = bandTop + bandH / 2;
+    ctx.font = `${icoG}px ${FONT}`;
+    const groot = plaatjeBeeld(nu.img, KLEUR_VOORWERP, herteken);
+    if(groot){ ctx.shadowBlur = 0; ctx.drawImage(groot, x0 + fs*0.9, midden - icoG/2, icoG, icoG); ctx.shadowBlur = 6; }
+    pas(regel1, fs*1.2, 700);
+    ctx.fillText(regel1, tx, midden - fs*0.7);
+    ctx.fillStyle = KLEUR.amberInBand;
+    pas(regel2, fs*0.95, 600);
+    ctx.fillText(regel2, tx, midden + fs*0.75);
+    ctx.restore();
+    ctx.textBaseline = 'alphabetic';
+    }
+    // Aanwijzing: de docent bepaalt het tempo.
+    ctx.save();
+    ctx.font = font(600, fs*0.8);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.textAlign = 'right';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4;
+    const laatste = kleinStap >= kleinStappen.length - 1;
+    ctx.fillText(laatste ? 'einde · ← terug · 0 voor het hele spectrum'
+                         : `stap ${kleinStap + 1} van ${kleinStappen.length} · tik of → : verder · ← : terug`,
+                 x1 - fs*0.6, bandBot - fs*0.5);
+    ctx.restore();
+    return;                              // geen marker in deze stand
+  }
+
+  // --- Marker ---
+  if(markerIn){
+    const yBoven = bandTop - fs*0.4;
+    // Op de balk dik met een donkere rand, zodat de lijn ook op het geel van de regenboog
+    // zichtbaar blijft. Over de assen dunner, tot aan het kaartje op de onderste as.
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(xm, yBoven); ctx.lineTo(xm, bandBot); ctx.stroke();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(xm, yBoven); ctx.lineTo(xm, bandBot); ctx.stroke();
+    ctx.strokeStyle = KLEUR.markerAs; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xm, bandBot); ctx.lineTo(xm, ya + fs*0.6); ctx.stroke();
+    ctx.lineCap = 'butt';
+  }
+  ctx.font = pilFont;
+  tekenKaartje(pilL.tekst, pilL.px, yaL + fs*0.6, pilL.pw, ph, markerIn ? 1 : 0.75);
+  if(pilF) tekenKaartje(pilF.tekst, pilF.px, yaF + fs*0.6, pilF.pw, ph, markerIn ? 1 : 0.75);
+  if(pilE) tekenKaartje(pilE.tekst, pilE.px, ya + fs*0.6, pilE.pw, ph, markerIn ? 1 : 0.75);
+  for(const f of naderhand) f();
+}
+
+// Namen in rij 0 als ze in hun gebied passen, anders hoger met een lijntje.
+function plaatsNamen(v, x0, x1, fs){
+  const bw = x1 - x0;
+  const xVan = L => x0 + uVan(L, v) * bw;
+  const delen = GEBIEDEN.map(g => {
+    const Lmax = Math.min(v.hi, g.max === Infinity ? Infinity : Math.log10(g.max));
+    const Lmin = Math.max(v.lo, g.min === 0 ? -Infinity : Math.log10(g.min));
+    return {g, Lmax, Lmin, xa:xVan(Lmax), xb:xVan(Lmin), zichtbaar: Lmax > Lmin};
+  }).filter(d => d.zichtbaar);
+  const rijen = [[]];
+  const namen = delen.map(d => {
+    const w = ctx.measureText(d.g.naam).width;
+    const xm = (d.xa + d.xb) / 2;
+    const past = w + fs*0.8 <= d.xb - d.xa;
+    let a = Math.max(x0, Math.min(x1 - w, xm - w/2));
+    let rij = 0;
+    if(!past){
+      rij = 1;
+      while((rijen[rij] || []).some(([p,q]) => a < q + fs*0.6 && a + w > p - fs*0.6)) rij++;
+    }
+    (rijen[rij] = rijen[rij] || []).push([a, a+w]);
+    return {d, w, xm, a, rij};
+  });
+  return {delen, namen, nRijen: rijen.length};
+}
+
+function tekenKaartje(tekst, px, py, pw, ph, alfa = 1){
+  ctx.globalAlpha = alfa;
+  ctx.fillStyle = KLEUR.kaartBg;
+  rondeRect(px, py, pw, ph, ph/2); ctx.fill();
+  ctx.strokeStyle = KLEUR.kaartRand; ctx.lineWidth = 2;
+  rondeRect(px, py, pw, ph, ph/2); ctx.stroke();
+  ctx.fillStyle = KLEUR.kaartTekst; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(tekst, px + pw/2, py + ph/2 + 1);
+  ctx.textBaseline = 'alphabetic';
+  ctx.globalAlpha = 1;
+}
+
+function rondeRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
+}
+
+// Voorwerpen voor "Hoe klein is zichtbaar?", met hun maat in meter.
+const VOORWERPEN = [
+  {m:1e-10, img:'atoom', kort:'atoom',          naam:'een atoom'},
+  {m:1e-9, img:'molecuul', kort:'suikermolecuul', naam:'een suikermolecuul'},
+  {m:1e-7, img:'virus', kort:'virus',          naam:'een virus'},
+  {m:2e-6, img:'bacterie', kort:'bacterie',       naam:'een bacterie'},
+  {m:8e-6, img:'bloedcel', kort:'rode bloedcel',  naam:'een rode bloedcel'},
+  {m:8e-5, img:'haar', kort:'dikte haar',     naam:'de dikte van een haar'},
+  {m:5e-4, img:'zandkorrel', kort:'zandkorrel',     naam:'een zandkorrel'},
+  {m:5e-3, img:'mier', kort:'mier',           naam:'een mier'},
+  {m:2.3e-2, img:'euro', kort:'euro',           naam:'een euromunt'},
+  {m:0.15, img:'mobiel', kort:'telefoon',       naam:'een telefoon'},
+  {m:2, img:'deur', kort:'deur',           naam:'een deur'},
+  {m:12, img:'bus', kort:'bus',            naam:'een bus'},
+  {m:105, img:'voetbalveld', kort:'voetbalveld',    naam:'een voetbalveld'},
+  {m:330,    img:'eiffeltoren', kort:'Eiffeltoren', naam:'de Eiffeltoren'},
+  {m:828,    img:'toren', kort:'Burj Khalifa',   naam:'de Burj Khalifa, de hoogste toren ter wereld'},
+  {m:1e4, img:'vliegtuig', kort:'vlieghoogte',    naam:'de hoogte waarop vliegtuigen vliegen'},
+  {m:1e5, img:'raket', kort:'grens ruimte',   naam:'de hoogte waar de ruimte begint'},
+];
+const BORD_BREED = 1.5;                  // m, ongeveer de balk op een digibord
+function dichtstbij(x){
+  const L = Math.log10(x);
+  return VOORWERPEN.reduce((b, o) => Math.abs(Math.log10(o.m) - L) < Math.abs(Math.log10(b.m) - L) ? o : b);
+}
+// "ongeveer een zandkorrel" als het binnen een factor 3 klopt, anders "kleiner dan een virus".
+function vergelijk(x){
+  const o = dichtstbij(x);
+  if(Math.abs(Math.log10(x / o.m)) <= 0.48) return 'ongeveer ' + o.naam;
+  const groter = VOORWERPEN.find(v => v.m > x);
+  return groter ? 'kleiner dan ' + groter.naam : 'groter dan ' + VOORWERPEN[VOORWERPEN.length-1].naam;
+}
+
+// Getal als a·10ⁿ in stukjes voor tekenRijk.
+function machtDelen(x, achter){
+  const [m, n] = x.toExponential(1).split('e');
+  return [{t: nl(m) + '·10'}, {t: String(Number(n)).replace('-', '−'), sup: true}, {t: achter}];
+}
+// Tekst met superscripts, gecentreerd op x; krimpt als hij niet in maxW past.
+function tekenRijk(stukken, x, basis, fs, kleur, maxW){
+  const maat = g => {
+    let w = 0;
+    for(const d of stukken){ ctx.font = `700 ${d.sup ? g*0.66 : g}px ${FONT}`; w += ctx.measureText(d.t).width; }
+    return w;
+  };
+  let g = fs, w = maat(g);
+  if(w > maxW){ g *= maxW / w; w = maat(g); }
+  let a = x - w/2;
+  ctx.fillStyle = kleur; ctx.textAlign = 'left';
+  for(const d of stukken){
+    ctx.font = `700 ${d.sup ? g*0.66 : g}px ${FONT}`;
+    ctx.fillText(d.t, a, d.sup ? basis - g*0.42 : basis);
+    a += ctx.measureText(d.t).width;
+  }
+}
+
+// "10ⁿ Hz" met een echte superscript, gecentreerd op x.
+function tekenMacht(n, eenheid, x, basis, fs){
+  const exp = String(n).replace('-', '−');
+  const fGroot = `600 ${fs}px ${FONT}`, fKlein = `600 ${fs*0.66}px ${FONT}`;
+  ctx.font = fGroot; const wa = ctx.measureText('10').width, wc = ctx.measureText(' ' + eenheid).width;
+  ctx.font = fKlein; const wb = ctx.measureText(exp).width;
+  let a = x - (wa + wb + wc) / 2;
+  ctx.fillStyle = KLEUR.tekst; ctx.textAlign = 'left';
+  ctx.font = fGroot; ctx.fillText('10', a, basis); a += wa;
+  ctx.font = fKlein; ctx.fillText(exp, a, basis - fs*0.42); a += wb;
+  ctx.font = fGroot; ctx.fillText(' ' + eenheid, a, basis);
+}
+
+let tekenGepland = false;
+function herteken(){
+  if(tekenGepland) return;
+  tekenGepland = true;
+  requestAnimationFrame(() => { tekenGepland = false; tekenSpectrum(); });
+}
+
+// ===== Marker en getallenpaneel =====
+// De marker staat altijd op drie significante cijfers, zodat λ, f en E in het paneel
+// precies bij elkaar horen.
+function rond3(L){ return Math.log10(Number((10 ** L).toPrecision(3))); }
+// gekozen: de toepassing waarvan de infokaart open staat. Elke andere verplaatsing van de
+// marker sluit die kaart weer (dan toont het paneel het gebied).
+let gekozen = null;
+function zetMarker(L, houdKeuze = false, exact = false){
+  if(!houdKeuze) gekozen = null;
+  L = Math.max(L_MIN, Math.min(L_MAX, L));
+  markerL = exact ? L : rond3(L);
+  werkPaneelBij();
+  herteken();
+}
+
+function kiesToepassing(t){
+  gekozen = t;
+  const La = Math.log10(t.van), Lb = Math.log10(t.tot || t.van);
+  if(!lagen.info) zetInfo(true);
+  // Exact op de waarde van het apparaat (511 keV bij PET, niet afgerond naar 510).
+  zetMarker(t.tot ? (La + Lb) / 2 : La, true, !t.tot);
+}
+
+// a–b·10ⁿ met dezelfde macht, voor het paneel bij "Hoe klein is zichtbaar?".
+function binasBereik(a, b){
+  const n = Math.floor(Math.log10(b) + 1e-9);
+  const m = x => nl((x / 10 ** n).toFixed(2));
+  return m(a) + '–' + m(b) + (n === 0 ? '' : '·10<sup>' + String(n).replace('-', '−') + '</sup>');
+}
+let paneelKlein = false;
+// Een getal dat niet in zijn vakje past (zoals een bereik "3,80–7,50·10⁻⁷") krimpt tot het past.
+function pasGetallenIn(){
+  for(const el of document.querySelectorAll('.readout .getal')){
+    el.style.fontSize = '';
+    if(!el.clientWidth || el.scrollWidth <= el.clientWidth) continue;
+    const huidig = parseFloat(getComputedStyle(el).fontSize);
+    el.style.fontSize = Math.max(11, huidig * el.clientWidth / el.scrollWidth * 0.97) + 'px';
+  }
+}
+new ResizeObserver(() => pasGetallenIn()).observe(document.querySelector('.readout'));
+function werkPaneelBij(){
+  werkPaneelBijBinnen();
+  pasGetallenIn();
+}
+function werkPaneelBijBinnen(){
+  if(dwang > 0.5){
+    // Geen marker in deze stand: dan het hele zichtbare gebied.
+    const l1 = 3.8e-7, l2 = 7.5e-7, f1 = C_LICHT / l2, f2 = C_LICHT / l1;
+    document.getElementById('uitGebied').textContent = 'Zichtbaar licht';
+    document.getElementById('uitStip').style.background = 'linear-gradient(90deg,#f33,#fd3,#3d5,#38f,#a4f)';
+    document.getElementById('uitL').innerHTML = binasBereik(l1, l2) + ' m';
+    document.getElementById('uitLsub').textContent = '= 380–750 nm';
+    document.getElementById('uitF').innerHTML = binasBereik(f1, f2) + ' Hz';
+    document.getElementById('uitFsub').textContent = '= ' + Math.round(f1/1e12) + '–' + Math.round(f2/1e12) + ' THz';
+    document.getElementById('uitEJ').innerHTML = binasBereik(H_PLANCK*f1, H_PLANCK*f2) + ' J';
+    document.getElementById('uitEeV').innerHTML = binasBereik(H_PLANCK*f1/E_LADING, H_PLANCK*f2/E_LADING) + ' eV';
+    golfLambda = 5.65e-7;
+    document.getElementById('uitVergelijk').textContent = 'λ ' + vergelijk(golfLambda);
+    tekenGolf();
+    werkInfoBij(5.65e-7, 'Zichtbaar licht');
+    return;
+  }
+  const lambda = 10 ** markerL;
+  const f = C_LICHT / lambda;
+  const E = H_PLANCK * f;
+  const g = gebiedVan(lambda);
+  document.getElementById('uitGebied').textContent = g.naam;
+  document.getElementById('uitStip').style.background =
+    g.id === 'vis' ? rgba(golflengteNaarRGB(lambda*1e9), 1) : g.kleur;
+  document.getElementById('uitL').innerHTML = binas(lambda) + ' m';
+  document.getElementById('uitLsub').textContent = '= ' + metVoorvoegsel(lambda, LENGTE_EENHEDEN);
+  document.getElementById('uitF').innerHTML = binas(f) + ' Hz';
+  document.getElementById('uitFsub').textContent = '= ' + metVoorvoegsel(f, FREQ_EENHEDEN);
+  document.getElementById('uitEJ').innerHTML = binas(E) + ' J';
+  document.getElementById('uitEeV').innerHTML = binas(E / E_LADING) + ' eV';
+  canvas.setAttribute('aria-valuetext', `${g.naam}, golflengte ${metVoorvoegsel(lambda, LENGTE_EENHEDEN)}`);
+  golfLambda = lambda;
+  werkInfoBij(lambda);
+  const o = dichtstbij(lambda);
+  const v = vergelijk(lambda);
+  document.getElementById('uitVergelijk').innerHTML =
+    'λ ' + (v.startsWith('ongeveer')
+      ? v.replace('ongeveer ', 'ongeveer ' + plaatjeSVG(o.img, KLEUR_VOORWERP, '1.35em').replace('<svg', '<svg style="vertical-align:-0.35em"') + ' ')
+      : v);
+  tekenGolf();
+}
+
+// ===== Infopaneel =====
+const infoEl = document.getElementById('info');
+let infoGebied = null;
+function bereikTekst(a, b, eenheden){
+  return a === b ? metVoorvoegsel(a, eenheden) : metVoorvoegsel(a, eenheden) + ' tot ' + metVoorvoegsel(b, eenheden);
+}
+function werkInfoBij(lambda, titel){
+  const g = gebiedVan(lambda), d = INFO[g.id];
+  const eV = H_PLANCK * C_LICHT / lambda / E_LADING;
+  const kleur = g.id === 'vis' ? 'linear-gradient(90deg,#f33,#fd3,#3d5,#38f,#a4f)' : g.kleur;
+  const t = titel ? null : gekozen;
+  const sleutel = t ? 't:' + t.naam : g.id + (titel || '');
+  // Vaste tekst alleen opnieuw opbouwen bij een ander gebied of apparaat; de live regels altijd.
+  if(infoGebied !== sleutel && t){
+    infoGebied = sleutel;
+    const lKort = t.tot || t.van, lLang = t.van;
+    infoEl.innerHTML = `
+      <button type="button" class="info-sluit" onclick="zetInfo(false)">Sluiten</button>
+      <button type="button" class="info-terug" onclick="terugNaarGebied()">← ${g.naam}</button>
+      <h2>${plaatjeSVG(t.img, toepKleur(t), '1.8em')}${t.naam}</h2>
+      <div class="grens">${g.naam} · golflengte ${bereikTekst(lKort, lLang, LENGTE_EENHEDEN)}
+        · frequentie ${bereikTekst(C_LICHT / lLang, C_LICHT / lKort, FREQ_EENHEDEN)}</div>
+      <dl>
+        <div><dt>Waarom deze golflengte?</dt><dd>${UITLEG[t.naam] || ''}</dd></div>
+        <div class="live" id="infoIon"></div>
+        <div style="display:none"><span id="infoAntenne"></span></div>
+      </dl>`;
+  } else if(infoGebied !== sleutel){
+    infoGebied = sleutel;
+    infoEl.innerHTML = `
+      <button type="button" class="info-sluit" onclick="zetInfo(false)">Sluiten</button>
+      <h2><span class="stip" style="background:${kleur}"></span>${titel || g.naam}</h2>
+      <div class="grens">golflengte ${d.grens}, de grenzen zijn niet scherp</div>
+      <dl>
+        <div><dt>Detector of antenne</dt><dd>${d.detector} <span class="live-tekst" id="infoAntenne"></span></dd></div>
+        <div><dt>Bron</dt><dd>${d.bron}</dd></div>
+        <div><dt>Toepassing</dt><dd>${d.toepassing}</dd></div>
+        <div class="live" id="infoIon"></div>
+      </dl>`;
+  }
+  // Antenne: alleen zinnig bij radio en microgolven.
+  const ant = document.getElementById('infoAntenne');
+  if(!t && (g.id === 'radio' || g.id === 'micro')){
+    ant.style.display = '';
+    ant.innerHTML = `Voor deze golf: λ/2 = <b>${metVoorvoegsel(lambda / 2, LENGTE_EENHEDEN)}</b>.`;
+  } else ant.style.display = 'none';
+  // Ioniserend: hangt af van de energie van één foton.
+  const ion = document.getElementById('infoIon');
+  const eTekst = eV >= 1 ? metVoorvoegsel(eV, EV_EENHEDEN)
+              : eV >= 0.01 ? nl(eV.toPrecision(3)) + ' eV' : binas(eV) + ' eV';
+  ion.classList.toggle('ion', eV >= ION_GRENS_EV);
+  // Hoe ver van de grens: zoveel keer genoeg, of zoveel keer te weinig.
+  const factor = eV >= ION_GRENS_EV ? eV / ION_GRENS_EV : ION_GRENS_EV / eV;
+  const keer = keerTekst(factor);
+  ion.innerHTML = eV >= ION_GRENS_EV
+    ? `Eén foton: <b>${eTekst}</b>. <strong>Ioniserend:</strong> ${factor < 1.5 ? 'net genoeg' : keer + ' zoveel als nodig is'} om een elektron uit een atoom te slaan (daarvoor is ongeveer ${ION_GRENS_EV} eV nodig).`
+    : `Eén foton: <b>${eTekst}</b>. Niet ioniserend: ${factor < 1.5 ? 'net te weinig' : keer + ' te weinig'} om een elektron uit een atoom te slaan (daarvoor is ongeveer ${ION_GRENS_EV} eV nodig).`;
+}
+// Een verhouding in woorden: "ongeveer 5 keer", "ruim honderdduizend keer", "ruim een miljoen keer".
+const MACHT_WOORD = ['', 'tien', 'honderd', 'duizend', 'tienduizend', 'honderdduizend', 'een miljoen', 'tien miljoen',
+  'honderd miljoen', 'een miljard', 'tien miljard', 'honderd miljard', 'een biljoen', 'tien biljoen', 'honderd biljoen'];
+function keerTekst(f){
+  if(f < 100) return 'ongeveer ' + nl(Number(f.toPrecision(f < 10 ? 2 : 1))) + ' keer';
+  const n = Math.floor(Math.log10(f));
+  const woord = MACHT_WOORD[n] || ('10<sup>' + n + '</sup>');
+  return (f / 10 ** n < 1.5 ? 'ongeveer ' : 'ruim ') + woord + ' keer';
+}
+
+function terugNaarGebied(){ gekozen = null; werkPaneelBij(); herteken(); }
+
+// ===== Lagen aan en uit =====
+// Altijd in beeld onder het spectrum: een schakelaar per laag, en ◂ ▸ om in vaste volgorde
+// af en op te bouwen (▸ zet de eerste laag aan die nog uit staat, ◂ de laatste die aan staat uit).
+const stageEl = document.getElementById('stage');
+const chipsEl = document.getElementById('lagenChips');
+const lagenMeer = document.getElementById('lagenMeer');
+const lagenMinder = document.getElementById('lagenMinder');
+chipsEl.innerHTML = LAGEN.map(l =>
+  `<button type="button" class="chip" data-laag="${l.id}" aria-pressed="false" title="${l.uitleg}">${l.naam}</button>`).join('');
+
+function pasLagenToe(){
+  stageEl.classList.toggle('zonder-frequentie', !lagen.frequentie);
+  stageEl.classList.toggle('zonder-energie', !lagen.energie);
+  stageEl.classList.toggle('zonder-golf', !lagen.golf);
+  stageEl.classList.toggle('info-uit', !lagen.info);
+  for(const c of chipsEl.querySelectorAll('.chip')) c.setAttribute('aria-pressed', String(!!lagen[c.dataset.laag]));
+  lagenMeer.classList.toggle('leeg', LAGEN.every(l => lagen[l.id]));
+  lagenMinder.classList.toggle('leeg', LAGEN.every(l => !lagen[l.id]));
+  try{ localStorage.setItem('nh-em-lagen', JSON.stringify(lagen)); }catch(e){}
+  herteken();
+  if(typeof tekenGolf === 'function') requestAnimationFrame(tekenGolf);
+}
+function zetLaag(id, aan){
+  lagen[id] = aan;
+  pasLagenToe();
+  // De chip die net aan ging in beeld schuiven.
+  const c = chipsEl.querySelector(`[data-laag="${id}"]`);
+  if(c && chipsEl.scrollWidth > chipsEl.clientWidth) c.scrollIntoView({inline:'nearest', block:'nearest', behavior:'smooth'});
+}
+function zetInfo(aan){ zetLaag('info', aan); }
+chipsEl.addEventListener('click', e => {
+  const id = e.target.closest('.chip')?.dataset.laag;
+  if(id) zetLaag(id, !lagen[id]);
+});
+lagenMeer.addEventListener('click', () => {
+  const l = LAGEN.find(l => !lagen[l.id]);
+  if(l) zetLaag(l.id, true);
+});
+lagenMinder.addEventListener('click', () => {
+  const l = [...LAGEN].reverse().find(l => lagen[l.id]);
+  if(l) zetLaag(l.id, false);
+});
+
+// Volledig scherm: alleen de tool (zonder header en titel), ook met de vinger te bedienen.
+const volKnop = document.getElementById('volKnop');
+function zetVolscherm(aan){
+  document.body.classList.toggle('volscherm', aan);
+  const el = document.documentElement;
+  if(aan && !document.fullscreenElement && el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  if(!aan && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+}
+volKnop.addEventListener('click', () => zetVolscherm(!document.body.classList.contains('volscherm')));
+document.addEventListener('fullscreenchange', () => {
+  if(!document.fullscreenElement) document.body.classList.remove('volscherm');
+});
+
+// Overzicht van de bediening
+const hulpEl = document.getElementById('hulp');
+function zetHulp(open){ hulpEl.hidden = !open; }
+document.getElementById('hulpKnop').addEventListener('click', () => zetHulp(hulpEl.hidden));
+document.getElementById('hulpSluit').addEventListener('click', () => zetHulp(false));
+hulpEl.addEventListener('click', e => { if(e.target === hulpEl) zetHulp(false); });
+pasLagenToe();
+
+// ===== Golfvenster =====
+// De golf bij de marker, met een liniaal die meeschaalt: het venster is zo lang dat er
+// tweeënhalf tot vijf golven in passen. De golf ziet er bij elke golflengte hetzelfde uit;
+// alleen de liniaal verandert. Dat is precies het punt: het is dezelfde straling.
+const golfDoek = document.getElementById('golf');
+const gctx = golfDoek.getContext('2d');
+let golfLambda = 589e-9, golfFase = 0;
+function tekenGolf(){
+  const dpr = window.devicePixelRatio || 1;
+  const W = golfDoek.clientWidth, H = golfDoek.clientHeight;
+  if(!W || !H) return;
+  if(golfDoek.width !== Math.round(W*dpr) || golfDoek.height !== Math.round(H*dpr)){
+    golfDoek.width = Math.round(W*dpr); golfDoek.height = Math.round(H*dpr);
+  }
+  gctx.setTransform(dpr,0,0,dpr,0,0);
+  gctx.clearRect(0,0,W,H);
+  const lambda = golfLambda;
+  // De getekende golflengte groeit mee met de echte, op dezelfde schaal als de golf in de
+  // balk: gelijkmatig in machten van tien, van ruim één venster breed bij 100 km tot een
+  // paar pixels bij 0,1 pm. De liniaal geeft de echte lengte van het venster.
+  const u = (VIEW_HEEL.hi - Math.log10(lambda)) / (VIEW_HEEL.hi - VIEW_HEEL.lo);
+  const pMax = W * 1.4, pMin = 7;
+  const ppl = pMax * Math.pow(pMin / pMax, Math.max(0, Math.min(1, u)));   // px per golflengte
+  const lengte = lambda * W / ppl;                 // m, de lengte van het venster
+  const fs = Math.max(11, Math.min(15, H/5.2));
+  const yLin = H - fs*1.5;                         // liniaal
+  const ym = (yLin - fs*0.6) / 2 + fs*0.2, A = Math.min(ym - 3, (yLin - fs*0.6) * 0.32);
+  const g = gebiedVan(lambda);
+  const kleur = g.id === 'vis' ? rgba(golflengteNaarRGB(lambda*1e9), 1) : g.kleur;
+
+  // Golf
+  gctx.strokeStyle = kleur; gctx.lineWidth = 3; gctx.lineJoin = 'round';
+  gctx.beginPath();
+  for(let x = 0; x <= W; x += 1){
+    const y = ym - A * Math.sin(2*Math.PI * x / ppl - golfFase);
+    x === 0 ? gctx.moveTo(x, y) : gctx.lineTo(x, y);
+  }
+  gctx.stroke();
+
+  // Eén golflengte aangeven: van top tot top, vanaf de eerste top in beeld.
+  let xt = ((golfFase / (2*Math.PI) + 0.25) % 1) * ppl;
+  if(xt < 4) xt += ppl;
+  if(ppl > 30 && xt + ppl < W - 2){
+    const yb = ym - A - 3;
+    gctx.strokeStyle = KLEUR.golfHulp; gctx.lineWidth = 1.5;
+    gctx.setLineDash([3,3]);
+    gctx.beginPath(); gctx.moveTo(xt, yb); gctx.lineTo(xt, ym + A); gctx.moveTo(xt + ppl, yb); gctx.lineTo(xt + ppl, ym + A); gctx.stroke();
+    gctx.setLineDash([]);
+    // Pijl met λ ertussen; midden tussen twee toppen is de golf laag, dus daar is ruimte.
+    const yp = ym - A*0.55;
+    gctx.beginPath(); gctx.moveTo(xt + 3, yp); gctx.lineTo(xt + ppl - 3, yp); gctx.stroke();
+    gctx.fillStyle = KLEUR.golfHulp;
+    for(const [x, r] of [[xt + 3, 1], [xt + ppl - 3, -1]]){
+      gctx.beginPath(); gctx.moveTo(x, yp); gctx.lineTo(x + r*6, yp - 4); gctx.lineTo(x + r*6, yp + 4); gctx.closePath(); gctx.fill();
+    }
+    gctx.font = `700 ${Math.max(11, Math.min(15, H/5.2))*1.1}px ${FONT}`;
+    gctx.textAlign = 'center'; gctx.textBaseline = 'bottom';
+    gctx.fillText('λ', xt + ppl/2, yp - 2);
+    gctx.textBaseline = 'alphabetic';
+  }
+
+  // Liniaal met de lengte van het venster
+  gctx.strokeStyle = KLEUR.zwak; gctx.lineWidth = 1.5;
+  gctx.beginPath();
+  gctx.moveTo(1, yLin - 5); gctx.lineTo(1, yLin + 5);
+  gctx.moveTo(1, yLin); gctx.lineTo(W - 1, yLin);
+  gctx.moveTo(W - 1, yLin - 5); gctx.lineTo(W - 1, yLin + 5);
+  for(let i = 1; i < 10; i++){ const x = W * i / 10; gctx.moveTo(x, yLin); gctx.lineTo(x, yLin + (i === 5 ? 5 : 3)); }
+  gctx.stroke();
+  gctx.font = `600 ${fs}px ${FONT}`;
+  gctx.fillStyle = KLEUR.tekst; gctx.textBaseline = 'alphabetic';
+  gctx.textAlign = 'left'; gctx.fillText('0', 4, H - 2);
+  const u2 = eenheidVoor(lengte, LENGTE_EENHEDEN);
+  gctx.textAlign = 'right'; gctx.fillText(nl(Number((lengte / 10 ** u2.e).toPrecision(2))) + ' ' + u2.s, W - 4, H - 2);
+}
+// Langzaam lopende golf (niet op de echte frequentie). Uit bij 'minder beweging'.
+const stilstaan = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!stilstaan){
+  let vorige = null;
+  const lus = t => {
+    if(vorige !== null) golfFase = (golfFase + (t - vorige) * 0.0025) % (2*Math.PI);
+    vorige = t;
+    tekenGolf();
+    requestAnimationFrame(lus);
+  };
+  requestAnimationFrame(lus);
+}
+new ResizeObserver(tekenGolf).observe(golfDoek);
+
+// ===== Zoomen, schuiven en vliegen =====
+let actief = 'heel';                     // welke snelknop oplicht; null na zelf zoomen
+let anim = null;
+
+function zetView(v, knop = null){
+  view = begrens(v);
+  actief = knop;
+  werkKnoppenBij();
+  herteken();
+}
+let kleinTimer = null;
+function stopAnim(){
+  if(anim){ cancelAnimationFrame(anim); anim = null; }
+  if(kleinTimer){ clearTimeout(kleinTimer); kleinTimer = null; }
+}
+
+// Vloeiend naar een venster: het midden schuift gelijkmatig, de breedte verandert
+// met een vaste factor per tijdseenheid, zodat inzoomen over 16 decaden niet schokt.
+// randen: de randen van het venster zelf laten schuiven in plaats van midden en breedte;
+// bij "Hoe klein is zichtbaar?" blijft de rechterrand zo op zijn plek.
+function vliegNaar(doel, knop = null, ms = 750, dwangDoel = 0, klaar = null, randen = false){
+  stopAnim();
+  if(dwangAnim){ cancelAnimationFrame(dwangAnim); dwangAnim = null; }
+  doel = begrens(doel);
+  const van = {...view}, d0 = dwang;
+  const c0 = (van.hi + van.lo) / 2, c1 = (doel.hi + doel.lo) / 2;
+  const s0 = Math.log(van.hi - van.lo), s1 = Math.log(doel.hi - doel.lo);
+  const start = performance.now();
+  actief = knop; werkKnoppenBij();
+  const stap = nu => {
+    const k = Math.min(1, (nu - start) / ms);
+    const e = k < 0.5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3) / 2;
+    if(randen){
+      view = begrens({hi: van.hi + (doel.hi - van.hi) * e, lo: van.lo + (doel.lo - van.lo) * e});
+    } else {
+      const span = Math.exp(s0 + (s1 - s0) * e), c = c0 + (c1 - c0) * e;
+      view = begrens({hi: c + span/2, lo: c - span/2});
+    }
+    dwang = d0 + (dwangDoel - d0) * e;
+    tekenSpectrum();
+    anim = k < 1 ? requestAnimationFrame(stap) : null;
+    if(k >= 1 && klaar) klaar();
+  };
+  anim = requestAnimationFrame(stap);
+}
+
+// Zelf zoomen of schuiven tijdens "Hoe klein is zichtbaar?": terug naar de gewone as.
+// Het venster blijft staan; de as glijdt in 0,4 s terug.
+let dwangAnim = null;
+function verlaatKlein(){
+  if(dwang === 0) return;
+  stopAnim();
+  if(actief === 'klein'){ actief = null; werkKnoppenBij(); }
+  const d0 = dwang, start = performance.now();
+  const stap = nu => {
+    const k = Math.min(1, (nu - start) / 400);
+    dwang = d0 * (1 - k);
+    tekenSpectrum();
+    dwangAnim = k < 1 ? requestAnimationFrame(stap) : null;
+  };
+  if(dwangAnim) cancelAnimationFrame(dwangAnim);
+  dwangAnim = requestAnimationFrame(stap);
+}
+
+// "Hoe klein is zichtbaar?": begin bij de regenboog op een lineaire as en zoom
+// telkens 10× uit, met de as lineair. Het zichtbare deel krimpt tot een streepje.
+// Eerst gewoon naar de regenboog (die staat dan al op een lineaire as). Daarna blijft de
+// rechterrand op 350 nm staan en loopt alleen de linkerrand op: elke stap stopt precies op
+// het volgende voorwerp, zodat de balk dan echt zo lang is als een mier, een bus, enzovoort.
+// Tijdens een vlucht staat het voorwerp waar je heen gaat in beeld; zo springt er niets.
+let kleinVoorwerp = null;
+// In eigen tempo: na de vlucht naar de regenboog wacht de tool. Tik op de balk, spatie of →
+// geeft de volgende stap, ← de vorige. Elke stap stopt precies op een voorwerp.
+let kleinStappen = [], kleinStap = -1, kleinBegin = null;
+function inKlein(){ return actief === 'klein' && dwang > 0.5; }
+function hoeKlein(){
+  gekozen = null;
+  kleinVoorwerp = null;
+  for(const o of VOORWERPEN) plaatjeBeeld(o.img, KLEUR_VOORWERP, herteken);   // vast laden
+  kleinBegin = GEBIEDEN.find(g => g.id === 'vis').doel;
+  kleinStappen = VOORWERPEN.filter(o => o.m > 10 ** kleinBegin.hi && o.m <= 10 ** VIEW_HEEL.hi)
+    .map(o => ({hi: Math.log10(o.m), lo: kleinBegin.lo, o}));
+  kleinStap = -1;
+  vliegNaar(kleinBegin, 'klein', 750, 0, () => {
+    dwang = 1;                           // de as is hier al lineair, dus dit zie je niet
+    tekenSpectrum();
+  });
+}
+function kleinGa(i){
+  if(i < -1 || i >= kleinStappen.length) return;
+  kleinStap = i;
+  kleinVoorwerp = i >= 0 ? kleinStappen[i].o : null;
+  vliegNaar(i >= 0 ? kleinStappen[i] : kleinBegin, 'klein', 1000, 1, null, true);
+}
+
+function naarGebied(id){
+  if(id === 'klein'){ inKlein() ? kleinGa(kleinStap + 1) : hoeKlein(); return; }
+  if(id === 'heel'){ vliegNaar(VIEW_HEEL, 'heel'); return; }
+  const g = GEBIEDEN.find(g => g.id === id);
+  if(markerL > g.doel.hi || markerL < g.doel.lo) zetMarker(Math.log10(g.typisch));
+  vliegNaar(g.doel, id);
+}
+
+// Zoomen met de knoppen: rond de marker als die in beeld is, anders rond het midden.
+function zoomStap(factor){
+  if(dwang > 0){ verlaatKlein(); return; }
+  const um = uVan(markerL);
+  const u0 = um >= 0 && um <= 1 ? um : 0.5;
+  const La = LvanU(u0);
+  vliegNaar(verankerd(La, u0, (view.hi - view.lo) * factor), null, 300);
+}
+
+// ===== Knoppen =====
+const balk = document.getElementById('snel');
+const knoppen = {};
+function maakKnop(id, tekst, toets, kleur){
+  const b = document.createElement('button');
+  b.className = 'snelknop';
+  b.type = 'button';
+  b.innerHTML = (kleur ? `<span class="stip" style="background:${kleur}"></span>` : '') +
+    `<span>${tekst}</span><kbd>${toets}</kbd>`;
+  b.title = `${tekst} (toets ${toets})`;
+  b.addEventListener('click', () => naarGebied(id));
+  balk.appendChild(b);
+  knoppen[id] = b;
+}
+maakKnop('heel', 'Heel spectrum', 0, null);
+GEBIEDEN.forEach((g, i) => maakKnop(g.id, g.knop, i + 1,
+  g.id === 'vis' ? 'linear-gradient(90deg,#f33,#fd3,#3d5,#38f,#a4f)' : g.kleur));
+maakKnop('klein', 'Hoe klein is zichtbaar?', 9, null);
+knoppen.klein.classList.add('klein');
+function werkKnoppenBij(){
+  for(const [id, b] of Object.entries(knoppen)) b.classList.toggle('actief', id === actief);
+  // Op een smal scherm schuift de rij knoppen mee, zodat de actieve knop in beeld is.
+  const b = knoppen[actief];
+  if(b && balk.scrollWidth > balk.clientWidth){
+    balk.scrollTo({left: b.offsetLeft - (balk.clientWidth - b.offsetWidth) / 2, behavior: 'smooth'});
+  }
+}
+werkKnoppenBij();
+document.getElementById('zoomIn').addEventListener('click', () => zoomStap(0.5));
+document.getElementById('zoomUit').addEventListener('click', () => zoomStap(2));
+
+// ===== Invoerveld =====
+const gaNaar = document.getElementById('gaNaar');
+const gaNaarVeld = document.getElementById('gaNaarVeld');
+const gaNaarFout = document.getElementById('gaNaarFout');
+gaNaar.addEventListener('submit', e => {
+  e.preventDefault();
+  const r = leesInvoer(gaNaarVeld.value);
+  if(r.fout){ toonFout(r.fout); return; }
+  const L = Math.log10(r.lambda);
+  if(L > L_MAX + 1e-9 || L < L_MIN - 1e-9){
+    toonFout('Dat valt buiten deze tool: die loopt van 100 km tot 0,1 pm.');
+    return;
+  }
+  toonFout('');
+  stopAnim(); stopGlij(); verlaatKlein();
+  zetMarker(L, false, true);            // precies de getypte waarde
+  // Naar het gebied van die golflengte, tenzij hij al ingezoomd in beeld staat.
+  const u = uVan(L), span = view.hi - view.lo;
+  if(u < 0.03 || u > 0.97 || span > 6){
+    const g = gebiedVan(r.lambda);
+    vliegNaar(L > g.doel.hi || L < g.doel.lo ? verankerd(L, 0.5, g.doel.hi - g.doel.lo) : g.doel, g.id);
+  }
+  gaNaarVeld.blur();
+});
+function toonFout(tekst){
+  gaNaarFout.textContent = tekst;
+  gaNaarFout.classList.toggle('toon', !!tekst);
+}
+gaNaarVeld.addEventListener('input', () => toonFout(''));
+gaNaarVeld.addEventListener('keydown', e => { if(e.key === 'Escape'){ toonFout(''); gaNaarVeld.blur(); } });
+
+// ===== Aanwijzen: muis, pen en vingers =====
+// Eén vinger op de marker: marker slepen. Eén vinger elders op de balk of op de assen:
+// vegen (schuiven), met doorglijden na een snelle veeg. Tikken zonder vegen: de marker
+// springt daarheen. Twee vingers: knijpen om te zoomen.
+const wijzers = new Map();
+let modus = null, greep = null;
+let glij = null;                         // doorglijden na een veeg
+let spoor = [];                          // laatste posities, voor de snelheid
+function stopGlij(){ if(glij){ cancelAnimationFrame(glij); glij = null; } }
+function startGlij(){
+  if(spoor.length < 2) return;
+  const a = spoor[0], b = spoor[spoor.length - 1];
+  if(b.t - a.t < 10 || performance.now() - b.t > 80) return;   // vinger stond al stil
+  let v = (b.x - a.x) / (b.t - a.t);                              // px per ms
+  if(Math.abs(v) < 0.15) return;
+  let x = b.x, vorige = performance.now();
+  const La = greep.La;
+  const stap = nu => {
+    const dt = nu - vorige; vorige = nu;
+    x += v * dt;
+    v *= Math.pow(0.94, dt / 16);
+    zetView(verankerd(La, uVanClient(x), view.hi - view.lo));
+    glij = Math.abs(v) > 0.02 ? requestAnimationFrame(stap) : null;
+  };
+  glij = requestAnimationFrame(stap);
+}
+function uVanClient(clientX){
+  const r = canvas.getBoundingClientRect();
+  return (clientX - r.left - geo.x0) / geo.bw;
+}
+function startKnijp(){
+  const [p, q] = [...wijzers.values()];
+  const um = (uVanClient(p.x) + uVanClient(q.x)) / 2;
+  greep = {La: LvanU(um), span: view.hi - view.lo, d: Math.max(20, Math.abs(p.x - q.x))};
+  modus = 'knijp';
+}
+canvas.addEventListener('pointerdown', e => {
+  if(!geo) return;
+  const r = canvas.getBoundingClientRect();
+  const y = e.clientY - r.top, x = e.clientX - r.left;
+  const label = wijzers.size === 0 && (geo.labels || []).find(v => x >= v.x && x <= v.x + v.w && y >= v.y && y <= v.y + v.h);
+  if(label){ kiesToepassing(label.t); e.preventDefault(); return; }
+  if(y < geo.bandTop - 40 || y > geo.yOnder + 30) return;
+  if(inKlein() && wijzers.size === 0){
+    try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+    wijzers.set(e.pointerId, {x: e.clientX});
+    spoor = [{x: e.clientX, t: performance.now()}];
+    modus = 'kleintik';
+    greep = {x0: e.clientX};
+    e.preventDefault();
+    return;
+  }
+  stopAnim(); stopGlij(); verlaatKlein();
+  try{ canvas.setPointerCapture(e.pointerId); }catch(err){}   // kan falen bij een al losgelaten vinger
+  wijzers.set(e.pointerId, {x: e.clientX});
+  spoor = [{x: e.clientX, t: performance.now()}];
+  canvas.focus({preventScroll:true});
+  e.preventDefault();
+  if(wijzers.size === 2){ startKnijp(); return; }
+  if(wijzers.size > 2) return;
+  const u = uVanClient(e.clientX);
+  const opMarker = Math.abs(x - geo.xm) <= Math.max(28, geo.fs*1.6);
+  if(y <= geo.bandBot + 4 && opMarker){
+    modus = 'marker';
+  } else {
+    // Nog niet bekend of het een tik of een veeg wordt: dat blijkt bij bewegen.
+    modus = y <= geo.bandBot + 4 ? 'tik' : 'schuif';
+    greep = {La: LvanU(Math.max(0, Math.min(1, u))), x0: e.clientX, uTik: u};
+  }
+});
+canvas.addEventListener('pointermove', e => {
+  if(!wijzers.has(e.pointerId)) {
+    if(geo){
+      const y = e.clientY - canvas.getBoundingClientRect().top;
+      const x = e.clientX - canvas.getBoundingClientRect().left;
+      const opMarker = y <= geo.bandBot + 4 && Math.abs(x - geo.xm) <= Math.max(28, geo.fs*1.6);
+      canvas.style.cursor = opMarker ? 'ew-resize' : y > geo.bandTop - 40 && y < geo.yOnder + 30 ? 'grab' : '';
+    }
+    return;
+  }
+  wijzers.get(e.pointerId).x = e.clientX;
+  spoor.push({x: e.clientX, t: performance.now()});
+  if(spoor.length > 6) spoor.shift();
+  const u = uVanClient(e.clientX);
+  if(modus === 'tik' && Math.abs(e.clientX - greep.x0) > 8) modus = 'schuif';
+  if(modus === 'kleintik' && Math.abs(e.clientX - greep.x0) > 8){
+    // Toch vegen: de reeks verlaten en gewoon schuiven.
+    stopAnim(); verlaatKlein();
+    modus = 'schuif';
+    greep = {La: LvanU(Math.max(0, Math.min(1, uVanClient(greep.x0))))};
+  }
+  if(modus === 'marker'){
+    zetMarker(LvanU(Math.max(0, Math.min(1, u))));
+  } else if(modus === 'schuif'){
+    canvas.style.cursor = 'grabbing';
+    zetView(verankerd(greep.La, u, view.hi - view.lo));
+  } else if(modus === 'knijp' && wijzers.size >= 2){
+    const [p, q] = [...wijzers.values()];
+    const um = (uVanClient(p.x) + uVanClient(q.x)) / 2;
+    const d = Math.max(20, Math.abs(p.x - q.x));
+    zetView(verankerd(greep.La, um, greep.span * greep.d / d));
+  }
+});
+function loslaten(e){
+  wijzers.delete(e.pointerId);
+  if(wijzers.size === 0){
+    if(modus === 'tik') zetMarker(LvanU(Math.max(0, Math.min(1, greep.uTik))));
+    else if(modus === 'kleintik') kleinGa(kleinStap + 1);
+    else if(modus === 'schuif' && e.type === 'pointerup') startGlij();
+    modus = null; canvas.style.cursor = '';
+  }
+  else if(wijzers.size === 1 && modus === 'knijp'){
+    // Eén vinger blijft over: verder schuiven vanaf die plek.
+    const [p] = [...wijzers.values()];
+    modus = 'schuif';
+    greep = {La: LvanU(Math.max(0, Math.min(1, uVanClient(p.x))))};
+  }
+}
+canvas.addEventListener('pointerup', loslaten);
+canvas.addEventListener('pointercancel', loslaten);
+
+// Scrollwiel: zoomen rond de muis. Zijwaarts scrollen (touchpad) schuift.
+canvas.addEventListener('wheel', e => {
+  if(!geo) return;
+  e.preventDefault();
+  stopAnim(); stopGlij(); verlaatKlein();
+  const schaal = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
+  const dx = e.deltaX * schaal, dy = e.deltaY * schaal;
+  if(Math.abs(dx) > Math.abs(dy)){
+    const La = LvanU(Math.max(0, Math.min(1, 0.5 + dx / geo.bw)));
+    zetView(verankerd(La, 0.5, view.hi - view.lo));
+  } else {
+    const u = Math.max(0, Math.min(1, uVanClient(e.clientX)));
+    const La = LvanU(u);
+    zetView(verankerd(La, u, (view.hi - view.lo) * Math.exp(dy * 0.0015)));
+  }
+}, {passive:false});
+
+// ===== Toetsen =====
+// Pijltjes: marker een kleine stap (1/200 van de breedte), met Shift tien keer zo groot.
+// Cijfers 0 t/m 7: snelknoppen. + en −: zoomen.
+document.addEventListener('keydown', e => {
+  if(e.target.closest && e.target.closest('input, textarea, select')) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  if(inKlein() && (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowLeft')){
+    kleinGa(kleinStap + (e.key === 'ArrowLeft' ? -1 : 1));
+    e.preventDefault();
+    return;
+  }
+  if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
+    verlaatKlein();
+    const richting = e.key === 'ArrowLeft' ? -1 : 1;
+    const um = uVan(markerL);
+    const u = (um >= 0 && um <= 1 ? um : 0.5) + richting * (e.shiftKey ? 0.05 : 0.005);
+    const oud = markerL;
+    let L = rond3(LvanU(u));
+    // Ver ingezoomd is een stap kleiner dan het laatste cijfer: dan één cijfer verder.
+    if(L === oud){
+      const lambda = 10 ** oud, q = 10 ** (Math.floor(Math.log10(lambda)) - 2);
+      L = Math.log10(lambda - richting * q);
+    }
+    zetMarker(L);
+    const un = uVan(markerL);
+    if(un < 0.02 || un > 0.98){ stopAnim(); zetView(verankerd(markerL, un < 0.02 ? 0.05 : 0.95, view.hi - view.lo)); }
+    e.preventDefault();
+    return;
+  }
+  if(e.key === '/'){
+    gaNaarVeld.focus(); gaNaarVeld.select(); e.preventDefault(); return;
+  }
+  if(e.key === 'Escape' && !hulpEl.hidden){
+    zetHulp(false); e.preventDefault();
+  } else if(e.key === '?'){
+    zetHulp(hulpEl.hidden); e.preventDefault();
+  } else if(e.key === 'f' || e.key === 'F'){
+    zetVolscherm(!document.body.classList.contains('volscherm')); e.preventDefault();
+  } else if(e.key === 'i' || e.key === 'I'){
+    zetInfo(!lagen.info); e.preventDefault();
+  } else if(e.key === '9'){
+    inKlein() ? kleinGa(kleinStap + 1) : hoeKlein(); e.preventDefault();
+  } else if(/^[0-7]$/.test(e.key)){
+    naarGebied(e.key === '0' ? 'heel' : GEBIEDEN[Number(e.key) - 1].id);
+    e.preventDefault();
+  } else if(e.key === '+' || e.key === '='){
+    zoomStap(0.5); e.preventDefault();
+  } else if(e.key === '-' || e.key === '_'){
+    zoomStap(2); e.preventDefault();
+  }
+});
+
+new ResizeObserver(herteken).observe(document.querySelector('.bar-wrap'));
+if(document.fonts) document.fonts.ready.then(herteken);
+// Startsituatie uit de link, bijvoorbeeld ?l=589nm&gebied=vis&lagen=frequentie,energie
+// (lagen=alles of lagen=geen mag ook). Zo kan een les beginnen waar je wilt.
+(function(){
+  const q = new URLSearchParams(location.search);
+  const lagenQ = q.get('lagen');
+  if(lagenQ !== null){
+    const aan = lagenQ === 'alles' ? LAGEN.map(l => l.id) : lagenQ.split(',').map(t => t.trim());
+    lagen = Object.fromEntries(LAGEN.map(l => [l.id, aan.includes(l.id)]));
+    pasLagenToe();
+  }
+  const l = q.get('l') || q.get('λ');
+  let lambda = null;
+  if(l){
+    const r = leesInvoer(l);
+    if(r.lambda && r.lambda <= 10 ** L_MAX && r.lambda >= 10 ** L_MIN){ lambda = r.lambda; zetMarker(Math.log10(lambda), false, true); }
+  }
+  const gebied = q.get('gebied');
+  const g = GEBIEDEN.find(g => g.id === gebied);
+  if(g){ view = begrens(g.doel); actief = g.id; }
+  else if(gebied === 'heel'){ view = {...VIEW_HEEL}; actief = 'heel'; }
+  else if(lambda){ const gg = gebiedVan(lambda); view = begrens(gg.doel); actief = gg.id; }
+  werkKnoppenBij();
+})();
+
+werkPaneelBij();
+tekenSpectrum();
+</script>
+</body>
+</html>

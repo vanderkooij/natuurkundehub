@@ -25,7 +25,7 @@
 
 ### Modern & kern
 - [ ] Radioactief verval-simulator — halveringstijd visualiseren, vervalketens stap voor stap
-- [ ] EM-spectrum verkenner — schaalverdeling radio→gamma, golflengte/frequentie/energie interactief koppelen
+- [ ] EM-spectrum verkenner. Spectrumbalk van radio tot gamma met doorlopend zoomen (logaritmisch naar lineair), marker met live λ, f en E, golf op schaal en infopaneel per gebied; voor de docent op het digibord. Plan in `plannen/em-spectrum.md`, map `em-spectrum/`. Stap 1 (spectrumbalk met logaritmische as), stap 2 (marker met live λ, f en E), stap 3 (zoomen van logaritmisch naar lineair, snelknoppen), stap 4 (knop *Hoe klein is zichtbaar?*), stap 4b (toepassingen en deelgebieden op de as), stap 5 (golfweergave), stap 6 (infopaneel per gebied), 6b (infokaart per apparaat), het menu Weergave en stap 7 (invoerveld, vegen) gebouwd 2026-10-12; alleen stap 8 (testen op het digibord) staat nog open; nog niet in `build.sh` en niet op de homepage.
 
 ### Optica & golven (lagere prioriteit)
 - [ ] Stralengang tekenen — lenzen, spiegels: bron plaatsen, stralen tekenen, beeld bepalen
