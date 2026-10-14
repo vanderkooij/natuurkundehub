@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Systeembord online: schakelingen bouwen en testen · NatuurkundeHub</title>
+    <meta name="description" content="Het systeembord in je browser: bouw schakelingen met sensoren, comparators, poorten, geheugencel en pulsenteller, en zie het signaal door de draden lopen. Gratis.">
+    <link rel="canonical" href="https://natuurkundehub.nl/systeembord/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NatuurkundeHub">
+    <meta property="og:locale" content="nl_NL">
+    <meta property="og:title" content="Systeembord online: schakelingen bouwen en testen">
+    <meta property="og:description" content="Het systeembord in je browser: bouw schakelingen met sensoren, comparators, poorten, geheugencel en pulsenteller, en zie het signaal door de draden lopen. Gratis.">
+    <meta property="og:url" content="https://natuurkundehub.nl/systeembord/">
+    <meta property="og:image" content="https://natuurkundehub.nl/assets/og/systeembord.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Het systeembord met een thermostaat: temperatuursensor, comparator, invertor en een relais dat een kachel schakelt. Wat hoog is kleurt oranje.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_light.svg" id="favicon" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // nh-theme toepassen vóór render om FOUC te voorkomen.
+      (function () {
+        try {
+          const saved = localStorage.getItem("nh-theme");
+          const prefersDark =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const theme = saved ? saved : prefersDark ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+          const favicon = document.getElementById("favicon");
+          if (favicon) {
+            favicon.href =
+              theme === "dark" ? "../assets/logo/JK_dark.svg" : "../assets/logo/JK_light.svg";
+          }
+        } catch (_) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

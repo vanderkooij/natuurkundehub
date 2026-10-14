@@ -27,6 +27,11 @@ cd circuitflow
 npm run build
 cd ..
 
+# Build de Systeembord Vite app (workspace)
+cd systeembord
+npm run build
+cd ..
+
 # Maak de output map aan
 rm -rf dist
 mkdir -p dist
@@ -66,6 +71,9 @@ cp -r videometen/dist dist/videometen
 
 # Kopieer de gebouwde CircuitFlow app
 cp -r circuitflow/dist dist/circuitflow
+
+# Kopieer de gebouwde Systeembord app
+cp -r systeembord/dist dist/systeembord
 
 # Genereer de sitemap uit alle pagina's in dist/ (moet als laatste)
 node scripts/sitemap.mjs

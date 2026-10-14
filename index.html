@@ -373,6 +373,20 @@
   .card:hover .ov-flow--main { animation: flow .9s linear infinite; }
   .card:hover .ov-flow--branch { animation: flow 1.4s linear infinite; }
   @keyframes flow { to { stroke-dashoffset: -72; } }
+  /* Systeembord: het signaal loopt naar het relais, het relais klapt om en er loopt stroom door de snoeren (2,4 s) */
+  .sb-ov-laag { fill: none; stroke: #64748b; stroke-width: 5; stroke-linecap: round; }
+  .sb-ov-golf { fill: none; stroke: #f2711c; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 100 100; stroke-dashoffset: 100; filter: drop-shadow(0 0 4px rgba(242, 113, 28, .8)); }
+  .sb-ov-wis { fill: #f3f4f6; }
+  .sb-ov-stomp { stroke: #3b4250; stroke-width: 2.5; }
+  .sb-ov-hefboom { stroke: #3b4250; stroke-width: 3; stroke-linecap: round; transform-box: view-box; transform-origin: 809.7px 433.9px; transform: rotate(32deg); }
+  .card:hover .sb-ov-golf { animation: sbGolf 2.4s linear infinite; }
+  .card:hover .sb-ov-hefboom { animation: sbRelais 2.4s ease-in-out infinite; }
+  .sb-ov-snoer { fill: none; stroke: #3b4250; stroke-width: 1.8; stroke-linejoin: round; }
+  .sb-ov-stekker { fill: #3b4250; stroke: #f3f4f6; stroke-width: 1; }
+  .card:hover .sb-ov-uit { animation: sbStroom 2.4s linear infinite; }
+  @keyframes sbGolf { 0%, 10% { stroke-dashoffset: 100; } 40%, 100% { stroke-dashoffset: 0; } }
+  @keyframes sbRelais { 0%, 45% { transform: rotate(32deg); stroke: #3b4250; } 55%, 92% { transform: rotate(0deg); stroke: #f2711c; } 100% { transform: rotate(32deg); stroke: #3b4250; } }
+  @keyframes sbStroom { 0%, 50% { opacity: 1; } 55%, 92% { opacity: 0; } 100% { opacity: 1; } }
   .stage-badge {
     position: absolute;
     top: 10px; left: 10px;
@@ -582,6 +596,7 @@
     <a class="chip" href="#basis">Basisvaardigheden <span class="count">4</span></a>
     <a class="chip" href="#beweging">Beweging en kracht <span class="count">3</span></a>
     <a class="chip" href="#elektriciteit">Elektriciteit <span class="count">2</span></a>
+    <a class="chip" href="#automatisering">Automatisering <span class="count">1</span></a>
   </div>
 </div>
 
@@ -591,7 +606,7 @@
   <section class="category" id="basis">
     <div class="category-head">
       <h2>Basisvaardigheden</h2>
-      <span class="sub">Wat je bij elk hoofdstuk nodig hebt</span>
+      <span class="sub">Wat je bij elk onderwerp nodig hebt</span>
     </div>
     <div class="grid">
 
@@ -801,6 +816,46 @@
           <div class="card-title"><h3>CircuitSketch</h3><span class="arrow">→</span></div>
           <p>Teken nette schakelschema's voor je verslag, samenvatting of het bord.</p>
           <div class="tags"><span class="tag tag--niveau">alle klassen</span><span class="tag">tekenen</span></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ============ Automatisering ============ -->
+  <section class="category" id="automatisering">
+    <div class="category-head">
+      <h2>Automatisering</h2>
+      <span class="sub">Sensoren, poorten en het systeembord</span>
+    </div>
+    <div class="grid">
+
+      <a href="/systeembord/" class="card" data-name="Systeembord" data-keys="systeembord automatisering automaat sensor comparator poort en of niet invertor geheugencel pulsenteller teller pulsgenerator relais waarheidstabel logica digitaal analoog thermostaat lichtsensor ldr">
+        <div class="stage">
+          <div class="shot" style="--ox: 57.44%; --oy: 64.9%; --zoom: 3.2">
+            <img src="/assets/og/systeembord.webp" alt="" loading="lazy">
+            <svg class="overlay" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+              <path class="sb-ov-laag" d="M619.3 379.3 Q 691.9 445.9 764.5 422.3"/>
+              <path class="sb-ov-golf" pathLength="100" d="M619.3 379.3 Q 691.9 445.9 764.5 422.3"/>
+              <rect class="sb-ov-wis" x="802.3" y="411.3" width="15" height="31"/>
+              <path class="sb-ov-uit sb-ov-snoer" d="M810.2 403.5 V385.1 H866.4 V77.0 H358.6 V120.6"/>
+              <path class="sb-ov-uit sb-ov-snoer" d="M832.5 403.5 V390.9 H872.2 V71.2 H347.0 V120.6"/>
+              <path class="sb-ov-uit sb-ov-snoer" d="M832.5 448.1 V452.0 H894.5 V463.6"/>
+              <path class="sb-ov-uit sb-ov-snoer" d="M810.2 448.1 V457.8 H882.9 V463.6"/>
+              <circle class="sb-ov-uit sb-ov-stekker" cx="810.2" cy="403.5" r="4.4"/>
+              <circle class="sb-ov-uit sb-ov-stekker" cx="832.5" cy="403.5" r="4.4"/>
+              <circle class="sb-ov-uit sb-ov-stekker" cx="810.2" cy="448.1" r="4.4"/>
+              <circle class="sb-ov-uit sb-ov-stekker" cx="832.5" cy="448.1" r="4.4"/>
+              <path class="sb-ov-stomp" d="M809.7 410.3 V418.3 M809.7 434.3 V443.3"/>
+              <line class="sb-ov-hefboom" x1="809.7" y1="433.9" x2="809.7" y2="418.3"/>
+            </svg>
+          </div>
+          <span class="stage-badge">Lab</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>Systeembord</h3><span class="arrow">→</span></div>
+          <p>Het systeembord uit het lokaal: bouw een automaat met sensoren, poorten en een teller.</p>
+          <div class="tags"><span class="tag tag--niveau">bovenbouw</span><span class="tag">simuleren</span></div>
         </div>
       </a>
 

@@ -57,6 +57,9 @@ natuurkundehub/
 │   ├── js/grafiek.js                 # x,t-, v,t- en a,t-diagram als SVG, met of zonder getallen
 │   ├── js/karretje.js                # Baan met karretje en afdrukjes; scène die alles synchroon afspeelt
 │   └── tests/                        # beweging, getallen en koppel: npm run test:bewegingen
+├── systeembord/                      # Vite/React-workspace (zoals CircuitFlow); alleen systeembord/dist/ wordt gedeployed
+│   ├── public/over/index.html        # Infopagina /systeembord/over/ (Vite kopieert hem mee)
+│   └── src/                          # sim/ (rekenkern, tests), bord/ (tekenen, bediening), bestand/ (opslaan, link, XML, voorbeelden)
 ├── dist/                             # Gebouwde versies (automatisch, niet handmatig bewerken)
 ├── build.sh                          # Build-script — bron van waarheid voor wat er gedeployed wordt
 └── workflow.md                       # Dit bestand
@@ -73,7 +76,7 @@ natuurkundehub/
 
 ## Homepage
 
-De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht en Elektriciteit. Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
+De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht, Elektriciteit en Automatisering. Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
 
 **Tegel toevoegen.** Kopieer een bestaande `<a class="card">` binnen de juiste `<section class="category">` en vul in:
 
@@ -159,6 +162,7 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 **Regels** (gelden voor elke nieuwe tool, tenzij expliciet anders besloten):
 
 - Keuzepagina's (waar de gebruiker eerst een modus kiest) mogen een hero-sectie hebben met titel en subtitel.
+- Een gekleurd woorddeel in een titel (zoals *bord* in Systeem**bord**) is effen cyaan (`var(--accent)`), net als *Hub* in het logo. Geen kleurverloop in tekst (besloten 2026-10-14).
 - Tool-pagina's starten direct met de tool, zonder hero. Ze tonen wel een gecentreerde toolnaam (`.tool-name`) direct onder de header als ankerpunt — zonder badge of decoratie.
 - Badges die de paginanaam herhalen worden nooit gebruikt — de breadcrumb volstaat.
 
@@ -182,6 +186,7 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/bewegingsgrafieken/uitleg/` | Bewegingsgrafieken |
 | `/bewegingsgrafieken/oefenen/` | Oefenen |
 | `/circuitsketch/` | CircuitSketch |
+| `/systeembord/` | Systeembord *(in de header, met de werkbalk ernaast)* |
 | `/contact/` | Contact & Feedback |
 
 ## Header stijl

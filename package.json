@@ -5,7 +5,8 @@
     "packages/*",
     "videometen",
     "modelleren-app",
-    "circuitflow"
+    "circuitflow",
+    "systeembord"
   ],
   "scripts": {
     "build": "bash build.sh",
