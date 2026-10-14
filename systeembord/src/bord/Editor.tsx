@@ -3,6 +3,7 @@ import { ListChecks } from "lucide-react";
 import { createPortal } from "react-dom";
 
 import {
+  dradenZonderAarde,
   isHoog,
   maakWaarheidstabel,
   RELAIS_APPARATEN,
@@ -194,6 +195,11 @@ export function Editor() {
     });
   };
 
+  // Een draad tussen twee borden waarvan de aardes niet verbonden zijn.
+  const zonderAarde = useMemo(
+    () => dradenZonderAarde(s.schakeling).size > 0,
+    [s.schakeling],
+  );
   const inhoud = useMemo(
     () => omhullingMetOpstelling(s.schakeling),
     [s.schakeling],
@@ -502,6 +508,15 @@ export function Editor() {
               ) : gekozen ? (
                 <div className="rounded-xl border border-(--border-solid) bg-card px-4 py-2 text-sm text-(--text-secondary) shadow-md">
                   Tik op een tweede bus om de draad te maken.
+                </div>
+              ) : zonderAarde ? (
+                <div
+                  role="status"
+                  className="rounded-xl border border-amber-400 bg-card px-4 py-2 text-sm text-(--text-primary) shadow-md"
+                >
+                  Een draad gaat naar een ander bord, maar de aardes zijn niet
+                  verbonden. Verbind de zwarte aardebussen (onder het relais)
+                  met elkaar.
                 </div>
               ) : null}
             </div>

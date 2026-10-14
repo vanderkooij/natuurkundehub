@@ -214,3 +214,10 @@ Jop kon niet ontdekken hoe je met een lamp, LDR of kachel werkt. Verbeterd:
 - Waarheidstabel opent standaard op Zelf invullen; Laat zien pas na een klik.
 - Weggeklikt eisenkaartje: knopje "Eisen en flowchart" linksboven haalt het terug.
 - Licentie: advies is geen licentie toevoegen (Jop beslist). De code is van Jop; Jeroen staat bij Over deze tool.
+
+## Achtste ronde (2026-10-14): aarde
+
+- Elk bord heeft rechtsonder, onder het relais, een vak met het NatuurkundeHub-logo, SYSTEEMBORD en de zwarte aardebus (module `aarde`, alleen op het bord). Jop wilde geen CMA-logo.
+- Een aardebus verbind je alleen met een andere aardebus. Een draad van het ene bord naar het andere geeft pas iets door als hun aardes (eventueel via een derde bord) verbonden zijn; anders is hij gestippeld en verschijnt een melding. Losse modules werken altijd, zonder aarde.
+- Het zwarte snoer van de voltmeter zit in de aardebus van het bord waarop je meet.
+- Bestanden en links van voor de aardebus krijgen hem bij het openen alsnog (`metAarde`).

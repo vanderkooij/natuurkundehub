@@ -16,6 +16,7 @@ import {
   type OmgevingInstelling,
   type PlekToestand,
 } from "./omgeving";
+import { dradenZonderAarde, isAardeDraad } from "./schakeling";
 import { isHoog } from "./signaal";
 import type { ModuleInstantie, Schakeling, Toestand } from "./types";
 
@@ -106,7 +107,11 @@ export class Simulator {
       this.perId.set(m.id, knoop);
       return knoop;
     });
+    // Een draad naar een ander bord zonder verbonden aarde geeft niets door;
+    // een draad tussen twee aardes draagt geen signaal.
+    const zonderAarde = dradenZonderAarde(s);
     for (const d of s.draden) {
+      if (zonderAarde.has(d.id) || isAardeDraad(s, d)) continue;
       const van = this.perId.get(d.van.module);
       const naar = this.perId.get(d.naar.module);
       if (van && naar) naar.bron[d.naar.bus] = { knoop: van, bus: d.van.bus };

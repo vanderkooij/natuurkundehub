@@ -20,6 +20,10 @@ export interface ModuleDef {
   kolom: Kolom;
   /** Zit niet op het echte bord; alleen los toe te voegen. */
   extra?: boolean;
+  /** Hoort bij het bord zelf; niet los toe te voegen (de aardebus). */
+  alleenOpBord?: boolean;
+  /** Aardebussen: geen in- of uitgang, je verbindt ze alleen met elkaar. */
+  aarde?: readonly string[];
   ingangen: readonly string[];
   uitgangen: readonly string[];
   /** Geeft een spanning tussen 0 en 5 V (niet alleen hoog of laag): die staat als getal bij de draad. */
@@ -264,6 +268,20 @@ const defs: ModuleDef[] = [
     }),
     // Of de contacten dicht zijn; zie RELAIS_SCHAKELTIJD.
     toestand: () => ({ gesloten: false, wacht: 0 }),
+  },
+  {
+    // De zwarte bus rechtsonder op het bord, onder het relais: 0 V. Bij twee
+    // borden verbind je hun aardes, anders geeft een draad van het ene bord
+    // naar het andere geen signaal door.
+    soort: "aarde",
+    naam: "aarde",
+    kolom: "uitvoer",
+    alleenOpBord: true,
+    ingangen: [],
+    uitgangen: [],
+    aarde: ["aarde"],
+    params: () => ({}),
+    bereken: () => ({}),
   },
 ];
 

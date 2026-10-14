@@ -743,6 +743,42 @@ function Inhoud(p: Props) {
         </g>
       );
     }
+    case "aarde":
+      // Zoals rechtsonder op het echte bord: een logo met de naam van het
+      // bord, en de zwarte aardebus met het aardesymbool. Het logo is dat van
+      // NatuurkundeHub (licht en donker thema).
+      return (
+        <g pointerEvents="none">
+          <image
+            href="/assets/logo/JK_light.svg"
+            x={14}
+            y={12}
+            width={32}
+            height={32}
+            className="dark:hidden"
+          />
+          <image
+            href="/assets/logo/JK_dark.svg"
+            x={14}
+            y={12}
+            width={32}
+            height={32}
+            className="hidden dark:inline"
+          />
+          <text
+            className="sb-label"
+            x={14}
+            y={72}
+            style={{ fontSize: 14, fontWeight: 700, letterSpacing: 0.5 }}
+          >
+            SYSTEEMBORD
+          </text>
+          <path
+            d={`M ${166 - BUS_STRAAL} 44 H 140 V 56 M 130 56 H 150 M 134 61 H 146 M 138 66 H 142`}
+            {...lijn}
+          />
+        </g>
+      );
     case "zoemer": {
       const aan = isHoog(p.spanning("in"));
       return (

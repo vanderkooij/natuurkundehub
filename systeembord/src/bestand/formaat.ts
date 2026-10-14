@@ -1,3 +1,4 @@
+import { metAarde } from "@/bord/borden";
 import {
   MODULES,
   standaardOmgeving,
@@ -116,11 +117,18 @@ export function vanTekst(tekst: string): Ingelezen {
     const van = perId.get(d?.van?.module);
     const naar = perId.get(d?.naar?.module);
     if (!van || !naar) continue;
-    if (!MODULES[van.soort].uitgangen.includes(d.van.bus)) continue;
-    if (!MODULES[naar.soort].ingangen.includes(d.naar.bus)) continue;
-    const sleutel = `${naar.id}.${d.naar.bus}`;
-    if (bezet.has(sleutel)) continue; // één draad per ingang
-    bezet.add(sleutel);
+    // Een draad tussen twee aardes, of van een uitgang naar een ingang.
+    const aarde =
+      MODULES[van.soort].aarde?.includes(d.van.bus) === true &&
+      MODULES[naar.soort].aarde?.includes(d.naar.bus) === true &&
+      van.id !== naar.id;
+    if (!aarde) {
+      if (!MODULES[van.soort].uitgangen.includes(d.van.bus)) continue;
+      if (!MODULES[naar.soort].ingangen.includes(d.naar.bus)) continue;
+      const sleutel = `${naar.id}.${d.naar.bus}`;
+      if (bezet.has(sleutel)) continue; // één draad per ingang
+      bezet.add(sleutel);
+    }
     draden.push({
       id: String(d.id ?? `d${draden.length}`),
       van: { ...d.van },
@@ -137,5 +145,9 @@ export function vanTekst(tekst: string): Ingelezen {
     ...(o && isGetal(o.buiten) ? { buiten: o.buiten } : {}),
     ...(o && typeof o.kachel === "boolean" ? { kachel: o.kachel } : {}),
   };
-  return { ok: true, schakeling: { borden, modules, draden, omgeving } };
+  // Bestanden van voor de aardebus: die komt er alsnog bij.
+  return {
+    ok: true,
+    schakeling: metAarde({ borden, modules, draden, omgeving }),
+  };
 }

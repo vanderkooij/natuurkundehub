@@ -9,6 +9,8 @@ interface Props {
   stand: VoltmeterStand;
   /** Gemeten spanning, of null als de pen op geen bus staat. */
   spanning: number | null;
+  /** De aardebus waar het zwarte snoer (de min) in zit, of null zonder bord. */
+  aarde: { x: number; y: number } | null;
   schaal: number;
   onKastDown: (e: React.PointerEvent) => void;
   onPenDown: (e: React.PointerEvent) => void;
@@ -22,6 +24,7 @@ interface Props {
 export function Voltmeter({
   stand,
   spanning,
+  aarde,
   schaal,
   onKastDown,
   onPenDown,
@@ -34,10 +37,34 @@ export function Voltmeter({
     30 + Math.hypot(pen.x - uit.x, pen.y - uit.y) * 0.2,
   );
   const snoer = `M ${uit.x} ${uit.y} C ${uit.x} ${uit.y + hang} ${pen.x} ${pen.y + 40 + hang / 2} ${pen.x} ${pen.y + 44}`;
+  // Het zwarte snoer: van de min van het kastje naar de aardebus.
+  const min = { x: x + (T.breedte - 50) * METER_SCHAAL, y: y + METER.hoogte };
+  const zwart =
+    aarde &&
+    `M ${min.x} ${min.y} C ${min.x} ${min.y + 60} ${aarde.x} ${aarde.y + 60} ${aarde.x} ${aarde.y}`;
   const tekst =
     spanning === null ? "– – –" : `${spanning.toFixed(2).replace(".", ",")} V`;
   return (
     <g>
+      {zwart && aarde && (
+        <g pointerEvents="none">
+          <path
+            d={zwart}
+            fill="none"
+            stroke="#222"
+            strokeWidth={4}
+            strokeLinecap="round"
+          />
+          <circle
+            cx={aarde.x}
+            cy={aarde.y}
+            r={7}
+            fill="#222"
+            stroke="var(--sb-paneel)"
+            strokeWidth={2}
+          />
+        </g>
+      )}
       <path
         d={snoer}
         fill="none"
@@ -99,6 +126,15 @@ export function Voltmeter({
         >
           min aan aarde
         </text>
+        <circle
+          cx={T.breedte - 50}
+          cy={80}
+          r={8}
+          fill="#222"
+          stroke="#3b2d00"
+          strokeWidth={1.5}
+          pointerEvents="none"
+        />
         <circle
           cx={T.breedte - 26}
           cy={80}

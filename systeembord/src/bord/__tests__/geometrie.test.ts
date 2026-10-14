@@ -46,7 +46,9 @@ describe("geometrie", () => {
         vormVan(soort)
           .bussen.map((b) => b.bus)
           .sort(),
-      ).toEqual([...def.ingangen, ...def.uitgangen].sort());
+      ).toEqual(
+        [...def.ingangen, ...def.uitgangen, ...(def.aarde ?? [])].sort(),
+      );
     }
   });
 

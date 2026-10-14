@@ -128,6 +128,12 @@ const VORMEN: Record<ModuleSoort, ModuleVorm> = {
     label: { x: 14, y: 186 },
     bussen: [wit("in", 34, 92)],
   },
+  // Rechtsonder op het bord, onder het relais: de aarde (0 V).
+  aarde: {
+    ...UITVOER,
+    label: { x: 166, y: 86, uitlijning: "midden" },
+    bussen: [bus("zwart")("aarde", 166, 44)],
+  },
 };
 
 export const vormVan = (soort: ModuleSoort): ModuleVorm => VORMEN[soort];

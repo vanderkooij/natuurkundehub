@@ -142,7 +142,9 @@ export function Werkbalk({
               <div key={kolom}>
                 <div className={kopje}>{titel}</div>
                 {Object.values(MODULES)
-                  .filter((d) => d.kolom === kolom && !d.extra)
+                  .filter(
+                    (d) => d.kolom === kolom && !d.extra && !d.alleenOpBord,
+                  )
                   .map((d) => (
                     <button
                       key={d.soort}

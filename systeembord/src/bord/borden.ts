@@ -77,7 +77,15 @@ const VERWERKING: Record<BordSoort, [ModuleSoort, ModuleSoort][]> = {
   ],
 };
 
-const UITVOER: ModuleSoort[] = ["led", "led", "led", "led", "zoemer", "relais"];
+const UITVOER: ModuleSoort[] = [
+  "led",
+  "led",
+  "led",
+  "led",
+  "zoemer",
+  "relais",
+  "aarde",
+];
 
 /** Tellerbereik: het nieuwe bord telt tot en met 15, het oude tot en met 9. */
 const TELLER_MAX: Record<BordSoort, number> = {
@@ -153,6 +161,23 @@ export function maakBord(
     return { ...m, bord: id };
   });
   return { bord: { id, soort, x, y }, modules };
+}
+
+/**
+ * Borden uit een bestand of link van voor de aardebus krijgen die er alsnog
+ * bij, op dezelfde plek als op een nieuw bord.
+ */
+export function metAarde(s: Schakeling): Schakeling {
+  const extra: ModuleInstantie[] = [];
+  for (const b of s.borden ?? []) {
+    if (s.modules.some((m) => m.bord === b.id && m.soort === "aarde")) continue;
+    const v = indeling(b.soort).find((x) => x.soort === "aarde")!;
+    extra.push({
+      ...maakModule("aarde", `${b.id}-aarde1`, b.x + v.x, b.y + v.y),
+      bord: b.id,
+    });
+  }
+  return extra.length ? { ...s, modules: [...s.modules, ...extra] } : s;
 }
 
 /** Kolomkoppen met hun midden, relatief aan het bord. */

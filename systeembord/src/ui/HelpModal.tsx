@@ -84,6 +84,11 @@ export function HelpModal({ onClose }: Props) {
             apparaat aan de bovenste twee. Is het relais dicht, dan loopt er
             stroom en kleuren de snoeren oranje.
           </Row>
+          <Row k="aarde">
+            De zwarte bus onder het relais is de aarde (0 V). Werk je met twee
+            borden, verbind dan hun aardes met een draad, zoals in het lokaal.
+            Anders komt een signaal van het ene bord niet aan op het andere.
+          </Row>
           <Row k="verslepen">
             De losse sensor (LDR of NTC) en het apparaat kun je verslepen. De
             lamp schijnt als een straatlantaarn naar beneden, de kachel verwarmt

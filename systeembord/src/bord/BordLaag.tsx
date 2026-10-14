@@ -2,7 +2,9 @@ import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  dradenZonderAarde,
   GELUID_PIEK,
+  isAardeDraad,
   isHoog,
   MODULES,
   RELAIS_APPARATEN,
@@ -346,6 +348,29 @@ export function BordLaag(p: Props) {
     const d = dichtsteBus(p.schakeling.modules, vm.pen, 4);
     return d ? spanning(d.module, d.bus) : null;
   })();
+  /**
+   * Waar het zwarte snoer van de voltmeter in zit: de aardebus van het bord
+   * waarop je meet, anders de dichtstbijzijnde. Zonder bord (alleen losse
+   * modules) is er geen snoer nodig.
+   */
+  const meterAarde = (() => {
+    if (!vm) return null;
+    const aardes = p.schakeling.modules.filter((m) => m.soort === "aarde");
+    if (aardes.length === 0) return null;
+    const d = dichtsteBus(p.schakeling.modules, vm.pen, 4);
+    const bord = d && vindModule(d.module)?.bord;
+    const eigen = bord && aardes.find((m) => m.bord === bord);
+    const kast = { x: vm.x, y: vm.y };
+    const a =
+      eigen ||
+      aardes.reduce((beste, m) =>
+        Math.hypot(m.x - kast.x, m.y - kast.y) <
+        Math.hypot(beste.x - kast.x, beste.y - kast.y)
+          ? m
+          : beste,
+      );
+    return busPositie(a, "aarde");
+  })();
 
   /** De losse sensor (LDR, NTC) verslepen; hij blijft aan zijn snoertjes. */
   const onSensorDown = (m: ModuleInstantie) => (e: React.PointerEvent) => {
@@ -448,6 +473,11 @@ export function BordLaag(p: Props) {
     return uit;
   }, [alleModules, alleDraden]);
 
+  const zonderAarde = useMemo(
+    () => dradenZonderAarde(p.schakeling),
+    [p.schakeling],
+  );
+
   // Draden met hun beide eindpunten en hun buigpunt.
   const draden = p.schakeling.draden.flatMap((d) => {
     const a = vindModule(d.van.module),
@@ -455,10 +485,16 @@ export function BordLaag(p: Props) {
     const pa = a && busPositie(a, d.van.bus);
     const pb = b && busPositie(b, d.naar.bus);
     const u = spanning(d.van.module, d.van.bus);
-    const analoog = !!a && MODULES[a.soort].analoog === true;
     if (!pa || !pb) return [];
     const c = bochten.get(d.id) ?? kiesBocht(pa, pb, []);
-    return [{ d, pa, pb, c, u, analoog, hoog: isHoog(u) }];
+    // Naar een ander bord zonder verbonden aarde: er komt niets door.
+    const zonder = zonderAarde.has(d.id);
+    const aarde = isAardeDraad(p.schakeling, d);
+    const analoog =
+      !!a && MODULES[a.soort].analoog === true && !zonder && !aarde;
+    return [
+      { d, pa, pb, c, u, analoog, zonder, aarde, hoog: !zonder && isHoog(u) },
+    ];
   });
 
   /** Tik op een draad kiest hem; slepen buigt hem, met het midden onder je vinger. */
@@ -511,7 +547,7 @@ export function BordLaag(p: Props) {
         <ModuleSvg key={m.id} {...moduleProps(m)} />
       ))}
 
-      {draden.map(({ d, pa, pb, c, hoog }) => {
+      {draden.map(({ d, pa, pb, c, hoog, zonder, aarde }) => {
         const pad = draadPad(pa, pb, c);
         const gekozen = geselecteerdeDraad?.d.id === d.id;
         // Net veranderd: de oude kleur blijft liggen tot het front van de
@@ -532,7 +568,10 @@ export function BordLaag(p: Props) {
             <path
               className="sb-draad"
               d={pad}
-              stroke={draadKleur(o ? o.oudHoog : hoog)}
+              stroke={
+                aarde ? "var(--sb-lijn)" : draadKleur(o ? o.oudHoog : hoog)
+              }
+              strokeDasharray={zonder ? "10 8" : undefined}
             />
             {o && (
               <>
@@ -797,6 +836,7 @@ export function BordLaag(p: Props) {
         <Voltmeter
           stand={vm}
           spanning={gemeten}
+          aarde={meterAarde}
           schaal={schaal}
           onKastDown={onKastDown}
           onPenDown={onPenDown}

@@ -25,7 +25,8 @@ export type ModuleSoort =
   | "pulsenteller"
   | "led"
   | "zoemer"
-  | "relais";
+  | "relais"
+  | "aarde";
 
 export type Kolom = "invoer" | "verwerking" | "uitvoer";
 
