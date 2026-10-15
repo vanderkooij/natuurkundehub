@@ -387,6 +387,11 @@
   @keyframes sbGolf { 0%, 10% { stroke-dashoffset: 100; } 40%, 100% { stroke-dashoffset: 0; } }
   @keyframes sbRelais { 0%, 45% { transform: rotate(32deg); stroke: #3b4250; } 55%, 92% { transform: rotate(0deg); stroke: #f2711c; } 100% { transform: rotate(32deg); stroke: #3b4250; } }
   @keyframes sbStroom { 0%, 50% { opacity: 1; } 55%, 92% { opacity: 0; } 100% { opacity: 1; } }
+  /* EM-spectrum: de marker glijdt over het spectrum van radio naar gamma en terug (5 s) */
+  .em-ov-lijn { stroke: #fff; stroke-width: 5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .9)); }
+  .em-ov-kop { fill: #fff; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .9)); }
+  .card:hover .em-ov-marker, .card:focus-visible .em-ov-marker { animation: emMarker 5s ease-in-out infinite; }
+  @keyframes emMarker { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(960px); } }
   .stage-badge {
     position: absolute;
     top: 10px; left: 10px;
@@ -597,6 +602,7 @@
     <a class="chip" href="#beweging">Beweging en kracht <span class="count">3</span></a>
     <a class="chip" href="#elektriciteit">Elektriciteit <span class="count">2</span></a>
     <a class="chip" href="#automatisering">Automatisering <span class="count">1</span></a>
+    <a class="chip" href="#straling">Golven en straling <span class="count">1</span></a>
   </div>
 </div>
 
@@ -856,6 +862,36 @@
           <div class="card-title"><h3>Systeembord</h3><span class="arrow">→</span></div>
           <p>Het systeembord uit het lokaal: bouw een automaat met sensoren, poorten en een teller.</p>
           <div class="tags"><span class="tag tag--niveau">bovenbouw</span><span class="tag">simuleren</span></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="category" id="straling">
+    <div class="category-head">
+      <h2>Golven en straling</h2>
+      <span class="sub">Licht, straling en het elektromagnetisch spectrum</span>
+    </div>
+    <div class="grid">
+
+      <a href="/em-spectrum/" class="card" data-name="EM-spectrum" data-keys="em spectrum elektromagnetisch elektromagnetische straling golflengte frequentie energie foton licht zichtbaar radio microgolven infrarood ultraviolet uv röntgen gamma regenboog binas wifi magnetron ioniserend">
+        <div class="stage">
+          <div class="shot" style="--ox: 50%; --oy: 34%; --zoom: 1.08">
+            <img src="/assets/og/em-spectrum.webp" alt="" loading="lazy">
+            <svg class="overlay" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+              <g class="em-ov-marker">
+                <line class="em-ov-lijn" x1="120" y1="150" x2="120" y2="400"/>
+                <circle class="em-ov-kop" cx="120" cy="150" r="8"/>
+              </g>
+            </svg>
+          </div>
+          <span class="stage-badge">Lab</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title"><h3>EM-spectrum</h3><span class="arrow">→</span></div>
+          <p>Van radio tot gamma op één balk: zoom in, zie hoe klein zichtbaar licht is en koppel golflengte, frequentie en energie.</p>
+          <div class="tags"><span class="tag tag--niveau">bovenbouw</span><span class="tag">verkennen</span></div>
         </div>
       </a>
 

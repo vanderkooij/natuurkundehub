@@ -3,9 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elektromagnetisch spectrum · NatuurkundeHub</title>
-<meta name="description" content="Verken het elektromagnetisch spectrum van radiogolven tot gammastraling en zie hoe klein het zichtbare deel is.">
-<meta name="robots" content="noindex">
+<title>Elektromagnetisch spectrum: van radio tot gamma · NatuurkundeHub</title>
+<meta name="description" content="Verken het elektromagnetisch spectrum van radio tot gamma: zoom in, zie hoe klein zichtbaar licht is en koppel golflengte, frequentie en energie per foton.">
+<link rel="canonical" href="https://natuurkundehub.nl/em-spectrum/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Elektromagnetisch spectrum: van radio tot gamma">
+<meta property="og:description" content="Verken het elektromagnetisch spectrum van radio tot gamma: zoom in, zie hoe klein zichtbaar licht is en koppel golflengte, frequentie en energie per foton.">
+<meta property="og:url" content="https://natuurkundehub.nl/em-spectrum/">
+<meta property="og:image" content="https://natuurkundehub.nl/assets/og/em-spectrum.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Het elektromagnetisch spectrum van radio tot gamma als één balk, met de marker op 589 nm en de golflengte, frequentie en energie per foton eronder.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -132,6 +143,14 @@ body.volscherm .stage{margin:0;border-radius:0;border:none}
 .info .live b{font-family:var(--mono);font-weight:500}
 .info .live.ion{border-color:rgba(212,146,58,0.6);background:rgba(212,146,58,0.08)}
 
+/* Laag scherm (Chromebook, ~1366×650): titel weg (staat al in de kruimel), paneel compacter. */
+@media(max-height:760px){
+  .tool-name{display:none}
+  .stage{margin-top:12px}
+  .cell{padding:8px 14px 10px}
+  .cell .getal{margin-top:2px}
+  #golf{height:46px}
+}
 @media(max-width:1000px){
   /* Smal scherm: het paneel schuift over de balk heen. */
   .stage{grid-template-areas:"tool tool" "balk balk" "lees lees" "bedien bedien"}
@@ -244,6 +263,7 @@ body.volscherm .stage{margin:0;border-radius:0;border:none}
           <p><kbd>/</kbd> waarde typen, zoals 2,45 GHz</p>
           <p><kbd>i</kbd> infopaneel · <kbd>f</kbd> volledig scherm · <kbd>?</kbd> dit overzicht</p></div>
       </div>
+      <p style="margin-top:12px"><a href="/em-spectrum/over/" style="color:#0BB5C8">Meer over deze tool →</a></p>
     </div>
   </div>
   <div class="readout" aria-live="polite">
@@ -716,7 +736,15 @@ function tekenSpectrum(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,W,H);
 
-  const fs = Math.max(13, Math.min(26, W/62, H/24));   // groeit mee op een groot bord, met mate
+  // Tekstgrootte: groeit mee op een groot bord, met mate, maar nooit groter dan wat in de hoogte
+  // past. Elke as kost ongeveer 4,4 regels; met frequentie- en energie-as zijn dat er drie.
+  const nAssen = 1 + (lagen.frequentie ? 1 : 0) + (lagen.energie && !(dwang > 0.5) ? 1 : 0);
+  const bandSchat = Math.max(60, Math.min(190, H*0.24));
+  const regelsVol = 2.2 + 3*1.75 + 4.4*nAssen + 1.3;  // richting, naamrijen, assen, reserve
+  // Krap in de hoogte (Chromebook): de frequentie- en energie-as zonder eigen titelregel.
+  const compact = nAssen > 1 && (H - bandSchat - 8) / regelsVol < 13;
+  const regels = compact ? 2.2 + 3*1.75 + 4.4 + 2.6*(nAssen - 1) + 1.3 : regelsVol;
+  const fs = Math.max(11, Math.min(26, W/62, H/24, (H - bandSchat - 8) / regels));
   const marge = Math.max(16, fs*1.6);
   const x0 = marge, x1 = W - marge, bw = x1 - x0;
   const span = view.hi - view.lo;
@@ -794,11 +822,11 @@ function tekenSpectrum(){
   // --- Verticale opbouw ---
   const rijH = fs*1.75;
   const bandH = Math.max(60, Math.min(190, H*0.24));
-  const asH = fs*4.4;
+  const asH = fs*4.4, asH2 = compact ? fs*2.6 : asH;   // λ-as, en de as(sen) eronder
   const extraRichting = richtingNaast ? 0 : fs*1.3;
   const extraSchaal = schaalNaast ? 0 : fs*1.2;
   const metF = lagen.frequentie, metE = lagen.energie && !(dwang > 0.5);   // bij "Hoe klein" geen energie-as
-  const totaal = fs*2.2 + extraRichting + nRijen*rijH + bandH + asH*(1 + (metF ? 1 : 0) + (metE ? 1 : 0)) + extraSchaal;
+  const totaal = fs*2.2 + extraRichting + nRijen*rijH + bandH + asH + asH2*((metF ? 1 : 0) + (metE ? 1 : 0)) + extraSchaal;
   let y = Math.max(fs*0.8, (H - totaal) / 2);
 
   // Richting
@@ -1175,17 +1203,17 @@ function tekenSpectrum(){
     tekenAs(fStreep, ya, false, pilF);
     ctx.font = font(600, fs*0.85);
     ctx.textAlign = 'left'; ctx.fillStyle = KLEUR.accent;
-    ctx.fillText('frequentie f', x0, ya + fs*3.4);
+    if(!compact) ctx.fillText('frequentie f', x0, ya + fs*3.4);
   }
   const yaF = ya;
   if(metE){
-    ya += metF ? asH : asH + extraSchaal;
+    ya += metF ? asH2 : asH + extraSchaal;
     ctx.strokeStyle = KLEUR.zwak; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x0, ya); ctx.lineTo(x1, ya); ctx.stroke();
     tekenAs(eStreep, ya, false, pilE);
     ctx.font = font(600, fs*0.85);
     ctx.textAlign = 'left'; ctx.fillStyle = KLEUR.accent;
-    ctx.fillText('energie E per foton', x0, ya + fs*3.4);
+    if(!compact) ctx.fillText('energie E per foton', x0, ya + fs*3.4);
   }
 
   geo = {x0, x1, bw, fs, bandTop, bandBot, yOnder: ya + fs*0.7, labels: labelVakken, xm: xVan(markerL)};

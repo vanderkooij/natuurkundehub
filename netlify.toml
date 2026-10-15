@@ -62,3 +62,8 @@
   from = "/voorvoegsels"
   to = "/voorvoegsels/"
   status = 301
+
+[[redirects]]
+  from = "/em-spectrum"
+  to = "/em-spectrum/"
+  status = 301

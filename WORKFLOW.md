@@ -57,6 +57,12 @@ natuurkundehub/
 │   ├── js/grafiek.js                 # x,t-, v,t- en a,t-diagram als SVG, met of zonder getallen
 │   ├── js/karretje.js                # Baan met karretje en afdrukjes; scène die alles synchroon afspeelt
 │   └── tests/                        # beweging, getallen en koppel: npm run test:bewegingen
+├── em-spectrum/                      # EM-spectrumverkenner, schermvullend (statische HTML met canvas)
+│   ├── index.html                    # De tool: spectrumbalk, marker, lagen, infopaneel
+│   ├── plaatjes.js                   # Eigen tekeningen (witte lijn met kleurvlak), één regel per tekening
+│   ├── invoer.js                     # Invoerveld: golflengte, frequentie of energie lezen
+│   ├── over/index.html               # Infopagina /em-spectrum/over/
+│   └── tests/                        # invoer: npm run test:em
 ├── systeembord/                      # Vite/React-workspace (zoals CircuitFlow); alleen systeembord/dist/ wordt gedeployed
 │   ├── public/over/index.html        # Infopagina /systeembord/over/ (Vite kopieert hem mee)
 │   └── src/                          # sim/ (rekenkern, tests), bord/ (tekenen, bediening), bestand/ (opslaan, link, XML, voorbeelden)
@@ -76,7 +82,7 @@ natuurkundehub/
 
 ## Homepage
 
-De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht, Elektriciteit en Automatisering. Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
+De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht, Elektriciteit, Automatisering en Golven en straling. Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
 
 **Tegel toevoegen.** Kopieer een bestaande `<a class="card">` binnen de juiste `<section class="category">` en vul in:
 
@@ -106,7 +112,7 @@ Elke pagina heeft in de `<head>`, direct na `<title>`:
 
 Alleen de **hoofdpagina** van een tool (de keuzepagina, of de toolpagina zelf als de tool maar één pagina heeft) krijgt onderaan in `.main` een inklapbaar blok **Over deze tool** (`<section class="about"><details>…`), met de opmaak uit `/assets/about.css`. Daarin staan in gewone taal wat je oefent, voor wie, de kern van de stof en een link naar de uitleg. De tool zelf blijft bovenaan en ongewijzigd; het blok geeft Google leesbare tekst zonder leerlingen af te leiden. Subpagina's (uitleg, oefenen, examenformules, overzichten) krijgen het blok niet; afgesproken met Jop op 2026-10-10, omdat het daar alleen afleidt. Kijk het voorbeeld na in `significantie/index.html`.
 
-Schermvullende apps (CircuitSketch, CircuitFlow, Videometen) kunnen geen blok onderaan hebben, want ze scrollen niet. Zij krijgen een **infopagina** op `/<app>/over/` (bron: `<app>/public/over/index.html`, Vite kopieert hem mee). De app zelf blijft op `/<app>/` staan, zodat bladwijzers en de tegel op de homepage direct naar de tool gaan; de infopagina is voor wie via Google binnenkomt. Vanuit de app linkt het helpvenster (en waar dat kan het lege startscherm) naar de infopagina. Modelleren scrollt wel en heeft het blok gewoon onder de app.
+Schermvullende apps (CircuitSketch, CircuitFlow, Videometen, Systeembord, EM-spectrum) kunnen geen blok onderaan hebben, want ze scrollen niet. Zij krijgen een **infopagina** op `/<app>/over/` (bron: `<app>/public/over/index.html`, Vite kopieert hem mee; bij het statische EM-spectrum staat hij direct in `em-spectrum/over/`). De app zelf blijft op `/<app>/` staan, zodat bladwijzers en de tegel op de homepage direct naar de tool gaan; de infopagina is voor wie via Google binnenkomt. Vanuit de app linkt het helpvenster (en waar dat kan het lege startscherm) naar de infopagina. Modelleren scrollt wel en heeft het blok gewoon onder de app.
 
 Elke pagina heeft een **previewplaatje** (`og:image`, 1200×630) uit `assets/og/`: de apps hun eigen schermafbeelding, de overige pagina's `hub.jpg`. De infopagina's tonen dezelfde schermafbeelding als `.webp`.
 
@@ -185,6 +191,7 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/bewegingsgrafieken/` | Bewegingsgrafieken *(keuzepagina, hero)* |
 | `/bewegingsgrafieken/uitleg/` | Bewegingsgrafieken |
 | `/bewegingsgrafieken/oefenen/` | Oefenen |
+| `/em-spectrum/` | Elektromagnetisch spectrum *(schermvullend; op een laag scherm valt de toolnaam weg, hij staat dan in de kruimel)* |
 | `/circuitsketch/` | CircuitSketch |
 | `/systeembord/` | Systeembord *(in de header, met de werkbalk ernaast)* |
 | `/contact/` | Contact & Feedback |

@@ -60,6 +60,9 @@ cp -r voorvoegsels dist/voorvoegsels
 # Kopieer Bewegingsgrafieken (statische HTML)
 cp -r bewegingsgrafieken dist/bewegingsgrafieken
 
+# Kopieer de EM-spectrumverkenner (statische HTML, met infopagina in over/)
+cp -r em-spectrum dist/em-spectrum
+
 # Kopieer de Contactpagina (statische HTML)
 cp -r contact dist/contact
 
