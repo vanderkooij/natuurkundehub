@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formules omschrijven oefenen (onderbouw) · NatuurkundeHub</title>
-<meta name="description" content="Oefen formules omschrijven met keer en delen of met plus en min, in vier levels voor de onderbouw en een extra level voor klas 3.">
+<title>Formules omschrijven oefenen (klas 2) · NatuurkundeHub</title>
+<meta name="description" content="Oefen formules omschrijven in klas 2 met keer en delen of met plus en min, in vier levels van vlek tot letters.">
 <link rel="canonical" href="https://natuurkundehub.nl/formules-omschrijven/onderbouw/oefenen/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="NatuurkundeHub">
 <meta property="og:locale" content="nl_NL">
-<meta property="og:title" content="Formules omschrijven oefenen (onderbouw)">
-<meta property="og:description" content="Oefen formules omschrijven met keer en delen of met plus en min, in vier levels voor de onderbouw en een extra level voor klas 3.">
+<meta property="og:title" content="Formules omschrijven oefenen (klas 2)">
+<meta property="og:description" content="Oefen formules omschrijven in klas 2 met keer en delen of met plus en min, in vier levels van vlek tot letters.">
 <meta property="og:url" content="https://natuurkundehub.nl/formules-omschrijven/onderbouw/oefenen/">
 <meta property="og:image" content="https://natuurkundehub.nl/assets/og/hub.jpg">
 <meta property="og:image:width" content="1200">
@@ -126,14 +126,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ws-inhoud .kant{display:inline-flex;align-items:center}
 .ws-bekend{font-size:16px;line-height:1.7}
 .ws-rij.invullen{border-color:var(--accent-amber);background:var(--amber-dim,rgba(212,146,58,0.06))}
-.q-opties{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding-top:14px;border-top:1px solid var(--border-solid)}
-.optie{min-width:74px;padding:12px 18px;border-radius:12px;border:2px solid var(--border-solid);background:var(--bg-secondary);color:var(--text);font-family:var(--font);font-size:19px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.optie:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
-.optie .kant{display:inline-flex;align-items:center}
-.optie .eenheid{font-size:14px;color:var(--text-muted)}
-.optie.goed{border-color:var(--green);background:var(--green-dim);color:var(--green)}
-.optie.fout{border-color:var(--red);background:var(--red-dim);opacity:.65;cursor:default}
-.optie:disabled{cursor:default}
 
 .feedback{font-size:14px;line-height:1.9;padding:10px 16px;border-radius:10px;margin-bottom:12px;border-left:4px solid;display:none}
 .feedback.goed{display:block;background:var(--green-dim);color:var(--green);border-color:var(--green)}
@@ -146,6 +138,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .stapwerk.open{display:block}
 .stapwerk-kop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
 .stapwerk-kop strong{font-size:14px;color:var(--accent)}
+#stapwerk-kop{font-size:16px}
+#stapwerk-kop b{color:var(--text)}
 .stapwerk-tekst{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px}
 .stapwerk .stapper{border:none;background:transparent;padding:0;margin:6px 0 10px}
 .stapwerk .stapper-kop{display:none}
@@ -193,15 +187,15 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
       <span class="app-title">Natuurkunde<span>Hub</span></span>
     </a>
     <span class="crumb-sep">›</span>
-    <a href="../../#onderbouw" class="crumb">Formules omschrijven</a>
+    <a href="../../#klas2" class="crumb">Formules omschrijven</a>
     <span class="crumb-sep">›</span>
-    <span class="crumb">Oefenen onderbouw</span>
+    <span class="crumb">Oefenen klas 2</span>
   </div>
   <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
 </div>
 
 <div class="main">
-<h1 class="tool-name">Oefenen</h1>
+<h1 class="tool-name">Oefenen klas 2</h1>
 
 <!-- INSTELLINGEN -->
 <div class="panel active" id="panel-settings">
@@ -246,17 +240,16 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     <span>Ga terug naar de uitleg voor het volgende hoofdstuk, of oefen nog even door.</span>
     <a class="terug-link" id="uitleg-klaar-link" href="../uitleg/">Terug naar de uitleg →</a>
   </div>
-  <div class="q-card">
+  <div class="q-card" id="q-card">
     <div class="q-opdracht" id="q-opdracht"></div>
     <div id="q-inhoud"></div>
-    <div class="q-opties" id="q-opties"></div>
   </div>
 
   <div class="feedback" id="feedback"></div>
 
   <div class="stapwerk" id="stapwerk">
     <div class="stapwerk-kop">
-      <strong>Stap voor stap</strong>
+      <strong id="stapwerk-kop">Stap voor stap</strong>
       <button class="mini-btn" id="stap-verberg">verbergen</button>
     </div>
     <p class="stapwerk-tekst" id="stapwerk-tekst">Kies wat je met allebei de kanten doet. De stapper streept weg wat tegen elkaar wegvalt.</p>
@@ -303,9 +296,9 @@ const OB={maal:'×'};
 const vgl=(tekst,namen)=>toonVergelijking(tekst,Object.assign({namen:namen||null},OB));
 
 // ── INSTELLINGEN ──
-// Level 1 t/m 4 zijn voor leerjaar 2 en vormen de oplopende reeks. Level 5
-// (losse letters, soms vier) is extra, voor klas 3.
-const LEVELS=[1,2,3,4,5];
+// Level 1 t/m 4 zijn voor leerjaar 2 en vormen de oplopende reeks. Wat
+// vroeger level 5 was (losse letters, soms vier) zit nu in het klas 3-spoor.
+const LEVELS=[1,2,3,4];
 let SOORT=new URLSearchParams(location.search).get('soort')==='plusmin'?'plusmin':'keerdeel';
 const LEVEL_UITLEG_PM={
   1:{tekst:'Een getal onder een vlek',                   voorbeeld:()=>vgl('10 = vlek+4',{vlek:VLEK_SVG})},
@@ -320,11 +313,9 @@ const LEVEL_UITLEG_KD={
   3:{tekst:'De letter met het woord erbij',
      voorbeeld:()=>vgl('v = s/t',{v:hybrideNaam('v','snelheid'),s:hybrideNaam('s','afstand'),t:hybrideNaam('t','tijd')})},
   4:{tekst:'Alleen letters, ook losse letters',          voorbeeld:()=>vgl('a = b*c')},
-  5:{tekst:'Extra voor klas 3: losse letters, soms vier, kies de goede omschrijving', voorbeeld:()=>vgl('a = b*c/d')},
 };
 
-// Plus en min heeft geen level 5: vier grootheden bij plus en min is niet nodig.
-const levelsVanSoort=()=>SOORT==='plusmin'?[1,2,3,4]:LEVELS;
+const levelsVanSoort=()=>LEVELS;
 function bouwLevels(){
   const LEVEL_UITLEG=SOORT==='plusmin'?LEVEL_UITLEG_PM:LEVEL_UITLEG_KD;
   const grid=$('level-grid');
@@ -387,9 +378,7 @@ function tekenStatus(){
   $('st-score').textContent=st.goed+' / '+st.totaal;
 }
 
-// Bij level 1 t/m 4 is de stapper de opgave: het gaat om het omschrijven, niet
-// om het getal zien. Level 5 is een keuzevraag, met de stapper als hulp.
-const metKeuze=o=>o.niveau===5;
+// De stapper is de opgave: het gaat om het omschrijven, niet om het getal zien.
 
 // ── OPGAVE TONEN ──
 function volgende(){
@@ -401,10 +390,9 @@ function volgende(){
   o.kortste=(kortsteRoute(o.formule,o.doel,niveau<=2,5,o.bewerkingen)||{}).stappen;
   tekenStatus();
 
-  const opdracht=$('q-opdracht'),inhoud=$('q-inhoud'),opties=$('q-opties');
-  opties.innerHTML='';opties.hidden=!metKeuze(o);
+  const opdracht=$('q-opdracht'),inhoud=$('q-inhoud');
   if(niveau===1){
-    opdracht.innerHTML='Maak de vlek vrij met de stapper. Wat zit eronder?';
+    opdracht.innerHTML='Maak de vlek vrij. Wat zit eronder?';
     inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule,o.namen)+'</div>';
   }else if(niveau===2){
     opdracht.innerHTML=o.vraag+' Maak <b>'+o.ctx.woorden[o.doel]+'</b> vrij met de stapper.';
@@ -416,46 +404,31 @@ function volgende(){
       '<div class="ws-rij invullen"><span class="ws-label">Invullen</span><span class="ws-inhoud">'+toonVergelijking(o.formule,Object.assign({namen:o.namen,getal:o.getal},OB))+'</span></div>'+
       '</div>';
   }else if(niveau===3){
-    opdracht.innerHTML='Maak <b>'+o.woorden[o.doel]+' ('+o.doel+')</b> vrij met de stapper.';
+    opdracht.innerHTML='Maak <b>'+o.woorden[o.doel]+' ('+o.doel+')</b> vrij.';
     inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule,o.namen)+'</div>';
-  }else if(niveau===4){
-    opdracht.innerHTML='Maak <b>'+o.doel+'</b> vrij met de stapper.';
-    inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule)+'</div>';
   }else{
-    opdracht.innerHTML='Schrijf om naar <b>'+o.doel+'</b>. Welke is goed?';
+    opdracht.innerHTML='Maak <b>'+o.doel+'</b> vrij.';
     inhoud.innerHTML='<div class="q-formule">'+vgl(o.formule)+'</div>';
-    o.opties.forEach(x=>opties.appendChild(optieKnop(vgl(o.doel+' = '+x.tekst),x.goed,x.tekst)));
   }
+  // De stapper is de opgave en laat de formule zelf al zien. Alleen bij de
+  // woordsom staat er iets extra's (wat je weet), dan blijft de kaart staan.
+  $('q-card').hidden=niveau!==2;
+  $('stapwerk-kop').innerHTML=niveau===2?'Stap voor stap':opdracht.innerHTML;
 
   $('feedback').className='feedback';$('feedback').innerHTML='';
   $('btn-volgende').hidden=true;
   $('btn-skip').hidden=false;
-  $('btn-stap').hidden=!metKeuze(o);
-  $('stap-verberg').hidden=!metKeuze(o);
+  $('btn-stap').hidden=true;
+  $('stap-verberg').hidden=true;
   $('stapwerk-tekst').textContent=niveau<=2
     ?'Kies wat je met allebei de kanten doet. Staat het onbekende getal alleen, reken dan de andere kant uit.'
     :'Kies wat je met allebei de kanten doet. De stapper streept weg wat tegen elkaar wegvalt.';
   $('oefen-stapper').innerHTML='';
   sluitStapper();
-  if(!metKeuze(o)||!st.stapperUit)openStapper(false);
-}
-
-function optieKnop(html,goed,waarde){
-  const b=document.createElement('button');
-  b.type='button';b.className='optie';b.innerHTML=html;
-  b.dataset.goed=goed?'1':'';
-  b.onclick=()=>kiesOptie(b,goed,waarde);
-  return b;
+  openStapper(false);
 }
 
 // ── NAKIJKEN ──
-function kiesOptie(knop,goed,waarde){
-  if(st.klaar||knop.disabled)return;
-  if(goed){knop.classList.add('goed');goedAntwoord('');return;}
-  knop.classList.add('fout');knop.disabled=true;
-  foutAntwoord(waarde);
-}
-
 // Wat er onder "Goed!" staat: bij getallen de controle door invullen, bij
 // letters de formule die eruit kwam.
 function uitkomstTekst(o){
@@ -467,7 +440,6 @@ function uitkomstTekst(o){
 function goedAntwoord(extra){
   const o=st.opgave;
   st.klaar=true;st.totaal++;st.goed++;st.opRij++;
-  document.querySelectorAll('.optie').forEach(b=>{b.disabled=true;if(b.dataset.goed)b.classList.add('goed');});
   $('feedback').innerHTML='<b>Goed!</b> '+uitkomstTekst(o)+(extra||'');
   $('feedback').className='feedback goed';
 
@@ -500,26 +472,6 @@ function omwegAntwoord(stappen){
   afronden();
 }
 
-function foutAntwoord(waarde){
-  const o=st.opgave;
-  st.pogingen++;st.opRij=0;
-  let tekst=getalProef(o.formule,o.doel,waarde)||'Dat klopt niet.';
-  if(st.pogingen>=2){
-    // Tweede fout: het goede antwoord aanwijzen en de stapper laten zien.
-    st.klaar=true;st.totaal++;
-    if(st.modus==='reeks')st.klim=Math.max(0,st.klim-1);
-    document.querySelectorAll('.optie').forEach(b=>{b.disabled=true;if(b.dataset.goed)b.classList.add('goed');});
-    tekst+='<br>Het goede antwoord is groen gemaakt. Kijk in de stapper hoe je er komt.';
-    afronden();
-  }else{
-    tekst+='<br>Probeer het nog eens, of doe het stap voor stap hieronder.';
-  }
-  $('feedback').innerHTML=tekst;
-  $('feedback').className='feedback fout';
-  tekenStatus();
-  openStapper(true);
-}
-
 function afronden(){
   $('btn-volgende').hidden=false;
   $('btn-skip').hidden=true;
@@ -530,7 +482,6 @@ function slaOver(){
   if(st.klaar){volgende();return;}
   st.klaar=true;st.totaal++;st.opRij=0;
   if(st.modus==='reeks')st.klim=Math.max(0,st.klim-1);
-  document.querySelectorAll('.optie').forEach(b=>{b.disabled=true;if(b.dataset.goed)b.classList.add('goed');});
   const o=st.opgave;
   $('feedback').innerHTML='Overgeslagen. '+(o.niveau<=2
     ?'Het goede getal is '+(o.getal||getalTekst)(o.goed)+'.'
@@ -577,15 +528,10 @@ function toggleStapper(){
   else{st.stapperUit=false;openStapper(false);}
 }
 
-// De stapper is klaar. Bij de keuzevraag telt dat als het goede antwoord; bij
-// de andere levels kijken we of het via de korte route ging.
+// De stapper is klaar: ging het via de korte route?
 function onStapperKlaar(detail){
   if(st.klaar)return;
   const o=st.opgave;
-  if(metKeuze(o)){
-    if(zelfdeMonoom(monoomVan(detail.antwoord),o.goed))goedAntwoord('<br>De stapper kwam uit op het goede antwoord.');
-    return;
-  }
   if(o.kortste&&detail.stappen>o.kortste)omwegAntwoord(detail.stappen);
   else goedAntwoord('');
 }

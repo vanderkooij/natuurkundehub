@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Formules omschrijven oefenen · NatuurkundeHub</title>
-<meta name="description" content="Leer natuurkundige formules omschrijven, stap voor stap. Voor de onderbouw (van woorden naar letters) en de bovenbouw (letterformules en examenformules).">
+<meta name="description" content="Leer natuurkundige formules omschrijven, stap voor stap. Voor klas 2 (van een vlek naar letters), klas 3 (vier letters en het gemiddelde) en de bovenbouw (letterformules en examenformules).">
 <link rel="canonical" href="https://natuurkundehub.nl/formules-omschrijven/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="NatuurkundeHub">
 <meta property="og:locale" content="nl_NL">
 <meta property="og:title" content="Formules omschrijven oefenen">
-<meta property="og:description" content="Leer natuurkundige formules omschrijven, stap voor stap. Voor de onderbouw (van woorden naar letters) en de bovenbouw (letterformules en examenformules).">
+<meta property="og:description" content="Leer natuurkundige formules omschrijven, stap voor stap. Voor klas 2 (van een vlek naar letters), klas 3 (vier letters en het gemiddelde) en de bovenbouw (letterformules en examenformules).">
 <meta property="og:url" content="https://natuurkundehub.nl/formules-omschrijven/">
 <meta property="og:image" content="https://natuurkundehub.nl/assets/og/hub.jpg">
 <meta property="og:image:width" content="1200">
@@ -150,23 +150,34 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
   <div class="hero">
     <h1>Formules <span class="grad">omschrijven</span></h1>
-    <p id="hero-tekst">Kies eerst of je in de onderbouw of in de bovenbouw zit.</p>
+    <p id="hero-tekst">Kies eerst in welke klas je zit.</p>
   </div>
 
-  <!-- Eerste keuze: onderbouw of bovenbouw. De keuze staat in de adresbalk
-       (#onderbouw of #bovenbouw), zodat de terugknop en de links vanuit de
-       subpagina's op de goede plek uitkomen. -->
-  <div class="cards-grid cards-grid--2" id="laag-keuze">
-    <a class="mode-card mode-card--c" href="#onderbouw">
-      <span class="mode-letter">KLAS 1 T/M 3</span>
-      <h2>Onderbouw</h2>
-      <p>Van een som met een vlek naar een formule met letters. Alleen keer en delen.</p>
+  <!-- Eerste keuze: klas 2, klas 3 of bovenbouw. De keuze staat in de
+       adresbalk (#klas2, #klas3 of #bovenbouw), zodat de terugknop en de links
+       vanuit de subpagina's op de goede plek uitkomen. -->
+  <div class="cards-grid" id="laag-keuze">
+    <a class="mode-card mode-card--c" href="#klas2">
+      <span class="mode-letter">ONDERBOUW</span>
+      <h2>Klas 2</h2>
+      <p>Van een som met een vlek naar een formule met letters, zoals v = s / t.</p>
       <ul class="bullets">
         <li>Een letter is een getal dat je nog niet weet</li>
-        <li>Snelheid, afstand en tijd</li>
+        <li>Keer en delen, of plus en min</li>
         <li>Stap voor stap, zonder toetsenbord</li>
       </ul>
-      <span class="mode-btn">Naar onderbouw →</span>
+      <span class="mode-btn">Naar klas 2 →</span>
+    </a>
+    <a class="mode-card mode-card--c" href="#klas3">
+      <span class="mode-letter">ONDERBOUW</span>
+      <h2>Klas 3</h2>
+      <p>Meteen met letters: vier letters en het gemiddelde, zoals v<sub>gem</sub> = (v<sub>b</sub> + v<sub>e</sub>)/2.</p>
+      <ul class="bullets">
+        <li>Oefenen met de stapper</li>
+        <li>Een som boven de deelstreep is één blok</li>
+        <li>Test jezelf: zelf typen</li>
+      </ul>
+      <span class="mode-btn">Naar klas 3 →</span>
     </a>
     <a class="mode-card" href="#bovenbouw">
       <span class="mode-letter">HAVO EN VWO</span>
@@ -181,8 +192,8 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     </a>
   </div>
 
-  <div class="laag" id="laag-onderbouw" hidden>
-    <div class="laag-kop"><a href="#" class="laag-terug">← andere keuze</a><span class="laag-naam">Onderbouw</span></div>
+  <div class="laag" id="laag-klas2" hidden>
+    <div class="laag-kop"><a href="#" class="laag-terug">← andere keuze</a><span class="laag-naam">Klas 2</span></div>
     <div class="cards-grid">
       <div class="mode-card mode-card--c" onclick="window.location='/formules-omschrijven/onderbouw/uitleg/'">
         <span class="mode-letter">UITLEG</span>
@@ -212,9 +223,36 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
         <ul class="bullets">
           <li>Vlek, woorden, woord en letter, letters</li>
           <li>Oplopende reeks: klim vanzelf omhoog</li>
-          <li>Extra level met vier letters voor klas 3</li>
+          <li>Goed is via de kortste route</li>
         </ul>
         <a href="/formules-omschrijven/onderbouw/oefenen/" class="mode-btn">Start oefenen →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="laag" id="laag-klas3" hidden>
+    <div class="laag-kop"><a href="#" class="laag-terug">← andere keuze</a><span class="laag-naam">Klas 3</span></div>
+    <div class="cards-grid cards-grid--2">
+      <div class="mode-card mode-card--c" onclick="window.location='/formules-omschrijven/onderbouw/klas3/uitleg/'">
+        <span class="mode-letter">UITLEG</span>
+        <h2>Letters, vier letters en het gemiddelde</h2>
+        <p>Van keer en delen tot v<sub>gem</sub> = (v<sub>b</sub> + v<sub>e</sub>)/2. Welke stap doe je eerst?</p>
+        <ul class="bullets">
+          <li>Omschrijven is terugrekenen</li>
+          <li>Een som boven de deelstreep is één blok</li>
+          <li>Zo typ je een formule</li>
+        </ul>
+        <a href="/formules-omschrijven/onderbouw/klas3/uitleg/" class="mode-btn">Bekijk uitleg →</a>
+      </div>
+      <div class="mode-card" onclick="window.location='/formules-omschrijven/onderbouw/klas3/oefenen/'">
+        <h2>Oefenen</h2>
+        <p>Oefen met de stapper, van keer en delen tot het gemiddelde. Daarna test je jezelf: typen, zonder stapper.</p>
+        <ul class="bullets">
+          <li>Keer en delen, plus en min, vier letters, gemiddelde</li>
+          <li>Oplopende reeks met de stapper</li>
+          <li>Test jezelf: tien opgaven, zelf typen</li>
+        </ul>
+        <a href="/formules-omschrijven/onderbouw/klas3/oefenen/" class="mode-btn">Start oefenen →</a>
       </div>
     </div>
   </div>
@@ -272,7 +310,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
         <p>Een formule is een gelijkheid: links staat evenveel als rechts. Je doet steeds een bewerking op allebei de kanten en kiest die zo, dat er iets wegvalt rond de letter die je zoekt. Zit die letter vast met keer, dan deel je. Staat er iets bij opgeteld, dan trek je het af. Je bewerking richt zich dus altijd op de andere letters; de letter die je zoekt laat je met rust.</p>
         <h3>Onderbouw en bovenbouw</h3>
         <ul>
-        <li><strong>Onderbouw (klas 1 t/m 3):</strong> je begint met een som met een vlek op de plek van het getal dat je zoekt. Daarna komen er woorden en tot slot letters. Zo zie je dat een letter gewoon een getal is waarvan je de waarde nog niet weet. Typen hoeft niet: je kiest steeds wat je met allebei de kanten doet.</li>
+        <li><strong>Onderbouw (klas 1 t/m 3):</strong> in klas 2 begin je met een som met een vlek op de plek van het getal dat je zoekt. Daarna komen er woorden en tot slot letters. Zo zie je dat een letter gewoon een getal is waarvan je de waarde nog niet weet. Typen hoeft niet: je kiest steeds wat je met allebei de kanten doet. In klas 3 begin je meteen met letters, met vier letters en met het gemiddelde. Je oefent met de stapper en test jezelf door het antwoord zelf te typen.</li>
         <li><strong>Bovenbouw (havo en vwo):</strong> een uitleg met de stapper, letterformules in vijf levels en echte formules uit het examenprogramma, met haakjes, machten en wortels.</li>
         </ul>
       </div>
@@ -319,17 +357,18 @@ function toggleTheme(){
   else applyTheme('light');
 })();
 
-// Onderbouw of bovenbouw: volgt de hash in de adresbalk.
+// Klas 2, klas 3 of bovenbouw: volgt de hash in de adresbalk. Het oude
+// #onderbouw (van voor de splitsing) toont de eerste keuze.
+const LAGEN=['klas2','klas3','bovenbouw'];
 function toonLaag(){
   const laag=location.hash.replace('#','');
-  const geldig=laag==='onderbouw'||laag==='bovenbouw';
+  const geldig=LAGEN.includes(laag);
   document.getElementById('laag-keuze').hidden=geldig;
-  document.getElementById('laag-onderbouw').hidden=laag!=='onderbouw';
-  document.getElementById('laag-bovenbouw').hidden=laag!=='bovenbouw';
+  for(const l of LAGEN)document.getElementById('laag-'+l).hidden=laag!==l;
   document.getElementById('hero-tekst').textContent=
-    laag==='onderbouw'?'Begin met de uitleg, of ga meteen oefenen.':
+    laag==='klas2'||laag==='klas3'?'Begin met de uitleg, of ga meteen oefenen.':
     laag==='bovenbouw'?'Van stap-voor-stap uitleg tot de echte formules uit je examenprogramma.':
-    'Kies eerst of je in de onderbouw of in de bovenbouw zit.';
+    'Kies eerst in welke klas je zit.';
 }
 window.addEventListener('hashchange',toonLaag);
 toonLaag();

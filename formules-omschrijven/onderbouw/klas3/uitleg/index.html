@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formules omschrijven in klas 3: uitleg · NatuurkundeHub</title>
+<meta name="description" content="Leer formules omschrijven in klas 3: keer en delen, plus en min, vier letters en het gemiddelde, zoals v_gem = (v_b + v_e)/2. Met de stapper en zelf typen.">
+<link rel="canonical" href="https://natuurkundehub.nl/formules-omschrijven/onderbouw/klas3/uitleg/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Formules omschrijven in klas 3: uitleg">
+<meta property="og:description" content="Leer formules omschrijven in klas 3: keer en delen, plus en min, vier letters en het gemiddelde, zoals v_gem = (v_b + v_e)/2. Met de stapper en zelf typen.">
+<meta property="og:url" content="https://natuurkundehub.nl/formules-omschrijven/onderbouw/klas3/uitleg/">
+<meta property="og:image" content="https://natuurkundehub.nl/assets/og/hub.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="De homepage van NatuurkundeHub met de interactieve natuurkundetools.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
+<link rel="stylesheet" href="../../../css/stapper.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.1);
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.2);
+  --amber-dim:rgba(212,146,58,0.06);--amber-border:rgba(212,146,58,0.2);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --purple-dim:rgba(139,92,246,0.1);--purple-border:rgba(139,92,246,0.25);
+  --amber-dim:rgba(212,146,58,0.09);--amber-border:rgba(212,146,58,0.25);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+sup{font-size:.66em;line-height:0;vertical-align:super;font-weight:inherit}
+sub{font-size:.66em;line-height:0;vertical-align:sub;font-weight:inherit}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none}
+.crumb-sep{color:var(--text-muted);font-size:15px}
+.tool-name{text-align:center;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:32px 0 6px;position:relative;z-index:1}
+.tool-sub{text-align:center;font-size:15px;color:var(--text-muted);padding-bottom:8px;position:relative;z-index:1}
+
+.main{max-width:800px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1}
+
+.progress-track{height:6px;background:var(--accent-dim);border:1px solid var(--border-solid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-amber));transition:width .35s ease}
+.steps-row{display:flex;gap:6px;margin:14px 0 28px;flex-wrap:wrap}
+.step-chip{border:1px solid var(--border-solid);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.step-chip:hover{border-color:var(--accent-border);color:var(--accent)}
+.step-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.step-chip.done{border-color:var(--accent-border);color:var(--accent)}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-size:clamp(21px,3.4vw,27px);font-weight:700;letter-spacing:-0.6px;margin-bottom:16px}
+
+.content p{line-height:1.7;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+.content p.small{font-size:13.5px;color:var(--text-muted)}
+.content strong{color:var(--text);font-weight:700}
+.content ul{padding-left:20px;line-height:1.8;font-size:15px;color:var(--text-secondary);margin-bottom:14px}
+
+.info-box{border-left:3px solid var(--accent-amber);background:var(--amber-dim);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+.info-box .info-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-box p{margin:0 0 8px;font-size:14px;color:var(--text-secondary);line-height:1.65}
+.info-box p:last-child{margin-bottom:0}
+.info-box--accent{border-left-color:var(--accent);background:var(--accent-dim)}
+.info-box--accent .info-title{color:var(--accent)}
+
+ol.rules-list{list-style:none;counter-reset:rule;margin:16px 0}
+ol.rules-list li{counter-increment:rule;position:relative;padding:11px 0 11px 40px;font-size:15px;line-height:1.6;color:var(--text-secondary);border-bottom:1px solid var(--border-solid)}
+ol.rules-list li:last-child{border-bottom:none}
+ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px;width:26px;height:26px;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);font-weight:700;font-size:12.5px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* Formules in de lopende tekst en in kaartjes */
+.f{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;font-size:17px;color:var(--text);margin:0 2px}
+.f .kant{display:inline-flex;align-items:center}
+.f-groot{display:flex;align-items:center;justify-content:center;gap:12px;font-size:26px;color:var(--text);padding:10px 0}
+.kaart{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;padding:18px;margin:18px 0}
+.kaart-kop{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;text-align:center}
+
+.keuze-rij{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.keuze-btn{font-family:var(--font);font-size:16px;min-width:52px;padding:8px 14px;border-radius:10px;border:1.5px solid var(--border-solid);background:var(--bg-secondary);color:var(--text);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.keuze-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.keuze-btn.actief{background:var(--accent);border-color:var(--accent);color:#fff}
+.keuze-btn.goed{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.keuze-btn.fout{border-color:var(--red);background:var(--red-dim);color:var(--red);opacity:.7}
+.keuze-btn .vlek{color:inherit}
+.klein-btn{font-family:var(--font);font-size:12.5px;padding:6px 12px;border-radius:14px;border:1px solid var(--border-solid);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.klein-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.controle{font-size:14px;line-height:1.9;color:var(--text-secondary);text-align:center;min-height:28px;padding:4px 8px;border-radius:8px}
+.controle.goed{color:var(--green);background:var(--green-dim)}
+.controle.fout{color:var(--red);background:var(--red-dim)}
+.controle-som{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;font-size:17px;margin:0 3px;color:var(--text)}
+.controle-som .kant{display:inline-flex;align-items:center}
+
+/* Probeer zelf: tussendoor oefenen in de uitleg */
+.probeer{border:1.5px solid var(--accent-amber);background:var(--bg-card);border-radius:12px;padding:16px 18px;margin:20px 0}
+.probeer-kop{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.probeer-kop .teller{color:var(--text-muted);font-weight:500;letter-spacing:.3px;text-transform:none}
+.probeer-vraag{font-size:15px;color:var(--text-secondary);line-height:1.7;text-align:center}
+.probeer-vraag .f{font-size:19px}
+.probeer .stapper{border:none;padding:4px 0 0;margin:6px 0 0;background:transparent}
+.probeer .stapper-kop{display:none}
+.stapper.demo[hidden]{display:none}
+.stapper.demo{border-top:1px dashed var(--border-solid);margin-top:10px;padding-top:6px}
+.stapper.demo .stapper-knoppen,.stapper.demo .stapper-operanden,.stapper.demo .stapper-voet,.stapper.demo .stapper-melding{display:none}
+.probeer-uitleg{font-size:14px;line-height:1.7;padding:8px 12px;border-radius:8px;margin-top:6px;text-align:center}
+.probeer-uitleg:empty{display:none}
+.probeer-uitleg.goed{color:var(--green);background:var(--green-dim)}
+.probeer-uitleg.fout{color:var(--red);background:var(--red-dim)}
+.probeer-voet{display:flex;justify-content:center;margin-top:8px}
+.paren{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.paar{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border:1px solid var(--border-solid);border-radius:10px;background:var(--bg-card);font-size:15px;font-weight:600;color:var(--text)}
+.paar .pijl{color:var(--accent-amber)}
+
+/* Gegeven waarden bij een woordensom, elk op een eigen regel */
+.gegeven{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 8px 8px 0;font-size:16px;color:var(--text)}
+.gegeven-kop{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent)}
+
+/* Tussenkopje als twee korte stappen op één pagina staan */
+.hoofdstuk-hint{margin:26px 0 0;padding:10px 14px;border:1px dashed var(--accent-border);border-radius:10px;font-size:13.5px;color:var(--text-secondary);text-align:center}
+.hoofdstuk-hint b{color:var(--accent)}
+.sub-titel{font-size:19px;font-weight:700;letter-spacing:-0.4px;margin:34px 0 14px;padding-top:24px;border-top:1px solid var(--border-solid)}
+/* Oefen nu: einde van een hoofdstuk */
+.oefen-kaart{background:var(--bg-card);border:2px solid var(--accent);border-radius:12px;padding:20px 22px;margin:26px 0 8px;text-align:center}
+.oefen-kop{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.oefen-kaart p{margin:0 0 14px}
+
+/* Rekenfamilie: drie sommen die bij elkaar horen */
+.familie{display:flex;flex-direction:column;gap:6px;align-items:center;margin:8px 0 6px}
+.familie-rij{display:flex;align-items:center;justify-content:center;gap:10px;font-size:22px;color:var(--text);padding:6px 18px;border-radius:10px;border:1.5px solid transparent;transition:all .25s;min-width:220px}
+.familie-rij.raak{border-color:var(--green);background:var(--green-dim)}
+.familie-rij .kant{display:inline-flex;align-items:center}
+.familie-label{font-size:12px;color:var(--green);font-weight:600;margin-left:6px;white-space:nowrap}
+
+/* Weegschaal */
+.balans{position:relative;width:320px;height:230px;margin:6px auto 0}
+.balans-arm{position:absolute;left:30px;top:66px;width:260px;height:6px;border-radius:3px;background:var(--text-secondary);transition:transform .6s cubic-bezier(.4,.1,.3,1)}
+.balans-as{position:absolute;left:153px;top:62px;width:14px;height:14px;border-radius:50%;background:var(--accent-amber)}
+.balans-voet{position:absolute;left:130px;top:72px;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:140px solid var(--border-solid)}
+.balans-grond{position:absolute;left:90px;top:210px;width:140px;height:6px;border-radius:3px;background:var(--border-solid)}
+.schaal{position:absolute;top:69px;width:120px;margin-left:-60px;display:flex;flex-direction:column;align-items:center;transition:transform .6s cubic-bezier(.4,.1,.3,1)}
+.schaal.links{left:30px}
+.schaal.rechts{left:290px}
+.schaal-touw{width:90px;height:30px}
+.schaal-touw line{stroke:var(--text-muted);stroke-width:1.5}
+.schaal-bak{min-width:110px;min-height:48px;padding:4px 8px 6px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:19px;color:var(--text);border-bottom:4px solid var(--text-secondary);border-radius:0 0 40px 40px;background:var(--bg-card)}
+.schaal-bak .kant{display:inline-flex;align-items:center}
+.schaal-waarde{font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:4px}
+.balans-melding{text-align:center;font-size:14px;font-weight:600;min-height:22px;margin:6px 0 10px}
+.balans-melding.goed{color:var(--green)}
+.balans-melding.scheef{color:var(--red)}
+
+table.letters{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:15px}
+table.letters th{font-family:var(--mono);font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--border-solid)}
+table.letters td{padding:10px;border-bottom:1px solid var(--border-solid);color:var(--text-secondary)}
+table.letters td.letter{font-size:22px;font-weight:600;color:var(--accent);width:70px;text-align:center}
+
+.cta-card{background:var(--bg-card);border:1px solid var(--accent-border);border-radius:12px;padding:22px 24px;margin-top:22px;text-align:center}
+.cta-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.cta-card p{font-size:14px;color:var(--text-secondary);margin-bottom:16px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+
+.nav-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--border-solid)}
+.nav-btn{font-family:var(--font);font-size:14px;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:#0999aa}
+.nav-btn.secondary{background:transparent;color:var(--accent)}
+.nav-btn.secondary:hover:not(:disabled){background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.step-count{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:center}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@media(prefers-reduced-motion:reduce){.balans-arm,.schaal,.familie-rij{transition:none}}
+@media(max-width:560px){
+  .app-title,.header-left .crumb-sep:first-of-type{display:none}
+}
+@media(max-width:760px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .tool-name{padding-top:24px}
+  .stapper-regel{font-size:18px;gap:8px}
+  .nav-btn{padding:11px 15px;font-size:13.5px}
+  .f-groot{font-size:22px}
+}
+
+/* Klas 3: rekenpad en zelf typen */
+.f-groot .f{font-size:inherit}
+.pad{display:flex;flex-direction:column;gap:6px;align-items:center;margin:16px 0}
+.pad-rij{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.pad-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);margin-top:6px}
+.pad-stap{padding:6px 12px;border-radius:9px;border:1.5px solid var(--border-solid);background:var(--bg-card);font-size:17px;font-weight:600;color:var(--text)}
+.pad-stap.letter{border-color:var(--accent);color:var(--accent)}
+.pad-stap.terug{border-color:var(--accent-amber);color:var(--accent-amber)}
+.pad-pijl{color:var(--text-muted);font-size:16px}
+.typproef{border:1.5px solid var(--accent);background:var(--bg-card);border-radius:12px;padding:16px 18px;margin:20px 0}
+.typproef-kop{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.typproef-vraag{font-size:15px;color:var(--text-secondary);line-height:1.7;text-align:center;margin-bottom:10px}
+.typproef-vraag .f{font-size:19px}
+.typproef-rij{display:flex;gap:8px}
+.typproef input{flex:1;min-width:0;padding:11px 14px;font-family:var(--mono);font-size:18px;border:2px solid var(--border-solid);border-radius:10px;background:var(--bg-secondary);color:var(--text);outline:none}
+.typproef input:focus{border-color:var(--accent)}
+.typproef-voorbeeld{min-height:44px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:21px;color:var(--text);margin-top:10px;padding:6px;border-radius:10px;background:var(--accent-dim)}
+.typproef-voorbeeld .kant{display:inline-flex;align-items:center}
+.typproef-leeg{font-size:13px;color:var(--text-muted)}
+.typproef-uitleg{font-size:14px;line-height:1.9;padding:8px 12px;border-radius:8px;margin-top:8px;text-align:center}
+.typproef-uitleg:empty{display:none}
+.typproef-uitleg.goed{color:var(--green);background:var(--green-dim)}
+.typproef-uitleg.fout{color:var(--red);background:var(--red-dim)}
+.controle-som{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;margin:0 3px;color:var(--text)}
+.controle-som .kant{display:inline-flex;align-items:center}
+.f-stap{display:inline-flex;align-items:center;vertical-align:middle}
+code{font-family:var(--mono);font-size:.92em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="/assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb-sep">›</span>
+    <a href="../../../#klas3" class="crumb">Formules omschrijven</a>
+    <span class="crumb-sep">›</span>
+    <span class="crumb">Uitleg klas 3</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<h1 class="tool-name">Omschrijven in klas 3</h1>
+<p class="tool-sub">Letters, vier letters en het gemiddelde</p>
+
+<div class="main">
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="steps-row" id="stepsRow"></div>
+
+  <div id="badgeSlot"></div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <div class="content" id="stepContent"></div>
+  <p class="hoofdstuk-hint" id="hoofdstukHint" hidden></p>
+
+  <div class="nav-bar">
+    <button class="nav-btn secondary" id="prevBtn">← Vorige</button>
+    <span class="step-count" id="stepCount"></span>
+    <button class="nav-btn" id="nextBtn">Volgende →</button>
+  </div>
+
+</div>
+
+<footer>
+  <img src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+  <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
+</footer>
+
+<script src="../../../js/stapper.js"></script>
+<script src="../../../js/onderbouw.js"></script>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='/assets/logo/JK_dark.svg';if(fl)fl.src='/assets/logo/JK_white.svg';
+    if(fav)fav.href='/assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='/assets/logo/JK_light.svg';if(fl)fl.src='/assets/logo/JK_black.svg';
+    if(fav)fav.href='/assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
+  }
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+// Klas 3 kent letters al uit klas 2. Deze uitleg begint daarom bij letters en
+// gaat over wat nieuw is: keer en plus in één formule, de volgorde waarin je
+// ze weghaalt, haakjes, en zelf typen.
+const OB={maal:'×'};
+const F=tekst=>'<span class="f">'+toonVergelijking(tekst,OB)+'</span>';
+const U=tekst=>'<span class="f">'+toonUitdrukking(tekst,OB)+'</span>';
+const ALLE='plus,min,maal,deel,wissel';
+
+// Een rekenpad: hoe je van de letter naar de uitkomst rekent, en terug.
+function padHTML(letter,heen,uitkomst,terug){
+  const rij=(stukken)=>'<div class="pad-rij">'+stukken.map((s,i)=>(i?'<span class="pad-pijl">→</span>':'')+s).join('')+'</div>';
+  const stap=(t,k)=>'<span class="pad-stap'+(k?' '+k:'')+'">'+t+'</span>';
+  return '<div class="pad">'+
+    '<span class="pad-label">uitrekenen</span>'+
+    rij([stap(letter,'letter')].concat(heen.map(t=>stap(t)),[stap(uitkomst)]))+
+    '<span class="pad-label">omschrijven: terug, in omgekeerde volgorde</span>'+
+    rij([stap(uitkomst)].concat(terug.map(t=>stap(t,'terug')),[stap(letter,'letter')]))+
+    '</div>';
+}
+
+/* ── Probeer zelf: een keuzevraag ──────────────────────────────────── */
+const KEUZES={
+  volgorde:{
+    som:'x = 2*a+b',doel:'a',bew:ALLE,
+    vraag:()=>F('x = 2*a+b')+'<br>Je zoekt <b>a</b>. Wat doe je als eerste?',
+    opties:[
+      {html:()=>'b eraf',stap:['min','b'],      goed:true, uitleg:'Ja. Bij het uitrekenen komt plus b als laatste. Dat haal je dus als eerste weg. Dan staat er nog x − b = 2 × a.'},
+      {html:()=>'delen door 2',stap:['deel','2'],goed:false,uitleg:'Kijk wat er gebeurt: de 2 valt niet weg, want de hele som 2 × a + b wordt door 2 gedeeld, dus de b ook. Haal eerst weg wat als laatste gebeurde: plus b.'},
+      {html:()=>'x eraf',stap:['min','x'],      goed:false,uitleg:'De x staat niet bij a. Die laat je staan. Je haalt weg wat er bij a staat.'},
+    ]},
+  gemiddelde:{
+    som:'v_gem = (v_b+v_e)/2',doel:'v_b',bew:ALLE,
+    vraag:()=>F('v_gem = (v_b+v_e)/2')+'<br>Je zoekt de beginsnelheid <b>v<sub>b</sub></b>. Wat doe je als eerste?',
+    opties:[
+      {html:()=>'keer 2',stap:['maal','2'],         goed:true, uitleg:'Ja. Eerst tel je de twee snelheden op, en als laatste deel je door 2. Dat delen haal je dus als eerste weg: keer 2. Dan is de deelstreep weg en staat rechts alleen nog de som van de twee snelheden.'},
+      {html:()=>'v<sub>e</sub> eraf',stap:['min','v_e'],goed:false,uitleg:'De eindsnelheid zit boven de deelstreep, samen met de beginsnelheid, als één blok. Haal je hem eraf, dan valt hij niet weg: hij moet nog door 2 gedeeld worden. Eerst moet de deelstreep weg.'},
+      {html:()=>'delen door 2',stap:['deel','2'],   goed:false,uitleg:'Dan deel je nog een keer door 2. Het tegenovergestelde van delen door 2 is keer 2.'},
+    ]},
+};
+
+function tekenKeuze(el){
+  const k=KEUZES[el.dataset.keuze];
+  el.innerHTML='<div class="probeer-kop">Probeer zelf</div><div class="probeer-vraag">'+k.vraag()+'</div>'+
+    '<div class="keuze-rij"></div><div class="stapper demo" hidden></div><div class="probeer-uitleg"></div>';
+  const rij=el.querySelector('.keuze-rij'),uitleg=el.querySelector('.probeer-uitleg'),demo=el.querySelector('.stapper.demo');
+  // Laat zien wat de gekozen stap doet: de stapper op de beginsom, dan de stap.
+  let timer=null;
+  const doeVoor=stap=>{
+    clearTimeout(timer);
+    demo.hidden=false;
+    demo.dataset.formule=k.som;demo.dataset.doel=k.doel;demo.dataset.stijl='onderbouw';
+    demo.dataset.bewerkingen=k.bew;
+    demo.stapperNamen=null;
+    initStapper(demo);
+    timer=setTimeout(()=>demo.stapperDoe(stap[0],stap[1]),250);
+  };
+  k.opties.forEach(o=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='keuze-btn';b.innerHTML=o.html();
+    b.onclick=()=>{
+      rij.querySelectorAll('.keuze-btn').forEach(x=>x.classList.remove('goed','fout'));
+      b.classList.add(o.goed?'goed':'fout');
+      uitleg.textContent=o.uitleg;
+      uitleg.className='probeer-uitleg '+(o.goed?'goed':'fout');
+      if(o.stap)doeVoor(o.stap);
+    };
+    rij.appendChild(b);
+  });
+}
+
+/* ── Probeer zelf: typen ───────────────────────────────────────────── */
+// Een invulvak met de formule eronder zoals hij er echt staat. Met
+// data-formule en data-doel wordt het antwoord ook nagekeken.
+function tekenTypproef(el){
+  const formule=el.dataset.formule,doel=el.dataset.doel;
+  const opgave=formule?(()=>{const p=pelAf(formule,doel);return {formule,doel,stappen:p.stappen,antwoord:p.antwoord};})():null;
+  el.innerHTML='<div class="typproef-kop">Typ zelf</div>'+
+    (el.dataset.vraag?'<div class="typproef-vraag">'+el.dataset.vraag.replace(/\{([^}]+)\}/g,(m,f)=>F(f))+'</div>':'')+
+    '<div class="typproef-rij"><input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Typ een formule">'+
+    (opgave?'<button type="button" class="keuze-btn">Controleer</button>':'')+'</div>'+
+    '<div class="typproef-voorbeeld"></div><div class="typproef-uitleg"></div>';
+  const inp=el.querySelector('input'),vb=el.querySelector('.typproef-voorbeeld'),uitleg=el.querySelector('.typproef-uitleg');
+  inp.value=el.dataset.start||(doel?doel+' = ':'');
+  const teken=()=>{
+    uitleg.textContent='';uitleg.className='typproef-uitleg';
+    const delen=normaliseerInvoer(inp.value).split('=');
+    const rechts=delen[delen.length-1];
+    if(!rechts){vb.innerHTML='<span class="typproef-leeg">Typ hierboven een formule.</span>';return;}
+    try{
+      vb.innerHTML=delen.length===2&&delen[0]?toonVergelijking(delen[0]+'='+rechts,OB):toonUitdrukking(rechts,OB);
+      const m=rechts.match(/([A-Za-z])(\d+)/);
+      if(m)vb.innerHTML+='<span class="typproef-leeg" style="margin-left:10px">Bedoel je '+m[2]+' keer '+m[1]+'? Typ dan '+m[2]+m[1]+'.</span>';
+    }
+    catch(e){vb.innerHTML='<span class="typproef-leeg">Nog niet af… (staan de haakjes goed?)</span>';}
+  };
+  const kijkNa=()=>{
+    if(!opgave)return;
+    const r=nakijkKlas3(inp.value,opgave);
+    let tekst,goed=false;
+    if(r.status==='goed'){goed=true;tekst='Goed! Netjes opgeschreven: <span class="controle-som">'+toonVergelijking(doel+' = '+naarTekst(opgave.antwoord),OB)+'</span>';}
+    else if(r.status==='fout')tekst=r.volgorde
+      ?'Goede stappen, maar in de verkeerde volgorde. Eerst '+stapTekst(opgave.stappen[0])+'.'
+      :(getalProefKlas3(opgave,r.rechts)||'Dat klopt nog niet.');
+    else if(r.status==='onleesbaar')tekst='Dat kan ik niet lezen. Staan de haakjes goed?';
+    else if(r.status==='links')tekst='Links van het = moet alleen '+doel+' staan.';
+    else if(r.status==='leeg')tekst='Typ eerst je antwoord achter '+doel+' =.';
+    else if(r.status==='getalAchter')tekst=getalAchterTekst(r);
+    else if(r.status==='doelRechts')tekst='Rechts staat ook nog '+doel+'. Die moet helemaal alleen staan.';
+    else tekst='Gebruik alleen de letters uit de formule.';
+    uitleg.innerHTML=tekst;
+    uitleg.className='typproef-uitleg '+(goed?'goed':'fout');
+  };
+  inp.addEventListener('input',teken);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();kijkNa();}});
+  const knop=el.querySelector('button');
+  if(knop)knop.onclick=kijkNa;
+  teken();
+}
+
+/* ── De stappen ────────────────────────────────────────────────────── */
+const STAPPEN=[
+{
+  badge:'Keer en delen',
+  title:'Wat je al kunt',
+  html:`
+    <p>In klas 2 heb je geleerd dat een letter een getal is dat je nog niet weet. Het isgelijkteken is een weegschaal: wat je links doet, doe je ook rechts. En je haalt weg wat er bij de letter staat met het <strong>tegenovergestelde</strong>:</p>
+    <div class="paren">
+      <span class="paar">keer <span class="pijl">⇄</span> delen door</span>
+      <span class="paar">erbij <span class="pijl">⇄</span> eraf</span>
+    </div>
+    <p>Even opwarmen. Zoek de <strong>b</strong>. Die staat onder de deelstreep: haal hem eerst naar boven met keer.</p>
+    <div class="stapper" data-formule="x = a/b" data-doel="b"></div>
+    <div class="info-box">
+      <div class="info-title">Weet je het nog?</div>
+      <p>Staat wat je zoekt onder de deelstreep, doe dan eerst allebei de kanten keer die letter. Daarna deel je weg wat er nog naast staat.</p>
+    </div>
+    <div class="oefen-kaart" data-level="1"></div>
+  `
+},
+{
+  badge:'Plus en min',
+  title:'Plus en min',
+  html:`
+    <p>Plus en min gaan net zo. Bij een min voor wat je zoekt moet je wel even opletten. Zoek de <strong>b</strong>:</p>
+    <div class="stapper" data-formule="x = a-b" data-doel="b"></div>
+    <div class="info-box">
+      <div class="info-title">Een min ervoor</div>
+      <p>Staat er een min voor wat je zoekt, tel het dan eerst bij allebei de kanten op. Dan is de min weg. Daarna haal je weg wat er nog bij staat.</p>
+    </div>
+    <div class="oefen-kaart" data-level="2"></div>
+  `
+},
+{
+  badge:'Vier letters',
+  title:'Vier letters',
+  html:`
+    <p>Bij natuurkunde kom je ook formules met vier grootheden tegen, bijna altijd met alleen keer en delen. Er verandert niets: je haalt weg wat er bij je letter staat, één voor één.</p>
+    <div class="f-groot">${F('x = a*b/c')}</div>
+    <p>Zoek de <strong>a</strong>. Bij a staat "keer b" en "gedeeld door c". Haal ze allebei weg met het tegenovergestelde. De volgorde maakt hier niet uit.</p>
+    <div class="stapper" data-formule="x = a*b/c" data-doel="a"></div>
+    <p>Nu de <strong>c</strong>. Die staat onder de deelstreep. Haal hem eerst naar boven met keer c, en deel daarna weg wat er nog bij c staat.</p>
+    <div class="stapper" data-formule="x = a*b/c" data-doel="c"></div>
+    <div class="info-box">
+      <div class="info-title">Alleen keer en delen</div>
+      <p>Heb je alleen keer en delen, dan maakt de volgorde van je stappen niet uit. Dat verandert als er ook een plus of min in staat. Dat zie je in het volgende hoofdstuk.</p>
+    </div>
+    <div class="oefen-kaart" data-level="3"></div>
+  `
+},
+{
+  badge:'Gemiddelde',
+  title:'Het gemiddelde',
+  html:`
+    <p>Een fietser begint met een snelheid van 4 m/s en eindigt met 8 m/s. Versnelt hij gelijkmatig, dan is zijn gemiddelde snelheid precies het midden: (4 + 8) / 2 = 6 m/s. Als formule:</p>
+    <div class="f-groot">${F('v_gem = (v_b+v_e)/2')}</div>
+    <p>Hier staat een plus én een deelstreep. Wil je de beginsnelheid v<sub>b</sub> weten, welke haal je dan als eerste weg? Kijk hoe je v<sub>gem</sub> uitrekent: eerst tel je de twee snelheden op, en als laatste deel je door 2. Omschrijven is <strong>terugrekenen</strong>: je doet het tegenovergestelde, en je begint bij wat het laatst kwam.</p>
+    ${padHTML('v<sub>b</sub>',['+ v<sub>e</sub>','delen door 2'],'v<sub>gem</sub>',['× 2','− v<sub>e</sub>'])}
+    <p>Het is net als aankleden. Eerst trek je je sokken aan en dan je schoenen. Bij het uitkleden gaan eerst je schoenen uit, en dan pas je sokken.</p>
+    <div class="probeer" data-keuze="gemiddelde"></div>
+    <p>Probeer het nu met de stapper.</p>
+    <div class="stapper" data-formule="v_gem = (v_b+v_e)/2" data-doel="v_b"></div>
+    <div class="info-box info-box--accent">
+      <div class="info-title">De regel</div>
+      <p>Een som boven de deelstreep is <strong>één blok</strong>. Eerst moet de deelstreep weg, met keer. Pas daarna kun je bij wat er in het blok staat.</p>
+    </div>
+    <p>Bij het oefenen staan er losse letters. Het werkt precies hetzelfde. Let op: hier staat ook nog een min voor wat je zoekt.</p>
+    <div class="stapper" data-formule="x = (a-b)/2" data-doel="b"></div>
+    <div class="oefen-kaart" data-level="4"></div>
+  `
+},
+{
+  badge:'Door elkaar',
+  title:'Extra: keer en plus door elkaar',
+  html:`
+    <p>Dit hoofdstuk is extra. Bij natuurkunde in klas 3 kom je dit nog weinig tegen, maar wie verder wil, kan hier verder. In deze formule staat er bij a <strong>keer 2</strong> én <strong>plus b</strong>:</p>
+    <div class="f-groot">${F('x = 2*a+b')}</div>
+    <p>Dezelfde regel als bij het gemiddelde: haal eerst weg wat het laatst kwam bij het uitrekenen. Eerst doe je a keer 2, daarna tel je b erbij op. Terug gaat het dus andersom.</p>
+    ${padHTML('a',['× 2','+ b'],'x',['− b','delen door 2'])}
+    <div class="probeer" data-keuze="volgorde"></div>
+    <div class="stapper" data-formule="x = 2*a+b" data-doel="a"></div>
+    <div class="oefen-kaart" data-level="5"></div>
+  `
+},
+{
+  badge:'Typen',
+  title:'Test jezelf: zelf typen',
+  html:`
+    <p>Kun je het met de stapper? Test jezelf dan. In de test typ je het antwoord zelf, zonder stapper. Pas als je een fout maakt, laat de stapper zien hoe het moet.</p>
+    <p>Op een toetsenbord heb je geen deelstreep en geen ×-teken. Daarom spreken we af:</p>
+    <table class="letters">
+      <tr><th>Je bedoelt</th><th>Je typt</th></tr>
+      <tr><td>${U('a*b')}</td><td><code>a*b</code> (of gewoon <code>ab</code>)</td></tr>
+      <tr><td>${U('a/b')}</td><td><code>a/b</code></td></tr>
+      <tr><td>${U('(a+b)/2')}</td><td><code>(a+b)/2</code></td></tr>
+      <tr><td>${U('2*a')}</td><td><code>2a</code> of <code>2*a</code>, met het getal vóór de letter (<code>a2</code> betekent a met nummertje 2)</td></tr>
+    </table>
+    <p>Onder het invulvak zie je steeds hoe jouw formule er echt uitziet. Kijk wat er gebeurt als je de haakjes weglaat:</p>
+    <div class="typproef" data-start="a = x-b/2" data-vraag="Hier staan nog geen haakjes. Zet ze om x-b heen en kijk hoe de breuk verandert."></div>
+    <div class="info-box">
+      <div class="info-title">Haakjes</div>
+      <p><code>x-b/2</code> betekent dat alleen b door 2 gedeeld wordt. <code>(x-b)/2</code> betekent dat de hele som door 2 gedeeld wordt. Staat er een som boven of onder de deelstreep, dan typ je dus haakjes.</p>
+    </div>
+    <div class="typproef" data-formule="x = a*b/c" data-doel="c" data-vraag="Typ de omschrijving van {x = a*b/c} naar c."></div>
+    <div class="typproef" data-formule="x = (a+b)/2" data-doel="a" data-vraag="Typ de omschrijving van {x = (a+b)/2} naar a."></div>
+    <div class="cta-card">
+      <h3>Test jezelf</h3>
+      <p>Tien opgaven, van makkelijk naar moeilijker. Aan het eind zie je je score.</p>
+      <a href="../oefenen/?modus=test" class="cta-btn">Start de test →</a>
+    </div>
+  `
+},
+{
+  badge:'Samenvatting',
+  title:'Aan de slag',
+  html:`
+    <p>Op een rijtje:</p>
+    <ol class="rules-list">
+      <li>Wat je links doet, doe je ook <strong>rechts</strong>.</li>
+      <li>Doe het <strong>tegenovergestelde</strong>: keer en delen door horen bij elkaar, erbij en eraf ook.</li>
+      <li>Staat er een min voor wat je zoekt, tel het dan erbij. Staat het onder de deelstreep, doe dan keer.</li>
+      <li>Omschrijven is terugrekenen. Staan er plus en keer door elkaar, haal dan eerst weg wat bij het uitrekenen als <strong>laatste</strong> komt.</li>
+      <li>Een som boven de deelstreep of tussen haakjes is <strong>één blok</strong>. Eerst moet de deelstreep weg.</li>
+      <li>Typ <code>*</code> voor keer en <code>/</code> voor delen. Een som boven of onder de deelstreep zet je tussen <strong>haakjes</strong>.</li>
+    </ol>
+    <div class="cta-card">
+      <h3>Nu zelf oefenen</h3>
+      <p>Oefen met de stapper en klim op naar het gemiddelde. Daarna test je jezelf.</p>
+      <a href="../oefenen/" class="cta-btn">Oefenen →</a>
+    </div>
+  `
+}
+];
+
+/* ── Hoofdstukken ──────────────────────────────────────────────────────
+   Elk hoofdstuk hoort bij een level van het oefenen. Na een hoofdstuk oefen
+   je dat level (tot vijf goed op rij) en kom je terug voor het volgende. */
+const INDELING=[
+  {titel:'Keer en delen', level:1, paginas:[{delen:['Keer en delen']}]},
+  {titel:'Plus en min',   level:2, paginas:[{delen:['Plus en min']}]},
+  {titel:'Vier letters',  level:3, paginas:[{delen:['Vier letters']}]},
+  {titel:'Gemiddelde',    level:4, paginas:[{delen:['Gemiddelde']}]},
+  {titel:'Extra',         level:5, paginas:[{delen:['Door elkaar']}]},
+  {titel:'Test jezelf',   paginas:[{delen:['Typen']}]},
+  {titel:'Samenvatting',  paginas:[{delen:['Samenvatting']}]},
+];
+
+const steps=[];
+INDELING.forEach((h,hi)=>{
+  h.paginas.forEach((p,pi)=>{
+    const delen=p.delen.map(b=>STAPPEN.find(x=>x.badge===b));
+    const html=delen.map((d,i)=>(i?'<h3 class="sub-titel">'+d.title+'</h3>':'')+d.html).join('');
+    steps.push({hoofdstuk:hi,pagina:pi,aantal:h.paginas.length,badge:h.titel,
+                title:p.titel||delen[0].title,html:html});
+  });
+});
+const eersteVan=hi=>steps.findIndex(s=>s.hoofdstuk===hi);
+const AANTAL_LEVELS=INDELING.filter(h=>h.level).length;
+
+function tekenOefenKaart(el){
+  const n=Number(el.dataset.level);
+  const s=steps[current];
+  const volgende=eersteVan(s.hoofdstuk+1);
+  const terug='../uitleg/#p='+(volgende<0?current:volgende);
+  const href='../oefenen/?level='+n+'&terug='+encodeURIComponent(terug);
+  const naam=INDELING[s.hoofdstuk].titel.toLowerCase();
+  el.innerHTML='<div class="oefen-kop">Oefen nu · level '+n+'</div>'+
+    '<p>Oefen met '+naam+' tot je <strong>vijf keer goed op rij</strong> hebt. Daarna ga je hier verder met het volgende hoofdstuk.</p>'+
+    '<a class="cta-btn" href="'+href+'">Oefen level '+n+' →</a>';
+}
+
+function startStapper(el){
+  el.dataset.stijl='onderbouw';
+  el.dataset.bewerkingen=el.dataset.bewerkingen||ALLE;
+  el.stapperNamen=null;
+  initStapper(el);
+}
+
+// Startpagina uit de adresbalk (#p=3): zo kom je na het oefenen terug op de goede plek.
+let current=(()=>{
+  const m=location.hash.match(/p=(\d+)/);
+  const p=m?Number(m[1]):0;
+  return p>=0&&p<steps.length?p:0;
+})();
+
+function renderChips(){
+  const row=document.getElementById('stepsRow');
+  row.innerHTML='';
+  const nu=steps[current].hoofdstuk;
+  INDELING.forEach((h,hi)=>{
+    const chip=document.createElement('button');
+    chip.className='step-chip'+(hi===nu?' active':(hi<nu?' done':''));
+    chip.textContent=h.level?h.level+'. '+h.titel:h.titel;
+    chip.onclick=()=>{current=eersteVan(hi);render();};
+    row.appendChild(chip);
+  });
+}
+
+function render(){
+  const s=steps[current], last=current===steps.length-1;
+  document.getElementById('badgeSlot').innerHTML='<span class="badge">'+s.badge+'</span>';
+  document.getElementById('stepTitle').textContent=s.title;
+  const content=document.getElementById('stepContent');
+  content.innerHTML=s.html;
+  content.querySelectorAll(':scope > .stapper[data-formule]').forEach(startStapper);
+  content.querySelectorAll('.probeer[data-keuze]').forEach(tekenKeuze);
+  content.querySelectorAll('.typproef').forEach(tekenTypproef);
+  content.querySelectorAll('.oefen-kaart').forEach(tekenOefenKaart);
+  document.getElementById('progressFill').style.width=((current+1)/steps.length*100)+'%';
+  const h=INDELING[s.hoofdstuk];
+  const hint=document.getElementById('hoofdstukHint');
+  const nogTe=s.aantal-1-s.pagina;
+  hint.hidden=!(h.level&&nogTe>0);
+  if(!hint.hidden)hint.innerHTML='Nog '+nogTe+(nogTe===1?' pagina':" pagina's")+
+    ' in dit hoofdstuk. Daarna oefen je <b>level '+h.level+'</b>.';
+  document.getElementById('stepCount').textContent=h.level
+    ?'Hoofdstuk '+h.level+' van '+AANTAL_LEVELS+(s.aantal>1?' · pagina '+(s.pagina+1)+' van '+s.aantal:'')
+    :h.titel;
+  history.replaceState(null,'',location.pathname+location.search+'#p='+current);
+  document.getElementById('prevBtn').disabled=current===0;
+  document.getElementById('nextBtn').textContent=last?'Naar oefenen →':'Volgende →';
+  renderChips();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').onclick=()=>{if(current>0){current--;render();}};
+document.getElementById('nextBtn').onclick=()=>{
+  if(current<steps.length-1){current++;render();}
+  else{window.location='../oefenen/';}
+};
+
+document.addEventListener('keydown',(e)=>{
+  if(e.target.closest('.stapper')||e.target.closest('input')) return;
+  if(e.key==='ArrowRight'&&current<steps.length-1){current++;render();}
+  if(e.key==='ArrowLeft'&&current>0){current--;render();}
+});
+
+render();
+</script>
+</body>
+</html>

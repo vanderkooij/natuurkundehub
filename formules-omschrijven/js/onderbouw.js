@@ -7,8 +7,9 @@
      2. een woordformule met getallen   3 = afstand / 4
      3. woord en symbool samen      v (snelheid) = s (afstand) / t (tijd)
      4. alleen symbolen             v = s / t, a = b · c
-   Alleen keer en delen, hooguit vier grootheden, geen haakjes, wortels of
-   machten. Heeft stapper.js nodig (parse, rekenWaarde).
+   Keer en delen óf plus en min, hooguit vier grootheden, geen haakjes, wortels
+   of machten. Onderaan staat het klas 3-spoor.
+   Heeft stapper.js nodig (parse, rekenWaarde, knoop, kopie).
    ══════════════════════════════════════════════════════════════════════ */
 
 const VLEK_SVG =
@@ -28,8 +29,9 @@ const NIVEAUS = {
   2: { naam: 'Woordformules',   kort: 'woorden',         uitleg: 'Woorden met getallen' },
   3: { naam: 'Woord en letter', kort: 'woord en letter', uitleg: 'Het woord en de letter samen' },
   4: { naam: 'Letters',         kort: 'letters',         uitleg: 'Alleen letters' },
-  5: { naam: 'Extra: klas 3',   kort: 'klas 3',          uitleg: 'Losse letters, soms vier' },
 };
+// Het vroegere level 5 (losse letters, soms vier) zit nu in het klas 3-spoor
+// (zie onderaan); maakOpgave(5) maakt die opgaven nog wel.
 
 /* ── Hulpjes ────────────────────────────────────────────────────────── */
 
@@ -446,24 +448,278 @@ function kortsteRoute(formule, doel, uitrekenen, maxDiepte, bewerkingen){
   const soorten = bewerkingen || KEERDEEL_STAPPEN;
   const [l, r] = formule.split('=');
   let rij = [{ links: parse(l), rechts: parse(r) }];
-  const gezien = new Set();
+  // Een stand die al eens langskwam, hoeft niet opnieuw: anders groeit de rij
+  // bij gemengde formules (vier knoppen, veel operanden) explosief.
+  const gezien = new Set([naarTekst(rij[0].links) + '=' + naarTekst(rij[0].rechts)]);
   const klaar = (a, b) => a.t === 'var' && a.naam === doel && !bevat(b, doel) && (!uitrekenen || b.t === 'num');
   for(let diepte = 0; diepte <= (maxDiepte || 5); diepte++){
     const volgende = [];
+    const nieuw = s => {
+      const sleutel = naarTekst(s.links) + '=' + naarTekst(s.rechts);
+      if(!gezien.has(sleutel)){ gezien.add(sleutel); volgende.push(s); }
+    };
     for(const s of rij){
       // Net als in de stapper: alleen staan telt, links of rechts.
       if(klaar(s.links, s.rechts)) return { stappen: diepte, antwoord: s.rechts };
       if(klaar(s.rechts, s.links)) return { stappen: diepte, antwoord: s.links };
-      const sleutel = naarTekst(s.links) + '=' + naarTekst(s.rechts);
-      if(gezien.has(sleutel)) continue;
-      gezien.add(sleutel);
-      for(const o of operanden(s.links, s.rechts))
-        for(const soort of soorten) volgende.push(doeStap(s.links, s.rechts, soort, o));
-      volgende.push(doeStap(s.links, s.rechts, 'wissel'));
+      if(diepte === (maxDiepte || 5)) continue;
+      for(const o of operanden(s.links, s.rechts, doel))
+        for(const soort of soorten) nieuw(doeStap(s.links, s.rechts, soort, o));
+      nieuw(doeStap(s.links, s.rechts, 'wissel'));
       if(uitrekenen && (kanRekenen(s.links) || kanRekenen(s.rechts)))
-        volgende.push(doeStap(s.links, s.rechts, 'reken'));
+        nieuw(doeStap(s.links, s.rechts, 'reken'));
     }
     rij = volgende;
+  }
+  return null;
+}
+
+/* ══ Klas 3 ═════════════════════════════════════════════════════════════
+   Klas 3 kent letters al en begint daar meteen: geen vlek en geen woorden. De
+   levels volgen wat ze bij natuurkunde tegenkomen: keer en delen, plus en min,
+   vier letters met keer en delen, en een som gedeeld door een getal zoals
+   v_gem = (v_b + v_e)/2. Level 5 is extra, buiten de reeks: keer en plus door
+   elkaar. Bij oefenen is de stapper de opgave; bij test jezelf typ je. */
+
+const KLAS3_NIVEAUS = {
+  1: { naam: 'Keer en delen', kort: 'keer en delen', uitleg: 'Drie letters, alleen keer en delen',          voorbeeld: 'a = b*c' },
+  2: { naam: 'Plus en min',   kort: 'plus en min',   uitleg: 'Drie letters, alleen plus en min',            voorbeeld: 'a = b-c' },
+  3: { naam: 'Vier letters',  kort: 'vier letters',  uitleg: 'Vier letters, alleen keer en delen',          voorbeeld: 'a = b*c/d' },
+  4: { naam: 'Gemiddelde',    kort: 'gemiddelde',    uitleg: 'Een som gedeeld door een getal',              voorbeeld: 'a = (b+c)/2' },
+  5: { naam: 'Extra: door elkaar', kort: 'extra',    uitleg: 'Extra: keer en plus door elkaar in één formule', voorbeeld: 'a = 2*b+c' },
+};
+const KLAS3_REEKS = [1, 2, 3, 4];
+const KLAS3_STAPPEN = ['plus', 'min', 'maal', 'deel'];
+
+// Vormen per level, met x links en a t/m d rechts; k is een getal. Elke vorm
+// wordt met losse letters ingevuld.
+const KLAS3_VORMEN = {
+  4: ['x = (a+b)/k', 'x = (a+b)/k', 'x = (a-b)/k'],
+  5: ['x = k*a+b', 'x = k*a-b', 'x = a/k+b', 'x = a+k*b', 'x = a*b+k', 'x = a*b-k',
+      'x = k*(a+b)', 'x = k*(a-b)', 'x = (a+k)/b', 'x = a*(b+k)',
+      'x = a+b*c', 'x = a*b-c', 'x = (a+b)/c', 'x = a*(b+c)'],
+};
+
+function vulVormIn(vorm){
+  const [x, a, b, c, d] = schud(LOSSE_LETTERS).slice(0, 5);
+  // Bij het gemiddelde is het bijna altijd door 2.
+  const k = /\)\/k/.test(vorm) ? kies([2, 2, 2, 3]) : kies([2, 3, 4, 5, 10]);
+  const letters = { x, a, b, c, d, k: String(k) };
+  return vorm.replace(/[xabcdk]/g, t => letters[t]);
+}
+
+// Staat `doel` ergens onder een deelstreep?
+function staatOnder(n, doel, onder){
+  if(!n) return false;
+  if(n.t === 'var') return !!onder && n.naam === doel;
+  if(n.t === 'div') return staatOnder(n.l, doel, onder) || staatOnder(n.r, doel, true);
+  return staatOnder(n.l, doel, onder) || staatOnder(n.r, doel, onder);
+}
+
+// Maakt `doel` vrij door de formule van buiten naar binnen af te pellen: elke
+// laag die om het doel heen zit, gaat er met het tegenovergestelde af. Het doel
+// komt maar één keer voor. Geeft de stappen terug (de bewerking die je aan
+// allebei de kanten doet) en het antwoord als boom.
+function pelAf(formule, doel){
+  const [l, r] = formule.split('=');
+  let kant = parse(r), ander = parse(l);
+  if(bevat(ander, doel)){ const h = kant; kant = ander; ander = h; }
+  const stappen = [];
+  while(kant.t !== 'var'){
+    const links = bevat(kant.l, doel);
+    const rest = links ? kant.r : kant.l;
+    if(kant.t === 'add') stappen.push({ soort: 'min', operand: rest });
+    else if(kant.t === 'mul') stappen.push({ soort: 'deel', operand: rest });
+    // Staat het doel achter een min of onder de deelstreep, dan haal je eerst
+    // dat hele blok naar de andere kant; `blok` is dat stuk, voor de hint.
+    else if(kant.t === 'sub') stappen.push(links ? { soort: 'plus', operand: rest } : { soort: 'omdraaien', operand: rest, blok: kant.r });
+    else if(kant.t === 'div') stappen.push(links ? { soort: 'maal', operand: rest } : { soort: 'onder', operand: rest, blok: kant.r });
+    else throw new Error('kan ' + kant.t + ' niet afpellen');
+    kant = links ? kant.l : kant.r;
+  }
+  return { stappen: stappen, antwoord: pasStappenToe(ander, stappen) };
+}
+
+// Voert de stappen uit op de andere kant. Een getal of een som als factor zet
+// je ervoor: 2·(x − b), niet (x − b)·2.
+function pasStappenToe(start, stappen){
+  let n = kopie(start);
+  for(const s of stappen){
+    const o = kopie(s.operand);
+    const isSom = n.t === 'add' || n.t === 'sub';
+    if(s.soort === 'min') n = knoop('sub', { l: n, r: o });
+    else if(s.soort === 'plus') n = knoop('add', { l: n, r: o });
+    else if(s.soort === 'deel') n = knoop('div', { l: n, r: o });
+    else if(s.soort === 'maal') n = (isSom || o.t === 'num') ? knoop('mul', { l: o, r: n }) : knoop('mul', { l: n, r: o });
+    else if(s.soort === 'omdraaien') n = knoop('sub', { l: o, r: n });   // a − doel = n  →  doel = a − n
+    else if(s.soort === 'onder') n = knoop('div', { l: o, r: n });       // a / doel = n  →  doel = a / n
+  }
+  return n;
+}
+
+// De stap in woorden, voor de hints: "haal b eraf", "deel door 2".
+// De uitleg bij g2: een getal hoort vóór de letter.
+function getalAchterTekst(r){
+  return 'Je typte <b>' + r.naam + '</b>. Een getal achter een letter is een nummertje, zoals bij s<sub>1</sub> en s<sub>2</sub>. ' +
+         'Bedoel je ' + r.getal + ' keer ' + r.letter + ', zet het getal dan vóór de letter: <b>' + r.getal + r.letter + '</b> of <b>' + r.getal + '*' + r.letter + '</b>.';
+}
+
+function stapTekst(s){
+  const toon = n => '<b class="f-stap">' + toonUitdrukking(naarTekst(n), { maal: '×' }) + '</b>';
+  const o = toon(s.operand);
+  if(s.soort === 'min') return 'haal ' + o + ' van allebei de kanten af';
+  if(s.soort === 'plus') return 'tel ' + o + ' bij allebei de kanten op';
+  if(s.soort === 'deel') return 'deel allebei de kanten door ' + o;
+  if(s.soort === 'maal') return 'doe allebei de kanten keer ' + o;
+  if(s.soort === 'omdraaien') return 'tel ' + toon(s.blok) + ' bij allebei de kanten op, zodat er geen min meer voor staat';
+  return 'doe allebei de kanten keer ' + toon(s.blok) + ', zodat het niet meer onder de deelstreep staat';
+}
+
+function maakKlas3Opgave(niveau, recent){
+  let o;
+  for(let poging = 0; poging < 60; poging++){
+    let formule;
+    if(niveau === 1) formule = maakLetterFormule(false);
+    else if(niveau === 2) formule = maakLetterFormulePM();
+    else if(niveau === 3) formule = maakLetterFormule(true);
+    else formule = vulVormIn(kies(KLAS3_VORMEN[niveau]));
+    const links = formule.split('=')[0].trim();
+    const rechts = parse(formule.split('=')[1]);
+    let kandidaten = namenInVolgorde(formule).filter(n => n !== links);
+    // Met plus en min erbij staat wat je zoekt niet onder de deelstreep: dan
+    // wordt het meteen een stap of drie langer.
+    if(niveau >= 4) kandidaten = kandidaten.filter(n => !staatOnder(rechts, n));
+    if(!kandidaten.length) continue;
+    const doel = kies(kandidaten);
+    const opl = pelAf(formule, doel);
+    // Alleen keer en delen: schrijf het op als één breuk, n/(z·f) in plaats
+    // van n/f/z, net als in klas 2.
+    if(!/[+-]/.test(formule))
+      opl.antwoord = parse(monoomTekst(oplossing(formule, doel), namenInVolgorde(formule).filter(n => n !== doel)));
+    o = {
+      klas: 3,
+      niveau: niveau,
+      formule: formule,
+      doel: doel,
+      stappen: opl.stappen,
+      antwoord: opl.antwoord,
+      goedTekst: doel + ' = ' + naarTekst(opl.antwoord),
+      sleutel: 'klas3|' + niveau + '|' + formule.replace(/\s+/g, '') + '|' + doel,
+    };
+    if(!recent || recent.indexOf(o.sleutel) < 0) break;
+  }
+  return o;
+}
+
+// Het kleinste aantal klikken in de stapper. Afpellen geeft een bovengrens
+// (omdraaien en onder kosten twee stappen); de zoektocht vindt de echte route
+// met de knoppen die de stapper aanbiedt, tot die grens.
+function klas3Kortste(o){
+  const grens = o.stappen.reduce((n, s) => n + (s.soort === 'omdraaien' || s.soort === 'onder' ? 2 : 1), 0);
+  const r = kortsteRoute(o.formule, o.doel, false, grens, KLAS3_STAPPEN);
+  // Niet gevonden binnen de grens: dan zeggen we liever niets over een omweg.
+  return r ? r.stappen : null;
+}
+
+// Wat een leerling typt, omgezet naar wat parse() leest: × en · worden *, ÷
+// en : worden /, een kommagetal wordt een breuk, en wat tegen elkaar aan staat
+// (2a, ab, 2(a+b), (a+b)c) wordt keer. Losse letters zijn altijd één teken,
+// dus ab is a keer b.
+function normaliseerInvoer(tekst){
+  let s = String(tekst).replace(/\s+/g, '')
+    .replace(/[×·∙⋅]/g, '*').replace(/[÷:]/g, '/').replace(/[−–—]/g, '-')
+    .replace(/\[/g, '(').replace(/\]/g, ')');
+  s = s.replace(/(\d+)[.,](\d+)/g, (m, a, b) => '(' + a + b + '/' + Math.pow(10, b.length) + ')');
+  let uit = '';
+  for(const c of s){
+    const p = uit[uit.length - 1];
+    if(p && /[A-Za-z0-9)]/.test(p) && (/[A-Za-z(]/.test(c) || (p === ')' && /[0-9]/.test(c)))) uit += '*';
+    uit += c;
+  }
+  return uit;
+}
+
+// Kijkt een getypt antwoord na. Geeft { status, ... } terug:
+//   goed, fout (met de rechterkant), leeg, onleesbaar, links (er staat links
+//   niet alleen wat je zoekt), doelRechts (wat je zoekt staat rechts ook nog),
+//   getalAchter (g2 getypt, 2g bedoeld), onbekend (een letter die niet in de
+//   formule staat).
+function nakijkKlas3(invoer, o){
+  const s = normaliseerInvoer(invoer);
+  const delen = s.split('=');
+  if(delen.length > 2) return { status: 'onleesbaar' };
+  const linksTekst = delen.length === 2 ? delen[0] : o.doel;
+  const rechtsTekst = delen.length === 2 ? delen[1] : delen[0];
+  if(!rechtsTekst) return { status: 'leeg' };
+  if(linksTekst !== o.doel) return { status: 'links', links: linksTekst };
+  let boom;
+  try{ boom = parse(rechtsTekst); }catch(e){ return { status: 'onleesbaar' }; }
+  if(bevat(boom, o.doel)) return { status: 'doelRechts' };
+  const bekend = namenInVolgorde(o.formule).filter(n => n !== o.doel);
+  const vreemd = namenInVolgorde(rechtsTekst).filter(n => bekend.indexOf(n) < 0);
+  // g2 is geen 2 keer g: een getal achter een letter is een nummertje (s₂).
+  const achter = vreemd.find(n => /^[A-Za-z]\d+$/.test(n) && bekend.indexOf(n[0]) >= 0);
+  if(achter) return { status: 'getalAchter', naam: achter, letter: achter[0], getal: achter.slice(1) };
+  if(vreemd.length) return { status: 'onbekend', namen: vreemd };
+  for(let i = 0; i < 6; i++){
+    const w = {};
+    for(const n of bekend) w[n] = 1.5 + Math.random() * 8;
+    const moet = rekenWaarde(o.antwoord, w), is = rekenWaarde(boom, w);
+    if(!Number.isFinite(moet)) continue;
+    if(!Number.isFinite(is) || Math.abs(moet - is) > 1e-9 * Math.max(1, Math.abs(moet)))
+      return { status: 'fout', rechts: rechtsTekst, volgorde: zelfdeWaarde(boom, verkeerdeVolgorde(o), bekend) };
+  }
+  return { status: 'goed', rechts: rechtsTekst };
+}
+
+// De veelgemaakte fout bij gemengde formules: de goede stappen, maar van
+// binnen naar buiten in plaats van van buiten naar binnen.
+function verkeerdeVolgorde(o){
+  if(o.stappen.length < 2) return null;
+  const [l, r] = o.formule.split('=');
+  const ander = bevat(parse(r), o.doel) ? parse(l) : parse(r);
+  return pasStappenToe(ander, o.stappen.slice().reverse());
+}
+
+function zelfdeWaarde(a, b, namen){
+  if(!a || !b) return false;
+  for(let i = 0; i < 4; i++){
+    const w = {};
+    for(const n of namen) w[n] = 1.5 + Math.random() * 8;
+    const x = rekenWaarde(a, w), y = rekenWaarde(b, w);
+    if(!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(x - y) > 1e-9 * Math.max(1, Math.abs(x))) return false;
+  }
+  return true;
+}
+
+// Een fout antwoord narekenen met getallen. Kies nette getallen voor alles
+// rechts, reken de linkerkant uit, en laat zien dat het antwoord van de
+// leerling dan niet op het goede getal uitkomt. Geeft HTML of null.
+function getalProefKlas3(o, rechtsTekst){
+  const links = o.formule.split('=')[0].trim();
+  const namen = namenInVolgorde(o.formule);
+  let boom;
+  try{ boom = parse(rechtsTekst); }catch(e){ return null; }
+  // Met 10, 20 en 30 erbij gaat ook a/10 netjes op.
+  const GETALLEN = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 40, 50, 60];
+  for(let poging = 0; poging < 2000; poging++){
+    const w = {};
+    for(const n of namen) if(n !== links) w[n] = kies(GETALLEN);
+    const waarde = rekenWaarde(parse(o.formule.split('=')[1]), w);
+    if(!Number.isInteger(Math.round(waarde * 1e9) / 1e9) || waarde < 1 || waarde > 200) continue;
+    w[links] = Math.round(waarde);
+    const bekend = {};
+    for(const n of namen) if(n !== o.doel) bekend[n] = w[n];
+    const uit = rekenWaarde(boom, bekend);
+    if(!Number.isFinite(uit) || Math.abs(uit - w[o.doel]) < 1e-9) continue;
+    const weergave = { maal: '×' };
+    const som = s => '<span class="controle-som">' + toonVergelijking(s, weergave) + '</span>';
+    const kent = namen.filter(n => n !== o.doel).map(n => som(n + ' = ' + w[n]));
+    const afgerond = Math.round(uit * 100) / 100;
+    return 'Probeer het met getallen. Neem ' + kent.join(' en ') + '. Dan is ' + som(o.doel + ' = ' + w[o.doel]) +
+           ', want dat klopt in de formule. Jouw antwoord geeft ' +
+           som(o.doel + ' = ' + vulIn(rechtsTekst, bekend)) + ' = ' + getalTekst(afgerond) +
+           (Math.abs(afgerond - uit) < 1e-9 ? '' : ' (ongeveer)') + ', en dat is geen ' + w[o.doel] + '.';
   }
   return null;
 }
@@ -473,5 +729,7 @@ if(typeof module !== 'undefined' && module.exports){
                      getalOpties, letterOpties, oplossing, monoomVan, zelfdeMonoom, monoomTekst,
                      vulIn, kantWaarden, namenInVolgorde, invulControle, getalProef, kortsteRoute, klok,
                      WOORD_CONTEXTEN_PM, SYMBOOL_FORMULES_PM, PLUSMIN_STAPPEN, KEERDEEL_STAPPEN,
-                     WOORD_CONTEXTEN, SYMBOOL_FORMULES };
+                     WOORD_CONTEXTEN, SYMBOOL_FORMULES,
+                     KLAS3_NIVEAUS, KLAS3_REEKS, KLAS3_STAPPEN, KLAS3_VORMEN, klas3Kortste, maakKlas3Opgave, pelAf, staatOnder,
+                     normaliseerInvoer, nakijkKlas3, getalAchterTekst, verkeerdeVolgorde, getalProefKlas3, stapTekst };
 }

@@ -593,8 +593,9 @@ function heeftWortel(n){
   return heeftWortel(n.l) || heeftWortel(n.r);
 }
 
-function operanden(links, rechts){
+function operanden(links, rechts, doel){
   const gezien = new Map();
+  const blokken = [];
   const atomen = [];
   const voegToe = (n, isAtoom) => {
     const sleutel = naarTekst(n);
@@ -603,7 +604,16 @@ function operanden(links, rechts){
     gezien.set(sleutel, k);
     if(isAtoom) atomen.push(k);
   };
-  const loop = (n) => {
+  // Een blok van een paar letters samen, zoals n·m. Die komen achteraan, na
+  // de losse letters.
+  const voegBlokToe = (factoren) => {
+    const n = bouwMaal(factoren.map(kopie), []);
+    const sleutel = naarTekst(n);
+    if(gezien.has(sleutel)) return;
+    gezien.set(sleutel, null);
+    blokken.push(n);
+  };
+  const loop = (n, inProduct) => {
     if(!n) return;
     if(n.t === 'var' || (n.t === 'num' && n.waarde !== 1)) voegToe(n, true);
     // Een hele som die als factor of als noemer voorkomt is ook een bruikbare
@@ -612,6 +622,25 @@ function operanden(links, rechts){
       const T = [], N = [];
       platMaal(n, T, N, false);
       for(const f of T.concat(N)) if(f.t === 'add' || f.t === 'sub' || f.t === 'pow') voegToe(f, false);
+      // Blokken: elk tweetal letters boven de deelstreep (x·q, x·c en q·c in
+      // w = x·q·c), elk tweetal eronder en de hele noemer. Alleen het goede
+      // blok aanbieden zou het antwoord verraden. Bij lange producten (zeldzaam,
+      // bovenbouw) alleen de hele noemer en wat bij de gezochte letter staat,
+      // anders wordt de keuze te groot.
+      if(!inProduct){
+        for(const groep of [T, N]){
+          if(groep.length >= 2 && groep.length <= 4)
+            for(let i = 0; i < groep.length; i++)
+              for(let j = i + 1; j < groep.length; j++) voegBlokToe([groep[i], groep[j]]);
+        }
+        if(N.length >= 2) voegBlokToe(N);
+        if(doel && T.length > 4){
+          const bij = T.filter(f => !bevat(f, doel));
+          if(bij.length >= 2 && bij.length < T.length) voegBlokToe(bij);
+        }
+      }
+      loop(n.l, true); loop(n.r, true);
+      return;
     }
     // Andersom net zo: een heel product dat als term in een som staat, moet je
     // in één keer kunnen aftrekken, zoals v*g in e = x + v*g.
@@ -620,10 +649,10 @@ function operanden(links, rechts){
       platPlus(n, P, M, false);
       for(const term of P.concat(M)) if(term.t === 'mul' || term.t === 'div' || term.t === 'pow') voegToe(term, false);
     }
-    loop(n.l); loop(n.r);
+    loop(n.l, false); loop(n.r, false);
   };
-  loop(links); loop(rechts);
-  const lijst = [...gezien.values()];
+  loop(links, false); loop(rechts, false);
+  const lijst = [...gezien.values()].filter(Boolean).concat(blokken);
   // Wie eerst de wortel neemt, moet daarna ook door een wortel kunnen delen.
   if(heeftWortel(links) || heeftWortel(rechts))
     for(const a of atomen) lijst.push(knoop('sqrt', { l: kopie(a) }));
@@ -773,7 +802,7 @@ function initStapper(el){
     tekenKnoppen();
     if(!gekozenBewerking){ operandRij.hidden = true; return; }
     operandRij.innerHTML = '<span class="operand-label">' + bewNaam(sleutel) + '</span>';
-    for(const o of operanden(links, rechts)){
+    for(const o of operanden(links, rechts, doel)){
       const knop = document.createElement('button');
       knop.type = 'button';
       knop.className = 'operand-btn';
@@ -1022,7 +1051,7 @@ function initStapper(el){
   el.stapperDoe = (sleutel, operandTekst) => {
     let o = null;
     if(operandTekst != null){
-      o = operanden(links, rechts).find(x => naarTekst(x) === operandTekst) || parse(operandTekst);
+      o = operanden(links, rechts, doel).find(x => naarTekst(x) === operandTekst) || parse(operandTekst);
     }
     pasToe(sleutel, o);
   };
@@ -1036,5 +1065,5 @@ if(typeof module !== 'undefined' && module.exports){
   module.exports = { parse, zelfde, vereenvoudig, vereenvoudigVolledig, verdeelWortels,
                      renderKnoop, naarTekst, formuleUitLatex, operanden, doeStap,
                      BEWERKINGEN, bevat, knoop, toonVergelijking, toonUitdrukking,
-                     rekenWaarde, kanRekenen, rekenUit, alleenGetallen, getalTekst, toonNaam };
+                     rekenWaarde, kanRekenen, rekenUit, alleenGetallen, getalTekst, toonNaam, kopie };
 }

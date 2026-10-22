@@ -10,7 +10,7 @@ global.rekenWaarde = stapper.rekenWaarde;
 global.toonVergelijking = stapper.toonVergelijking;
 global.toonUitdrukking = stapper.toonUitdrukking;
 global.getalTekst = stapper.getalTekst;
-for(const k of ['doeStap','operanden','naarTekst','bevat','kanRekenen','toonNaam']) global[k] = stapper[k];
+for(const k of ['doeStap','operanden','naarTekst','bevat','kanRekenen','toonNaam','knoop','kopie']) global[k] = stapper[k];
 const ob = require('../js/onderbouw.js');
 
 const { parse, doeStap, operanden, naarTekst, bevat, kanRekenen, rekenWaarde } = stapper;
@@ -225,4 +225,147 @@ test('tijdsom: om 15:00 aankomen, 28 minuten reizen, dan weg om 14:32', () => {
   const r = ob.kortsteRoute('900 = vertrek+28', 'vertrek', true, 4, ob.PLUSMIN_STAPPEN);
   assert.strictEqual(ob.klok(r.antwoord.waarde), '14:32');
   assert.strictEqual(r.stappen, 2);
+});
+
+/* ── Klas 3 ──────────────────────────────────────────────────────── */
+
+// Vult het antwoord in de formule in en kijkt of die dan klopt.
+function kloptAntwoord(o){
+  const namen = ob.namenInVolgorde(o.formule);
+  for(let i = 0; i < 4; i++){
+    const w = {};
+    for(const n of namen) w[n] = 1.5 + Math.random() * 8;
+    w[o.doel] = rekenWaarde(o.antwoord, w);
+    const [l, r] = ob.kantWaarden(o.formule, w);
+    if(Math.abs(l - r) > 1e-9 * Math.max(1, Math.abs(l))) return false;
+  }
+  return true;
+}
+
+test('klas 3: elk antwoord klopt als je het invult in de formule', () => {
+  for(let n = 1; n <= 5; n++)
+    for(let i = 0; i < 150; i++){
+      const o = ob.maakKlas3Opgave(n);
+      assert.ok(kloptAntwoord(o), o.formule + ' naar ' + o.doel + ': ' + o.goedTekst);
+    }
+});
+
+test('klas 3: wat er per level in zit', () => {
+  for(let i = 0; i < 200; i++){
+    const o1 = ob.maakKlas3Opgave(1), o2 = ob.maakKlas3Opgave(2), o3 = ob.maakKlas3Opgave(3), o4 = ob.maakKlas3Opgave(4), o5 = ob.maakKlas3Opgave(5);
+    assert.ok(!/[+-]/.test(o1.formule) && ob.namenInVolgorde(o1.formule).length === 3, o1.formule);
+    assert.ok(!/[*/]/.test(o2.formule) && ob.namenInVolgorde(o2.formule).length === 3, o2.formule);
+    assert.ok(!/[+-]/.test(o3.formule) && ob.namenInVolgorde(o3.formule).length === 4, o3.formule);
+    // Level 4: een som boven de deelstreep, gedeeld door een getal.
+    assert.match(o4.formule, /^\w+ = \(\w+[+-]\w+\)\/\d+$/, o4.formule);
+    assert.ok(/[+-]/.test(o5.formule) && /[*/]/.test(o5.formule), 'gemengd: ' + o5.formule);
+    for(const o of [o4, o5])
+      assert.ok(!ob.staatOnder(parse(o.formule.split('=')[1]), o.doel), 'niet onder de deelstreep: ' + o.formule + ' naar ' + o.doel);
+  }
+});
+
+test('klas 3: kortste route in de stapper', () => {
+  const k = (f, d) => { const p = ob.pelAf(f, d); return ob.klas3Kortste({ formule: f, doel: d, stappen: p.stappen }); };
+  assert.strictEqual(k('x = a*b', 'a'), 1);
+  assert.strictEqual(k('x = a/b', 'b'), 2);
+  assert.strictEqual(k('x = a-b', 'b'), 2);
+  assert.strictEqual(k('x = (a+b)/2', 'a'), 2);
+  assert.strictEqual(k('x = (a-b)/2', 'b'), 3);
+  assert.strictEqual(k('x = a*b/c', 'c'), 2);
+});
+
+test('klas 3: de stapper met alle vier de bewerkingen komt op hetzelfde antwoord', () => {
+  // Elke vorm met elke letter als doel. De stapper telt omdraaien als stap.
+  const vormen = [].concat(ob.KLAS3_VORMEN[4], ob.KLAS3_VORMEN[5], ['x = a*b/c', 'x = a/(b*c)', 'x = a*(b-c)', 'x = a/b+c']);
+  for(const v of vormen){
+    const f = v.replace(/k/g, '3');
+    for(const doel of ob.namenInVolgorde(f).filter(n => n !== 'x')){
+      const o = { formule: f, doel: doel, antwoord: ob.pelAf(f, doel).antwoord };
+      if(ob.staatOnder(parse(f.split('=')[1]), doel)) continue;
+      const r = ob.kortsteRoute(f, doel, false, 3, ob.KLAS3_STAPPEN);
+      assert.ok(r, 'stapper komt er niet: ' + f + ' naar ' + doel);
+      assert.strictEqual(ob.nakijkKlas3(naarTekst(r.antwoord), o).status, 'goed', f + ' naar ' + doel + ': ' + naarTekst(r.antwoord));
+    }
+  }
+});
+
+test('klas 3: pelAf geeft nette antwoorden', () => {
+  const t = (f, d) => naarTekst(ob.pelAf(f, d).antwoord);
+  assert.strictEqual(t('x = 2*a+b', 'a'), '(x-b)/2');
+  assert.strictEqual(t('x = (a+b)/2', 'a'), '2*x-b');
+  assert.strictEqual(t('x = a/3-b', 'a'), '3*(x+b)');
+  assert.strictEqual(t('x = a-b*c', 'b'), '(a-x)/c');
+  assert.strictEqual(t('x = a/b+c', 'b'), 'a/(x-c)');
+  assert.strictEqual(t('x = a*(b-c)', 'c'), 'b-x/a');
+  assert.strictEqual(t('v = s/t', 't'), 's/v');
+  assert.strictEqual(ob.pelAf('x = 2*a+b', 'a').stappen.length, 2);
+});
+
+test('klas 3: invoer omzetten (×, ÷, komma, tegen elkaar aan)', () => {
+  const n = ob.normaliseerInvoer;
+  assert.strictEqual(n('a = (x − b) ÷ 2'), 'a=(x-b)/2');
+  assert.strictEqual(n('a=2x·b'), 'a=2*x*b');
+  assert.strictEqual(n('a = 0,5(x-b)'), 'a=(05/10)*(x-b)');
+  assert.strictEqual(n('a=(x-b)c'), 'a=(x-b)*c');
+  assert.strictEqual(n('a=(x-b)2'), 'a=(x-b)*2');
+  assert.strictEqual(n('a=x:b'), 'a=x/b');
+  assert.strictEqual(n('a=[x+b]/2'), 'a=(x+b)/2');
+});
+
+test('klas 3: nakijken accepteert elke goede vorm en vangt de bekende fouten', () => {
+  const o = { formule: 'x = 2*a+b', doel: 'a', antwoord: ob.pelAf('x = 2*a+b', 'a').antwoord, stappen: ob.pelAf('x = 2*a+b', 'a').stappen };
+  const k = t => ob.nakijkKlas3(t, o);
+  for(const goed of ['a = (x-b)/2', '(x-b)/2', 'a = x/2 - b/2', 'a = 0,5*(x-b)', 'a = (x − b) : 2', 'a=(x-b)/2'])
+    assert.strictEqual(k(goed).status, 'goed', goed);
+  assert.strictEqual(k('a = x-b/2').status, 'fout');
+  assert.strictEqual(k('a = x/2-b').status, 'fout');
+  assert.strictEqual(k('a = x/2-b').volgorde, true, 'verkeerde volgorde herkend');
+  assert.strictEqual(k('a = x-b/2').volgorde, false);
+  assert.strictEqual(k('b = x-2*a').status, 'links');
+  assert.strictEqual(k('a = (x-b)/2+a-a').status, 'doelRechts');
+  assert.strictEqual(k('a = (x-q)/2').status, 'onbekend');
+  assert.strictEqual(k('a = ').status, 'leeg');
+  assert.strictEqual(k('a = (x-b/2').status, 'onleesbaar');
+});
+
+test('klas 3: een fout antwoord wordt met nette getallen weerlegd', () => {
+  for(let n = 1; n <= 5; n++)
+    for(let i = 0; i < 200; i++){
+      const o = ob.maakKlas3Opgave(n);
+      const fout = naarTekst(o.antwoord) + '+1';
+      const html = ob.getalProefKlas3(o, fout);
+      assert.ok(html && /en dat is geen/.test(html), o.formule + ' / ' + fout);
+      assert.strictEqual(ob.getalProefKlas3(o, naarTekst(o.antwoord)), null);
+    }
+});
+
+test('klas 3: geen herhaling van een recente opgave', () => {
+  for(let n = 1; n <= 5; n++){
+    const recent = [];
+    for(let i = 0; i < 40; i++){
+      const o = ob.maakKlas3Opgave(n, recent.slice(-4));
+      assert.ok(recent.slice(-4).indexOf(o.sleutel) < 0, 'herhaling op level ' + n + ': ' + o.sleutel);
+      recent.push(o.sleutel);
+    }
+  }
+});
+
+test('stapper: blokken als operand, elk tweetal zodat het goede blok niet opvalt', () => {
+  const ops = (f, d) => { const [l, r] = f.split('='); return operanden(parse(l), parse(r), d).map(o => naarTekst(o)); };
+  assert.ok(ops('q = r/(m*f)', 'r').includes('m*f'));
+  const drie = ops('n = g*f*b', 'f').filter(t => /\*/.test(t));
+  assert.deepStrictEqual(drie.sort(), ['f*b', 'g*b', 'g*f'], 'alle tweetallen, niet alleen het goede');
+  const k = (f, d) => { const p = ob.pelAf(f, d); return ob.klas3Kortste({ formule: f, doel: d, stappen: p.stappen }); };
+  assert.strictEqual(k('q = r/(m*f)', 'r'), 1);
+  assert.strictEqual(k('n = g*f*b', 'f'), 1);
+  const s = doeStap(parse('q'), parse('r/(m*f)'), 'maal', parse('m*f'));
+  assert.strictEqual(naarTekst(s.rechts), 'r');
+});
+
+test('klas 3: g2 is geen 2 keer g; daar komt een hint voor', () => {
+  const o = { formule: 'g = (m+q)/2', doel: 'q', antwoord: ob.pelAf('g = (m+q)/2', 'q').antwoord, stappen: ob.pelAf('g = (m+q)/2', 'q').stappen };
+  const r = ob.nakijkKlas3('q = g2-m', o);
+  assert.strictEqual(r.status, 'getalAchter');
+  assert.match(ob.getalAchterTekst(r), /2g/);
+  assert.strictEqual(ob.nakijkKlas3('q = 2g-m', o).status, 'goed');
 });
