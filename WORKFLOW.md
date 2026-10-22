@@ -129,6 +129,16 @@ Bij het ontwikkelen van nieuwe tools wordt — waar dat redelijk haalbaar is —
 - **Stack-keuze volgt de tool.** Eenvoudige oefen-tools blijven single-file HTML. Tools met substantiële interactie of animatie (PhET-stijl simulaties, video-analyse) verdienen de Vite + React + TS-stack zoals CircuitSketch, zodat ze profiteren van een gedeelde componenten- en sim-bibliotheek.
 - **Niet vooraf overdesignen.** De gedeelde bibliotheek groeit organisch: pas extraheren als iets voor de tweede of derde keer nodig is, niet vooraf bedenken wat ooit nuttig zou kunnen zijn.
 
+## Didactische ontwerpprincipes
+
+Deze afspraken komen uit Voorvoegsels, Formules omschrijven, Bewegingsgrafieken en Systeembord, en gelden voor elke nieuwe oefentool.
+
+- **Hufterproof.** Zonder instructie meteen duidelijk hoe het werkt: voorbeeldvragen op keuzekaarten, placeholders in invoervelden. De tool begeleidt zelf; een werkblad hoeft de bediening niet uit te leggen.
+- **Twee sporen, één techniek.** Waar onderbouw en bovenbouw allebei met de tool werken, krijgt elk spoor een eigen taal, eigen levels en een eigen uitleg (onderbouw in woorden, bovenbouw met symbolen), op dezelfde code eronder. Leer de onderbouw niets aan wat de bovenbouw weer moet afleren.
+- **Foutdiagnose uit denkfouten.** Feedback zegt zo concreet mogelijk wat er misgaat. Foute antwoordopties in meerkeuze komen uit echte denkfouten (vorm overgenomen uit het andere diagram, richting verwisseld, stap gemist), niet uit willekeurige waarden.
+- **Rood betekent fout.** Gebruik rood alleen voor fout; markeren of uitlichten doe je met amber (`#D4923A`).
+- **Past zonder scrollen.** Het oefenscherm past op een Chromebook (ongeveer 1366 × 650) zonder te scrollen; test ook op 1920 × 1080.
+
 ## Invoer van leerlingen (Chromebooks)
 
 De leerlingen werken op **Chromebooks**. Daar maakt het toetsenbord van een dakje gevolgd door een cijfer één superscriptteken: wie `v^2` typt houdt `v²` over, en `5*10^3` wordt `5*10³`. Een parser die alleen `^` kent, keurt daardoor een goed antwoord af. Dat is geen randgeval maar de normale situatie in de les.
