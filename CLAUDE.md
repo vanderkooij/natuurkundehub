@@ -5,9 +5,9 @@ Dit bestand leggen de afspraken vast tussen Jop en Claude (Cowork + Claude Code)
 ## Twee omgevingen, twee rollen
 
 - **Claude Code (terminal, lokaal)** — daadwerkelijk coderen: features bouwen, bugs fixen, testen, git add/commit/push. Dit is de plek waar code verandert.
-- **Cowork (cloud, via chat)** — ideeën uitwerken en plannen: nieuwe tools bedenken, `ideeen.md` bijhouden/aanvullen, aanpak doordenken vóórdat er gebouwd wordt. Geen zware coding-sessies hier, tenzij Jop daar expliciet om vraagt.
+- **Cowork (cloud, via chat)** — ideeën uitwerken en plannen: nieuwe tools bedenken, `IDEEEN.md` bijhouden/aanvullen, aanpak doordenken vóórdat er gebouwd wordt. Geen zware coding-sessies hier, tenzij Jop daar expliciet om vraagt.
 
-Vuistregel: idee ontstaat en rijpt in Cowork → landt in `ideeen.md` → wordt gebouwd in Claude Code.
+Vuistregel: idee ontstaat en rijpt in Cowork → landt in `IDEEEN.md` → wordt gebouwd in Claude Code.
 
 ## Scope
 
@@ -17,8 +17,8 @@ Vuistregel: idee ontstaat en rijpt in Cowork → landt in `ideeen.md` → wordt 
 
 ## Bronnen van waarheid
 
-- **`workflow.md`** — mapstructuur, ontwerpprincipes, paginapresentatie, header/thema-stijl, deployment. Nieuwe tools volgen deze conventies.
-- **`ideeen.md`** — backlog van nieuwe tools/ideeën met status (afgerond / te ontwikkelen). Nieuwe ideeën die in Cowork besproken worden, horen hier terecht te komen.
+- **`WORKFLOW.md`** — mapstructuur, ontwerpprincipes, paginapresentatie, header/thema-stijl, deployment. Nieuwe tools volgen deze conventies.
+- **`IDEEEN.md`** — backlog van nieuwe tools/ideeën met status (afgerond / te ontwikkelen). Nieuwe ideeën die in Cowork besproken worden, horen hier terecht te komen.
 
 ## Git & bestanden
 

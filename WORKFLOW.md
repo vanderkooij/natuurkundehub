@@ -4,12 +4,23 @@
 
 Elke tool krijgt een eigen map onder de root. Voor statische HTML-tools volstaat een `index.html` (eventueel met submappen voor modi of admin-interfaces). Tools met een eigen build (zoals CircuitSketch) hebben hun eigen project-structuur in de map; alleen de gebouwde output wordt door `build.sh` naar `dist/` gekopieerd.
 
+De Vite/React-tools CircuitFlow, Videometen, Modelleren en Systeembord zijn **npm-workspaces** (zie `package.json` in de root) en delen `packages/shared` (`@nh/shared`). CircuitSketch is een los Vite-project met een eigen `npm install`.
+
 Huidige situatie:
 
 ```
 natuurkundehub/
 ├── index.html                        # Homepage
 ├── 404.html                          # Fallback-pagina
+├── robots.txt                        # Voor zoekmachines; de sitemap maakt build.sh
+├── package.json                      # npm-workspaces: packages/*, videometen, modelleren-app, circuitflow, systeembord
+├── package-lock.json                 # Let op bij Windows, zie Deployment
+├── netlify.toml                      # Build-commando, redirects en headers
+├── packages/
+│   └── shared/                       # @nh/shared: gedeelde code voor de workspace-apps (TS-bron, wordt niet apart gebouwd)
+├── scripts/
+│   └── sitemap.mjs                   # Maakt dist/sitemap.xml uit alle pagina's (laatste stap van build.sh)
+├── plannen/                          # Bouwplannen per tool (bewegingsgrafieken, em-spectrum, systeembord, voorvoegsels)
 ├── assets/
 │   └── logo/                         # JK_light.svg, JK_dark.svg, JK_black.svg, JK_white.svg
 ├── contact/
@@ -20,7 +31,6 @@ natuurkundehub/
 │   │   └── index.html                # Beheerinterface voor grootheden (wachtwoordbeveiligd)
 │   └── data/
 │       └── grootheden.js             # Vraagdata — download via admin en upload naar GitHub
-├── circuitsketch/                    # Eigen Vite/React-project — alleen circuitsketch/dist/ wordt gedeployed
 ├── formules-omschrijven/
 │   ├── index.html                    # Keuzemenu: eerst onderbouw of bovenbouw (#onderbouw / #bovenbouw)
 │   ├── uitleg/index.html             # Bovenbouw: uitlegmodus (9 stappen, met de stapper)
@@ -38,7 +48,14 @@ natuurkundehub/
 │       ├── keyboard.js               # Rekenbalk en subscript-invoer
 │       └── katex-init.js             # KaTeX-weergave
 ├── modelleren/
-│   └── index.html                    # Numerieke modelleeromgeving
+│   └── MIGRATION.md                  # Alleen nog de migratienotitie; de tool zelf staat in modelleren-app/
+├── modelleren-app/                   # Vite/React-workspace: numerieke modelleeromgeving, gedeployed op /modelleren/
+├── circuitsketch/                    # Los Vite/React-project: schakelschema's tekenen (eigen npm install)
+│   └── public/over/index.html        # Infopagina /circuitsketch/over/
+├── circuitflow/                      # Vite/React-workspace: DC-schakelsimulator met stroomdeeltjes
+│   └── public/over/index.html        # Infopagina /circuitflow/over/
+├── videometen/                       # Vite/React-workspace: video-analyse, frame voor frame
+│   └── public/over/index.html        # Infopagina /videometen/over/
 ├── significantie/
 │   ├── index.html                    # Significante cijfers oefenen
 │   └── uitleg/index.html             # Uitlegmodus
@@ -68,7 +85,9 @@ natuurkundehub/
 │   └── src/                          # sim/ (rekenkern, tests), bord/ (tekenen, bediening), bestand/ (opslaan, link, XML, voorbeelden)
 ├── dist/                             # Gebouwde versies (automatisch, niet handmatig bewerken)
 ├── build.sh                          # Build-script — bron van waarheid voor wat er gedeployed wordt
-└── workflow.md                       # Dit bestand
+├── IDEEEN.md                         # Backlog met status per tool
+├── CLAUDE.md                         # Afspraken voor Claude
+└── WORKFLOW.md                       # Dit bestand
 ```
 
 ### Nieuwe tool toevoegen
@@ -78,7 +97,7 @@ natuurkundehub/
 3. Voeg een tegel toe in `index.html` (de homepage), in de goede categorie. Zie **Homepage** hieronder.
 4. Voeg een `cp -r <toolnaam> dist/<toolnaam>` regel toe in `build.sh` (of een eigen build-stap bij een Vite-project).
 5. Geef elke pagina de vindbaarheidskoppen (zie **Vindbaarheid** hieronder). De sitemap neemt de pagina daarna vanzelf mee.
-6. Werk dit bestand bij: tool in de mapstructuur, naam in de tabel onder Paginapresentatie, en eventueel de status in `ideeen.md`.
+6. Werk dit bestand bij: tool in de mapstructuur, naam in de tabel onder Paginapresentatie, en eventueel de status in `IDEEEN.md`.
 
 ## Homepage
 
@@ -129,6 +148,13 @@ Bij het ontwikkelen van nieuwe tools wordt — waar dat redelijk haalbaar is —
 - **Stack-keuze volgt de tool.** Eenvoudige oefen-tools blijven single-file HTML. Tools met substantiële interactie of animatie (PhET-stijl simulaties, video-analyse) verdienen de Vite + React + TS-stack zoals CircuitSketch, zodat ze profiteren van een gedeelde componenten- en sim-bibliotheek.
 - **Niet vooraf overdesignen.** De gedeelde bibliotheek groeit organisch: pas extraheren als iets voor de tweede of derde keer nodig is, niet vooraf bedenken wat ooit nuttig zou kunnen zijn.
 
+### Aanraken (digibord en Chromebook)
+
+- Alles wat je aantikt of versleept (aansluitpunten, bussen, knoppen, grepen, schuifjes) heeft een aanraakvlak van minstens **40 schermpixels** doorsnee, op elk zoomniveau. Het zichtbare deel mag kleiner zijn; het onzichtbare klikvlak eromheen telt.
+- Draden en lijnen die je aanklikt zijn minstens **28 schermpixels** breed. Breder gaat niet, want dan overlappen naastliggende draden.
+- Wat je verwijdert of kiest, kan ook zonder toetsenbord: een knop bij de selectie (digibord).
+- Systeembord voldoet hieraan (`MIN_RAAK` in `systeembord/src/bord/ModuleSvg.tsx`). CircuitFlow, CircuitSketch en Videometen nog niet helemaal; zie `IDEEEN.md`.
+
 ## Didactische ontwerpprincipes
 
 Deze afspraken komen uit Voorvoegsels, Formules omschrijven, Bewegingsgrafieken en Systeembord, en gelden voor elke nieuwe oefentool.
@@ -171,7 +197,7 @@ Het contactformulier op `/contact/index.html` maakt gebruik van **Netlify Forms*
 
 ### Lokaal testen
 
-Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formulier lokaal te testen, gebruik je Netlify Dev (`netlify dev`).
+Netlify Forms werkt alleen op de gedeployde site (niet op localhost). `netlify dev` werkt in deze monorepo niet, dus het formulier test je na de deploy op de echte site.
 
 ## Paginapresentatie
 
@@ -202,8 +228,15 @@ Netlify Forms werkt alleen op de gedeployde site (niet localhost). Om het formul
 | `/bewegingsgrafieken/uitleg/` | Bewegingsgrafieken |
 | `/bewegingsgrafieken/oefenen/` | Oefenen |
 | `/em-spectrum/` | Elektromagnetisch spectrum *(schermvullend; op een laag scherm valt de toolnaam weg, hij staat dan in de kruimel)* |
+| `/em-spectrum/over/` | Elektromagnetisch spectrum *(infopagina)* |
 | `/circuitsketch/` | CircuitSketch |
+| `/circuitsketch/over/` | CircuitSketch *(infopagina)* |
+| `/circuitflow/` | CircuitFlow |
+| `/circuitflow/over/` | CircuitFlow *(infopagina)* |
+| `/videometen/` | Videometen |
+| `/videometen/over/` | Videometen *(infopagina)* |
 | `/systeembord/` | Systeembord *(in de header, met de werkbalk ernaast)* |
+| `/systeembord/over/` | Systeembord *(infopagina)* |
 | `/contact/` | Contact & Feedback |
 
 ## Header stijl
@@ -229,6 +262,21 @@ De site wordt als statische HTML geserved via Netlify. Statische tools worden re
 
 De hoofd-`netlify.toml` regelt redirects en headers voor de hele site; pas die aan wanneer een nieuwe tool eigen routes of headers nodig heeft.
 
+Automatisch deployen na een push staat uit: na een push start Jop zelf de deploy in Netlify.
+
+### Pakketten en lockfile
+
+Netlify bouwt op Linux; er wordt lokaal op Windows gewerkt. Een gewone `npm install` op Windows kan de pakketten voor andere systemen uit `package-lock.json` halen (npm-bug 4828). Lokaal werkt alles dan nog, maar op Netlify faalt de build met `Cannot find module @rollup/rollup-linux-x64-gnu` (gebeurd op 2026-10-14).
+
+- Na een nieuwe workspace of een nieuw pakket: werk de lockfile bij vanuit de vorige versie met `npm install --package-lock-only --ignore-scripts`.
+- Controleer voor de commit dat er nog ongeveer 25 regels met `node_modules/@rollup/rollup-` in `package-lock.json` staan (ook `@esbuild/`, `lightningcss-` en `@tailwindcss/oxide-` hebben elk meerdere platforms).
+- Is het toch misgegaan: zet de lockfile van de vorige commit terug en voer daarop de opdracht hierboven uit.
+
 ### Lokaal testen
 
-Gebruik `netlify dev` — dit spiegelt de productie-omgeving exact, inclusief de redirect-regels in `netlify.toml`. Alternatief: `npx serve dist` (serveert vanuit de gebouwde `dist/` map).
+`netlify dev` werkt niet in deze monorepo. Test zo:
+
+1. `bash build.sh` bouwt alles naar `dist/`, precies zoals Netlify.
+2. `npx serve dist -l 8888` serveert de gebouwde site op http://localhost:8888 (in Claude Code: de configuratie *dist* in `.claude/launch.json`).
+
+Tijdens het bouwen aan één Vite-tool is de ontwikkelserver van die workspace handiger (bijvoorbeeld `npm run dev` in `systeembord/`, poort 5178). Plaatjes en het logo uit `assets/` ontbreken daar; die zie je alleen op de gebouwde site.

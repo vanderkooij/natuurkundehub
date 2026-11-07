@@ -28,21 +28,34 @@
 - [ ] Radioactief verval-simulator — halveringstijd visualiseren, vervalketens stap voor stap
 
 ### Automatisering
-- [x] **Systeembord** (idee 2026-10-13, plan in `plannen/systeembord.md`, map `systeembord/`; stap 1 (skelet met werkvlak), stap 2 (simulatiekern met tests) stap 3 (modules, draden, zichtbaar signaal) stap 4 (beide borden, leeg werkvlak, modulemenu, drukknop vastzetten) stap 5 (draaiknoppen, voltmeter, zoemergeluid, relais met apparaat, spanning bij analoge draden) stap 6 (licht- en temperatuursensor met omgeving, thermostaat en straatlantaarn met terugkoppeling) stap 7 (signaal loopt zichtbaar over de draad) stap 8 (waarheidstabel met herkenning van EN, OF, NAND, NOR, XOR en XNOR) en stap 9 (opslaan, openen ook van Jeroens XML, delen als link, automatisch bewaren, voorbeelden via docentenlink) gebouwd 2026-10-13; stap 10 voorbereid: infopagina, tegel in de nieuwe categorie Automatisering, build.sh. Wacht op commit en een test op Chromebook en digibord). Simulator van het systeembord (invoer, verwerking, uitvoer) met een eigentijds uiterlijk dat wel herkenbaar het echte bord blijft. Inspiratie en referentie: het online systeembord van Jeroen van Tilburg (github.com/jeroenvantilburg/systeembord, MIT-licentie; wat we overnemen krijgt zijn copyright en licentietekst mee, en hij wordt vermeld). Jeroen is op 2026-10-13 gemaild met de melding en het aanbod om verbeteringen terug te sturen. Zijn versie en de oude exe van Tommy Sools (`sysbord151.zip` in OneDrive, freeware, geen broncode) bootsen allebei het fysieke bord van CMA na; dat verklaart het uiterlijk uit de jaren 90. De `.brd`-voorbeelden uit de zip (thermostaat, teller, piep na 8 seconden) zijn bruikbaar als testgevallen.
+- [x] **Systeembord** (idee 2026-10-13, live sinds 2026-10-14; plan en geschiedenis per stap in `plannen/systeembord.md`, map `systeembord/`). Simulator van het systeembord van CMA met een eigentijds uiterlijk dat herkenbaar het echte bord blijft. Nog open: de test op Chromebook en digibord.
 
-  **Aanpak:** opnieuw bouwen in onze eigen opzet (React, TypeScript, SVG, workspace met `@nh/shared`, zoals CircuitFlow) in plaats van Jeroens code aan te passen. Zijn code (jQuery en Fabric.js, ~2500 regels, simulatie en tekenen door elkaar) zou bij de nieuwe vormgeving toch grotendeels herschreven worden. Zijn simulatielogica (per module: poorten, comparator, geheugencel, teller, AD/DA, relais) gebruiken we als naslag voor het gedrag.
+  **Herkomst en licentie.** Zelf gebouwd in React, TypeScript en SVG (workspace, zoals CircuitFlow). Inspiratie: het online systeembord van Jeroen van Tilburg (github.com/jeroenvantilburg/systeembord, MIT) en de oude exe van Tommy Sools (`sysbord151.zip` in OneDrive, freeware). Er is geen code van Jeroen overgenomen (nagelopen 2026-11-07): alleen gedrag nagebouwd en zijn XML-formaat gelezen. De code is van Jop, er komt geen licentie bij, en Jeroen wordt alleen op de pagina *Over deze tool* (`/systeembord/over/`) genoemd. Jeroen is op 2026-10-13 gemaild.
 
-  Gekozen verbeteringen:
-  1. **Lijkt op het echte bord.** Zelfde indeling, symbolen en bussen (&, ≥1, 1, M, comparator, teller met 1-2-4-8), zodat leerlingen het daarna in het echt kunnen bouwen, maar strak getekend in de natuurkundehub-stijl met eigen SVG, licht en donker thema.
-  2. **Signaal zichtbaar maken.** Draden en bussen kleuren mee met hoog of laag, en een kort pulsje loopt over een draad als het signaal verandert. Bij analoge signalen staat de spanning als getal bij de draad.
-  3. **Alleen de modules die je nodig hebt.** Naast het volle bord een leeg werkvlak waar je modules op sleept.
-  4. **Uitbreidbaar.** Onbeperkt extra modules toevoegen (poorten, geheugencellen, tellers, comparators, LED's), zodat ingewikkelde schakelingen passen. Kan bij Jeroen en in de exe ook. Werkvlak dat meegroeit, met zoomen en verschuiven.
-  5. **Bedienbaar op digibord en Chromebook.** Grote bussen en draden (klikgebied minstens ~28 px, zoals bij CircuitFlow), draad verwijderen met een knop, past op ~1366×650.
-  6. **Omgeving bij de sensoren.** In plaats van een schuifje: een lamp die je dichter bij de lichtsensor schuift, een kachel bij de temperatuursensor, in de handen klappen bij de geluidssensor. De comparator laat de referentiespanning en de ingangsspanning naast elkaar zien.
-  7. **Waarheidstabel maken.** Voor een gekozen uitgang de tabel automatisch laten opbouwen door alle invoer langs te lopen, of de leerling de tabel zelf laten invullen en daarna controleren.
-  8. **Delen en bewaren.** Schakeling als link (voor de docent om een opdracht klaar te zetten) en als bestand; het XML-formaat van Jeroen kunnen inlezen, zodat zijn database met voorbeelden bruikbaar blijft.
+  **Wat erin zit:**
+  - Bord met twee comparators (standaard, met AD-omzetter, teller tot 15) of met transistor (teller tot 9); losse modules erbij, waaronder NAND, NOR, XOR en XNOR als extra.
+  - Signaal zichtbaar: hoog kleurt oranje en loopt als een front door de draad; analoge spanning als getal bij de draad.
+  - Draden slepen of met twee tikken; een draad buig je door hem aan zijn midden te slepen, en zonder eigen bocht ontwijkt hij de bussen.
+  - Relais met een echte tweede stroomkring: 12 V voeding op de onderste zwarte bussen, apparaat (lamp, kachel, ventilator) op de bovenste.
+  - Losse sensor (LDR of NTC) en apparaat zijn te verslepen. De lamp schijnt als een straatlantaarn naar beneden, de kachel verwarmt wat dichtbij is, de ventilator blaast naar rechts. Licht en temperatuur worden per sensor berekend.
+  - Aardebus per bord (onder het relais, met het NatuurkundeHub-logo). Een draad tussen twee borden werkt pas als hun aardes verbonden zijn; losse modules werken altijd.
+  - Waarheidstabel, standaard *Zelf invullen*, met herkenning van EN, OF, NAND, NOR, XOR en XNOR.
+  - Ctrl+Z en Ctrl+Y, opslaan als bestand (eigen naam en map, Ctrl+S), openen, ook XML van Jeroen in het oude en het nieuwe formaat, en delen via een link.
+  - Docentvoorbeelden via `/systeembord/?docent`, met een kaartje met eisen en een flowchart in de stijl van het werkboek.
+  - Aanraakvlakken van minstens 40 schermpixels, invulvakjes met pijltjes.
+  - Bewust niet: de microfoon als geluidsensor (te onrustig, toestemming op Chromebooks, privacy). Tikken op de geluidsensor blijft.
 
-  Later: een signaaldiagram onderin (signalen over de tijd, met pauze en stap voor stap) en opdrachten met automatische controle in levels (*bouw een inbraakalarm*).
+  **Nog uitzoeken op het echte bord:**
+  - [ ] Pulsenteller: telt het nieuwe bord tot 15 (en wat toont het display bij 10 tot 15)? Telt het oude bord tot 9?
+  - [ ] Geheugencel: wat doet de uitgang als set en reset tegelijk hoog zijn? (In de tool wint set.)
+  - [ ] Sensoren: ijktabellen (spanning bij licht en temperatuur; stijgend of dalend?) en de rol van de rode en zwarte bus van het sensorvak.
+  - [ ] Geluidsensor: tussen welke spanningen beweegt hij bij een tik? (Tool: tot 4 V.)
+  - [ ] Pulsgenerator: echt 1 tot 10 Hz?
+  - [ ] Comparator: heeft hij hysterese?
+  - [ ] Transistor op het oude bord: schakelt hij om bij ongeveer 2,5 V of al bij 0,7 V?
+  - [ ] Twee borden zonder aardedraad: werkt er dan echt niets?
+
+  **Later:** een signaaldiagram onderin (signalen over de tijd, met pauze en stap voor stap) en opdrachten met automatische controle in levels (*bouw een inbraakalarm*).
 
 ### Optica & golven (lagere prioriteit)
 - [ ] Stralengang tekenen — lenzen, spiegels: bron plaatsen, stralen tekenen, beeld bepalen
@@ -59,7 +72,7 @@
 - [ ] **Sinus, inverse sinus en logaritme in de stapper en de uitleg.** Daarmee komen ook Snellius (`sin i / sin r = n`) en de halveringstijd met macht n binnen bereik, de twee die nu geen stapmodus krijgen. Let op: dit is bovenbouwstof. Voor de uitleg moet eerst bedacht worden hoe dat deel apart komt te staan, zodat onderbouwleerlingen het overslaan en niet per ongeluk gaan lezen.
 - [x] **Kale tienmacht in de parser van significantie.** `10^3` en `10³` werden afgekeurd als onleesbare invoer; ze worden nu gelezen als `1·10³`, dus met één significant cijfer. Wie `1,0·10³` bedoelt moet dat dus nog steeds zo opschrijven, en dat is ook de bedoeling.
 
-- [x] **Formules omschrijven: splitsing onderbouw / bovenbouw** (gebouwd 2026-09-30, nog door Jop te testen). Keuzemenu vraagt eerst onderbouw of bovenbouw. Onderbouw heeft een eigen uitleg (vlek, rekenfamilie 2 = 6/3, weegschaal, stapper met vlek, woordformule, letters v/s/t met Latijnse herkomst) en een oefenmodus met vier levels in de volgorde hieronder, zonder toetsenbord. De stapper kreeg een onderbouwstand: alleen keer en delen met woorden op de knoppen, × als maalteken, een vlek of woord als onbekende en een knop *reken uit*. Oorspronkelijke notitie: Eerste keuze in de tool wordt onderbouw of bovenbouw; alles wat er nu is valt onder bovenbouw. Onderbouw: hooguit 4 grootheden, geen haakjes, wortels of machten, vooral drie grootheden met × of :. Niet alleen de standaardvormen (s = v·t, ρ = m/V) maar net iets breder, zodat ze begrip oefenen en geen trucje. De stapper is hier het hoofdinstrument. Probleem in klas 2: ze snappen niet dat je *afstand* door *s* mag vervangen ("s is toch snelheid?", "ik kan geen Engels"). Idee voor een opbouw vóór de symbolen:
+- [x] **Formules omschrijven: splitsing onderbouw / bovenbouw** (gebouwd 2026-09-30, getest door Jop). Keuzemenu vraagt eerst onderbouw of bovenbouw. Onderbouw heeft een eigen uitleg (vlek, rekenfamilie 2 = 6/3, weegschaal, stapper met vlek, woordformule, letters v/s/t met Latijnse herkomst) en een oefenmodus met vier levels in de volgorde hieronder, zonder toetsenbord. De stapper kreeg een onderbouwstand: alleen keer en delen met woorden op de knoppen, × als maalteken, een vlek of woord als onbekende en een knop *reken uit*. Oorspronkelijke notitie: Eerste keuze in de tool wordt onderbouw of bovenbouw; alles wat er nu is valt onder bovenbouw. Onderbouw: hooguit 4 grootheden, geen haakjes, wortels of machten, vooral drie grootheden met × of :. Niet alleen de standaardvormen (s = v·t, ρ = m/V) maar net iets breder, zodat ze begrip oefenen en geen trucje. De stapper is hier het hoofdinstrument. Probleem in klas 2: ze snappen niet dat je *afstand* door *s* mag vervangen ("s is toch snelheid?", "ik kan geen Engels"). Idee voor een opbouw vóór de symbolen:
   1. Getallenpuzzels met een wolkje als onbekende (2 = 8 : ☁), zoals bij wiskunde, geen letter.
   2. Woordformules met getallen (afstand = snelheid × tijd, twee ingevuld, de derde is het wolkje).
   3. Tussenvorm: woord en symbool samen (afstand *s* = snelheid *v* × tijd *t*).
@@ -76,6 +89,8 @@
   2. Lege `file.type` (komt voor bij Chromebooks, bestanden uit Drive of de Android-map) niet weigeren maar terugvallen op de extensie (.mp4, .mov, .webm, .m4v).
   3. Eventueel: geluidsspoor negeren of een hint geven bij HEVC (H.265) die zonder hardware-decoder niet speelt ("zet je camera op Meest compatibel").
 - [x] **Videometen: slowmotion-hulp** (idee en gebouwd 2026-10-10). Gebouwd als vraagbalk na het laden (Nee / 120 / 240 fps) en een keuze in de fps-chip. Dit staat los van de afspeel-fps: de tool stapt nog steeds per echt frame, maar rekent met 1/opname-fps per frame. Het projectbestand bewaart de opname-fps (schemaversie 9). Trimtip en de controle met g staan in de help. Telefoons nemen slowmotion op met 120/240 fps maar slaan het op als afspeelvideo van 30 fps; de fps-detectie meet dan 30 en alle tijden zijn een factor 4 of 8 te lang (v te klein, a een factor 16 of 64). De handmatige fps-override bestaat al, maar leerlingen weten niet dat ze die nodig hebben. Voorstel: vraag bij laden "Is dit een slowmotionvideo?" met keuze 120/240 fps, en een tip om alleen het echt vertraagde stuk te trimmen (iPhone heeft aan begin en eind een stuk op normale snelheid). Controle-idee voor in de help: laat een bal vallen in beeld en check of g ongeveer 9,8 m/s² is.
+
+- [ ] **Aanraakvlakken van 40 px in CircuitFlow, CircuitSketch en Videometen** (afspraak in `WORKFLOW.md` onder Aanraken, 2026-11-07). Nu: CircuitFlow aansluitpunten 28 px en alleen bij zoom 1 (draden wel 28 px op elke zoom), CircuitSketch vastklikken binnen ~24 px zonder rekening met zoom, Videometen grepen zonder vaste minimummaat. Systeembord voldoet al.
 
 ### Overig
 - [ ] Onderzoeksvaardigheden app — ondersteuning bij practicumverslagen, variabelen, conclusies etc.
