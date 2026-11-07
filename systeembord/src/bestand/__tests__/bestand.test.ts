@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { maakBord } from "@/bord/borden";
+import { bordMaat, maakBord } from "@/bord/borden";
 import { compact, naarTekst, vanTekst } from "@/bestand/formaat";
 import { vanJeroen } from "@/bestand/jeroen";
 import { linkdeelUitHash, naarLinkdeel, vanLinkdeel } from "@/bestand/link";
@@ -9,6 +9,7 @@ import {
   herken,
   HOOG,
   maakWaarheidstabel,
+  SENSOREN,
   Simulator,
   voegDraadToe,
   type Schakeling,
@@ -198,6 +199,171 @@ describe("bestanden van Jeroen van Tilburg", () => {
     set.params = { ...set.params, ingedrukt: false };
     sim.zetSchakeling({ ...s, modules: [...s.modules] });
     expect(sim.spanning("j4", "in")).toBe(HOOG);
+  });
+
+  it("leest ook het nieuwe formaat, met namen in plaats van nummers", () => {
+    // Zo slaat zijn site het nu op: element en aansluiting op naam.
+    const nieuw = `<systeembord>
+  <element name="ANDPort" id="ANDPort1" x="449" y="129">
+    <link id="input1" toElement="ORPort1" toNode="output"/>
+    <link id="input2" toElement="NOTPort1" toNode="output"/>
+  </element>
+  <element name="ORPort" id="ORPort1" x="274" y="60">
+    <link id="input1" toElement="Switch1" toNode="output"/>
+    <link id="input2" toElement="ANDPort1" toNode="output"/>
+  </element>
+  <element name="Switch" id="Switch1" x="104" y="60"/>
+  <element name="Switch" id="Switch2" x="104" y="179"/>
+  <element name="LED" id="LED1" x="625" y="160">
+    <link id="input" toElement="ANDPort1" toNode="output"/>
+  </element>
+  <element name="NOTPort" id="NOTPort1" x="274" y="179">
+    <link id="input" toElement="Switch2" toNode="output"/>
+  </element>
+  <element name="Pulse" id="Pulse1" x="104" y="300" inputValue="2"/>
+  <element name="Counter" id="Counter1" x="274" y="300">
+    <link id="count" toElement="Pulse1" toNode="output"/>
+  </element>
+  <element name="LED" id="LED2" x="625" y="300">
+    <link id="input" toElement="Counter1" toNode="output1"/>
+  </element>
+</systeembord>`;
+    const r = vanJeroen(nieuw);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const s = r.schakeling;
+    expect(s.draden).toHaveLength(8);
+    const bus = (d: (typeof s.draden)[number]) =>
+      `${s.modules.find((m) => m.id === d.van.module)!.soort}.${d.van.bus}>${s.modules.find((m) => m.id === d.naar.module)!.soort}.${d.naar.bus}`;
+    expect(s.draden.map(bus)).toEqual(
+      expect.arrayContaining([
+        "of.uit>en.in1",
+        "invertor.uit>en.in2",
+        "drukschakelaar.uit>of.in1",
+        "en.uit>of.in2",
+        "en.uit>led.in",
+        "drukschakelaar.uit>invertor.in",
+        "pulsgenerator.uit>pulsenteller.tel",
+        "pulsenteller.1>led.in",
+      ]),
+    );
+    // De teller telt mee: na een paar pulsen staat er een even of oneven stand.
+    const sim = new Simulator(s);
+    sim.stap(1.3);
+    expect(
+      Number(
+        sim.toestand(s.modules.find((m) => m.soort === "pulsenteller")!.id)!
+          .stand,
+      ),
+    ).toBeGreaterThan(0);
+  });
+
+  it("een bestand zoals zijn site het nu opslaat (knipperlicht, Newton fig. 30)", () => {
+    // Letterlijk uit createXmlFile() op jeroenvantilburg.nl/systeembord (november 2026).
+    const xml = `<systeembord>
+  <element name="Memory" id="Memory0" x="286" y="44">
+    <link id="set" toElement="Switch0" toNode="output"/>
+    <link id="reset" toElement="Switch1" toNode="output"/>
+  </element>
+  <element name="Counter" id="Counter0" x="286" y="165">
+    <link id="inhibit" toElement="Memory0" toNode="output"/>
+    <link id="count" toElement="Pulse0" toNode="output"/>
+  </element>
+  <element name="Pulse" id="Pulse0" x="64" y="165" inputValue="5"/>
+  <element name="Switch" id="Switch0" x="64" y="44"/>
+  <element name="Switch" id="Switch1" x="64" y="94"/>
+  <element name="LED" id="LED0" x="619" y="165">
+    <link id="input" toElement="Counter0" toNode="output1"/>
+  </element>
+  <element name="TextElement" id="TextElement0" x="462" y="2" text="Knipperlicht"/>
+</systeembord>
+`;
+    const r = vanJeroen(xml);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.schakeling.draden).toHaveLength(5);
+    expect(r.overgeslagen).toEqual([]);
+    const puls = r.schakeling.modules.find((m) => m.soort === "pulsgenerator")!;
+    expect(puls.params.frequentie).toBe(5);
+  });
+
+  it("zijn volle bord: wat nergens aan vastzit valt weg, alleen gebruikte sensoren worden echt", () => {
+    // Bestand van Jop, opgeslagen op jeroenvantilburg.nl (november 2026).
+    const xml = `<systeembord>
+  <element name="Board" id="Board0" x="60" y="0"/>
+  <element name="LightSensor" id="LightSensor0" x="70" y="25" xLDR="95" yLDR="50"/>
+  <element name="TemperatureSensor" id="TemperatureSensor0" x="70" y="75"/>
+  <element name="SoundSensor" id="SoundSensor0" x="70" y="125"/>
+  <element name="Switch" id="Switch0" x="70" y="175"/>
+  <element name="Switch" id="Switch1" x="70" y="225"/>
+  <element name="VarVoltage" id="VarVoltage0" x="70" y="275" inputValue="0"/>
+  <element name="VarVoltage" id="VarVoltage1" x="70" y="325" inputValue="0"/>
+  <element name="Pulse" id="Pulse0" x="70" y="375" inputValue="1"/>
+  <element name="ADC" id="ADC0" x="70" y="425"/>
+  <element name="Comparator" id="Comparator0" x="230" y="25" inputValue="2.5">
+    <link id="input" toElement="LightSensor0" toNode="output"/>
+  </element>
+  <element name="Comparator" id="Comparator1" x="380" y="25" inputValue="2.5"/>
+  <element name="ANDPort" id="ANDPort0" x="230" y="125"/>
+  <element name="ANDPort" id="ANDPort1" x="380" y="125">
+    <link id="input1" toElement="Switch1" toNode="output"/>
+    <link id="input2" toElement="Comparator0" toNode="output"/>
+  </element>
+  <element name="Memory" id="Memory0" x="230" y="225"/>
+  <element name="ORPort" id="ORPort0" x="380" y="225"/>
+  <element name="NOTPort" id="NOTPort0" x="230" y="325"/>
+  <element name="NOTPort" id="NOTPort1" x="380" y="325"/>
+  <element name="Counter" id="Counter0" x="230" y="375"/>
+  <element name="LED" id="LED0" x="540" y="25"/>
+  <element name="LED" id="LED1" x="540" y="75">
+    <link id="input" toElement="Switch0" toNode="output"/>
+  </element>
+  <element name="LED" id="LED2" x="540" y="125">
+    <link id="input" toElement="ANDPort1" toNode="output"/>
+  </element>
+  <element name="LED" id="LED3" x="540" y="175"/>
+  <element name="LED" id="LED4" x="540" y="225"/>
+  <element name="LED" id="LED5" x="540" y="275"/>
+  <element name="Buzzer" id="Buzzer0" x="540" y="325"/>
+  <element name="Relais" id="Relais0" x="540" y="375"/>
+  <element name="Lightbulb" id="Lightbulb0" x="745" y="11"/>
+  <element name="Heater" id="Heater0" x="742" y="360"/>
+  <element name="Voltmeter" id="Voltmeter0" x="5" y="100"/>
+</systeembord>`;
+    const r = vanJeroen(xml);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const s = r.schakeling;
+    // Geen losse modules over het bord heen: alles staat op ons bord.
+    expect(s.modules.every((m) => m.bord === "b0")).toBe(true);
+    expect(s.draden).toHaveLength(5);
+    // De lichtsensor wordt gebruikt, de temperatuursensor niet.
+    const sensoren = s.modules.filter((m) => m.soort === "sensor");
+    expect(sensoren.map((m) => m.params.sensor)).toEqual([
+      SENSOREN.indexOf("licht"),
+      SENSOREN.indexOf("draaiknop"),
+    ]);
+  });
+
+  it("een gebruikte extra module komt naast het bord, niet erop", () => {
+    const xml = `<systeembord>
+  <element name="Board" id="Board0" x="60" y="0"/>
+  <element name="Switch" id="Switch0" x="70" y="175"/>
+  <element name="LED" id="LED0" x="540" y="25"/>
+  <element name="LED" id="LED1" x="540" y="75"/>
+  <element name="LED" id="LED2" x="540" y="125"/>
+  <element name="LED" id="LED3" x="540" y="175"/>
+  <element name="LED" id="LED4" x="540" y="225">
+    <link id="input" toElement="Switch0" toNode="output"/>
+  </element>
+</systeembord>`;
+    const r = vanJeroen(xml);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const los = r.schakeling.modules.filter((m) => !m.bord);
+    expect(los).toHaveLength(1);
+    expect(los[0].x).toBeGreaterThan(bordMaat("comparators").breedte);
+    expect(r.schakeling.draden).toHaveLength(1);
   });
 
   it("zijn bord wordt ons bord; modules die we niet hebben worden gemeld", () => {

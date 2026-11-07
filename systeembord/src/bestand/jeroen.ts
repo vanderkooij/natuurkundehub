@@ -1,4 +1,4 @@
-import { maakBord } from "@/bord/borden";
+import { bordMaat, maakBord } from "@/bord/borden";
 import {
   maakModule,
   SENSOREN,
@@ -17,6 +17,12 @@ import {
  * zijn ingangen binnenkomen: <link id="eigen aansluiting" toElement="bron"
  * toNode="aansluiting van de bron"/>. De nummering van de aansluitingen volgt
  * zijn code (this.nodes per element).
+ *
+ * Er zijn twee versies van dat formaat. In de oude (zijn voorbeeldbestanden)
+ * zijn element en aansluiting nummers: toElement="3" toNode="0". In de nieuwe
+ * (wat zijn site nu opslaat) zijn het namen: het element heeft id="Switch1" en
+ * de link wordt id="input" toElement="Switch1" toNode="output". Beide worden
+ * hieronder omgezet naar nummers.
  */
 
 interface Vertaling {
@@ -83,6 +89,49 @@ const VERTALING: Record<string, Vertaling> = {
   Relais: { soort: "relais", bussen: ["in", null, null] },
 };
 
+/**
+ * Namen van de aansluitingen per element, in de volgorde van zijn code
+ * (this.nodes). Daarmee zet je een link uit het nieuwe formaat om naar het
+ * aansluitnummer van het oude.
+ */
+const AANSLUITINGEN: Record<string, string[]> = {
+  ANDPort: ["input1", "input2", "output"],
+  ORPort: ["input1", "input2", "output"],
+  NANDPort: ["input1", "input2", "output"],
+  NORPort: ["input1", "input2", "output"],
+  XORPort: ["input1", "input2", "output"],
+  XNORPort: ["input1", "input2", "output"],
+  NOTPort: ["input", "output"],
+  Memory: ["set", "reset", "output"],
+  LED: ["input"],
+  Buzzer: ["input"],
+  Switch: ["output"],
+  ToggleSwitch: ["output"],
+  Pulse: ["output"],
+  VarVoltage: ["output"],
+  LightSensor: ["output"],
+  TemperatureSensor: ["output"],
+  SoundSensor: ["output"],
+  WebcamSensor: ["output"],
+  Comparator: ["input", "output"],
+  ADC: ["input", "output8", "output4", "output2", "output1"],
+  DAC: ["input1", "input2", "input4", "input8", "output"],
+  Counter: [
+    "reset",
+    "inhibit",
+    "count",
+    "output8",
+    "output4",
+    "output2",
+    "output1",
+  ],
+  Relais: ["input", "output1", "output2"],
+  Lightbulb: ["input1", "input2"],
+  Heater: ["input1", "input2"],
+  Voltmeter: ["input"],
+  DigitalVoltmeter: ["input"],
+};
+
 /** Elementen zonder tegenhanger die we stil overslaan (decoratie, eigen meetinstrumenten). */
 const STIL = new Set([
   "TextElement",
@@ -110,22 +159,44 @@ function attributen(tekst: string): Record<string, string> {
 /** Eenvoudige lezer voor dit vaste, platte formaat (werkt ook buiten de browser). */
 export function leesElementen(xml: string): Element[] | null {
   if (!/<systeembord[\s>]/.test(xml)) return null;
-  const uit: Element[] = [];
+  const ruw: {
+    naam: string;
+    attr: Record<string, string>;
+    links: Record<string, string>[];
+  }[] = [];
   for (const m of xml.matchAll(
     /<element\b([^>]*?)(\/>|>([\s\S]*?)<\/element>)/g,
   )) {
     const attr = attributen(m[1]);
-    const links = [...(m[3] ?? "").matchAll(/<link\b([^>]*)\/?>/g)].map((l) => {
-      const a = attributen(l[1]);
-      return {
-        id: Number(a.id),
-        toElement: Number(a.toElement),
-        toNode: Number(a.toNode),
-      };
-    });
-    uit.push({ naam: attr.name ?? "", attr, links });
+    const links = [...(m[3] ?? "").matchAll(/<link\b([^>]*)\/?>/g)].map((l) =>
+      attributen(l[1]),
+    );
+    ruw.push({ naam: attr.name ?? "", attr, links });
   }
-  return uit;
+  // Nieuw formaat: element op naam (id="ANDPort1") en aansluiting op naam.
+  const perId = new Map(ruw.map((e, i) => [e.attr.id, i]));
+  const nummer = (v: string | undefined) =>
+    v !== undefined && /^\d+$/.test(v) ? Number(v) : NaN;
+  const aansluiting = (naam: string, v: string | undefined) => {
+    const n = nummer(v);
+    if (!Number.isNaN(n)) return n;
+    const i = AANSLUITINGEN[naam]?.indexOf(v ?? "") ?? -1;
+    return i >= 0 ? i : NaN;
+  };
+  return ruw.map((e) => ({
+    naam: e.naam,
+    attr: e.attr,
+    links: e.links.map((a) => {
+      const doel = /^\d+$/.test(a.toElement ?? "")
+        ? Number(a.toElement)
+        : (perId.get(a.toElement) ?? NaN);
+      return {
+        id: aansluiting(e.naam, a.id),
+        toElement: doel,
+        toNode: aansluiting(ruw[doel]?.naam ?? "", a.toNode),
+      };
+    }),
+  }));
 }
 
 export type JeroenResultaat =
@@ -157,6 +228,16 @@ export function vanJeroen(xml: string): JeroenResultaat {
 
   const modules: ModuleInstantie[] = [...bordModules];
   const perIndex = new Map<number, ModuleInstantie>();
+  // Elementen met een draad eraan (in of uit): alleen die doen ertoe.
+  const verbonden = new Set<number>();
+  elementen.forEach((e, i) => {
+    for (const l of e.links) {
+      verbonden.add(i);
+      verbonden.add(l.toElement);
+    }
+  });
+  const bordBreedte = bordMaat("comparators").breedte;
+  let extraRij = 0;
   const overgeslagen = new Map<string, number>();
   const relaisApparaat = new Map<number, number>();
 
@@ -175,21 +256,33 @@ export function vanJeroen(xml: string): JeroenResultaat {
       x < bordRect.x + bordRect.b &&
       y >= bordRect.y &&
       y < bordRect.y + bordRect.h;
-    const params = v.params?.(e.attr) ?? {};
+    // Een sensor van zijn bord wordt alleen licht- of temperatuursensor als
+    // hij gebruikt wordt; anders blijft het een gewone sensorbus.
+    const params =
+      v.soort === "sensor" && !verbonden.has(i)
+        ? {}
+        : (v.params?.(e.attr) ?? {});
     // Op het bord: de eerstvolgende vrije module van dezelfde soort.
     const plek = opBord ? vrij.findIndex((m) => m.soort === v.soort) : -1;
     let m: ModuleInstantie;
     if (plek >= 0) {
       m = vrij.splice(plek, 1)[0];
       m.params = { ...m.params, ...params };
+    } else if (opBord && !verbonden.has(i)) {
+      // Zijn bord heeft meer leds en variabele spanningen dan het onze. Wat
+      // daarvan nergens aan vastzit, laten we weg.
+      return;
     } else {
-      m = maakModule(
-        v.soort,
-        `j${i}`,
-        Math.round(x * SCHAAL),
-        Math.round(y * SCHAAL),
-        params,
-      );
+      // Past niet op ons bord maar wordt wel gebruikt: een losse module in
+      // een rij rechts naast het bord. Wat buiten zijn bord lag, houdt zijn
+      // plek ten opzichte van het bord.
+      const plekX = opBord
+        ? bordBreedte + 60
+        : Math.round((x - (bordRect?.x ?? 0)) * SCHAAL);
+      const plekY = opBord
+        ? 60 + extraRij++ * 110
+        : Math.round((y - (bordRect?.y ?? 0)) * SCHAAL);
+      m = maakModule(v.soort, `j${i}`, plekX, plekY, params);
       modules.push(m);
     }
     perIndex.set(i, m);

@@ -221,3 +221,10 @@ Jop kon niet ontdekken hoe je met een lamp, LDR of kachel werkt. Verbeterd:
 - Een aardebus verbind je alleen met een andere aardebus. Een draad van het ene bord naar het andere geeft pas iets door als hun aardes (eventueel via een derde bord) verbonden zijn; anders is hij gestippeld en verschijnt een melding. Losse modules werken altijd, zonder aarde.
 - Het zwarte snoer van de voltmeter zit in de aardebus van het bord waarop je meet.
 - Bestanden en links van voor de aardebus krijgen hem bij het openen alsnog (`metAarde`).
+
+## Negende ronde (2026-11-07): XML en opslaan
+
+- Licentie nagelopen: geen code van Jeroen overgenomen, alleen gedrag en zijn XML-formaat. Geen licentie nodig.
+- Inlezen van XML leest nu ook het nieuwe formaat van zijn site (element en aansluiting op naam, `id="Switch0"`, `toNode="output1"`), via de tabel `AANSLUITINGEN` in `bestand/jeroen.ts`. Getest met een bestand dat zijn site zelf wegschreef.
+- Opslaan als bestand opent een echt venster "Opslaan als" (naam en map kiezen) waar de browser dat kan, anders vraagt het om een naam. Ctrl+S werkt ook; de laatst gebruikte naam is het voorstel.
+- Volle bord van Jeroen: wat op zijn bord staat maar nergens aan vastzit (zijn 5e en 6e led, 2e variabele spanning) valt weg; gebruikte extra modules komen rechts naast ons bord. Een sensor wordt alleen licht- of temperatuursensor als er een draad aan zit.

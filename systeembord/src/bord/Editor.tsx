@@ -14,7 +14,8 @@ import {
   type ModuleSoort,
   type Schakeling,
 } from "@/sim";
-import { BESTAND_EXTENSIE, naarTekst, vanTekst } from "@/bestand/formaat";
+import { naarTekst, vanTekst } from "@/bestand/formaat";
+import { slaOp } from "@/bestand/opslaan";
 import { vanJeroen } from "@/bestand/jeroen";
 import { linkdeelUitHash, maakLink, vanLinkdeel } from "@/bestand/link";
 import {
@@ -286,16 +287,20 @@ export function Editor() {
     [],
   );
 
-  const opslaan = () => {
-    const blob = new Blob([naarTekst(s.schakeling)], {
-      type: "application/json",
-    });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `schakeling${BESTAND_EXTENSIE}`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  /** Naam van het laatst geopende of opgeslagen bestand: het voorstel bij opslaan. */
+  const bestandsnaam = useRef("schakeling");
+  const opslaan = async () => {
+    const naam = await slaOp(naarTekst(s.schakeling), bestandsnaam.current);
+    if (!naam) return;
+    bestandsnaam.current = naam;
+    toonMelding(
+      `Opgeslagen als ${naam}. Openen kan via Bestand, Bestand openen.`,
+    );
   };
+  const opslaanRef = useRef(opslaan);
+  useEffect(() => {
+    opslaanRef.current = opslaan;
+  });
 
   const bestandKiezer = useRef<HTMLInputElement>(null);
   const bestandGekozen = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -315,6 +320,7 @@ export function Editor() {
     } else {
       const r = vanTekst(tekst);
       if (!r.ok) return toonMelding(r.fout);
+      bestandsnaam.current = bestand.name;
       laad(r.schakeling, `${bestand.name} geopend.`);
     }
   };
@@ -376,6 +382,12 @@ export function Editor() {
         if (k === "y" || (k === "z" && e.shiftKey)) {
           e.preventDefault();
           if (doeOpnieuw()) setSelectie(null);
+          return;
+        }
+        // Opslaan als bestand, zoals in elk programma.
+        if (k === "s") {
+          e.preventDefault();
+          void opslaanRef.current();
           return;
         }
       }

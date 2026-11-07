@@ -186,6 +186,9 @@ export function Werkbalk({
               onClick={() => (sluit(), opslaan())}
             >
               Opslaan als bestand
+              <span className="block text-xs text-(--text-muted)">
+                Kies zelf naam en map (Ctrl+S)
+              </span>
             </button>
             <button
               type="button"
