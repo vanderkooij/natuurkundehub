@@ -1,7 +1,7 @@
 {
   "name": "systeembord",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "Systeembord: simulator van het systeembord (invoer, verwerking, uitvoer) voor natuurkundehub.nl. Herkenbaar het echte bord, met zichtbare signalen en onbeperkt uitbreidbaar.",
   "scripts": {

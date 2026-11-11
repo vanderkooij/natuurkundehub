@@ -41,12 +41,14 @@ import { useVideo } from "@/features/video/VideoState";
 import { decimalsForUnit, TIME_DECIMALS } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
 import { timeFpsOf } from "@/features/video/videoFile";
+import packageJson from "../../../package.json";
 
 const VIDEO_ACCEPT = "video/*,.mp4,.m4v,.mov,.webm,.mkv,.3gp";
 const JSON_ACCEPT = "application/json,.json";
 /** Versie van de tool zoals 'ie in een opgeslagen project verschijnt. Stem
  *  af op `package.json` (handmatig — vaste constante is genoeg voor v1). */
-const TOOL_VERSION = "1.1.0";
+// Versienummer staat alleen in package.json; ophogen bij elke update (zie WORKFLOW.md).
+const TOOL_VERSION = packageJson.version;
 
 // File System Access API — nog niet in de standaard lib.dom-types, dus een
 // minimale eigen declaratie (genoeg voor onze save-flow). Alleen Chromium

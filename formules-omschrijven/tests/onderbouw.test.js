@@ -334,7 +334,7 @@ test('klas 3: een fout antwoord wordt met nette getallen weerlegd', () => {
       const o = ob.maakKlas3Opgave(n);
       const fout = naarTekst(o.antwoord) + '+1';
       const html = ob.getalProefKlas3(o, fout);
-      assert.ok(html && /en dat is geen/.test(html), o.formule + ' / ' + fout);
+      assert.ok(html && /is geen/.test(html), o.formule + ' / ' + fout);
       assert.strictEqual(ob.getalProefKlas3(o, naarTekst(o.antwoord)), null);
     }
 });
@@ -368,4 +368,17 @@ test('klas 3: g2 is geen 2 keer g; daar komt een hint voor', () => {
   assert.strictEqual(r.status, 'getalAchter');
   assert.match(ob.getalAchterTekst(r), /2g/);
   assert.strictEqual(ob.nakijkKlas3('q = 2g-m', o).status, 'goed');
+});
+
+test('klas 3: getallenproef in drie stappen, met verschillende getallen', () => {
+  const o = { formule: 'n = (d+k)/2', doel: 'd' };
+  for(let i = 0; i < 50; i++){
+    const html = ob.getalProefKlas3(o, '2*n/k');
+    const tekst = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    assert.strictEqual((html.match(/<li>/g) || []).length, 3);
+    const d = Number(tekst.match(/hoort d = (\d+)/)[1]), n = Number(tekst.match(/bij n = (\d+)/)[1]), k = Number(tekst.match(/en k = (\d+) hoort/)[1]);
+    assert.strictEqual(new Set([d, n, k]).size, 3, 'alle getallen verschillend: ' + tekst);
+    assert.strictEqual(n, (d + k) / 2, 'de formule klopt met deze getallen');
+    assert.ok(n <= 60);
+  }
 });

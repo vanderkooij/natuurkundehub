@@ -1,7 +1,7 @@
 {
   "name": "@nh/modelleren-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.1.0",
   "type": "module",
   "description": "React-migratie van de Modelleer-tool. Fase 1: app-shell + nieuwe layout, engine ingehangen. Grafieken (InteractiveChart) volgen in Fase 4.",
   "scripts": {

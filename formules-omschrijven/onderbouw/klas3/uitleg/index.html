@@ -122,6 +122,11 @@ ol.rules-list li::before{content:counter(rule);position:absolute;left:0;top:10px
 .controle.fout{color:var(--red);background:var(--red-dim)}
 .controle-som{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;font-size:17px;margin:0 3px;color:var(--text)}
 .controle-som .kant{display:inline-flex;align-items:center}
+.proef{margin:6px 0 6px 20px;padding:0}
+.proef li{margin:6px 0;line-height:1.9}
+.proef-keten{font-size:17px;gap:6px;margin:2px 0}
+.proef-keten .isgelijk{color:var(--accent);margin:0 2px}
+.proef-keten b{color:var(--text)}
 
 /* Probeer zelf: tussendoor oefenen in de uitleg */
 .probeer{border:1.5px solid var(--accent-amber);background:var(--bg-card);border-radius:12px;padding:16px 18px;margin:20px 0}
@@ -286,7 +291,7 @@ code{font-family:var(--mono);font-size:.92em;background:var(--accent-dim);paddin
 
 <footer>
   <img src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
-  Jop van der Kooij · NatuurkundeHub · © 2026
+  Jop van der Kooij · NatuurkundeHub · © 2026<span data-versie></span>
   <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
 
@@ -666,5 +671,6 @@ document.addEventListener('keydown',(e)=>{
 
 render();
 </script>
+<script src="/formules-omschrijven/versie.js"></script>
 </body>
 </html>

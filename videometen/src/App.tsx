@@ -29,6 +29,7 @@ import { VideoPane } from "@/features/video/VideoPane";
 import { VideoPlayer } from "@/features/video/VideoPlayer";
 import { VideoProvider, useVideo } from "@/features/video/VideoState";
 import { useVideoKeyboard } from "@/features/video/useVideoKeyboard";
+import packageJson from "../package.json";
 
 /** Globale undo/redo: actief in beide modi, geblokkeerd in inputs door useGlobalShortcut. */
 function UndoRedoShortcuts() {
@@ -330,7 +331,7 @@ function AppShell() {
         extraActions={<ToolMenu />}
         onHelpClick={() => setHelpOpen((v) => !v)}
       />
-      <HelpPanel isOpen={helpOpen} onClose={() => setHelpOpen(false)} toolVersion="1.1.0" />
+      <HelpPanel isOpen={helpOpen} onClose={() => setHelpOpen(false)} toolVersion={packageJson.version} />
       {appMode === "tracken" ? (
         <>
           <TrackingBar />

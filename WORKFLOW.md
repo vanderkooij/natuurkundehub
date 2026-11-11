@@ -264,6 +264,21 @@ De hoofd-`netlify.toml` regelt redirects en headers voor de hele site; pas die a
 
 Automatisch deployen na een push staat uit: na een push start Jop zelf de deploy in Netlify.
 
+### Versienummers
+
+Elke update aan een tool die naar de site gaat, krijgt een hoger versienummer. Doe dat in dezelfde commit als de wijziging zelf.
+
+- **Patch** (1.1.0 → 1.1.1): een bugfix of kleine tekstwijziging.
+- **Minor** (1.1.0 → 1.2.0): een nieuwe functie, waarbij oude projectbestanden blijven werken.
+- **Major** (1.1.0 → 2.0.0): iets wat niet meer samengaat met het oude, bijvoorbeeld projectbestanden die de vorige versie niet meer kan openen.
+
+Waar het nummer staat:
+
+- **Tools met een eigen build** (Videometen, Modelleren, CircuitFlow, Systeembord, CircuitSketch): het veld `version` in de `package.json` van de tool. Videometen leest het daaruit voor de help en de projectbestanden; zet het nummer nergens anders neer. Werk daarna de lockfile bij (`npm install --package-lock-only --ignore-scripts`), want die bevat het nummer ook.
+- **Statische tools** (losse HTML): het bestand `versie.js` in de map van de tool. Dat zet het nummer in de footer van elke pagina (in het element met `data-versie`). Een nieuwe pagina krijgt `<span data-versie></span>` achter de copyrightregel en `<script src="/<tool>/versie.js"></script>` vóór `</body>`.
+
+Stand op 2026-11-11, teruggerekend uit de commitgeschiedenis (eerste live versie = 1.0.0, daarna per `feat` minor en per `fix` patch; wijzigingen aan de hele site, zoals SEO en huisstijl, niet meegeteld): Formules omschrijven 1.11.0 (incl. getallenproef klas 3), CircuitSketch 1.8.0, CircuitFlow 1.5.1, Overhoor 1.3.0, Videometen 1.2.0, Systeembord 1.2.0, Significantie 1.2.0, Modelleren 2.1.0 (2.0 = de React-app), Bewegingsgrafieken 1.1.0, Voorvoegsels 1.0.0, EM-spectrum 1.0.0.
+
 ### Pakketten en lockfile
 
 Netlify bouwt op Linux; er wordt lokaal op Windows gewerkt. Een gewone `npm install` op Windows kan de pakketten voor andere systemen uit `package-lock.json` halen (npm-bug 4828). Lokaal werkt alles dan nog, maar op Netlify faalt de build met `Cannot find module @rollup/rollup-linux-x64-gnu` (gebeurd op 2026-10-14).

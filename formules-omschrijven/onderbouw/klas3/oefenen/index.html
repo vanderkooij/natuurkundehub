@@ -141,6 +141,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .feedback b{font-weight:700}
 .controle-som{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;font-size:17px;margin:0 3px;color:var(--text)}
 .controle-som .kant{display:inline-flex;align-items:center}
+.proef{margin:6px 0 6px 20px;padding:0}
+.proef li{margin:6px 0;line-height:1.9}
+.proef-keten{font-size:17px;gap:6px;margin:2px 0}
+.proef-keten .isgelijk{color:var(--accent);margin:0 2px}
+.proef-keten b{color:var(--text)}
 
 .stapwerk{background:var(--bg-secondary);border:1px solid var(--accent-border);border-radius:10px;padding:14px 16px 4px;margin-bottom:12px;display:none}
 .stapwerk.open{display:block}
@@ -346,7 +351,7 @@ body.oefent .ex-top{margin-bottom:8px}
 
 <footer>
   <img src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
-  Jop van der Kooij · NatuurkundeHub · © 2026
+  Jop van der Kooij · NatuurkundeHub · © 2026<span data-versie></span>
   <div style="margin-top:8px">Feedback of een bug gevonden? <a href="/contact/" style="color:var(--accent);text-decoration:none">Laat het weten →</a></div>
 </footer>
 
@@ -743,5 +748,6 @@ $('invoer').addEventListener('input',tekenVoorbeeld);
 $('invoer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();controleer();}});
 $('oefen-stapper').addEventListener('stapper-klaar',e=>onStapperKlaar(e.detail));
 </script>
+<script src="/formules-omschrijven/versie.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "name": "circuitflow",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.5.1",
   "type": "module",
   "description": "CircuitFlow — didactische DC-schakelsimulator voor natuurkundehub.nl. Constante schermsnelheid, dichtheid codeert de stroom. MNA-solver, sleepbare componenten, pictoriale weergave.",
   "scripts": {

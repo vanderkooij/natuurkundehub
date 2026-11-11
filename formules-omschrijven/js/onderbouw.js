@@ -692,36 +692,85 @@ function zelfdeWaarde(a, b, namen){
   return true;
 }
 
-// Een fout antwoord narekenen met getallen. Kies nette getallen voor alles
-// rechts, reken de linkerkant uit, en laat zien dat het antwoord van de
-// leerling dan niet op het goede getal uitkomt. Geeft HTML of null.
+// Een fout antwoord narekenen met getallen, in drie stappen onder elkaar:
+//   1. kies getallen voor wat rechts in de formule staat en reken links uit,
+//   2. dan weet je welk getal er voor de gezochte letter uit moet komen,
+//   3. vul dezelfde getallen in jouw antwoord in: daar komt iets anders uit.
+// Alle getallen zijn verschillend, zodat je ziet welk getal bij welke letter
+// hoort. Het goede antwoord staat er niet bij: dat zoekt de leerling zelf.
+// Geeft HTML terug, of null als het niet lukt.
 function getalProefKlas3(o, rechtsTekst){
-  const links = o.formule.split('=')[0].trim();
-  const namen = namenInVolgorde(o.formule);
-  let boom;
-  try{ boom = parse(rechtsTekst); }catch(e){ return null; }
-  // Met 10, 20 en 30 erbij gaat ook a/10 netjes op.
-  const GETALLEN = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 40, 50, 60];
-  for(let poging = 0; poging < 2000; poging++){
+  const [linksTekst, formuleRechts] = o.formule.split('=').map(t => t.trim());
+  const rechtsNamen = namenInVolgorde(formuleRechts);
+  let jouw;
+  try{ jouw = parse(rechtsTekst); }catch(e){ return null; }
+  const formuleBoom = parse(formuleRechts);
+  // Eerst kleine getallen; lukt dat niet (bij a/10 bijvoorbeeld), dan ruimer.
+  const KLEIN = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12];
+  const RUIM = KLEIN.concat([20, 30, 40, 50, 60]);
+  for(let poging = 0; poging < 3000; poging++){
+    const pool = schud(poging < 1500 ? KLEIN : RUIM);
+    if(pool.length < rechtsNamen.length) continue;
     const w = {};
-    for(const n of namen) if(n !== links) w[n] = kies(GETALLEN);
-    const waarde = rekenWaarde(parse(o.formule.split('=')[1]), w);
-    if(!Number.isInteger(Math.round(waarde * 1e9) / 1e9) || waarde < 1 || waarde > 200) continue;
-    w[links] = Math.round(waarde);
+    rechtsNamen.forEach((n, i) => { w[n] = pool[i]; });
+    const links = rekenWaarde(formuleBoom, w);
+    const linksRond = Math.round(links);
+    const max = poging < 1000 ? 60 : 200;                      // liefst een klein getal links
+    if(Math.abs(links - linksRond) > 1e-9 || linksRond < 1 || linksRond > max) continue;
+    if(rechtsNamen.some(n => w[n] === linksRond)) continue;   // ook links een eigen getal
+    w[linksTekst] = linksRond;
     const bekend = {};
-    for(const n of namen) if(n !== o.doel) bekend[n] = w[n];
-    const uit = rekenWaarde(boom, bekend);
+    for(const n of namenInVolgorde(o.formule)) if(n !== o.doel) bekend[n] = w[n];
+    const uit = rekenWaarde(jouw, bekend);
     if(!Number.isFinite(uit) || Math.abs(uit - w[o.doel]) < 1e-9) continue;
-    const weergave = { maal: '×' };
-    const som = s => '<span class="controle-som">' + toonVergelijking(s, weergave) + '</span>';
-    const kent = namen.filter(n => n !== o.doel).map(n => som(n + ' = ' + w[n]));
-    const afgerond = Math.round(uit * 100) / 100;
-    return 'Probeer het met getallen. Neem ' + kent.join(' en ') + '. Dan is ' + som(o.doel + ' = ' + w[o.doel]) +
-           ', want dat klopt in de formule. Jouw antwoord geeft ' +
-           som(o.doel + ' = ' + vulIn(rechtsTekst, bekend)) + ' = ' + getalTekst(afgerond) +
-           (Math.abs(afgerond - uit) < 1e-9 ? '' : ' (ongeveer)') + ', en dat is geen ' + w[o.doel] + '.';
+    return proefHTML(o, linksTekst, formuleRechts, formuleBoom, rechtsTekst, jouw, w, bekend, uit);
   }
   return null;
+}
+
+// "a, b en c"
+function opsomming(delen){
+  return delen.length < 2 ? delen.join('') : delen.slice(0, -1).join(', ') + ' en ' + delen[delen.length - 1];
+}
+
+// Een rekenketen: naam = ingevulde formule = tussenstap = uitkomst. De
+// tussenstap rekent de stukken onder de bovenste bewerking uit, alleen als
+// daar hele, positieve getallen uitkomen en er echt iets te rekenen valt.
+function rekenKeten(naam, tekst, boom, waarden, uitkomst){
+  const weergave = { maal: '×' };
+  const stuk = t => '<span class="kant">' + toonUitdrukking(t, weergave) + '</span>';
+  const delen = [toonNaamHTML(naam), stuk(vulIn(tekst, waarden))];
+  const kind = n => n.t === 'num' || n.t === 'var' ? null : rekenWaarde(n, waarden);
+  if(boom.l && boom.r && (kind(boom.l) !== null || kind(boom.r) !== null)){
+    const l = rekenWaarde(boom.l, waarden), r = rekenWaarde(boom.r, waarden);
+    const heel = x => Math.abs(x - Math.round(x)) < 1e-9 && x > 0;
+    const teken = { add: '+', sub: '-', mul: '*', div: '/' }[boom.t];
+    if(teken && heel(l) && heel(r)){
+      try{ delen.push(stuk(Math.round(l) + teken + Math.round(r))); }catch(e){}
+    }
+  }
+  const rond = Math.round(uitkomst * 100) / 100;
+  delen.push('<b>' + (Math.abs(rond - uitkomst) < 1e-9 ? '' : 'ongeveer ') + getalTekst(rond) + '</b>');
+  return '<span class="controle-som proef-keten">' + delen.join('<span class="isgelijk">=</span>') + '</span>';
+}
+
+function toonNaamHTML(naam){ return toonUitdrukking(naam, { maal: '×' }); }
+
+function proefHTML(o, linksTekst, formuleRechts, formuleBoom, rechtsTekst, jouw, w, bekend, uit){
+  const weergave = { maal: '×' };
+  const is = (n, x) => '<span class="controle-som">' + toonVergelijking(n + ' = ' + x, weergave) + '</span>';
+  const rechtsNamen = namenInVolgorde(formuleRechts);
+  const bekendNamen = Object.keys(bekend);
+  const rond = Math.round(uit * 100) / 100;
+  return '<b>Controleer het met getallen.</b><ol class="proef">' +
+    '<li>Kies getallen voor ' + opsomming(rechtsNamen.map(n => toonNaamHTML(n))) + ', bijvoorbeeld ' +
+      opsomming(rechtsNamen.map(n => is(n, w[n]))) + '. Vul ze in de formule in:<br>' +
+      rekenKeten(linksTekst, formuleRechts, formuleBoom, w, w[linksTekst]) + '</li>' +
+    '<li>Nu weet je: bij ' + opsomming(bekendNamen.map(n => is(n, bekend[n]))) + ' hoort ' + is(o.doel, w[o.doel]) + '.</li>' +
+    '<li>Vul ' + opsomming(bekendNamen.map(n => is(n, bekend[n]))) + ' in jouw antwoord in:<br>' +
+      rekenKeten(o.doel, rechtsTekst, jouw, bekend, uit) + '</li>' +
+    '</ol>' + (Math.abs(rond - uit) < 1e-9 ? '' : 'Ongeveer ') + getalTekst(rond) + ' is geen ' + w[o.doel] +
+    '. Jouw formule klopt dus niet.';
 }
 
 if(typeof module !== 'undefined' && module.exports){

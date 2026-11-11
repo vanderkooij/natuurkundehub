@@ -20,6 +20,10 @@ Vuistregel: idee ontstaat en rijpt in Cowork → landt in `IDEEEN.md` → wordt 
 - **`WORKFLOW.md`** — mapstructuur, ontwerpprincipes, paginapresentatie, header/thema-stijl, deployment. Nieuwe tools volgen deze conventies.
 - **`IDEEEN.md`** — backlog van nieuwe tools/ideeën met status (afgerond / te ontwikkelen). Nieuwe ideeën die in Cowork besproken worden, horen hier terecht te komen.
 
+## Versienummers
+
+- Werk je een tool bij die naar de site gaat, verhoog dan in dezelfde commit het versienummer (bugfix: patch, nieuwe functie: minor, niet meer samen te gaan met oud: major). Waar het nummer staat: zie `WORKFLOW.md`, onder Deployment > Versienummers.
+
 ## Git & bestanden
 
 - Cowork bewerkt bestanden rechtstreeks op schijf via de gekoppelde map (device bridge) — geen git-acties.
