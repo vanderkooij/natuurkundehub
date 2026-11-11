@@ -8,12 +8,28 @@ import {
   type ReactNode,
 } from "react";
 
+import { canDecodeTrack } from "@/features/video/deviceSupport";
 import {
   checkVideoFile,
   describeMediaError,
   describeNoPicture,
+  describeTruncated,
+  describeUnsupportedFormat,
+  type FormatInfo,
   type VideoLoadError,
 } from "@/features/video/videoFile";
+import {
+  describeTrack,
+  fileReader,
+  probeVideo,
+  type VideoTrackInfo,
+} from "@/features/video/videoProbe";
+
+/** Een video die niet laadde, bewaard zodat hij omgezet kan worden. */
+export interface FailedVideo {
+  file: File;
+  track: VideoTrackInfo | null;
+}
 
 export interface LoadedVideo {
   file: File;
@@ -35,6 +51,10 @@ export interface LoadedVideo {
    * Gebruik `timeFpsOf(video)` overal waar een tijd wordt berekend.
    */
   captureFps: number | null;
+  /** Formaat uit de bestandskop (videoProbe), `null` als onbekend. */
+  format: FormatInfo | null;
+  /** Spoorinformatie, voor omzetten na een latere afspeelfout. */
+  track: VideoTrackInfo | null;
   /** Of de leerling de slowmotion-vraag al heeft beantwoord (of weggeklikt). */
   slowmoAnswered: boolean;
 }
@@ -80,6 +100,10 @@ interface VideoState {
   fpsAtFirstMeasurement: number | null;
   /** Waarom de laatste video niet laadde; `null` = geen fout. */
   loadError: VideoLoadError | null;
+  /** Het bestand achter `loadError`, om om te zetten. */
+  failedVideo: FailedVideo | null;
+  /** Er wordt een video geladen (kop lezen, metadata). Startscherm toont "Video laden…". */
+  isLoading: boolean;
 }
 
 type Action =
@@ -95,8 +119,9 @@ type Action =
   | { type: "JUMP_TO_MEASUREMENT"; dir: -1 | 1; magnitude: number }
   | { type: "MARK_FIRST_MEASUREMENT_FPS"; fps: number }
   | { type: "CLEAR_FIRST_MEASUREMENT_FPS" }
-  | { type: "LOAD_ERROR"; error: VideoLoadError }
+  | { type: "LOAD_ERROR"; error: VideoLoadError; failed?: FailedVideo }
   | { type: "CLEAR_LOAD_ERROR" }
+  | { type: "LOAD_START" }
   | { type: "SET_CAPTURE_FPS"; captureFps: number | null; source: FpsSource }
   | { type: "DISMISS_SLOWMO" };
 
@@ -109,6 +134,8 @@ const initialState: VideoState = {
   snapFrames: [],
   fpsAtFirstMeasurement: null,
   loadError: null,
+  failedVideo: null,
+  isLoading: false,
 };
 
 function clampFrame(frame: number, max: number) {
@@ -164,12 +191,16 @@ function reducer(state: VideoState, action: Action): VideoState {
         snapFrames: state.snapFrames,
         fpsAtFirstMeasurement: null,
         loadError: null,
+        failedVideo: null,
+        isLoading: false,
       };
     }
+    case "LOAD_START":
+      return { ...state, loadError: null, failedVideo: null, isLoading: true };
     case "LOAD_ERROR":
-      return { ...initialState, loadError: action.error };
+      return { ...initialState, loadError: action.error, failedVideo: action.failed ?? null };
     case "CLEAR_LOAD_ERROR":
-      return state.loadError ? { ...state, loadError: null } : state;
+      return state.loadError ? { ...state, loadError: null, failedVideo: null } : state;
     case "SET_CAPTURE_FPS": {
       if (!state.video) return state;
       // Zelfde lock als SET_FPS: de opname-fps bepaalt alle t-waardes.
@@ -310,7 +341,12 @@ function reducer(state: VideoState, action: Action): VideoState {
 
 interface VideoContextValue extends VideoState {
   videoRef: React.RefObject<HTMLVideoElement | null>;
-  loadFile: (file: File) => void;
+  /**
+   * Laad een video. Leest eerst de bestandskop; kan dit apparaat het formaat
+   * vooraf al niet aan, dan volgt een melding met "Omzetten". `skipFormatCheck`
+   * slaat die voorspelling over ("Toch proberen", of na omzetten).
+   */
+  loadFile: (file: File, options?: { skipFormatCheck?: boolean }) => void;
   clearVideo: () => void;
   /**
    * Wijzig de fps. `source` is verplicht (sinds 07c) zodat de reducer kan
@@ -363,87 +399,154 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef(state);
   stateRef.current = state;
 
+  // Elke loadFile krijgt een volgnummer; een trage kopcontrole van een eerder
+  // gekozen bestand mag een nieuwer bestand niet overschrijven.
+  const loadSeq = useRef(0);
+
+  /** Stap 2: de browser de metadata laten lezen, zoals altijd. */
+  const probeWithBrowser = useCallback(
+    (file: File, track: VideoTrackInfo | null, format: FormatInfo | null, seq: number) => {
+      const url = URL.createObjectURL(file);
+      const failed = { file, track };
+      const fail = (error: VideoLoadError) => {
+        probe.onloadedmetadata = null;
+        probe.onerror = null;
+        probe.removeAttribute("src");
+        URL.revokeObjectURL(url);
+        if (seq !== loadSeq.current) return;
+        dispatch({ type: "LOAD_ERROR", error, failed });
+      };
+      const probe = document.createElement("video");
+      probe.preload = "metadata";
+      probe.muted = true;
+      probe.src = url;
+      probe.onloadedmetadata = () => {
+        // Wel een bestand, maar geen beeldspoor (of onleesbaar beeld).
+        if (!probe.videoWidth) {
+          fail(describeNoPicture(file, format ?? undefined));
+          return;
+        }
+        const finish = (duration: number) => {
+          if (seq !== loadSeq.current) {
+            URL.revokeObjectURL(url);
+            return;
+          }
+          const fps = 30; // default, refined later by useFpsDetection
+          const frameCount = Math.max(1, Math.round(duration * fps));
+          const width = probe.videoWidth || 1280;
+          const height = probe.videoHeight || 720;
+          dispatch({
+            type: "LOAD_VIDEO",
+            video: {
+              file,
+              url,
+              fps,
+              fpsSource: "default",
+              duration,
+              frameCount,
+              width,
+              height,
+              captureFps: null,
+              slowmoAnswered: false,
+              format,
+              track,
+            },
+          });
+        };
+        if (Number.isFinite(probe.duration)) {
+          finish(probe.duration);
+          return;
+        }
+        // Webm van MediaRecorder/schermrecorders rapporteert vaak
+        // duration=Infinity. Workaround: voorbij het einde seeken dwingt de
+        // browser de echte duur te bepalen (durationchange). Zonder dit laadde
+        // de video stil met frameCount 1 — niets te stappen of trimmen.
+        let settled = false;
+        const settle = () => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(durationTimeout);
+          probe.ondurationchange = null;
+          finish(Number.isFinite(probe.duration) ? probe.duration : 0);
+        };
+        const durationTimeout = window.setTimeout(settle, 2000);
+        probe.ondurationchange = () => {
+          if (Number.isFinite(probe.duration)) settle();
+        };
+        probe.currentTime = Number.MAX_SAFE_INTEGER;
+      };
+      // Voorheen werd hier een "video" van één frame geladen, zodat de leerling
+      // een zwart vlak zag zonder uitleg. Nu: melding met wat je kunt doen.
+      probe.onerror = () => {
+        fail(
+          describeMediaError(
+            file,
+            probe.error?.code ?? null,
+            probe.error?.message,
+            format ?? undefined,
+          ),
+        );
+      };
+    },
+    [],
+  );
+
   // Revoke explicitly (not through an effect) so React Strict Mode's double-mount
   // cleanup cannot revoke a URL that's still in use.
-  const loadFile = useCallback((file: File) => {
-    const previous = stateRef.current.video?.url;
-    if (previous) URL.revokeObjectURL(previous);
+  const loadFile = useCallback(
+    (file: File, options?: { skipFormatCheck?: boolean }) => {
+      const previous = stateRef.current.video?.url;
+      if (previous) URL.revokeObjectURL(previous);
+      const seq = ++loadSeq.current;
 
-    // Nooit stil weigeren: geen video → melding in het startscherm.
-    const invalid = checkVideoFile(file);
-    if (invalid) {
-      dispatch({ type: "LOAD_ERROR", error: invalid });
-      return;
-    }
-    dispatch({ type: "CLEAR_LOAD_ERROR" });
-
-    const url = URL.createObjectURL(file);
-    const fail = (error: VideoLoadError) => {
-      probe.onloadedmetadata = null;
-      probe.onerror = null;
-      probe.removeAttribute("src");
-      URL.revokeObjectURL(url);
-      dispatch({ type: "LOAD_ERROR", error });
-    };
-    const probe = document.createElement("video");
-    probe.preload = "metadata";
-    probe.muted = true;
-    probe.src = url;
-    probe.onloadedmetadata = () => {
-      // Wel een bestand, maar geen beeldspoor (of onleesbaar beeld).
-      if (!probe.videoWidth) {
-        fail(describeNoPicture(file));
+      // Nooit stil weigeren: geen video → melding in het startscherm.
+      const invalid = checkVideoFile(file);
+      if (invalid) {
+        dispatch({ type: "LOAD_ERROR", error: invalid });
         return;
       }
-      const finish = (duration: number) => {
-        const fps = 30; // default, refined later by useFpsDetection
-        const frameCount = Math.max(1, Math.round(duration * fps));
-        const width = probe.videoWidth || 1280;
-        const height = probe.videoHeight || 720;
-        dispatch({
-          type: "LOAD_VIDEO",
-          video: {
-            file,
-            url,
-            fps,
-            fpsSource: "default",
-            duration,
-            frameCount,
-            width,
-            height,
-            captureFps: null,
-            slowmoAnswered: false,
-          },
-        });
-      };
-      if (Number.isFinite(probe.duration)) {
-        finish(probe.duration);
-        return;
-      }
-      // Webm van MediaRecorder/schermrecorders rapporteert vaak
-      // duration=Infinity. Workaround: voorbij het einde seeken dwingt de
-      // browser de echte duur te bepalen (durationchange). Zonder dit laadde
-      // de video stil met frameCount 1 — niets te stappen of trimmen.
-      let settled = false;
-      const settle = () => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(durationTimeout);
-        probe.ondurationchange = null;
-        finish(Number.isFinite(probe.duration) ? probe.duration : 0);
-      };
-      const durationTimeout = window.setTimeout(settle, 2000);
-      probe.ondurationchange = () => {
-        if (Number.isFinite(probe.duration)) settle();
-      };
-      probe.currentTime = Number.MAX_SAFE_INTEGER;
-    };
-    // Voorheen werd hier een "video" van één frame geladen, zodat de leerling
-    // een zwart vlak zag zonder uitleg. Nu: melding met wat je kunt doen.
-    probe.onerror = () => {
-      fail(describeMediaError(file, probe.error?.code ?? null, probe.error?.message));
-    };
-  }, []);
+      dispatch({ type: "LOAD_START" });
+
+      void (async () => {
+        // Stap 1: de kop lezen (videoProbe). Gaat dat mis, dan beslist de
+        // browser gewoon zelf, zoals vroeger.
+        let track: VideoTrackInfo | null = null;
+        let format: FormatInfo | null = null;
+        try {
+          const probe = await probeVideo(fileReader(file), file.size);
+          if (seq !== loadSeq.current) return;
+          if (probe.kind === "afgekapt") {
+            dispatch({ type: "LOAD_ERROR", error: describeTruncated(file) });
+            return;
+          }
+          if (probe.kind === "ok") {
+            track = probe.track;
+            const support = await canDecodeTrack(track);
+            if (seq !== loadSeq.current) return;
+            format = {
+              codec: track.codec,
+              description: describeTrack(track),
+              codecString: track.codecString,
+              support,
+            };
+            if (support === "nee" && !options?.skipFormatCheck) {
+              dispatch({
+                type: "LOAD_ERROR",
+                error: describeUnsupportedFormat(file, format),
+                failed: { file, track },
+              });
+              return;
+            }
+          }
+        } catch (err) {
+          if (import.meta.env.DEV) console.warn("[VIDEO] kopcontrole mislukt", err);
+        }
+        if (seq !== loadSeq.current) return;
+        probeWithBrowser(file, track, format, seq);
+      })();
+    },
+    [probeWithBrowser],
+  );
 
   /**
    * De zichtbare `<video>` kan later alsnog falen (metadata las wel, frames
@@ -453,7 +556,11 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     const v = stateRef.current.video;
     if (!v) return;
     URL.revokeObjectURL(v.url);
-    dispatch({ type: "LOAD_ERROR", error: describeMediaError(v.file, code, message) });
+    dispatch({
+      type: "LOAD_ERROR",
+      error: describeMediaError(v.file, code, message, v.format ?? undefined),
+      failed: { file: v.file, track: v.track },
+    });
   }, []);
 
   const clearLoadError = useCallback(() => dispatch({ type: "CLEAR_LOAD_ERROR" }), []);

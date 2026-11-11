@@ -66,6 +66,11 @@ export function HelpPanel({ isOpen, onClose, toolVersion }: HelpPanelProps) {
             ge-upload.
           </p>
           <p>
+            Kan je apparaat een video niet afspelen (vaak een iPhone-video op een Chromebook), dan
+            biedt Videometen aan om hem om te zetten. Dat gebeurt ook alleen op je eigen apparaat en
+            duurt meestal minder dan een minuut.
+          </p>
+          <p>
             Zodra de video is geladen verschijnt rechtsboven in de video-pane een <Kbd>fps</Kbd>
             -chip met de gedetecteerde framerate. Klopt die niet? Klik erop en kies een preset
             (24/25/30/60) of typ je eigen waarde.

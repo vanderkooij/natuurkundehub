@@ -4,6 +4,8 @@ import {
   checkVideoFile,
   describeMediaError,
   describeNoPicture,
+  describeTruncated,
+  describeUnsupportedFormat,
   fileExtension,
   slowdownFactor,
   timeFpsOf,
@@ -64,5 +66,33 @@ describe("slowmotion", () => {
     expect(timeFpsOf({ fps: 30, captureFps: 240 })).toBe(240);
     expect(slowdownFactor({ fps: 30, captureFps: 240 })).toBe(8);
     expect(slowdownFactor({ fps: 30, captureFps: null })).toBe(1);
+  });
+});
+
+describe("meldingen op basis van het videoformaat", () => {
+  const iphone = {
+    codec: "hevc",
+    description: "HEVC (H.265), 10 bit, HDR (HLG), Dolby Vision, 1920×1080",
+    codecString: "hvc1.2.4.L123.B0",
+    support: "nee" as const,
+  };
+
+  it("biedt omzetten en toch proberen aan als het apparaat HEVC niet kan", () => {
+    const err = describeUnsupportedFormat({ name: "IMG_0042.MOV", type: "" }, iphone);
+    expect(err.canConvert).toBe(true);
+    expect(err.canTryAnyway).toBe(true);
+    expect(err.message).toMatch(/iPhone/);
+    expect(err.detail).toMatch(/hvc1\.2\.4\.L123\.B0.*apparaat: nee/);
+  });
+
+  it("noemt het formaat bij een afspeelfout en biedt omzetten aan", () => {
+    const err = describeMediaError({ name: "IMG_0042.MOV", type: "" }, 4, undefined, iphone);
+    expect(err.message).toMatch(/HEVC/);
+    expect(err.canConvert).toBe(true);
+    expect(describeNoPicture({ name: "a.mov", type: "" }, iphone).message).toMatch(/HEVC/);
+  });
+
+  it("biedt geen omzetten aan bij een half gedownload bestand", () => {
+    expect(describeTruncated({ name: "a.mov", type: "" }).canConvert).toBeFalsy();
   });
 });

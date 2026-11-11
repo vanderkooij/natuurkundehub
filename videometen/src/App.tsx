@@ -330,7 +330,7 @@ function AppShell() {
         extraActions={<ToolMenu />}
         onHelpClick={() => setHelpOpen((v) => !v)}
       />
-      <HelpPanel isOpen={helpOpen} onClose={() => setHelpOpen(false)} toolVersion="1.0.0" />
+      <HelpPanel isOpen={helpOpen} onClose={() => setHelpOpen(false)} toolVersion="1.1.0" />
       {appMode === "tracken" ? (
         <>
           <TrackingBar />

@@ -1,7 +1,9 @@
 import { useRef, useState, type DragEvent } from "react";
-import { AlertTriangle, FileVideo, Upload } from "lucide-react";
+import { AlertTriangle, FileVideo, Loader2, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConvertPanel } from "@/features/video/ConvertPanel";
+import { DeviceCheckDialog } from "@/features/video/DeviceCheckDialog";
 import { useVideo } from "@/features/video/VideoState";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +12,10 @@ import { cn } from "@/lib/utils";
 const ACCEPT = "video/*,.mp4,.m4v,.mov,.webm,.mkv,.3gp";
 
 export function VideoDropZone() {
-  const { loadFile, loadError, clearLoadError } = useVideo();
+  const { loadFile, loadError, clearLoadError, isLoading } = useVideo();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [deviceCheckOpen, setDeviceCheckOpen] = useState(false);
 
   const onPick = () => inputRef.current?.click();
 
@@ -43,19 +46,26 @@ export function VideoDropZone() {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       className={cn(
-        "flex flex-1 flex-col items-center justify-center p-8 transition-colors",
+        // Scrollbaar, en 'safe' centreren: met een lange foutmelding op een
+        // laag scherm (Chromebook ~650 px) viel de onderkant er anders af,
+        // inclusief de knop Omzetten.
+        "flex min-h-0 flex-1 flex-col items-center justify-center-safe overflow-y-auto p-8 transition-colors",
         dragging ? "bg-(--accent)/10" : "bg-transparent",
       )}
     >
       <div
         className={cn(
-          "flex max-w-md flex-col items-center gap-4 rounded-2xl border-2 border-dashed px-10 py-12 text-center transition-colors",
+          "flex max-w-md flex-shrink-0 flex-col items-center rounded-2xl border-2 border-dashed px-10 text-center transition-colors",
+          // Met een melding eronder: compacter, zodat de melding meer ruimte krijgt.
+          loadError ? "gap-3 py-5" : "gap-4 py-12",
           dragging ? "border-(--accent) bg-(--bg-card)" : "border-(--border-solid) bg-(--bg-card)",
         )}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--accent)/10 text-(--accent)">
-          <FileVideo className="size-7" />
-        </div>
+        {loadError ? null : (
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--accent)/10 text-(--accent)">
+            <FileVideo className="size-7" />
+          </div>
+        )}
         <div>
           <p className="text-base font-semibold text-(--text-primary)">Sleep een video hierheen</p>
           <p className="mt-1 text-sm text-(--text-muted)">of klik om er een te kiezen</p>
@@ -79,10 +89,16 @@ export function VideoDropZone() {
           }}
         />
       </div>
+      {isLoading ? (
+        <p role="status" className="mt-4 flex items-center gap-2 text-sm text-(--text-secondary)">
+          <Loader2 className="size-4 animate-spin text-(--accent)" aria-hidden />
+          Video laden…
+        </p>
+      ) : null}
       {loadError ? (
         <div
           role="alert"
-          className="mt-4 w-full max-w-md rounded-xl border border-(--accent-amber)/50 bg-(--accent-amber)/10 px-4 py-3 text-left"
+          className="mt-4 w-full max-w-md flex-shrink-0 rounded-xl border border-(--accent-amber)/50 bg-(--accent-amber)/10 px-4 py-3 text-left"
         >
           <div className="flex items-start gap-2.5">
             <AlertTriangle
@@ -97,16 +113,30 @@ export function VideoDropZone() {
               <p className="text-[13px] leading-snug text-(--text-secondary)">
                 {loadError.message}
               </p>
-              {loadError.tips.length > 0 ? (
-                <ul className="list-disc space-y-1 pl-4 text-[13px] leading-snug text-(--text-secondary)">
-                  {loadError.tips.map((tip) => (
-                    <li key={tip}>{tip}</li>
-                  ))}
-                </ul>
-              ) : null}
-              {loadError.detail ? (
-                <p className="font-mono text-[10.5px] text-(--text-muted)">{loadError.detail}</p>
-              ) : null}
+              {/* Eerst de oplossing (omzetten), daarna pas de tips voor als
+                  dat niet lukt of voor de volgende keer. */}
+              <ConvertPanel>
+                {loadError.tips.length > 0 ? (
+                  <div className="space-y-1 pt-1">
+                    {loadError.canConvert &&
+                    !loadError.tips.every((t) => t.startsWith("Voor de volgende keer")) ? (
+                      <p className="text-[12px] font-semibold text-(--text-secondary)">
+                        Lukt omzetten niet?
+                      </p>
+                    ) : null}
+                    <ul className="list-disc space-y-1 pl-4 text-[13px] leading-snug text-(--text-secondary)">
+                      {loadError.tips.map((tip) => (
+                        <li key={tip}>{tip}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {loadError.detail ? (
+                  <p className="break-words font-mono text-[10.5px] text-(--text-muted)">
+                    {loadError.detail}
+                  </p>
+                ) : null}
+              </ConvertPanel>
             </div>
             <button
               type="button"
@@ -131,6 +161,14 @@ export function VideoDropZone() {
       >
         Wat is Videometen?
       </a>
+      <button
+        type="button"
+        onClick={() => setDeviceCheckOpen(true)}
+        className="mt-1 text-xs text-(--text-muted) hover:text-(--accent) hover:underline"
+      >
+        Kan dit apparaat iPhone-video's afspelen?
+      </button>
+      <DeviceCheckDialog open={deviceCheckOpen} onOpenChange={setDeviceCheckOpen} />
     </div>
   );
 }
