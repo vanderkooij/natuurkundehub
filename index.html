@@ -396,16 +396,16 @@
   .hr-ov-kader { fill: rgba(108, 198, 255, .12); stroke: #6cc6ff; stroke-width: 4; stroke-dasharray: 14 9; opacity: 0; transform-box: fill-box; transform-origin: left top; }
   .card:hover .hr-ov-kader, .card:focus-visible .hr-ov-kader { animation: hrKader 3s ease-out infinite; }
   @keyframes hrKader { 0% { opacity: 1; transform: scale(0); } 45%, 90% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1); } }
-  /* Lorentzkracht: de kracht op de draad groeit omhoog */
+  /* Lorentzkracht: in rust de volle kracht; bij hover groeit hij steeds opnieuw uit de draad */
   .ill .lk-veld { stroke: #2563eb; stroke-width: 2; stroke-linecap: round; opacity: .75; }
   .ill .lk-draad { stroke: var(--text-muted); stroke-width: 5; stroke-linecap: round; }
   .ill .lk-i { stroke: #16a34a; stroke-width: 3; stroke-linecap: round; }
   .ill .lk-i-kop { fill: #16a34a; }
   .ill .lk-f { stroke: #dc2626; stroke-width: 3.5; stroke-linecap: round; }
   .ill .lk-f-kop { fill: #dc2626; }
-  .ill .lk-kracht { transform-box: view-box; transform-origin: 150px 64px; transform: scaleY(.35); }
+  .ill .lk-kracht { transform-box: view-box; transform-origin: 150px 79px; }
   .card:hover .lk-kracht, .card:focus-visible .lk-kracht { animation: lkKracht 2.4s ease-in-out infinite; }
-  @keyframes lkKracht { 0% { transform: scaleY(.35); } 45%, 85% { transform: scaleY(1); } 100% { transform: scaleY(.35); } }
+  @keyframes lkKracht { 0% { transform: scaleY(.15); } 40%, 100% { transform: scaleY(1); } }
   .stage-badge {
     position: absolute;
     top: 10px; left: 10px;
@@ -842,21 +842,17 @@
       <a href="/lorentzkracht/" class="card" data-name="Lorentzkracht" data-keys="lorentzkracht rechterhandregel ik ben lorentz magneetveld magnetisme stroomdraad richting kracht proton elektron cirkelbaan middelpuntzoekend in het papier uit het papier">
         <div class="stage">
           <svg class="ill" viewBox="0 0 300 118" aria-hidden="true">
-            <g class="lk-veld">
-              <path d="M86 24l8 8m0-8l-8 8M136 24l8 8m0-8l-8 8M186 24l8 8m0-8l-8 8M206 24l8 8m0-8l-8 8"/>
-              <path d="M86 84l8 8m0-8l-8 8M106 84l8 8m0-8l-8 8M136 84l8 8m0-8l-8 8M186 84l8 8m0-8l-8 8M206 84l8 8m0-8l-8 8"/>
-              <path d="M66 24l8 8m0-8l-8 8M66 84l8 8m0-8l-8 8M226 24l8 8m0-8l-8 8M226 84l8 8m0-8l-8 8"/>
-            </g>
-            <line class="lk-draad" x1="54" y1="64" x2="246" y2="64"/>
-            <line class="lk-i" x1="176" y1="64" x2="222" y2="64"/>
-            <polygon class="lk-i-kop" points="232,64 220,58 220,70"/>
-            <text class="math" x="228" y="54" font-size="15" style="fill:#16a34a">I</text>
-            <text class="math" x="246" y="31" font-size="15" style="fill:#2563eb">B</text>
+            <path class="lk-veld" d="M41 15l8 8m0-8l-8 8M71 15l8 8m0-8l-8 8M101 15l8 8m0-8l-8 8M131 15l8 8m0-8l-8 8M161 15l8 8m0-8l-8 8M191 15l8 8m0-8l-8 8M221 15l8 8m0-8l-8 8M251 15l8 8m0-8l-8 8M41 45l8 8m0-8l-8 8M71 45l8 8m0-8l-8 8M101 45l8 8m0-8l-8 8M131 45l8 8m0-8l-8 8M161 45l8 8m0-8l-8 8M191 45l8 8m0-8l-8 8M221 45l8 8m0-8l-8 8M251 45l8 8m0-8l-8 8M41 105l8 8m0-8l-8 8M71 105l8 8m0-8l-8 8M101 105l8 8m0-8l-8 8M131 105l8 8m0-8l-8 8M161 105l8 8m0-8l-8 8M191 105l8 8m0-8l-8 8M221 105l8 8m0-8l-8 8M251 105l8 8m0-8l-8 8"/>
+            <line class="lk-draad" x1="28" y1="79" x2="272" y2="79"/>
+            <line class="lk-i" x1="185" y1="79" x2="236" y2="79"/>
+            <polygon class="lk-i-kop" points="247,79 235,73 235,85"/>
+            <text class="math" x="238" y="99" font-size="15" style="fill:#16a34a">I</text>
+            <text class="math" x="266" y="24" font-size="15" style="fill:#2563eb">B</text>
             <g class="lk-kracht">
-              <line class="lk-f" x1="150" y1="64" x2="150" y2="20"/>
-              <polygon class="lk-f-kop" points="150,10 144,22 156,22"/>
+              <line class="lk-f" x1="150" y1="79" x2="150" y2="20"/>
+              <polygon class="lk-f-kop" points="150,8 144,21 156,21"/>
             </g>
-            <text class="math" x="160" y="22" font-size="15" style="fill:#dc2626">F</text>
+            <text class="math" x="155" y="40" font-size="15" style="fill:#dc2626">F</text>
           </svg>
         </div>
         <div class="card-body">
