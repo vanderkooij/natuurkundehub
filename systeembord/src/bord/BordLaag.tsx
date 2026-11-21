@@ -171,8 +171,17 @@ export function BordLaag(p: Props) {
     if (fout) p.melding(fout);
   };
 
-  const onBusDown = (adres: BusAdres) => (e: React.PointerEvent) => {
+  const onBusDown = (geraakt: BusAdres) => (e: React.PointerEvent) => {
     e.stopPropagation();
+    // Uitgezoomd overlappen de aanraakvlakken van bussen die dicht bij elkaar
+    // zitten (8, 4, 2, 1 van de pulsenteller): dan wint de laatst getekende.
+    // Neem daarom de bus die echt het dichtst bij de aanwijzer ligt.
+    const adres =
+      dichtsteBus(
+        p.schakeling.modules,
+        naarWerkvlak(e.clientX, e.clientY),
+        raakAfstand(),
+      ) ?? geraakt;
     // Tweede tik na een gekozen bus: verbinden.
     if (p.gekozen && !zelfdeBus(p.gekozen, adres)) {
       verbind(p.gekozen, adres);
