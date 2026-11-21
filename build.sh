@@ -63,6 +63,12 @@ cp -r bewegingsgrafieken dist/bewegingsgrafieken
 # Kopieer de EM-spectrumverkenner (statische HTML, met infopagina in over/)
 cp -r em-spectrum dist/em-spectrum
 
+# Kopieer Lorentzkracht (statische HTML, gemaakt door Gijs Koetsenruijter)
+cp -r lorentzkracht dist/lorentzkracht
+
+# Kopieer het HR-diagram (statische HTML met infopagina in over/, gemaakt door Gijs Koetsenruijter)
+cp -r hr-diagram dist/hr-diagram
+
 # Kopieer de Contactpagina (statische HTML)
 cp -r contact dist/contact
 

@@ -22,7 +22,10 @@ natuurkundehub/
 │   └── sitemap.mjs                   # Maakt dist/sitemap.xml uit alle pagina's (laatste stap van build.sh)
 ├── plannen/                          # Bouwplannen per tool (bewegingsgrafieken, em-spectrum, systeembord, voorvoegsels)
 ├── assets/
-│   └── logo/                         # JK_light.svg, JK_dark.svg, JK_black.svg, JK_white.svg
+│   ├── logo/                         # JK_light.svg, JK_dark.svg, JK_black.svg, JK_white.svg
+│   ├── og/                           # Previewplaatjes (1200×630 .jpg) en schermafbeeldingen voor tegels en infopagina's (.webp)
+│   ├── about.css                     # Opmaak van het blok "Over deze tool"
+│   └── toolmenu.css, toolmenu.js     # Menu rechtsboven in de header (⋮): uitleg, over, maker; zie Menu rechtsboven
 ├── contact/
 │   └── index.html                    # Contactformulier (Netlify Forms)
 ├── overhoor/
@@ -83,6 +86,15 @@ natuurkundehub/
 ├── systeembord/                      # Vite/React-workspace (zoals CircuitFlow); alleen systeembord/dist/ wordt gedeployed
 │   ├── public/over/index.html        # Infopagina /systeembord/over/ (Vite kopieert hem mee)
 │   └── src/                          # sim/ (rekenkern, tests), bord/ (tekenen, bediening), bestand/ (opslaan, link, XML, voorbeelden)
+├── lorentzkracht/                    # Oefentool rechterhandregel (gemaakt door Gijs Koetsenruijter)
+│   ├── index.html                    # De tool, met uitleg (dialoog) en het blok Over deze tool
+│   └── versie.js
+├── hr-diagram/                       # HR-diagram, schermvullend (gemaakt door Gijs Koetsenruijter)
+│   ├── index.html                    # Opbouw en opmaak; het werkpaneel is altijd donker (sterrenhemel)
+│   ├── hr.js                         # Rekenwerk en tekenen (canvas)
+│   ├── data.js                       # Sterrengegevens (HR 1, HR 2/Hipparcos) en evolutiesporen; ca. 700 kB
+│   ├── over/index.html               # Infopagina met het computerpracticum en de bronnen
+│   └── versie.js
 ├── dist/                             # Gebouwde versies (automatisch, niet handmatig bewerken)
 ├── build.sh                          # Build-script — bron van waarheid voor wat er gedeployed wordt
 ├── IDEEEN.md                         # Backlog met status per tool
@@ -101,7 +113,7 @@ natuurkundehub/
 
 ## Homepage
 
-De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht, Elektriciteit, Automatisering en Golven en straling. Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
+De homepage (`index.html`, opnieuw ingedeeld op 2026-10-10) is één pagina met de tools in **categorieën**: nu Basisvaardigheden, Beweging en kracht, Elektriciteit en magnetisme, Automatisering en Straling en sterrenkunde (de laatste twee namen sinds 2026-11-21). Bovenaan staan een korte hero met zoekveld, het pilletje *Verder waar je was* en een rij snelknoppen per categorie die onder de header blijft hangen.
 
 **Tegel toevoegen.** Kopieer een bestaande `<a class="card">` binnen de juiste `<section class="category">` en vul in:
 
@@ -131,7 +143,7 @@ Elke pagina heeft in de `<head>`, direct na `<title>`:
 
 Alleen de **hoofdpagina** van een tool (de keuzepagina, of de toolpagina zelf als de tool maar één pagina heeft) krijgt onderaan in `.main` een inklapbaar blok **Over deze tool** (`<section class="about"><details>…`), met de opmaak uit `/assets/about.css`. Daarin staan in gewone taal wat je oefent, voor wie, de kern van de stof en een link naar de uitleg. De tool zelf blijft bovenaan en ongewijzigd; het blok geeft Google leesbare tekst zonder leerlingen af te leiden. Subpagina's (uitleg, oefenen, examenformules, overzichten) krijgen het blok niet; afgesproken met Jop op 2026-10-10, omdat het daar alleen afleidt. Kijk het voorbeeld na in `significantie/index.html`.
 
-Schermvullende apps (CircuitSketch, CircuitFlow, Videometen, Systeembord, EM-spectrum) kunnen geen blok onderaan hebben, want ze scrollen niet. Zij krijgen een **infopagina** op `/<app>/over/` (bron: `<app>/public/over/index.html`, Vite kopieert hem mee; bij het statische EM-spectrum staat hij direct in `em-spectrum/over/`). De app zelf blijft op `/<app>/` staan, zodat bladwijzers en de tegel op de homepage direct naar de tool gaan; de infopagina is voor wie via Google binnenkomt. Vanuit de app linkt het helpvenster (en waar dat kan het lege startscherm) naar de infopagina. Modelleren scrollt wel en heeft het blok gewoon onder de app.
+Schermvullende apps (CircuitSketch, CircuitFlow, Videometen, Systeembord, EM-spectrum, HR-diagram) kunnen geen blok onderaan hebben, want ze scrollen niet. Zij krijgen een **infopagina** op `/<app>/over/` (bron: `<app>/public/over/index.html`, Vite kopieert hem mee; bij het statische EM-spectrum staat hij direct in `em-spectrum/over/`). De app zelf blijft op `/<app>/` staan, zodat bladwijzers en de tegel op de homepage direct naar de tool gaan; de infopagina is voor wie via Google binnenkomt. Vanuit de app linkt het helpvenster (en waar dat kan het lege startscherm) naar de infopagina. Modelleren scrollt wel en heeft het blok gewoon onder de app.
 
 Elke pagina heeft een **previewplaatje** (`og:image`, 1200×630) uit `assets/og/`: de apps hun eigen schermafbeelding, de overige pagina's `hub.jpg`. De infopagina's tonen dezelfde schermafbeelding als `.webp`.
 
@@ -163,7 +175,8 @@ Deze afspraken komen uit Voorvoegsels, Formules omschrijven, Bewegingsgrafieken 
 - **Twee sporen, één techniek.** Waar onderbouw en bovenbouw allebei met de tool werken, krijgt elk spoor een eigen taal, eigen levels en een eigen uitleg (onderbouw in woorden, bovenbouw met symbolen), op dezelfde code eronder. Leer de onderbouw niets aan wat de bovenbouw weer moet afleren.
 - **Foutdiagnose uit denkfouten.** Feedback zegt zo concreet mogelijk wat er misgaat. Foute antwoordopties in meerkeuze komen uit echte denkfouten (vorm overgenomen uit het andere diagram, richting verwisseld, stap gemist), niet uit willekeurige waarden.
 - **Rood betekent fout.** Gebruik rood alleen voor fout; markeren of uitlichten doe je met amber (`#D4923A`).
-- **Past zonder scrollen.** Het oefenscherm past op een Chromebook (ongeveer 1366 × 650) zonder te scrollen; test ook op 1920 × 1080.
+- **Past zonder scrollen.** Het oefenscherm past op een Chromebook (ongeveer 1366 × 650) zonder te scrollen.
+- **Ook voor laptop en digibord.** Chromebooks zijn de ondergrens, niet het doel: Jop gebruikt de tools zelf op zijn laptop en op het digibord, en een andere school kan gewone laptops hebben. Test daarom ook op 1920 × 1080 en laat de tool daar meegroeien (groter tekenvlak, grotere knoppen en tekst) in plaats van klein in het midden te blijven staan. Maak niets dat alleen op een Chromebook goed werkt.
 
 ## Invoer van leerlingen (Chromebooks)
 
@@ -237,6 +250,9 @@ Netlify Forms werkt alleen op de gedeployde site (niet op localhost). `netlify d
 | `/videometen/over/` | Videometen *(infopagina)* |
 | `/systeembord/` | Systeembord *(in de header, met de werkbalk ernaast)* |
 | `/systeembord/over/` | Systeembord *(infopagina)* |
+| `/lorentzkracht/` | Lorentzkracht |
+| `/hr-diagram/` | Hertzsprung-Russelldiagram *(schermvullend; op een laag scherm valt de toolnaam weg, hij staat dan in de kruimel)* |
+| `/hr-diagram/over/` | HR-diagram *(infopagina)* |
 | `/contact/` | Contact & Feedback |
 
 ## Header stijl
@@ -249,6 +265,14 @@ Alle statische HTML-pagina's gebruiken een sticky header met `backdrop-filter: b
 Header-elementen (knoppen, breadcrumb, help-icoon, thema-toggle) blijven per pagina visueel consistent. Nieuwe tools nemen deze stijl over zodat de hub als geheel uniform aanvoelt — pas afwijken wanneer er een goede reden is.
 
 Vite-/React-gebaseerde tools (zoals CircuitSketch) hebben een eigen header-implementatie. Streef ernaar die zo dicht mogelijk bij dezelfde visuele stijl te houden (kleuren, blur, hoogte, gedrag), zodat de overgang tussen hub en tool naadloos blijft.
+
+## Menu rechtsboven
+
+Statische tools kunnen naast de themaknop een menu (⋮) hebben voor wat niet steeds in beeld hoeft: uitleg, *Over deze tool*, de score op nul zetten, en de maker als een tool door iemand anders is gemaakt. Opbouw en gedrag staan in `assets/toolmenu.js` (opmaak in `toolmenu.css`). Een knop met `data-actie="x"` stuurt het event `toolmenu:x` naar `document`; een link gaat gewoon naar zijn adres. Voorbeelden: `lorentzkracht/` en `hr-diagram/`.
+
+## Tools van anderen
+
+Lorentzkracht en het HR-diagram zijn gemaakt door Gijs Koetsenruijter en voor de site in de huisstijl gezet. De versie in deze repo is leidend; zijn eigen repo's zijn niet meer de bron. Zijn naam staat in het menu, in de footer en in het blok of de infopagina *Over deze tool*. Plaatjes en gegevens van anderen gaan pas op de site als de herkomst en de licentie bekend zijn (zie de bronnen op `/hr-diagram/over/`).
 
 ## Thema
 
@@ -277,7 +301,7 @@ Waar het nummer staat:
 - **Tools met een eigen build** (Videometen, Modelleren, CircuitFlow, Systeembord, CircuitSketch): het veld `version` in de `package.json` van de tool. Videometen leest het daaruit voor de help en de projectbestanden; zet het nummer nergens anders neer. Werk daarna de lockfile bij (`npm install --package-lock-only --ignore-scripts`), want die bevat het nummer ook.
 - **Statische tools** (losse HTML): het bestand `versie.js` in de map van de tool. Dat zet het nummer in de footer van elke pagina (in het element met `data-versie`). Een nieuwe pagina krijgt `<span data-versie></span>` achter de copyrightregel en `<script src="/<tool>/versie.js"></script>` vóór `</body>`.
 
-Stand op 2026-11-11, teruggerekend uit de commitgeschiedenis (eerste live versie = 1.0.0, daarna per `feat` minor en per `fix` patch; wijzigingen aan de hele site, zoals SEO en huisstijl, niet meegeteld): Formules omschrijven 1.11.0 (incl. getallenproef klas 3), CircuitSketch 1.8.0, CircuitFlow 1.5.1, Overhoor 1.3.0, Videometen 1.2.0, Systeembord 1.2.0, Significantie 1.2.0, Modelleren 2.1.0 (2.0 = de React-app), Bewegingsgrafieken 1.1.0, Voorvoegsels 1.0.0, EM-spectrum 1.0.0.
+Stand op 2026-11-11, teruggerekend uit de commitgeschiedenis (eerste live versie = 1.0.0, daarna per `feat` minor en per `fix` patch; wijzigingen aan de hele site, zoals SEO en huisstijl, niet meegeteld): Formules omschrijven 1.11.0 (incl. getallenproef klas 3), CircuitSketch 1.8.0, CircuitFlow 1.5.1, Overhoor 1.3.0, Videometen 1.2.0, Systeembord 1.2.0, Significantie 1.2.0, Modelleren 2.1.0 (2.0 = de React-app), Bewegingsgrafieken 1.1.0, Voorvoegsels 1.0.0, EM-spectrum 1.0.0. Sinds 2026-11-21 ook Lorentzkracht 1.0.0 en HR-diagram 1.0.0.
 
 ### Pakketten en lockfile
 

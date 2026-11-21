@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lorentzkracht oefenen met de rechterhandregel · NatuurkundeHub</title>
+<meta name="description" content="Oefen de richting van de lorentzkracht met de rechterhandregel: bepaal F, B of I bij draden, protonen en elektronen. Met directe uitleg bij elke fout.">
+<link rel="canonical" href="https://natuurkundehub.nl/lorentzkracht/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Lorentzkracht oefenen met de rechterhandregel">
+<meta property="og:description" content="Oefen de richting van de lorentzkracht met de rechterhandregel: bepaal F, B of I bij draden, protonen en elektronen. Met directe uitleg bij elke fout.">
+<meta property="og:url" content="https://natuurkundehub.nl/lorentzkracht/">
+<meta property="og:image" content="https://natuurkundehub.nl/assets/og/hub.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="De homepage van NatuurkundeHub met de interactieve natuurkundetools.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@1,600&display=swap" rel="stylesheet">
+<script>
+/* thema vóór de eerste weergave zetten (geen flits) */
+(function(){var s=null;try{s=localStorage.getItem('nh-theme')}catch(e){}
+document.documentElement.setAttribute('data-theme',s||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));})();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-card:#ffffff;
+  --accent:#0BB5C8;--accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --amber:#D4923A;--amber-dim:rgba(212,146,58,0.1);--amber-border:rgba(212,146,58,0.45);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+  /* natuurkundekleuren: groen = I of v, blauw = B, rood = F (afgesproken uitzondering op "rood is fout") */
+  --green:#16a34a;--blue:#2563eb;--red:#dc2626;
+  /* tekenvlak van de opgave */
+  --panel:#f6f9fb;--obj:#2b3240;--line:#d4e8ec;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-card:#1c2333;
+  --accent-dim:rgba(11,181,200,0.1);--accent-border:rgba(11,181,200,0.25);
+  --amber-dim:rgba(212,146,58,0.12);--amber-border:rgba(212,146,58,0.5);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#7c8aa0;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#4ade80;--blue:#60a5fa;--red:#f87171;
+  --panel:#141a26;--obj:#cdd5e1;--line:#2a3a52;
+}
+html{font-size:16px}
+/* Groot scherm (digibord, full-hd laptop): alles een slag groter. */
+@media (min-width:1600px) and (min-height:900px){html{font-size:18px}}
+@media (min-width:2200px) and (min-height:1200px){html{font-size:21px}}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+/* header */
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;width:40px;height:40px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{height:30px;opacity:.9}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600}
+.tool-name{text-align:center;font-size:clamp(26px,3.4vw,38px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:22px 0 16px;position:relative;z-index:1}
+
+/* het oefenscherm */
+.oefen{position:relative;z-index:1;max-width:min(1600px,100%);margin:0 auto;padding:0 24px}
+.balk{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:12px}
+.balk .label{font-size:.82rem;font-weight:600;color:var(--text-muted);margin-right:2px}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1.5px solid var(--border-solid);border-radius:999px;background:var(--bg-card);color:var(--text-secondary);font-size:.9rem;font-weight:600;cursor:pointer;user-select:none;transition:border-color .15s,background .15s}
+.chip:hover{border-color:var(--accent-border);color:var(--text)}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip .vink{width:16px;height:16px;border:1.5px solid var(--text-muted);border-radius:4px;flex:none;display:flex;align-items:center;justify-content:center}
+.chip:has(input:checked){border-color:var(--accent);background:var(--accent-dim);color:var(--text)}
+.chip:has(input:checked) .vink{background:var(--accent);border-color:var(--accent)}
+.chip:has(input:checked) .vink::after{content:'';width:8px;height:4px;border:2px solid #fff;border-top:none;border-right:none;transform:rotate(-45deg) translate(1px,-1px)}
+.chip:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.knop{font:inherit;font-size:.9rem;font-weight:600;min-height:40px;padding:0 16px;border-radius:10px;border:1.5px solid var(--border-solid);background:var(--bg-card);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:border-color .15s,background .15s}
+.knop:hover{border-color:var(--accent)}
+.knop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.knop .vraag{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
+.knop.hoofd{background:var(--accent);border-color:var(--accent);color:#fff}
+.knop.hoofd:hover{filter:brightness(1.08)}
+.score{margin-left:auto;font-size:.9rem;color:var(--text-muted);font-family:var(--mono)}
+.score b{color:var(--text);font-weight:500}
+
+.kaart{background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:var(--radius);padding:18px 20px;box-shadow:0 2px 12px rgba(11,181,200,0.05)}
+/* het tekenvlak schaalt met de schermhoogte, zodat alles zonder scrollen past */
+.kaart{--vlak:clamp(240px,min(38vw,100dvh - 250px),700px)}
+.stage{display:grid;grid-template-columns:var(--vlak) minmax(0,1fr);gap:20px 28px;align-items:start}
+.panelwrap svg{display:block;width:var(--vlak);height:var(--vlak)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--text-muted);margin-top:8px;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+/* rechterkolom even hoog als tekenvlak + legenda; een lange uitleg scrollt binnen zijn eigen vak */
+.rechts{min-width:0;display:flex;flex-direction:column;gap:14px;height:calc(var(--vlak) + 48px)}
+.antwoord{flex:1;min-height:0}
+#feedback{align-self:stretch;max-height:100%;overflow-y:auto;overscroll-behavior:contain;border-radius:12px}
+.qhead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.prompt{font-size:1.15rem;font-weight:600;line-height:1.4;flex:1 1 260px}
+.next.skip{background:var(--bg-card);border-color:var(--border-solid);color:var(--text)}
+.next.skip:hover{border-color:var(--accent)}
+.antwoord{display:flex;gap:20px 24px;align-items:flex-start}
+.ansblock h2{font-size:.82rem;font-weight:600;color:var(--text-muted);margin:0 0 8px}
+.ansrow{display:flex;gap:10px}
+/* richtingknoppen: minstens 56 px, op een groot scherm groter */
+.compass{--k:clamp(56px,7.2dvh,76px);display:grid;grid-template-columns:repeat(3,var(--k));grid-template-rows:repeat(3,var(--k));gap:6px}
+.compass .leeg{border:1.5px dashed var(--border-solid);border-radius:12px;opacity:.6}
+.zbtns{display:grid;grid-template-rows:repeat(2,var(--k));gap:6px;--k:clamp(56px,7.2dvh,76px)}
+.zbtns .ab{width:var(--k)}
+.ab{font:inherit;font-size:1.5rem;line-height:1;border:1.5px solid var(--border-solid);background:var(--bg-card);color:var(--text);border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:background .12s,border-color .12s}
+.ab:hover:not(:disabled){border-color:var(--accent)}
+.ab:focus-visible,.next:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ab:disabled{cursor:default}
+.ab.right::after,.ab.wrong::after{position:absolute;top:4px;right:7px;font-size:.75rem}
+.ab.right::after{content:"✓"}
+.ab.wrong::after{content:"✗"}
+.ab.right{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ab.wrong{border-color:var(--amber);background:var(--amber-dim);border-style:dashed}
+
+#feedback{flex:1 1 0;min-width:0}
+.fb{border-radius:12px;padding:12px 16px;font-size:.95rem;line-height:1.5}
+.fb.ok{background:var(--accent-dim);border:1px solid var(--accent-border)}
+.fb.bad{background:var(--amber-dim);border:1px solid var(--amber-border)}
+.fb strong.head{font-size:1.02rem}
+.fb ol{margin:8px 0 2px;padding-left:20px}
+.fb li{margin:4px 0;max-width:68ch}
+.fb p{margin:6px 0 0;max-width:68ch}
+.fb .tip{color:var(--text-muted);font-size:.88rem}
+.fb .handtip{margin:10px 0 2px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 8px 8px 0}
+.mini{display:flex;flex-wrap:wrap;gap:8px 18px;margin:10px 0 2px}
+.mini div{display:flex;align-items:center;gap:6px}
+.mini svg{width:40px;height:40px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.var{font-family:"STIX Two Text",Georgia,"Times New Roman",serif;font-style:italic;font-weight:600;font-size:1.12em}
+.g{color:var(--green)} .b{color:var(--blue)} .r{color:var(--red)}
+
+/* uitleg */
+dialog.help{border:1px solid var(--border-solid);border-radius:16px;padding:0;width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;background:var(--bg-card);color:var(--text);font-family:var(--font);font-size:1rem;line-height:1.6}
+dialog.help::backdrop{background:rgba(10,14,20,.6)}
+.help .hd{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--bg-card);border-bottom:1px solid var(--border-solid)}
+.help .hd h2{font-size:1.2rem;font-weight:700}
+.help .x{font:inherit;font-size:1.4rem;line-height:1;border:1.5px solid var(--border-solid);background:transparent;color:var(--text);width:44px;height:44px;border-radius:10px;cursor:pointer}
+.help .x:hover{border-color:var(--accent)}
+.help .bd{padding:4px 20px 22px}
+.help h3{font-size:1.05rem;font-weight:700;margin:20px 0 6px}
+.help p,.help li{max-width:64ch}
+.help p{margin:6px 0}
+.help ul,.help ol{margin:6px 0;padding-left:22px}
+.help li{margin:5px 0}
+.help .fig{float:right;margin:4px 0 10px 18px;width:250px;text-align:center}
+.help .handbeeld{position:relative;background:#fff;border:1px solid var(--border-solid);border-radius:12px;overflow:hidden}
+.help .handbeeld img{display:block;width:100%;height:auto}
+.help .handbeeld svg{position:absolute;inset:0;width:100%;height:100%}
+.help .fig figcaption{font-size:.82rem;color:var(--text-muted);margin-top:6px;line-height:1.35}
+.help .ex{margin:12px 0 4px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;clear:both}
+.help .ex svg{width:220px;height:auto;flex:none;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.help .ex p{flex:1 1 220px;margin:0}
+.help .formula{font-family:"STIX Two Text",Georgia,serif;font-size:1.05em}
+.help .clr{clear:both}
+@media (max-width:560px){.help .fig{float:none;margin:8px auto 12px}}
+
+.main{max-width:1240px;margin:0 auto;padding:0 24px 40px;position:relative;z-index:1}
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+footer img{height:24px;opacity:0.3;display:block;margin:0 auto 8px}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* Laag scherm (Chromebook, ~1366×650): toolnaam weg, hij staat al in de kruimel. */
+@media (max-height:760px){
+  .tool-name{display:none}
+  .oefen{padding-top:12px}
+  .app-header{min-height:60px}
+  .kaart{padding:14px 16px;--vlak:clamp(240px,min(38vw,100dvh - 222px),700px)}
+  .rechts{gap:10px}
+}
+/* Smal scherm (telefoon, staand tablet): onder elkaar. */
+@media (max-width:820px){
+  .app-header{padding:0 14px}
+  .oefen,.main{padding-left:14px;padding-right:14px}
+  .kaart{--vlak:min(100%,420px)}
+  .stage{grid-template-columns:1fr}
+  .rechts{height:auto}
+  .antwoord{flex-wrap:wrap}
+  #feedback{max-height:none}
+  .panelwrap svg{width:100%;height:auto;max-width:420px;margin:0 auto}
+  .score{margin-left:0;flex-basis:100%}
+}
+@media (max-width:560px){.app-title,.header-left .crumb-sep{display:none}}
+</style>
+<link rel="stylesheet" href="/assets/about.css">
+<link rel="stylesheet" href="/assets/toolmenu.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img id="header-logo" src="/assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb crumb-sep">›</span>
+    <span class="crumb">Lorentzkracht</span>
+  </div>
+  <div class="header-right">
+    <div class="toolmenu">
+      <button class="toolmenu-knop" type="button" aria-expanded="false" aria-controls="toolmenu" aria-label="Menu" title="Menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </button>
+      <div class="toolmenu-lijst" id="toolmenu" role="menu" hidden>
+        <button class="toolmenu-item" role="menuitem" type="button" data-actie="uitleg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg>
+          Uitleg: de rechterhandregel</button>
+        <button class="toolmenu-item" role="menuitem" type="button" data-actie="over">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+          Over deze tool</button>
+        <button class="toolmenu-item" role="menuitem" type="button" data-actie="opnieuw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>
+          Score op nul zetten</button>
+        <div class="toolmenu-scheid"></div>
+        <div class="toolmenu-maker">Gemaakt door<b>Gijs Koetsenruijter</b></div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Wissel thema">🌙</button>
+  </div>
+</header>
+
+<h1 class="tool-name">Lorentzkracht</h1>
+
+<div class="oefen">
+  <div class="balk" role="group" aria-label="Instellingen">
+    <span class="label">Ook oefenen met:</span>
+    <label class="chip"><input id="particles" type="checkbox"><span class="vink"></span>protonen en elektronen</label>
+    <label class="chip"><input id="oblique" type="checkbox"><span class="vink"></span>niet-loodrechte situaties</label>
+    <label class="chip"><input id="orbit" type="checkbox"><span class="vink"></span>cirkelbanen (vwo 6)</label>
+    <button class="knop" id="helpbtn" type="button" aria-label="Uitleg over lorentzkracht en rechterhandregel"><span class="vraag" aria-hidden="true">?</span>Uitleg</button>
+    <div class="score" id="score" aria-live="polite"></div>
+  </div>
+
+  <section class="kaart">
+    <div class="stage">
+      <div class="panelwrap">
+        <svg id="panel" viewBox="0 0 300 300" role="img" aria-label="Opdracht met magneetveld en stroom"></svg>
+        <div class="legend">
+          <span id="legG"><i style="background:var(--green)"></i><span class="var">I</span> stroom</span>
+          <span><i style="background:var(--blue)"></i><span class="var">B</span> magneetveld</span>
+          <span><i style="background:var(--red)"></i><span class="var">F</span> lorentzkracht</span>
+          <span>⊙ uit het papier · ⊗ in het papier</span>
+        </div>
+      </div>
+      <div class="rechts">
+        <div class="qhead"><p class="prompt" id="prompt"></p><button class="knop hoofd next skip" id="next" type="button">Volgende opdracht</button></div>
+        <div class="antwoord">
+          <div class="ansblock">
+            <h2>Kies de richting</h2>
+            <div class="ansrow">
+              <div class="compass" id="compass"></div>
+              <div class="zbtns" id="zbtns"></div>
+            </div>
+          </div>
+          <div id="feedback" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="main">
+  <section class="about" id="over">
+    <details>
+      <summary><h2>Over deze tool: lorentzkracht oefenen</h2></summary>
+      <div class="about-body">
+        <p>Met deze tool oefen je de richting van de lorentzkracht, zoals je die bij natuurkunde in de bovenbouw van
+          havo en vwo nodig hebt. In elke opgave ontbreekt precies één van de drie: de lorentzkracht <i>F</i>, het
+          magneetveld <i>B</i> of de stroom <i>I</i> (bij een los deeltje de snelheid <i>v</i>). Jij kiest de richting
+          en ziet meteen of het klopt. Zit je ernaast, dan krijg je stap voor stap uitleg met de rechterhand.</p>
+
+        <h3>Wat oefen je?</h3>
+        <ul>
+          <li><strong>Stroomdraden:</strong> de kracht op een draad met stroom in een magneetveld.</li>
+          <li><strong>Protonen en elektronen:</strong> bij een elektron wijst de stroom tegen de snelheid in.</li>
+          <li><strong>Niet-loodrechte situaties:</strong> <i>I</i> en <i>B</i> staan schuin op elkaar, de kracht wordt kleiner (F = B·I·ℓ·sin θ).</li>
+          <li><strong>Cirkelbanen:</strong> een geladen deeltje in een magneetveld, waarbij de lorentzkracht de middelpuntzoekende kracht is.</li>
+        </ul>
+
+        <h3>De rechterhandregel: Ik Ben Lorentz</h3>
+        <p>Houd duim, wijsvinger en middelvinger van je rechterhand loodrecht op elkaar. Je <strong>duim</strong> wijst
+          langs de stroom <i>I</i>, je <strong>wijsvinger</strong> langs het magneetveld <i>B</i>, en je
+          <strong>middelvinger</strong> geeft dan de richting van de lorentzkracht <i>F</i>. Een ⊙ betekent uit het papier
+          (naar je toe), een ⊗ in het papier (van je af).</p>
+
+        <p>Wil je het rustig nalezen? <a href="#" id="overUitleg">Open de uitleg over de rechterhandregel</a>.</p>
+
+        <p>Deze tool is gemaakt door Gijs Koetsenruijter en voor NatuurkundeHub in de huisstijl gezet.</p>
+      </div>
+    </details>
+  </section>
+</div>
+
+<dialog class="help" id="helpdlg" aria-labelledby="helptitle">
+  <div class="hd"><h2 id="helptitle">Uitleg</h2><button class="x" id="helpx" type="button" aria-label="Sluiten">×</button></div>
+  <div class="bd">
+
+    <h3>Waarom ontstaat er een lorentzkracht?</h3>
+    <p>Een magneetveld duwt op een lading die <b>beweegt</b>. Een stilstaande lading voelt niets, en een lading die precies langs de veldlijnen beweegt ook niet. Een stroom in een draad is een stroom bewegende ladingen, dus ook een draad met stroom voelt een kracht.</p>
+    <p>Dat komt doordat een bewegende lading zelf ook een magneetveld om zich heen heeft. Dat eigen veld en het veld van de magneet werken op elkaar, en dat merkt de lading als een kracht.</p>
+    <p>De lorentzkracht <span class="var r">F</span> staat altijd <b>loodrecht</b> op de beweging (<span class="var g">I</span> of <span class="var g">v</span>) en loodrecht op het magneetveld <span class="var b">B</span>. Daarom wordt een deeltje zijwaarts afgebogen en niet vooruit of achteruit geduwd.</p>
+    <p>Als alles loodrecht staat, is de grootte <span class="formula">F<sub>L</sub> = B · I · ℓ</span> voor een draad en <span class="formula">F<sub>L</sub> = B · q · v</span> voor een lading.</p>
+
+    <div class="ex">
+      <svg viewBox="0 0 220 170" role="img" aria-label="Voorbeeld: stroomdraad met stroom naar rechts, magneetveld het papier in, kracht omhoog"><line x1="25" y1="20" x2="35" y2="30" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="30" x2="35" y2="20" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="60" x2="35" y2="70" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="70" x2="35" y2="60" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="100" x2="35" y2="110" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="110" x2="35" y2="100" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="140" x2="35" y2="150" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="25" y1="150" x2="35" y2="140" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="20" x2="75" y2="30" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="30" x2="75" y2="20" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="60" x2="75" y2="70" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="70" x2="75" y2="60" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="100" x2="75" y2="110" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="110" x2="75" y2="100" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="140" x2="75" y2="150" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="65" y1="150" x2="75" y2="140" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="20" x2="115" y2="30" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="30" x2="115" y2="20" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="60" x2="115" y2="70" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="70" x2="115" y2="60" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="100" x2="115" y2="110" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="110" x2="115" y2="100" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="140" x2="115" y2="150" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="105" y1="150" x2="115" y2="140" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="20" x2="155" y2="30" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="30" x2="155" y2="20" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="60" x2="155" y2="70" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="70" x2="155" y2="60" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="100" x2="155" y2="110" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="110" x2="155" y2="100" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="140" x2="155" y2="150" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="145" y1="150" x2="155" y2="140" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="20" x2="195" y2="30" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="30" x2="195" y2="20" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="60" x2="195" y2="70" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="70" x2="195" y2="60" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="100" x2="195" y2="110" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="110" x2="195" y2="100" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="140" x2="195" y2="150" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="185" y1="150" x2="195" y2="140" stroke-width="2" stroke-linecap="round" style="stroke:var(--blue)"/><line x1="0" y1="105" x2="220" y2="105" stroke-width="8" style="stroke:var(--obj);opacity:.82"/><line x1="96" y1="105" x2="154" y2="105" stroke-width="4" stroke-linecap="round" style="stroke:var(--green)"/><polygon points="174,105 156,97 156,113" style="fill:var(--green)"/><line x1="70" y1="95" x2="70" y2="52" stroke-width="4" stroke-linecap="round" style="stroke:var(--red)"/><polygon points="70,32 62,50 78,50" style="fill:var(--red)"/><g style="font-family:'STIX Two Text',Georgia,serif;font-style:italic;font-weight:600;font-size:24px;paint-order:stroke;stroke:var(--panel);stroke-width:6px;stroke-linejoin:round" text-anchor="middle" dominant-baseline="central"><text x="140" y="130" style="fill:var(--green)">I</text><text x="94" y="38" style="fill:var(--red)">F</text></g></svg>
+      <p><b>Voorbeeld:</b> in een stroomdraad loopt de stroom naar rechts (<span class="var g">I</span>), in een magneetveld dat het papier in wijst (<span class="var b">B</span>). De lorentzkracht <span class="var r">F</span> op de draad wijst dan omhoog.</p>
+    </div>
+
+    <h3>De rechterhandregel: Ik Ben Lorentz</h3>
+    <figure class="fig">
+      <div class="handbeeld"><img src="/lorentzkracht/hand.webp" width="640" height="572" alt="Rechterhand met de duim omhoog als stroom I, de wijsvinger schuin naar linksboven als magneetveld B en de middelvinger schuin naar linksonder als lorentzkracht F">
+      <svg viewBox="20 60 940 840" aria-hidden="true"><line x1="700" y1="440" x2="664" y2="112" stroke="#16a34a" stroke-width="10" stroke-linecap="round"/><polygon points="660,78 681,114 647,118" fill="#16a34a"/><line x1="470" y1="410" x2="149" y2="271" stroke="#2563eb" stroke-width="10" stroke-linecap="round"/><polygon points="118,258 160,257 146,289" fill="#2563eb"/><line x1="440" y1="505" x2="73" y2="598" stroke="#dc2626" stroke-width="10" stroke-linecap="round"/><polygon points="40,606 73,580 81,613" fill="#dc2626"/><text x="706" y="150" fill="#16a34a" font-family="'Space Grotesk',Arial,sans-serif" font-size="70" font-weight="500">I</text><path d="M708 84h40M739 75l9 9-9 9" stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="110" y="225" fill="#2563eb" font-family="'Space Grotesk',Arial,sans-serif" font-size="70" font-weight="500">B</text><path d="M112 159h40M143 150l9 9-9 9" stroke="#2563eb" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="60" y="700" fill="#dc2626" font-family="'Space Grotesk',Arial,sans-serif" font-size="70" font-weight="500">F</text><path d="M62 634h40M93 625l9 9-9 9" stroke="#dc2626" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <figcaption>Duim = <span class="var g">I</span>, wijsvinger = <span class="var b">B</span>, middelvinger = <span class="var r">F</span></figcaption>
+    </figure>
+    <ol>
+      <li>Bepaal de richting van de stroom <span class="var g">I</span>. Dat is de conventionele stroom, van plus naar min. Bij een proton wijst <span class="var g">I</span> hetzelfde als de snelheid <span class="var g">v</span>.</li>
+      <li>Houd je <b>rechterhand</b> zo dat duim, wijsvinger en middelvinger loodrecht op elkaar staan.</li>
+      <li><b>Ik:</b> richt je duim langs de stroom <span class="var g">I</span>.</li>
+      <li><b>Ben:</b> draai je hand om de duim heen tot je wijsvinger langs het magneetveld <span class="var b">B</span> wijst.</li>
+      <li><b>Lorentz:</b> je middelvinger wijst nu in de richting van de lorentzkracht <span class="var r">F</span>.</li>
+    </ol>
+    <div class="clr"></div>
+
+    <h3>Handige tips</h3>
+    <ul>
+      <li><b>Welke vinger lees je af?</b> Ontbreekt <span class="var r">F</span>, lees dan je middelvinger af. Ontbreekt <span class="var b">B</span>, dan je wijsvinger. Ontbreekt <span class="var g">I</span> (of <span class="var g">v</span>), dan je duim.</li>
+      <li><b>Elektron:</b> een elektron is negatief, dus de stroom <span class="var g">I</span> wijst <i>tegengesteld</i> aan de snelheid <span class="var g">v</span>. Richt je duim dus tegen de bewegingsrichting in.</li>
+      <li><b>⊙ en ⊗:</b> ⊙ is een stip, de punt van een pijl die naar je toe komt (uit het papier). ⊗ is een kruisje, de staartveren van een pijl die van je af gaat (in het papier).</li>
+      <li><b>Begin met de vinger die in of uit het papier wijst.</b> Staat er een ⊙ of ⊗ in de opgave, richt dan eerst die vinger: bij ⊗ naar het scherm, bij ⊙ naar jezelf. Je andere twee vingers liggen dan plat langs het scherm, als een L. Draai je hand om die eerste vinger heen tot de tweede gegeven vinger goed staat, en lees de derde af. Zo kom je ook bij schuine richtingen niet in een onmogelijke houding.</li>
+      <li><b>Schuine richtingen:</b> draai je hele hand mee. Duim, wijsvinger en middelvinger blijven loodrecht op elkaar staan.</li>
+      <li><b>Niet loodrecht:</b> staan <span class="var g">I</span> en <span class="var b">B</span> onder een andere hoek, dan blijft de regel hetzelfde. Je middelvinger staat nog steeds loodrecht op duim én wijsvinger. Alleen de kracht wordt kleiner (<span class="formula">F<sub>L</sub> = B · I · ℓ · sin θ</span>).</li>
+      <li><b>Cirkelbaan (6V):</b> beweegt een geladen deeltje loodrecht op het magneetveld, dan staat <span class="var r">F</span> steeds loodrecht op <span class="var g">v</span>. Het deeltje maakt een cirkelbaan en de lorentzkracht is de middelpuntzoekende kracht: <span class="var r">F</span> wijst altijd naar het middelpunt. Er geldt <span class="formula">B · q · v = m · v² / r</span>.</li>
+      <li><b>Vastgelopen?</b> Maak een schetsje met drie pijlen en kijk welke twee je kent.</li>
+    </ul>
+  </div>
+</dialog>
+
+<footer>
+  <img id="footer-logo" src="/assets/logo/JK_black.svg" alt="JK logo" class="footer-logo">
+  Jop van der Kooij · NatuurkundeHub · © 2026<span data-versie></span>
+  <div style="margin-top:6px">Lorentzkracht is gemaakt door Gijs Koetsenruijter</div>
+  <div style="margin-top:6px">Feedback of een bug? <a href="/contact/">Laat het weten →</a></div>
+</footer>
+
+<script>
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  var logo=document.getElementById('header-logo'),footerLogo=document.getElementById('footer-logo'),
+      btn=document.getElementById('theme-btn'),favicon=document.getElementById('favicon');
+  var donker=theme==='dark';
+  if(logo)logo.src=donker?'/assets/logo/JK_dark.svg':'/assets/logo/JK_light.svg';
+  if(footerLogo)footerLogo.src=donker?'/assets/logo/JK_white.svg':'/assets/logo/JK_black.svg';
+  if(favicon)favicon.href='/assets/logo/JK_dark.svg';
+  if(btn)btn.textContent=donker?'☀️':'🌙';
+}
+function toggleTheme(){
+  var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  try{localStorage.setItem('nh-theme',n)}catch(e){}
+  applyTheme(n);
+}
+applyTheme(document.documentElement.getAttribute('data-theme')||'light');
+</script>
+
+<script>
+(function(){
+"use strict";
+/* Rekenlogica en uitleg: Gijs Koetsenruijter. Opmaak en bediening aangepast voor NatuurkundeHub. */
+
+/* ---------- vectoren ---------- */
+var AXES=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function scale(a,s){return a.map(function(c){return c*s;});}
+function rot(v,deg){var t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [v[0]*c-v[1]*s,v[0]*s+v[1]*c,v[2]];}
+function key(v){return v.map(function(c){return Math.abs(c)<0.1?0:(c>0?1:-1);}).join(",");}
+function isZ(v){return Math.abs(v[2])>0.5;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function sc(v){return [v[0],-v[1]];} /* schermrichting */
+
+var NAMES={
+  "0,1,0":{t:"omhoog",s:"↑"},"0,-1,0":{t:"omlaag",s:"↓"},
+  "1,0,0":{t:"naar rechts",s:"→"},"-1,0,0":{t:"naar links",s:"←"},
+  "1,1,0":{t:"schuin rechtsboven",s:"↗"},"-1,1,0":{t:"schuin linksboven",s:"↖"},
+  "1,-1,0":{t:"schuin rechtsonder",s:"↘"},"-1,-1,0":{t:"schuin linksonder",s:"↙"},
+  "0,0,1":{t:"uit het papier",s:"⊙"},"0,0,-1":{t:"in het papier",s:"⊗"}
+};
+function nm(v){var n=NAMES[key(v)];return "<b>"+n.t+" "+n.s+"</b>";}
+function nmPlain(v){var n=NAMES[key(v)];return n.t+" "+n.s;}
+
+/* ---------- opdracht genereren ---------- */
+var state={ex:null,answered:false,ok:0,total:0,streak:0};
+
+/* deeltje in een cirkelbaan: B loodrecht op het papier, F naar het middelpunt */
+function makeOrbit(){
+  var type=pick(["proton","electron"]), s=type==="electron"?-1:1;
+  var phi=pick([0,45,90,135,180,225,270,315]), r=phi*Math.PI/180;
+  var pos=[Math.cos(r),Math.sin(r),0];
+  var B=[0,0,pick([1,-1])], F=scale(pos,-1);
+  var Iv=[-pos[1],pos[0],0];               /* raaklijn, tegen de klok in */
+  if(dot(cross(scale(Iv,s),B),F)<0)Iv=scale(Iv,-1);
+  var ex={type:type,missing:pick(["F","B","I"]),Iv:Iv,B:B,Ic:scale(Iv,s),F:F,s:s,orbit:true,pos:pos};
+  ex.sig="orbit"+type+ex.missing+phi+B[2];
+  return ex;
+}
+function makeExercise(){
+  var level=document.getElementById("particles").checked?2:1;
+  var diag=true;
+  var prev=state.ex, ex, tries=0;
+  do{
+    var orbit=document.getElementById("orbit").checked && Math.random()<0.35;
+    if(orbit){ex=makeOrbit();tries++;continue;}
+    var oblique=document.getElementById("oblique").checked && Math.random()<0.4;
+    var type=level===1?"wire":pick(["wire","proton","electron"]);
+    var missing=oblique?"F":pick(["F","B","I"]);
+    var s=type==="electron"?-1:1;
+    var Iv,B,Ic,F,off=0;
+    if(oblique){
+      /* I en B beide in het vlak van het papier, niet loodrecht: F staat dan in of uit het papier */
+      var ang=pick([0,45,90,135,180,225,270,315]);
+      off=pick([30,45,60,120,135,150])*pick([1,-1]);
+      var r1=ang*Math.PI/180, r2=(ang+off)*Math.PI/180;
+      Iv=[Math.cos(r1),Math.sin(r1),0]; B=[Math.cos(r2),Math.sin(r2),0];
+      Ic=scale(Iv,s); F=cross(Ic,B); F=[0,0,F[2]>0?1:-1];
+    }else{
+      var a=pick(AXES);
+      var b=pick(AXES.filter(function(x){return dot(a,x)===0;}));
+      Iv=a; B=b; Ic=scale(Iv,s); F=cross(Ic,B);
+      if(diag && Math.random()<0.4){
+        var d=pick([45,-45]);
+        Iv=rot(Iv,d);B=rot(B,d);Ic=rot(Ic,d);F=rot(F,d);
+      }
+    }
+    ex={type:type,missing:missing,Iv:Iv,B:B,Ic:Ic,F:F,s:s,oblique:oblique};
+    ex.sig=type+missing+key(Iv)+key(B)+off;
+    tries++;
+  }while(prev && prev.sig===ex.sig && tries<20);
+  ex.answer=ex.missing==="F"?ex.F:ex.missing==="B"?ex.B:ex.Iv;
+  return ex;
+}
+
+/* ---------- tekenen ---------- */
+function arrow(x1,y1,x2,y2,col,w,hs){
+  hs=hs||1;
+  var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy,py=ux;
+  var hl=16*hs,hw=7.5*hs,bx=x2-ux*hl,by=y2-uy*hl;
+  return '<line x1="'+x1+'" y1="'+y1+'" x2="'+(bx+ux*2)+'" y2="'+(by+uy*2)+'" stroke-width="'+w+'" stroke-linecap="round" style="stroke:'+col+'"/>'+
+    '<polygon points="'+x2+','+y2+' '+(bx+px*hw)+','+(by+py*hw)+' '+(bx-px*hw)+','+(by-py*hw)+'" style="fill:'+col+'"/>';
+}
+function zsym(cx,cy,r,col,out,w){
+  w=w||3;
+  var s='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+w+'" style="fill:var(--panel);stroke:'+col+'"/>';
+  if(out){s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.3)+'" style="fill:'+col+'"/>';}
+  else{var k=r*0.62;
+    s+='<line x1="'+(cx-k)+'" y1="'+(cy-k)+'" x2="'+(cx+k)+'" y2="'+(cy+k)+'" stroke-width="'+w+'" stroke-linecap="round" style="stroke:'+col+'"/>'+
+       '<line x1="'+(cx-k)+'" y1="'+(cy+k)+'" x2="'+(cx+k)+'" y2="'+(cy-k)+'" stroke-width="'+w+'" stroke-linecap="round" style="stroke:'+col+'"/>';}
+  return s;
+}
+function tether(u,col){
+  var c=150;
+  return '<line x1="'+(c+u[0]*16)+'" y1="'+(c+u[1]*16)+'" x2="'+(c+u[0]*30)+'" y2="'+(c+u[1]*30)+'" stroke-width="3.5" stroke-linecap="round" style="stroke:'+col+'"/>';
+}
+function label(t,x,y,col){
+  return '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" style="font-family:\'STIX Two Text\',Georgia,serif;font-style:italic;font-weight:600;font-size:29px;fill:'+col+';stroke:var(--panel);stroke-width:7px;stroke-linejoin:round;paint-order:stroke">'+t+'</text>';
+}
+function field(B){
+  var s="",i,j;
+  if(isZ(B)){
+    for(i=0;i<6;i++)for(j=0;j<6;j++){
+      var x=25+50*i,y=25+50*j;
+      if(B[2]>0){s+='<circle cx="'+x+'" cy="'+y+'" r="4" style="fill:var(--blue)"/>';}
+      else{s+='<line x1="'+(x-5)+'" y1="'+(y-5)+'" x2="'+(x+5)+'" y2="'+(y+5)+'" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--blue)"/>'+
+              '<line x1="'+(x-5)+'" y1="'+(y+5)+'" x2="'+(x+5)+'" y2="'+(y-5)+'" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--blue)"/>';}
+    }
+  }else{
+    var d=sc(B),ang=Math.atan2(d[1],d[0])*180/Math.PI;
+    s+='<g transform="translate(150,150) rotate('+ang+')">';
+    [-125,-75,-25,25,75,125].forEach(function(o){
+      s+='<line x1="-260" y1="'+o+'" x2="260" y2="'+o+'" stroke-width="2.2" style="stroke:var(--blue)"/>';
+      [-100,100].forEach(function(x){
+        s+='<polygon points="'+(x+10)+','+o+' '+(x-5)+','+(o-6.5)+' '+(x-5)+','+(o+6.5)+'" style="fill:var(--blue)"/>';
+      });
+    });
+    s+='</g>';
+  }
+  return s;
+}
+
+function renderOrbit(reveal){
+  var ex=state.ex,c=150,R=88;
+  var showB=ex.missing!=="B"||reveal, showI=ex.missing!=="I"||reveal, showF=reveal;
+  var s='<defs><clipPath id="clip"><rect width="300" height="300" rx="14"/></clipPath></defs>'+
+        '<rect width="300" height="300" rx="14" style="fill:var(--panel);stroke:var(--line)"/><g clip-path="url(#clip)">';
+  var labels="",pd=sc(ex.pos),px=c+pd[0]*R,py=c+pd[1]*R,d,f;
+  if(showB)s+=field(ex.B);
+  s+='<circle cx="150" cy="150" r="'+R+'" stroke-width="3" stroke-dasharray="7 6" style="fill:none;stroke:var(--obj);opacity:.75"/>';
+  s+='<circle cx="150" cy="150" r="3.5" style="fill:var(--obj)"/>';
+  d=sc(ex.Iv);
+  if(showI){
+    s+=arrow(px+d[0]*17,py+d[1]*17,px+d[0]*68,py+d[1]*68,"var(--green)",4.5);
+    labels+=label("v",px+d[0]*86,py+d[1]*86,"var(--green)");
+  }
+  if(showF){
+    f=sc(ex.F);
+    s+=arrow(px+f[0]*17,py+f[1]*17,px+f[0]*66,py+f[1]*66,"var(--red)",4.5);
+    labels+=label("F",px+f[0]*42-d[0]*22,py+f[1]*42-d[1]*22,"var(--red)");
+  }
+  s+='<circle cx="'+px+'" cy="'+py+'" r="16" style="fill:var(--obj)"/>';
+  s+='<line x1="'+(px-8)+'" y1="'+py+'" x2="'+(px+8)+'" y2="'+py+'" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--panel)"/>';
+  if(ex.type==="proton")s+='<line x1="'+px+'" y1="'+(py-8)+'" x2="'+px+'" y2="'+(py+8)+'" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--panel)"/>';
+  s+=labels+'</g>';
+  document.getElementById("panel").innerHTML=s;
+}
+function render(reveal){
+  if(state.ex.orbit){renderOrbit(reveal);return;}
+  var ex=state.ex,c=150;
+  var showB=ex.missing!=="B"||reveal, showI=ex.missing!=="I"||reveal, showF=ex.missing!=="F"||reveal;
+  var wire=ex.type==="wire", Iv=ex.Iv, B=ex.B, F=ex.F, lab=wire?"I":"v";
+  var s='<defs><clipPath id="clip"><rect width="300" height="300" rx="14"/></clipPath></defs>'+
+        '<rect width="300" height="300" rx="14" style="fill:var(--panel);stroke:var(--line)"/><g clip-path="url(#clip)">';
+  var labels="", d, p;
+  if(showB)s+=field(B);
+
+  /* de draad (of een neutrale markering als de stroom nog onbekend is) */
+  var iStart=17, fStart=17;      /* waar de pijlen beginnen */
+  var fOnWire=wire&&showF&&showI&&isZ(F); /* rood symbool midden op de draad */
+  if(wire){
+    if(!showI){
+      labels+='<text x="150" y="150" text-anchor="middle" dominant-baseline="central" style="font-family:\'STIX Two Text\',Georgia,serif;font-style:italic;font-weight:600;font-size:46px;fill:var(--green);stroke:var(--panel);stroke-width:8px;stroke-linejoin:round;paint-order:stroke">?</text>';
+      iStart=26;fStart=26;
+    }else if(isZ(Iv)){
+      s+='<circle cx="150" cy="150" r="21" stroke-width="5" style="fill:var(--panel);stroke:var(--obj)"/>';
+      if(Iv[2]>0)s+='<circle cx="150" cy="150" r="5.5" style="fill:var(--green)"/>';
+      else s+='<line x1="141" y1="141" x2="159" y2="159" stroke-width="4" stroke-linecap="round" style="stroke:var(--green)"/><line x1="141" y1="159" x2="159" y2="141" stroke-width="4" stroke-linecap="round" style="stroke:var(--green)"/>';
+      var offI=ex.missing!=="F"?scale(sc(F),-42):scale(sc(B),42);
+      labels+=label("I",c+offI[0],c+offI[1],"var(--green)");
+      fStart=24;
+    }else{
+      d=sc(Iv);
+      s+='<line x1="'+(c-d[0]*260)+'" y1="'+(c-d[1]*260)+'" x2="'+(c+d[0]*260)+'" y2="'+(c+d[1]*260)+'" stroke-width="8" style="stroke:var(--obj);opacity:.82"/>';
+      iStart=fOnWire?19:4;fStart=5;
+    }
+  }
+
+  /* groene pijl of symbool (bij een draad die in het papier staat zit het al in de cirkel) */
+  if(showI){
+    if(!isZ(Iv)){
+      d=sc(Iv);
+      s+=arrow(c+d[0]*iStart,c+d[1]*iStart,c+d[0]*108,c+d[1]*108,"var(--green)",4.5);
+      if(wire)labels+=label(lab,c+d[0]*92-d[1]*24,c+d[1]*92+d[0]*24,"var(--green)");
+      else labels+=label(lab,c+d[0]*130,c+d[1]*130,"var(--green)");
+    }else if(!wire){
+      var ud=ex.missing!=="F"?scale(sc(F),-1):sc(B);
+      s+=tether(ud,"var(--green)");
+      s+=zsym(c+ud[0]*40,c+ud[1]*40,14,"var(--green)",Iv[2]>0,3.5);
+      labels+=label("v",c+ud[0]*73,c+ud[1]*73,"var(--green)");
+    }
+  }
+  /* het deeltje zelf */
+  if(!wire){
+    s+='<circle cx="150" cy="150" r="16" style="fill:var(--obj)"/>';
+    s+='<line x1="142" y1="150" x2="158" y2="150" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--panel)"/>';
+    if(ex.type==="proton")s+='<line x1="150" y1="142" x2="150" y2="158" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--panel)"/>';
+  }
+  /* rode pijl of symbool */
+  if(showF){
+    if(!isZ(F)){
+      d=sc(F);
+      s+=arrow(c+d[0]*fStart,c+d[1]*fStart,c+d[0]*108,c+d[1]*108,"var(--red)",4.5);
+      labels+=label("F",c+d[0]*130,c+d[1]*130,"var(--red)");
+    }else if(fOnWire){
+      /* de kracht werkt op de draad: symbool midden op de draad */
+      s+=zsym(c,c,14,"var(--red)",F[2]>0,3.5);
+      labels+=label("F",c+50,c-21,"var(--red)");
+    }else{
+      var fd=ex.missing!=="I"?scale(sc(Iv),-1):sc(B);
+      var fo=wire?12:0;  /* naast het vraagteken iets meer ruimte */
+      if(!wire)s+=tether(fd,"var(--red)");
+      s+=zsym(c+fd[0]*(40+fo),c+fd[1]*(40+fo),14,"var(--red)",F[2]>0,3.5);
+      labels+=label("F",c+fd[0]*(73+fo),c+fd[1]*(73+fo),"var(--red)");
+    }
+  }
+  s+=labels+'</g>';
+  document.getElementById("panel").innerHTML=s;
+}
+
+/* kleine symbooltjes voor de uitleg */
+function mini(v,col){
+  var s='<svg viewBox="0 0 44 44" aria-hidden="true">';
+  if(isZ(v))s+=zsym(22,22,12,col,v[2]>0,2.6);
+  else{var d=sc(v);s+=arrow(22-d[0]*14,22-d[1]*14,22+d[0]*14,22+d[1]*14,col,3,0.7);}
+  return s+'</svg>';
+}
+
+/* ---------- opdrachttekst ---------- */
+function promptText(ex){
+  var who={wire:"",proton:"proton",electron:"elektron"}[ex.type];
+  if(ex.orbit){
+    var pre='Het '+who+' beweegt in een cirkelbaan. ';
+    if(ex.missing==="F")return pre+'Bepaal de richting van de lorentzkracht <span class="var r">F</span> op het '+who+'.';
+    if(ex.missing==="B")return pre+'Bepaal de richting van het magneetveld <span class="var b">B</span>.';
+    return pre+'Bepaal de richting van de snelheid <span class="var g">v</span> op de getekende plek.';
+  }
+  if(ex.missing==="F")return 'Bepaal de richting van de lorentzkracht <span class="var r">F</span>'+(who?' op het '+who:' op de draad')+'.';
+  if(ex.missing==="B")return 'Bepaal de richting van het magneetveld <span class="var b">B</span>.';
+  return ex.type==="wire"?'Bepaal de richting van de stroom <span class="var g">I</span> in de draad.'
+    :'Bepaal de richting van de snelheid <span class="var g">v</span> van het '+who+'.';
+}
+
+/* ---------- uitleg ---------- */
+/* extra uitleg bij niet-loodrechte situaties: de kracht is zwakker */
+function obliqueNote(ex){
+  var wire=ex.type==="wire", q=wire?'I':'v';
+  var cs=Math.max(-1,Math.min(1,dot(ex.Iv,ex.B)));
+  var th=Math.round(Math.acos(cs)*180/Math.PI), sn=Math.sin(th*Math.PI/180);
+  var f=wire?'B·I·ℓ':'B·q·v';
+  return '<p><b>Zwakkere kracht:</b> <span class="var g">'+q+'</span> en <span class="var b">B</span> staan hier niet loodrecht op elkaar, maar onder een hoek van <b>'+th+'°</b>. Alleen het deel van <span class="var b">B</span> dat loodrecht op <span class="var g">'+q+'</span> staat, telt mee. Daardoor is de lorentzkracht kleiner: F = '+f+'·sin '+th+'° ≈ '+sn.toFixed(2).replace(".",",")+'·'+f+'. Dat is '+Math.round(sn*100)+'% van de kracht bij 90°.</p>';
+}
+/* Houdingstip: wijst een gegeven grootheid in of uit het papier, begin dan met die vinger.
+   De andere twee vingers liggen dan plat langs het scherm en draai je om die vinger heen. */
+function handTip(ex){
+  var V={
+    I:{v:ex.Ic,vinger:'duim',h:'<span class="var g">I</span>'},
+    B:{v:ex.B,vinger:'wijsvinger',h:'<span class="var b">B</span>'},
+    F:{v:ex.F,vinger:'middelvinger',h:'<span class="var r">F</span>'}
+  };
+  var bekend=['I','B','F'].filter(function(k){return k!==ex.missing;});
+  var kz=bekend.filter(function(k){return isZ(V[k].v);});
+  if(kz.length!==1)return '';
+  var K=V[kz[0]], A=V[bekend.filter(function(k){return k!==kz[0];})[0]], R=V[ex.missing];
+  return '<p class="handtip"><b>Krijg je je hand niet in die houding?</b> Begin met je '+K.vinger+' ('+K.h+'): richt die '+
+    (K.v[2]<0?'naar het scherm, van je af (⊗)':'naar jezelf, uit het scherm (⊙)')+
+    '. Je andere twee vingers liggen dan plat langs het scherm. Draai je hand om je '+K.vinger+' heen tot je '+A.vinger+' ('+A.h+') '+nm(A.v)+
+    ' wijst. Je '+R.vinger+' wijst dan de richting van '+R.h+'.</p>';
+}
+function explain(ex,chosenKey){
+  var particle=ex.type!=="wire", steps=[];
+  if(ex.orbit)steps.push('Het deeltje beweegt in een cirkelbaan. Daarvoor is een <b>middelpuntzoekende kracht</b> nodig, en dat is hier de lorentzkracht. <span class="var r">F</span> wijst dus naar het middelpunt van de cirkel: '+nm(ex.F)+'.'+(ex.missing==="F"?' Controleer dit met je hand:':''));
+  steps.push('Gebruik je rechterhand (<b>Ik Ben Lorentz</b>): duim = stroomrichting <span class="var g">I</span>, wijsvinger = magneetveld <span class="var b">B</span>, middelvinger = lorentzkracht <span class="var r">F</span>.');
+  if(particle&&ex.missing!=="I"){
+    if(ex.type==="proton")steps.push('Een proton is positief: de stroomrichting <span class="var g">I</span> is gelijk aan de snelheid <span class="var g">v</span>. De stroom wijst dus '+nm(ex.Ic)+'.');
+    else steps.push('Een elektron is negatief: de stroomrichting <span class="var g">I</span> is <i>tegengesteld</i> aan de snelheid <span class="var g">v</span>. De snelheid wijst '+nm(ex.Iv)+', dus de stroom wijst '+nm(ex.Ic)+'.');
+  }
+  if(ex.missing==="F"&&ex.oblique){
+    var dd=Math.atan2(ex.B[1],ex.B[0])-Math.atan2(ex.Ic[1],ex.Ic[0]);
+    dd=Math.atan2(Math.sin(dd),Math.cos(dd))*180/Math.PI;
+    steps.push('Duim (<span class="var g">I</span>) wijst '+nm(ex.Ic)+'. Wijsvinger (<span class="var b">B</span>) staat onder een hoek van <b>'+Math.round(Math.abs(dd))+'°</b> met de duim, '+(dd>0?'tegen de klok in (linksom)':'met de klok mee (rechtsom)')+' gedraaid vanaf de duim.');
+    steps.push('Duim en wijsvinger liggen allebei in het vlak van het papier. Je middelvinger staat loodrecht op dat vlak en wijst dus '+nm(ex.F)+'. Dat is de richting van <span class="var r">F</span>.');
+  }else if(ex.missing==="F")steps.push('Duim ('+'<span class="var g">I</span>) wijst '+nm(ex.Ic)+', wijsvinger (<span class="var b">B</span>) wijst '+nm(ex.B)+'. Je middelvinger wijst dan '+nm(ex.F)+'. Dat is de richting van <span class="var r">F</span>.');
+  if(ex.missing==="B")steps.push('Duim (<span class="var g">I</span>) wijst '+nm(ex.Ic)+', middelvinger (<span class="var r">F</span>) wijst '+nm(ex.F)+'. Je wijsvinger wijst dan '+nm(ex.B)+'. Dat is de richting van <span class="var b">B</span>.');
+  if(ex.missing==="I"){
+    steps.push('Wijsvinger (<span class="var b">B</span>) wijst '+nm(ex.B)+', middelvinger (<span class="var r">F</span>) wijst '+nm(ex.F)+'. Je duim wijst dan '+nm(ex.Ic)+'. Dat is de richting van de stroom <span class="var g">I</span>.');
+    if(ex.type==="proton")steps.push('Een proton is positief: de snelheid <span class="var g">v</span> is gelijk aan de stroomrichting. De snelheid wijst '+nm(ex.Iv)+'.');
+    if(ex.type==="electron")steps.push('Een elektron is negatief: de snelheid <span class="var g">v</span> is <i>tegengesteld</i> aan de stroomrichting. De snelheid wijst '+nm(ex.Iv)+'.');
+  }
+  var tips=[];
+  if(ex.orbit)tips.push('De lorentzkracht is hier de middelpuntzoekende kracht: B·q·v = m·v²/r, dus r = m·v/(B·q). De kracht staat steeds loodrecht op v, dus de snelheid verandert van richting maar niet van grootte.');
+  if(ex.oblique)tips.push('De hoek tussen duim en wijsvinger hoeft niet 90° te zijn: de middelvinger staat altijd loodrecht op het vlak van duim en wijsvinger. Bij 0° of 180° is er geen kracht.');
+  if(isZ(ex.Iv)||isZ(ex.B)||isZ(ex.F))tips.push('⊙ betekent naar je toe (uit het papier), ⊗ betekent van je af (in het papier).');
+  if(Math.abs(ex.Iv[0])>0.1&&Math.abs(ex.Iv[0])<0.9||Math.abs(ex.B[0])>0.1&&Math.abs(ex.B[0])<0.9||Math.abs(ex.F[0])>0.1&&Math.abs(ex.F[0])<0.9)
+    tips.push('Bij schuine richtingen draai je je hele hand mee: duim, wijsvinger en middelvinger blijven loodrecht op elkaar.');
+  var rows='';
+  if(particle)rows+='<div>'+mini(ex.Iv,"var(--green)")+'<span class="var g">v</span></div>';
+  rows+='<div>'+mini(ex.Ic,"var(--green)")+'<span class="var g">I</span></div>'+
+        '<div>'+mini(ex.B,"var(--blue)")+'<span class="var b">B</span></div>'+
+        '<div>'+mini(ex.F,"var(--red)")+'<span class="var r">F</span></div>';
+  return '<ol>'+steps.map(function(x){return '<li>'+x+'</li>';}).join("")+'</ol>'+handTip(ex)+
+    '<div class="mini">'+rows+'</div>'+(ex.oblique?obliqueNote(ex):'')+
+    (tips.length?'<p class="tip">'+tips.join(" ")+'</p>':'');
+}
+
+/* ---------- knoppen en afhandeling ---------- */
+var ORDER=[[-1,1],[0,1],[1,1],[-1,0],null,[1,0],[-1,-1],[0,-1],[1,-1]];
+function buildButtons(){
+  var comp=document.getElementById("compass"),h="";
+  ORDER.forEach(function(o){
+    if(!o){h+='<div class="leeg" aria-hidden="true"></div>';return;}
+    var k=o[0]+","+o[1]+",0",n=NAMES[k];
+    h+='<button class="ab" data-k="'+k+'" aria-label="'+n.t+'" title="'+n.t+'">'+n.s+'</button>';
+  });
+  comp.innerHTML=h;
+  document.getElementById("zbtns").innerHTML=
+    '<button class="ab" data-k="0,0,1" aria-label="uit het papier" title="uit het papier">⊙</button>'+
+    '<button class="ab" data-k="0,0,-1" aria-label="in het papier" title="in het papier">⊗</button>';
+  document.querySelectorAll(".ab").forEach(function(b){
+    b.addEventListener("click",function(){answer(b.getAttribute("data-k"));});
+  });
+}
+function resetButtons(){
+  document.querySelectorAll(".ab").forEach(function(b){
+    b.disabled=false;b.classList.remove("right","wrong");
+  });
+}
+function updateScore(){
+  var el=document.getElementById("score");
+  el.innerHTML='Goed <b>'+state.ok+'</b> van <b>'+state.total+'</b> · reeks <b>'+state.streak+'</b>';
+}
+
+function answer(k){
+  if(state.answered)return;
+  state.answered=true;
+  var ex=state.ex, right=key(ex.answer), good=(k===right);
+  state.total++; if(good){state.ok++;state.streak++;}else state.streak=0;
+  updateScore();
+  document.querySelectorAll(".ab").forEach(function(b){
+    b.disabled=true;
+    var bk=b.getAttribute("data-k");
+    if(bk===right)b.classList.add("right");
+    else if(bk===k)b.classList.add("wrong");
+  });
+  render(true);
+  var fb=document.getElementById("feedback"), ansName=nmPlain(ex.answer);
+  var head;
+  if(good){
+    head='<div class="fb ok"><strong class="head">Goed!</strong> '+(ex.missing==="F"?'F':ex.missing==="B"?'B':ex.type==="wire"?'I':'v')+' wijst '+ansName+'.'+(ex.oblique?obliqueNote(ex):'')+'</div>';
+  }else{
+    head='<div class="fb bad"><strong class="head">Nog niet goed.</strong> Je koos '+nmPlain(stringToVec(k))+'. Het goede antwoord is '+ansName+'.'+explain(ex,k)+
+         '</div>';
+  }
+  fb.innerHTML=head;
+  var nx=document.getElementById("next");
+  nx.classList.remove("skip");
+  nx.focus({preventScroll:true});
+}
+function stringToVec(k){return k.split(",").map(Number);}
+
+function setLegend(){
+  var on=document.getElementById("particles").checked||document.getElementById("orbit").checked;
+  document.getElementById("legG").innerHTML='<i style="background:var(--green)"></i>'+(on?'<span class="var">I</span> stroom of <span class="var">v</span> snelheid':'<span class="var">I</span> stroom');
+}
+function nextExercise(){
+  document.getElementById("next").classList.add("skip");
+  setLegend();
+  state.ex=makeExercise();state.answered=false;
+  document.getElementById("feedback").innerHTML="";
+  document.getElementById("prompt").innerHTML=promptText(state.ex);
+  resetButtons();
+  render(false);
+}
+
+/* ---------- bediening ---------- */
+var OPTS=["particles","oblique","orbit"];
+OPTS.forEach(function(id){
+  document.getElementById(id).addEventListener("change",function(){nextExercise();});
+});
+
+buildButtons();
+document.getElementById("next").addEventListener("click",nextExercise);
+setLegend();
+updateScore();
+document.addEventListener("toolmenu:opnieuw",function(){state.ok=0;state.total=0;state.streak=0;updateScore();});
+state.ex=makeExercise();
+document.getElementById("prompt").innerHTML=promptText(state.ex);
+resetButtons();
+render(false);
+})();
+</script>
+
+<script>
+(function(){
+var d=document.getElementById("helpdlg"),b=document.getElementById("helpbtn"),x=document.getElementById("helpx");
+var terug=b;
+function open(van){
+  terug=van||b;
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  d.querySelector(".bd").scrollTop=0;d.scrollTop=0;
+}
+function close(){if(d.close)d.close();else d.removeAttribute("open");if(terug)terug.focus();}
+b.addEventListener("click",function(){open(b);});
+x.addEventListener("click",close);
+d.addEventListener("click",function(e){if(e.target===d)close();});
+document.addEventListener("toolmenu:uitleg",function(){open(document.querySelector(".toolmenu-knop"));});
+document.getElementById("overUitleg").addEventListener("click",function(e){e.preventDefault();open(e.target);});
+document.addEventListener("toolmenu:over",function(){
+  var o=document.getElementById("over");o.querySelector("details").open=true;
+  o.scrollIntoView({behavior:"smooth",block:"start"});
+});
+})();
+</script>
+<script src="/assets/toolmenu.js"></script>
+<script src="/lorentzkracht/versie.js"></script>
+</body>
+</html>

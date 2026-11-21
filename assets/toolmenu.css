@@ -1,0 +1,16 @@
+/* Menu rechtsboven in de header (naast de themaknop): uitleg, over deze tool, maker.
+   Gedeeld door de statische tools; gebruikt de themavariabelen van de pagina.
+   Opbouw: zie toolmenu.js. */
+.header-right{display:flex;align-items:center;gap:8px}
+.toolmenu{position:relative}
+.toolmenu-knop{background:transparent;border:1px solid var(--border-solid);border-radius:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:all .2s}
+.toolmenu-knop:hover,.toolmenu-knop[aria-expanded="true"]{border-color:var(--accent-border);color:var(--accent)}
+.toolmenu-knop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toolmenu-lijst{position:absolute;right:0;top:calc(100% + 8px);z-index:200;min-width:250px;background:var(--bg-card,#fff);border:1px solid var(--border-solid);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.18);padding:6px;font-family:var(--font)}
+.toolmenu-lijst[hidden]{display:none}
+.toolmenu-item{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:none;border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:15px;font-weight:500;text-align:left;text-decoration:none;cursor:pointer}
+.toolmenu-item:hover,.toolmenu-item:focus-visible{background:var(--accent-dim,rgba(11,181,200,0.08));color:var(--accent);outline:none}
+.toolmenu-item svg{flex:none;width:18px;height:18px}
+.toolmenu-scheid{height:1px;background:var(--border-solid);margin:6px 4px}
+.toolmenu-maker{padding:8px 12px 6px;font-size:13px;line-height:1.45;color:var(--text-muted)}
+.toolmenu-maker b{display:block;color:var(--text);font-weight:600;font-size:14px}

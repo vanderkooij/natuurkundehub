@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hertzsprung-Russelldiagram interactief: sterren tellen en sterevolutie · NatuurkundeHub</title>
+<meta name="description" content="Verken het HR-diagram met echte sterren: de 50 helderste sterren, alle sterren binnen 1000 lichtjaar uit Hipparcos, en hoe een ster door het diagram beweegt tijdens zijn leven.">
+<link rel="canonical" href="https://natuurkundehub.nl/hr-diagram/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NatuurkundeHub">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Hertzsprung-Russelldiagram interactief">
+<meta property="og:description" content="Verken het HR-diagram met echte sterren: de 50 helderste sterren, alle sterren binnen 1000 lichtjaar uit Hipparcos, en hoe een ster door het diagram beweegt tijdens zijn leven.">
+<meta property="og:url" content="https://natuurkundehub.nl/hr-diagram/">
+<meta property="og:image" content="https://natuurkundehub.nl/assets/og/hr-diagram.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Het Hertzsprung-Russelldiagram met de sterren binnen 1000 lichtjaar: de hoofdreeks, de reuzen en de witte dwergen, gekleurd naar temperatuur.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+(function(){var s=null;try{s=localStorage.getItem('nh-theme')}catch(e){}
+document.documentElement.setAttribute('data-theme',s||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));})();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-card:#ffffff;
+  --accent:#0BB5C8;--accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-card:#1c2333;
+  --accent-dim:rgba(11,181,200,0.1);--accent-border:rgba(11,181,200,0.25);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#7c8aa0;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden;transition:background .3s,color .3s}
+
+/* header (zoals de rest van de site) */
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;width:40px;height:40px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;min-height:68px;flex:none}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{height:30px;opacity:.9}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+.crumb{color:var(--text-muted);font-size:15px;font-weight:600}
+.tool-name{text-align:center;font-size:clamp(24px,3.4vw,34px);font-weight:700;letter-spacing:-1px;line-height:1;color:var(--text);padding:18px 0 14px;flex:none}
+
+/* Het werkpaneel is altijd donker: een sterrenhemel, en de sterkleuren zijn voor een donkere achtergrond gekozen.
+   Alles daarbuiten volgt het thema van de site. */
+.paneel{
+  --sky:#070b16;--pbg:#0b1020;--line:#26315a;--ptext:#e8ecf7;--muted:#97a3c7;--hl:#6cc6ff;
+  flex:1;min-height:0;margin:0 24px 20px;border-radius:var(--radius);border:1px solid #1e2d44;background:var(--pbg);color:var(--ptext);
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(320px,25vw,430px);grid-template-rows:auto minmax(0,1fr);overflow:hidden;
+  font-size:clamp(14px,0.55vw + 0.5vh + 4px,18px);line-height:1.5
+}
+[hidden]{display:none !important}
+.toolbar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.ds{display:flex;flex-wrap:wrap;gap:8px}
+#sub{color:var(--muted);font-size:.9em;flex:1 1 280px;min-width:0}
+.paneel button{font:inherit;font-size:.9em;font-weight:600;color:var(--ptext);background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:10px;min-height:40px;padding:4px 14px;cursor:pointer;transition:background .15s,border-color .15s}
+.paneel button:hover{border-color:var(--muted);background:rgba(255,255,255,0.08)}
+.paneel button[aria-pressed=true]{background:rgba(11,181,200,0.2);border-color:var(--accent)}
+.paneel button:focus-visible,.paneel input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.paneel button small{display:block;color:var(--muted);font-size:.82em;font-weight:500;margin-top:1px}
+.ds button{min-height:44px;font-size:.95em}
+.ds button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.stage{position:relative;background:var(--sky);border-right:1px solid var(--line);min-height:0;overflow:hidden}
+#hrd{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.tip{position:absolute;pointer-events:none;background:rgba(10,15,30,.96);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13px;line-height:1.45;white-space:nowrap;display:none}
+
+aside{overflow-y:auto;overscroll-behavior:contain;padding:12px 18px 16px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+aside section{padding:0 0 14px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+aside h2{font-size:1em;font-weight:700;margin:0 0 8px}
+.big b{font-size:1.7em;font-weight:600;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;height:32px;margin:2px 0 4px;accent-color:var(--accent);cursor:pointer}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+dl{margin:10px 0 0;display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:.92em}
+dt{color:var(--muted)} dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.hint{color:var(--muted);font-size:.86em;margin:0 0 8px}
+/* kleine grafieken: ook een stukje sterrenhemel */
+#dens{display:block;width:100%;height:150px;background:var(--sky);border-radius:8px}
+#zSize{display:block;width:100%;height:200px;background:var(--sky);border-radius:8px}
+.chk{display:flex;gap:10px;align-items:center;min-height:40px;margin:6px 0 2px;font-size:.92em;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--accent)}
+#zTab{width:100%;border-collapse:collapse;font-size:.8em;margin-top:10px}
+#zTab th{font-weight:600;color:var(--muted);text-align:right;padding:2px 3px;border-bottom:1px solid var(--line)}
+#zTab td{padding:4px 3px;text-align:right;font-variant-numeric:tabular-nums;border-bottom:1px solid #161f3c}
+#zTab th:nth-child(1),#zTab td:nth-child(1),#zTab th:nth-child(2),#zTab td:nth-child(2){text-align:left}
+.foot{color:var(--muted);font-size:.8em;margin-top:10px}
+.foot a{color:var(--hl)}
+
+/* Laag scherm (Chromebook, ~1366×650): toolnaam weg (staat in de kruimel), alles compacter. */
+@media (max-height:760px){
+  .tool-name{display:none}
+  .app-header{min-height:60px}
+  .paneel{margin-top:12px;margin-bottom:12px}
+  #zSize{height:160px}
+  #dens{height:120px}
+}
+/* Smal scherm: onder elkaar en de pagina scrolt. */
+@media (max-width:900px){
+  body{overflow:auto;height:auto}
+  .app-header{padding:0 14px}
+  .paneel{margin:0 12px 16px;grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  .stage{height:70vh;min-height:360px;border-right:0;border-bottom:1px solid var(--line)}
+  aside{overflow:visible}
+}
+@media (max-width:560px){.app-title,.header-left .crumb-sep{display:none}}
+</style>
+<link rel="stylesheet" href="/assets/toolmenu.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img id="header-logo" src="/assets/logo/JK_light.svg" alt="NatuurkundeHub logo" class="header-logo">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span class="crumb crumb-sep">›</span>
+    <span class="crumb">HR-diagram</span>
+  </div>
+  <div class="header-right">
+    <div class="toolmenu">
+      <button class="toolmenu-knop" type="button" aria-expanded="false" aria-controls="toolmenu" aria-label="Menu" title="Menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </button>
+      <div class="toolmenu-lijst" id="toolmenu" role="menu" hidden>
+        <a class="toolmenu-item" role="menuitem" href="/hr-diagram/over/">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+          Over deze tool</a>
+        <a class="toolmenu-item" role="menuitem" href="/hr-diagram/over/#opdrachten">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h10M9 12h10M9 19h10M4 5h.01M4 12h.01M4 19h.01"/></svg>
+          Opdrachten bij het practicum</a>
+        <a class="toolmenu-item" role="menuitem" href="/hr-diagram/over/#bronnen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM9 10h6M9 14h6"/></svg>
+          Bronnen van de gegevens</a>
+        <div class="toolmenu-scheid"></div>
+        <div class="toolmenu-maker">Gemaakt door<b>Gijs Koetsenruijter</b></div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Wissel thema">🌙</button>
+  </div>
+</header>
+
+<h1 class="tool-name">Hertzsprung-Russelldiagram</h1>
+
+<div class="paneel">
+  <div class="toolbar">
+    <div class="ds" role="group" aria-label="Kies een dataset">
+      <button data-ds="hr1">De 50 helderste sterren</button>
+      <button data-ds="hr2">Sterren binnen 1000 lj</button>
+      <button data-ds="zon">Sterren door de tijd</button>
+    </div>
+    <p id="sub"></p>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="hrd" role="img" aria-label="Hertzsprung-Russell-diagram: temperatuur tegen stralingsvermogen van sterren"></canvas>
+    <div class="tip" id="tip"></div>
+  </div>
+
+  <aside>
+    <section data-for="zon">
+      <h2>Massa van de ster (in M<sub>zon</sub>)</h2>
+      <div class="row" id="zMass"></div>
+      <label class="chk"><input type="checkbox" id="zCmp"> Vergelijk sterren</label>
+      <p class="hint" id="zCmpHint" style="margin:0" hidden>Kies 2 tot 4 sterren. Ze hebben dezelfde leeftijd.</p>
+    </section>
+
+    <section data-for="zon">
+      <h2 id="zH">Leeftijd van de zon</h2>
+      <div class="big"><b id="zAge">4,58</b> <span id="zUnit">miljard jaar</span></div>
+      <input type="range" id="zS" min="0" max="1000" step="1" value="165" aria-label="Leeftijd">
+      <p class="hint" id="zSlHint" style="margin:0 0 8px"></p>
+      <div class="row" id="zJump"></div>
+      <div id="zSingle">
+        <p class="hint" id="zPhase" style="margin-top:10px"></p>
+        <dl>
+          <dt>Temperatuur</dt><dd id="zT"></dd>
+          <dt>Vermogen (P/P<sub>zon</sub>)</dt><dd id="zP"></dd>
+          <dt>Straal (R/R<sub>zon</sub>)</dt><dd id="zR"></dd>
+          <dt>Massa (M/M<sub>zon</sub>)</dt><dd id="zM"></dd>
+        </dl>
+      </div>
+      <div id="zTabWrap" hidden>
+        <table id="zTab"><thead><tr><th>Ster</th><th>Fase</th><th>T (K)</th><th>P</th><th>R</th><th>M</th></tr></thead><tbody id="zTabBody"></tbody></table>
+        <p class="hint" style="margin:6px 0 0">P in P<sub>zon</sub>, R in R<sub>zon</sub>, M in M<sub>zon</sub>.</p>
+      </div>
+    </section>
+
+    <section data-for="zon" id="zSizeSec">
+      <h2>Grootte van de ster</h2>
+      <div class="row" id="zScale" style="margin-bottom:8px">
+        <button data-sc="log">Logaritmische schaal</button>
+        <button data-sc="ware">Ware grootte</button>
+      </div>
+      <canvas id="zSize" role="img" aria-label="Grootte van de ster, met de baan van de aarde"></canvas>
+      <p class="hint" id="zCap" style="margin:6px 0 0"></p>
+    </section>
+
+    <section data-for="hr2">
+      <h2>Afstand</h2>
+      <div class="big">Sterren binnen <b id="distVal">1000</b> lj</div>
+      <input type="range" id="dist" min="5" max="1000" step="5" value="1000" aria-label="Maximale afstand in lichtjaar">
+      <div class="row" id="presets"></div>
+    </section>
+
+    <section data-for="hr1 hr2">
+      <h2>Kader om een groep sterren</h2>
+      <p class="hint">Sleep in het diagram een kader. Een nieuw kader vervangt het vorige.</p>
+      <dl>
+        <dt>Sterren in het kader</dt><dd id="sCount">–</dd>
+        <dt>Aandeel van alle getoonde sterren</dt><dd id="sShare">–</dd>
+        <dt data-for="hr2">Sterren per lj³</dt><dd id="sDens" data-for="hr2">–</dd>
+        <dt>log T van … tot …</dt><dd id="sT">–</dd>
+        <dt>log (P/P<sub>zon</sub>) van … tot …</dt><dd id="sL">–</dd>
+      </dl>
+      <div class="row" style="margin-top:10px">
+        <button id="clear">Wis kader</button>
+      </div>
+    </section>
+
+    <section data-for="hr2">
+      <h2>Controleer je telling</h2>
+      <p class="hint">Deze knoppen tekenen het kader uit de opdracht. Bij de witte dwergen springt de afstand naar 50 lj.</p>
+      <div class="row">
+        <button id="pG">Reuzen<small>log P &gt; 1 en log T &lt; 3,7</small></button>
+        <button id="pWD">Witte dwergen<small>log P &lt; −1 en log T &gt; 3,7</small></button>
+      </div>
+    </section>
+
+    <section data-for="hr2">
+      <h2>Sterren per lj³ binnen afstand d</h2>
+      <canvas id="dens" role="img" aria-label="Gemiddeld aantal sterren per kubieke lichtjaar tegen de afstand"></canvas>
+      <p class="hint" style="margin:6px 0 0">Zitten de sterren overal even dicht bij elkaar en zien we ze allemaal, dan loopt deze lijn horizontaal.</p>
+    </section>
+
+    <p class="foot" id="foot"></p>
+  </aside>
+</div>
+
+<script>
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  var logo=document.getElementById('header-logo'),btn=document.getElementById('theme-btn');
+  var donker=theme==='dark';
+  if(logo)logo.src=donker?'/assets/logo/JK_dark.svg':'/assets/logo/JK_light.svg';
+  if(btn)btn.textContent=donker?'☀️':'🌙';
+}
+function toggleTheme(){
+  var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  try{localStorage.setItem('nh-theme',n)}catch(e){}
+  applyTheme(n);
+}
+applyTheme(document.documentElement.getAttribute('data-theme')||'light');
+</script>
+<script src="/hr-diagram/data.js"></script>
+<script src="/hr-diagram/hr.js"></script>
+<script src="/assets/toolmenu.js"></script>
+<script src="/hr-diagram/versie.js"></script>
+</body>
+</html>
