@@ -67,7 +67,8 @@ cp -r em-spectrum dist/em-spectrum
 cp -r lorentzkracht dist/lorentzkracht
 
 # Kopieer het HR-diagram (statische HTML met infopagina in over/, gemaakt door Gijs Koetsenruijter)
-cp -r hr-diagram dist/hr-diagram
+# TIJDELIJK UIT tot NOVA toestemming geeft voor de HR-gegevens (mail 2026-11-21); ook de tegel in index.html staat uit.
+# cp -r hr-diagram dist/hr-diagram
 
 # Kopieer de Contactpagina (statische HTML)
 cp -r contact dist/contact
