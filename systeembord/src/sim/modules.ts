@@ -259,9 +259,11 @@ const defs: ModuleDef[] = [
   {
     // Het relais schakelt een apparaat in een tweede stroomkring (max 30 V).
     ...uitvoer("relais", "relais"),
+    // aangesloten: het apparaat is zelf gekozen, en staat er dus ook zonder draad.
     // verplaatst, ax, ay: het apparaat is zelf neergezet, op (ax, ay) vanaf het vak.
     params: () => ({
       apparaat: RELAIS_APPARATEN.indexOf("lamp"),
+      aangesloten: false,
       verplaatst: false,
       ax: 0,
       ay: 0,

@@ -215,11 +215,7 @@ export function omhulling(s: Schakeling): Rechthoek {
   const snoer =
     s.modules.some(
       (m) => m.soort === "sensor" && Number(m.params.sensor ?? 0) !== 0,
-    ) ||
-    s.modules.some(
-      (m) =>
-        m.soort === "relais" && s.draden.some((d) => d.naar.module === m.id),
-    )
+    ) || s.modules.some((m) => heeftApparaat(s, m))
       ? 60
       : 0;
   return {
@@ -229,6 +225,14 @@ export function omhulling(s: Schakeling): Rechthoek {
     hoogte: y1 - y0 + snoer,
   };
 }
+
+/** Loopt er een draad naar deze module? */
+export const heeftDraad = (s: Schakeling, m: ModuleInstantie) =>
+  s.draden.some((d) => d.naar.module === m.id);
+
+/** Hangt er een apparaat aan dit relais: zelf gekozen, of er loopt een draad naartoe. */
+export const heeftApparaat = (s: Schakeling, m: ModuleInstantie) =>
+  m.soort === "relais" && (m.params.aangesloten === true || heeftDraad(s, m));
 
 /**
  * Een vrije plek voor een nieuwe module, zo dicht mogelijk bij `midden`:

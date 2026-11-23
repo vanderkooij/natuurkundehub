@@ -22,7 +22,7 @@ interface Props {
 
 /**
  * Alles buiten het bord: de losse sensoren met hun snoertjes, en bij elk
- * relais met een draad ernaartoe de tweede stroomkring met voeding en
+ * relais met een gekozen apparaat of een draad de tweede stroomkring met voeding en
  * apparaat. Sensor en apparaat kun je allebei verslepen (zie `opstelling`).
  * Hangt de lamp boven de lichtsensor, dan valt zijn licht erop en zie je de
  * terugkoppeling; leg je de sensor bovenop de lamp, dan niet.

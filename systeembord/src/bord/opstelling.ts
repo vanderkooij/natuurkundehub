@@ -7,14 +7,14 @@ import {
   type Schakeling,
 } from "@/sim";
 
-import { bordRechthoek, omhulling } from "./borden";
+import { bordRechthoek, heeftApparaat, omhulling } from "./borden";
 import { vormVan, type Punt } from "./geometrie";
 import type { Rechthoek } from "@/werkvlak/kijkvenster";
 
 /**
  * Alles buiten het bord en waar het staat: de losse sensoren (LDR, NTC) en
- * bij elk relais met een draad ernaartoe het apparaat in de tweede
- * stroomkring. Je kunt ze allebei verslepen. Hoe sterk een apparaat op een
+ * bij elk relais met een gekozen apparaat of een draad ernaartoe het apparaat
+ * in de tweede stroomkring. Je kunt ze allebei verslepen. Hoe sterk een apparaat op een
  * sensor werkt, hangt af van hoe ze ten opzichte van elkaar staan: de lamp
  * schijnt als een straatlantaarn naar beneden, de kachel verwarmt wat dichtbij
  * is en de ventilator blaast naar rechts.
@@ -74,9 +74,7 @@ export function opstelling(s: Schakeling): {
       ? [{ m, soort, punt: sensorPunt(m) }]
       : [];
   });
-  const relais = s.modules.filter(
-    (m) => m.soort === "relais" && s.draden.some((d) => d.naar.module === m.id),
-  );
+  const relais = s.modules.filter((m) => heeftApparaat(s, m));
   if (relais.length === 0) return { sensoren, kringen: [] };
   const { rechts } = randen(s);
   const soorten = relais.map(

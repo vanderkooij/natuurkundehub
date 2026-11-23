@@ -18,7 +18,7 @@ import {
 } from "@/sim";
 import { useWerkvlak } from "@/werkvlak/context";
 
-import { bordMaat, kolomKoppen } from "./borden";
+import { bordMaat, heeftApparaat, heeftDraad, kolomKoppen } from "./borden";
 import { BusSvg } from "./BusSvg";
 import {
   buigpuntDoor,
@@ -437,6 +437,7 @@ export function BordLaag(p: Props) {
     spanning: (bus: string) => spanning(m.id, bus),
     stand: Number(p.sim.toestand(m.id)?.stand ?? 0),
     relaisGesloten: p.sim.relaisGesloten(m.id),
+    heeftApparaat: heeftApparaat(p.schakeling, m),
     // Wat de sensor op zijn eigen plek meet.
     omgeving: p.sim.plek(m.id),
     geselecteerd: geselecteerdeModule?.id === m.id,
@@ -792,19 +793,30 @@ export function BordLaag(p: Props) {
           const opties =
             keuze.soort === "sensor"
               ? SENSOREN.map((x, i) => ({ waarde: i, tekst: SENSOR_KEUZE[x] }))
-              : RELAIS_APPARATEN.map((x, i) => ({
-                  waarde: i,
-                  tekst: APPARAAT_KEUZE[x],
-                }));
+              : [
+                  ...RELAIS_APPARATEN.map((x, i) => ({
+                    waarde: i,
+                    tekst: APPARAAT_KEUZE[x],
+                  })),
+                  // Met een draad naar het relais hangt er altijd een apparaat aan.
+                  ...(heeftDraad(p.schakeling, m)
+                    ? []
+                    : [{ waarde: NIETS, tekst: "Niets" }]),
+                ];
           const param = keuze.soort === "sensor" ? "sensor" : "apparaat";
-          const nu = Number(m.params[param] ?? 0);
+          const nu =
+            keuze.soort === "apparaat" && !heeftApparaat(p.schakeling, m)
+              ? NIETS
+              : Number(m.params[param] ?? 0);
           return (
             <KeuzeMenu
               plek={{
                 x: m.x + (keuze.soort === "sensor" ? 70 : 56),
-                y: m.y + 62,
+                y: m.y + (keuze.soort === "sensor" ? 62 : 20),
               }}
               schaal={schaal}
+              // Het relais zit onder aan het bord: daar is onder het knopje geen plek.
+              boven={keuze.soort === "apparaat"}
               titel={
                 keuze.soort === "sensor"
                   ? "Wat zit er in deze bus?"
@@ -812,7 +824,17 @@ export function BordLaag(p: Props) {
               }
               opties={opties.map((o) => ({ ...o, gekozen: o.waarde === nu }))}
               kies={(w) => {
-                p.zetParam(m.id, param, w);
+                if (keuze.soort === "sensor") p.zetParam(m.id, param, w);
+                else
+                  p.zetParams(
+                    {
+                      [m.id]:
+                        w === NIETS
+                          ? { aangesloten: false }
+                          : { apparaat: w, aangesloten: true },
+                    },
+                    `param:${m.id}:apparaat`,
+                  );
                 setKeuze(null);
               }}
             />
@@ -861,6 +883,8 @@ const SENSOR_KEUZE: Record<(typeof SENSOREN)[number], string> = {
   licht: "Lichtsensor (LDR)",
   temperatuur: "Temperatuursensor",
 };
+/** Keuze in het menu: er hangt niets aan het relais. */
+const NIETS = -1;
 const APPARAAT_KEUZE: Record<(typeof RELAIS_APPARATEN)[number], string> = {
   lamp: "Lamp (schijnt op de lichtsensor)",
   kachel: "Kachel (warmt de temperatuursensor op)",
@@ -989,12 +1013,14 @@ function InvoerVak({
 function KeuzeMenu({
   plek,
   schaal,
+  boven = false,
   titel,
   opties,
   kies,
 }: {
   plek: Punt;
   schaal: number;
+  boven?: boolean;
   titel: string;
   opties: { waarde: number; tekst: string; gekozen: boolean }[];
   kies: (waarde: number) => void;
@@ -1003,7 +1029,7 @@ function KeuzeMenu({
     h = 40 + opties.length * 44;
   return (
     <g
-      transform={`translate(${plek.x} ${plek.y}) scale(${1 / schaal}) translate(${-30} 8)`}
+      transform={`translate(${plek.x} ${plek.y}) scale(${1 / schaal}) translate(${-30} ${boven ? -h : 8})`}
     >
       <foreignObject x={0} y={0} width={b} height={h}>
         <div

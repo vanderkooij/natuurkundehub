@@ -42,6 +42,8 @@ interface Props extends ModuleActies {
   stand: number;
   /** Contacten van het relais dicht (volgt de ingang met wat schakeltijd). */
   relaisGesloten: boolean;
+  /** Hangt er een apparaat aan het relais? */
+  heeftApparaat: boolean;
   /** Licht (lux) en gemeten temperatuur (°C) bij de sensoren. */
   omgeving: { licht: number; gemetenTemperatuur: number };
   geselecteerd: boolean;
@@ -876,7 +878,9 @@ function Inhoud(p: Props) {
               y={40}
               style={{ fontSize: 14, fontWeight: 600 }}
             >
-              {RELAIS_APPARATEN[num("apparaat")] ?? "lamp"}
+              {p.heeftApparaat
+                ? (RELAIS_APPARATEN[num("apparaat")] ?? "lamp")
+                : "apparaat"}
             </text>
             <path
               d="M 92 32 l 5 5 l 5 -5"

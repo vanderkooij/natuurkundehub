@@ -29,7 +29,7 @@ import { Werkvlak } from "@/werkvlak/Werkvlak";
 
 import { BordLaag, type Selectie } from "./BordLaag";
 import { EisenKaart } from "./EisenKaart";
-import { maakBord, omhulling, vrijePlek } from "./borden";
+import { heeftApparaat, maakBord, omhulling, vrijePlek } from "./borden";
 import { vormVan } from "./geometrie";
 import { METER, type VoltmeterStand } from "./geometrie";
 import { OmgevingPaneel } from "./OmgevingPaneel";
@@ -145,9 +145,8 @@ export function Editor() {
   const apparaatStand = (soort: (typeof RELAIS_APPARATEN)[number]) => {
     const relais = s.schakeling.modules.filter(
       (m) =>
-        m.soort === "relais" &&
-        RELAIS_APPARATEN[Number(m.params.apparaat ?? 0)] === soort &&
-        s.schakeling.draden.some((d) => d.naar.module === m.id),
+        heeftApparaat(s.schakeling, m) &&
+        RELAIS_APPARATEN[Number(m.params.apparaat ?? 0)] === soort,
     );
     if (relais.length === 0) return null;
     return relais.some((m) => s.sim.relaisGesloten(m.id)) ? "aan" : "uit";

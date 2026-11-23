@@ -10,7 +10,12 @@ import {
   sensorPunt,
   ventilatorFactor,
 } from "@/bord/opstelling";
-import { Simulator, type Schakeling } from "@/sim";
+import {
+  maakModule,
+  RELAIS_APPARATEN,
+  Simulator,
+  type Schakeling,
+} from "@/sim";
 
 const S = { x: 0, y: 0 };
 
@@ -56,6 +61,27 @@ function lantaarn(sensorErgens?: (s: Schakeling) => Schakeling) {
   }
   return { wissels, aan: sim.relaisGesloten(relais) };
 }
+
+describe("welk apparaat aan het relais hangt", () => {
+  const metRelais = (params: Record<string, number | boolean>): Schakeling => {
+    const m = maakModule("relais", "r", 0, 0);
+    return {
+      modules: [{ ...m, params: { ...m.params, ...params } }],
+      draden: [],
+    };
+  };
+
+  it("zonder draad en zonder keuze hangt er niets aan", () => {
+    expect(opstelling(metRelais({})).kringen).toEqual([]);
+  });
+
+  it("een gekozen apparaat staat er meteen, ook zonder draad", () => {
+    for (const [i, soort] of RELAIS_APPARATEN.entries()) {
+      const s = metRelais({ apparaat: i, aangesloten: true });
+      expect(opstelling(s).kringen.map((k) => k.apparaat)).toEqual([soort]);
+    }
+  });
+});
 
 describe("de straatlantaarn uit opdracht 8b", () => {
   it("met de sensor onder de lamp gaat hij knipperen", () => {

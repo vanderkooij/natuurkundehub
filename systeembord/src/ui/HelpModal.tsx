@@ -78,7 +78,7 @@ export function HelpModal({ onClose }: Props) {
           </Row>
           <Row k="relais">
             Tik op het keuzeknopje in het vak van het relais en kies een lamp,
-            kachel of ventilator. Zodra er een draad naar het relais loopt,
+            kachel of ventilator. Meteen (of zodra er een draad loopt)
             verschijnt een tweede stroomkring met een voeding van 12 V. De
             voeding zit aan de onderste twee zwarte bussen van het relais, het
             apparaat aan de bovenste twee. Is het relais dicht, dan loopt er
